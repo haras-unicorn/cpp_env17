@@ -1,6 +1,14 @@
 #ifndef ENV_CLEANUP_MACROS_HPP
 #define ENV_CLEANUP_MACROS_HPP
 
+// global suppress
+
+#ifdef ENV_MESSAGES
+ENV_CLANG_SUPPRESS_POP // messages
+#endif // ENV_MESSAGES
+
+ENV_CLANG_SUPPRESS_POP // clang-tidy
+
 // undef
 
 #if ENV_UNDEF_MACROS

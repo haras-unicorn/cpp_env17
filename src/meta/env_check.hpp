@@ -7,16 +7,16 @@
 
 #define EXPR_CHECK_OPT(_name, _tmp, _application, _extract, _extract_application, _type, _static)         \
     tmp<SPREAD(_tmp), name = ENV::success_t>                                                              \
-        strct CAT(_name, _gs) : public ENV_STD::false_type{};                                             \
+    strct CAT(_name, _gs) : public ENV_STD::false_type{};                                                 \
                                                                                                           \
     tmp<SPREAD(_extract)>                                                                                 \
-        strct CAT(_name, _gs)<SPREAD(_extract_application), SPREAD(_type)> : public ENV_STD::true_type{}; \
+    strct CAT(_name, _gs)<SPREAD(_extract_application), SPREAD(_type)> : public ENV_STD::true_type{};     \
                                                                                                           \
     tmp<SPREAD(_tmp)>                                                                                     \
-        typ(CAT(_name, _gt)) = name CAT(_name, _gs)<SPREAD(_application)>::type;                          \
+    typ(CAT(_name, _gt)) = name CAT(_name, _gs)<SPREAD(_application)>::type;                              \
                                                                                                           \
     tmp<SPREAD(_tmp)>                                                                                     \
-        cmp_obj bool _static CAT(_name, _g) { CAT(_name, _gs)<SPREAD(_application)>::value }
+    cmp_obj bool _static CAT(_name, _g) { CAT(_name, _gs)<SPREAD(_application)>::value }
 
 #define ELABORATE_EXPR_CHECK(_name, _tmp, _application, _extract, _extract_application, ...) \
     EXPR_CHECK_OPT(                                                                          \
@@ -84,8 +84,8 @@ ENV_TEST_CASE("expr check")
 #if ENV_CPP >= 17 // fold expression
     SUBCASE("variadic")
     {
-        REQUIRES(test::test_addable_variadic_g<variadic_vt<int, int, int, int>>);
-        REQUIRES_FALSE(test::test_addable_variadic_g<variadic_vt<int, void, int>>);
+        REQUIRES(test::test_addable_variadic_g<variadic_vt < int, int, int, int>>);
+        REQUIRES_FALSE(test::test_addable_variadic_g<variadic_vt < int, void, int>>);
     }
 #endif // ENV_CPP >= 17
 }
@@ -167,8 +167,8 @@ ENV_TEST_CASE("expr check class")
 
     SUBCASE("variadic")
     {
-        REQUIRES(test::expr_check_class_t::test_addable_variadic_g<variadic_vt<int, int, int, int>>);
-        REQUIRES_FALSE(test::expr_check_class_t::test_addable_variadic_g<variadic_vt<int, void, int>>);
+        REQUIRES(test::expr_check_class_t::test_addable_variadic_g<variadic_vt < int, int, int, int>>);
+        REQUIRES_FALSE(test::expr_check_class_t::test_addable_variadic_g<variadic_vt < int, void, int>>);
     }
 
 #endif // ENV_CPP >= 17
@@ -217,13 +217,14 @@ ENV_TEST_CASE("expr check class")
 
 ENV_NAMESPACE_TEST_BEGIN
 
-COND_CHECK_UNARY(test_const_unary, ENV_STD::is_const_v<T>);
+COND_CHECK_UNARY(test_const_unary, ENV_STD::is_const_v < T >);
 
-COND_CHECK_BINARY(test_const_binary, ENV_STD::is_const_v<TLhs> &&ENV_STD::is_const_v<TRhs>);
+COND_CHECK_BINARY(test_const_binary, ENV_STD::is_const_v < TLhs > && ENV_STD::is_const_v < TRhs >);
 
-COND_CHECK_TERNARY(test_const_ternary, ENV_STD::is_const_v<T1> &&ENV_STD::is_const_v<T2> &&ENV_STD::is_const_v<T3>);
+COND_CHECK_TERNARY(test_const_ternary,
+                   ENV_STD::is_const_v < T1 > && ENV_STD::is_const_v < T2 > && ENV_STD::is_const_v < T3 >);
 
-COND_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v<ENV_STD::is_const<TVar>...>);
+COND_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v < ENV_STD::is_const < TVar >...>);
 
 ENV_NAMESPACE_TEST_END
 
@@ -292,13 +293,14 @@ ENV_NAMESPACE_TEST_BEGIN
 cls cond_check_class_t
 {
 public:
-    COND_CLASS_CHECK_UNARY(test_const_unary, ENV_STD::is_const_v<T>);
+    COND_CLASS_CHECK_UNARY(test_const_unary, ENV_STD::is_const_v < T >);
 
-    COND_CLASS_CHECK_BINARY(test_const_binary, ENV_STD::is_const_v<TLhs> && ENV_STD::is_const_v<TRhs>);
+    COND_CLASS_CHECK_BINARY(test_const_binary, ENV_STD::is_const_v < TLhs > && ENV_STD::is_const_v < TRhs >);
 
-    COND_CLASS_CHECK_TERNARY(test_const_ternary, ENV_STD::is_const_v<T1> && ENV_STD::is_const_v<T2> && ENV_STD::is_const_v<T3>);
+    COND_CLASS_CHECK_TERNARY(test_const_ternary,
+                             ENV_STD::is_const_v < T1 > && ENV_STD::is_const_v < T2 > && ENV_STD::is_const_v < T3 >);
 
-    COND_CLASS_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v<ENV_STD::is_const<TVar>...>);
+    COND_CLASS_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v < ENV_STD::is_const < TVar >...>);
 };
 
 ENV_NAMESPACE_TEST_END
@@ -372,9 +374,6 @@ ENV_TEST_CASE("cond check class")
         __VA_ARGS__)
 
 ENV_NAMESPACE_TEST_BEGIN
-
-EXPR_TMP_UNARY(declval<T>() - declval<T>())
-strct enable_minus_gt{};
 
 TYPE_CHECK_UNARY(test_minus_unary, enable_minus_gt<T>);
 

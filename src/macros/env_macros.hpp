@@ -10,8 +10,8 @@ ENV_TEST_SUITE_BEGIN("macros");
 #include "env_os.hpp"
 #include "env_standard.hpp"
 #include "env_pragma.hpp"
-#include "env_messages.hpp"
 #include "env_suppress.hpp"
+#include "env_messages.hpp"
 
 #include "env_attributes.hpp"
 #include "env_keywords.hpp"

@@ -31,5 +31,18 @@
 *.out
 *.app
 
+
+# builds
 build/
+build_debug/
+build_release/
+build_debug_gcc/
+build_release_gcc/
+build_debug_clang/
+build_release_clang/
+build_debug_msvc/
+build_release_msvc/
+
+# editors, ides
 .vscode/
+.idea/

@@ -37,15 +37,16 @@ DATA_DETECTOR(test_data);
 FUNCTION_DETECTOR(test_function);
 OPERATOR_DETECTOR(plus, operator+, int operator+(int););
 SDATA_DETECTOR(test_sdata);
+
 ALIAS_DETECTOR(test_alias);
 
-strct with_test_sdata_t { let_cmp static test_sdata{.0}; };
+strct with_test_sdata_t { [[maybe_unused]] let_cmp_p static test_sdata{.0}; };
 
 ENV_NAMESPACE_TEST_END
 
 TEST_CASE("members")
 {
-    strct empty_t{};
+    strct empty_t { };
 
     SUBCASE("data detector")
     {
@@ -57,7 +58,7 @@ TEST_CASE("members")
 
     SUBCASE("function detector")
     {
-        strct with_test_function_t { callb test_function(); };
+        strct with_test_function_t { [[maybe_unused]] callb_p test_function(); };
         REQUIRES(test::has_test_function_g<with_test_function_t>);
         REQUIRES_FALSE(test::has_test_function_g<empty_t>);
         REQUIRES_FALSE(test::has_test_function_g<int>);

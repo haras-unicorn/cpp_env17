@@ -1,8 +1,6 @@
 #ifndef ENV_TOKENS_HPP
 #define ENV_TOKENS_HPP
 
-
-
 // basic
 
 #define SKIP
@@ -20,10 +18,11 @@ ENV_TEST_CASE("basic")
 {
     struct
     {
-        void g() {}
-    } test{};
+        void g() { }
+    } test{ };
     test.g EMPTY;
     [[maybe_unused]] int a = OPEN 3 CLOSE COMMA b = 2;
+    static_cast<void>(b);
 
     ERASE(something)
     CONSUME(other, thing)

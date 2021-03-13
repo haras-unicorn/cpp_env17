@@ -17,14 +17,14 @@
 
 ENV_TEST_CASE("attributes")
 {
-    [[OBJECT_ATTRIBUTES]] constexpr int a{};
+    [[OBJECT_ATTRIBUTES]] constexpr int a{ };
     static_cast<void>(a);
 
     struct [[TYPE_ATTRIBUTES]] test_t
     {
         [[RETURN_ATTRIBUTES]] int f() { return 0; }
 
-        NO_RETURN_ATTRIBUTES void g() {}
+        NO_RETURN_ATTRIBUTES void g() { }
     };
 }
 
@@ -70,7 +70,7 @@ ENV_TEST_CASE("unique")
     [[OBJECT_ATTRIBUTES]] static constexpr test::unique_test_t _unique{20};
 
     REQUIRES(_unique == test::unique_test_t{20});
-    REQUIRE_EQT(ENV_STD::underlying_type_t<decltype(_unique)>, int);
+    REQUIRE_EQT(ENV_STD::underlying_type_t < decltype(_unique) >, int);
 }
 
 // unique tag
@@ -95,8 +95,8 @@ ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("unique")
 {
-    REQUIRES(test::unique_tag_test == test::unique_tag_test_t{});
-    REQUIRE_EQT(ENV_STD::underlying_type_t<decltype(test::unique_tag_test)>, int);
+    REQUIRES(test::unique_tag_test == test::unique_tag_test_t{ });
+    REQUIRE_EQT(ENV_STD::underlying_type_t < decltype(test::unique_tag_test) >, int);
 }
 
 #endif // ENV_ATTRIBUTES_HPP

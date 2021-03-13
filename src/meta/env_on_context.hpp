@@ -15,20 +15,22 @@
 ENV_NAMESPACE_TEST_BEGIN
 
 tmp<name T>
-    strct cond_const{
-        ON_COND(ENV_STD::is_const_v<T>) cmp_fn test(int) const noex{ret true;
-}
+strct cond_const
+{
+    ON_COND(ENV_STD::is_const_v < T >) cmp_fn test(int) const noex
+    {
+        ret true;
+    }
 
-cmp_fn test(...) const noex { ret false; }
-}
-;
+    cmp_fn test(...) const noex { ret false; }
+};
 
 ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("cond")
 {
-    REQUIRES(test::cond_const<const int>{}.test(0));
-    REQUIRES_FALSE(test::cond_const<int>{}.test(0));
+    REQUIRES(test::cond_const<const int>{ }.test(0));
+    REQUIRES_FALSE(test::cond_const<int>{ }.test(0));
 }
 
 // TODO: do this for type

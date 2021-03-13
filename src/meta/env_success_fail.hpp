@@ -3,10 +3,10 @@
 
 // tags
 
-enm success_t : bool {}
+enm success_t : bool { }
 cmp_obj_p success{true};
 
-enm fail_t : bool {}
+enm fail_t : bool { }
 cmp_obj_p fail{false};
 
 // check
@@ -31,7 +31,7 @@ tmp<deduc Expr> cmp_obj bool is_fail_n{ENV_STD::is_same_v<ENV_STD::remove_const_
 
 #else // ENV_CPP >= 17
 
-tmp<nullptr_t Expr> cmp_obj bool is_fail_n{true};
+tmp<fail_t Expr> cmp_obj bool is_fail_n{true};
 
 #endif // ENV_CPP >= 17
 
@@ -45,7 +45,7 @@ ENV_TEST_CASE("check success/fail")
         REQUIRES(is_success_n<success>);
 
 #if ENV_CPP >= 17
-        REQUIRES_FALSE(is_success_n<1>);
+        REQUIRES_FALSE(is_success_n<fail>);
 #endif // ENV_CPP >= 17
     }
 
@@ -57,7 +57,7 @@ ENV_TEST_CASE("check success/fail")
         REQUIRES(is_fail_n<fail>);
 
 #if ENV_CPP >= 17
-        REQUIRES_FALSE(is_fail_n<1>);
+        REQUIRES_FALSE(is_fail_n<success>);
 #endif // ENV_CPP >= 17
     }
 }
@@ -68,9 +68,11 @@ ENV_TEST_CASE("check success/fail")
 
 ENV_NAMESPACE_DETAIL_BEGIN
 
-tmp<name... T> strct make_success_vt : value_gnt<success_t, success_t{true}>{};
+tmp<name... T>
+strct make_success_vt : value_gnt<success_t, success_t{true}> { };
 
-tmp<name... T> strct make_fail_vt : value_gnt<fail_t, fail_t{false}>{};
+tmp<name... T>
+strct make_fail_vt : value_gnt<fail_t, fail_t{false}> { };
 
 ENV_NAMESPACE_DETAIL_END
 

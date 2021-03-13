@@ -37,18 +37,18 @@ endfunction()
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT env_ipo_supported)
-if(env_ipo_supported)
+if (env_ipo_supported)
     env_log("IPO is supported.")
 
     function(env_target_set_ipo _name)
         env_target_set(${_name} INTERPROCEDURAL_OPTIMIZATION ON)
     endfunction()
-else()
+else ()
     env_log("IPO is not supported.")
 
     function(env_target_set_ipo _name)
     endfunction()
-endif()
+endif ()
 
 
 # compilation
@@ -74,6 +74,9 @@ function(env_target_definitions _name)
     target_compile_definitions(${_name} ${ARGN})
 endfunction()
 
+
+# warnings
+
 if (MSVC)
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
@@ -81,28 +84,64 @@ if (MSVC)
 
         target_compile_options(${_name} PRIVATE /W4 /WX /permissive- /Zc:__cplusplus)
     endfunction()
-
-    function(env_target_optimize _name)
+elseif (GCC)
+    function(env_target_warn _name)
         env_prefix(${_name} env _name)
-        env_log("Adding optimizations to \"${_name}\".")
+        env_log("Adding warnings to \"${_name}\".")
 
-        target_compile_options(${_name} PRIVATE /O2)
+        target_compile_options(${_name} PRIVATE -Wall -Wextra -pedantic -Werror -ftrack-macro-expansion=0)
     endfunction()
-else()
+elseif (CLANG)
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
         env_log("Adding warnings to \"${_name}\".")
 
         target_compile_options(${_name} PRIVATE -Wall -Wextra -pedantic -Werror)
     endfunction()
-    
+else ()
+    function(env_target_warn _name)
+        env_prefix(${_name} env _name)
+        env_log("Adding warnings to \"${_name}\".")
+    endfunction()
+endif ()
+
+
+# optimizations
+
+if (CMAKE_BUILD_TYPE STREQUAL Release)
+    if (MSVC)
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding optimizations to \"${_name}\".")
+
+            target_compile_options(${_name} PRIVATE /O2)
+        endfunction()
+    elseif (GCC)
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding optimizations to \"${_name}\".")
+
+            target_compile_options(${_name} PRIVATE -O3)
+        endfunction()
+    elseif (CLANG)
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding optimizations to \"${_name}\".")
+
+            target_compile_options(${_name} PRIVATE -O3)
+        endfunction()
+    else ()
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding optimizations to \"${_name}\".")
+        endfunction()
+    endif ()
+else ()
     function(env_target_optimize _name)
         env_prefix(${_name} env _name)
         env_log("Adding optimizations to \"${_name}\".")
-
-        target_compile_options(${_name} PRIVATE -O3)
     endfunction()
-endif()
+endif ()
 
 
 # atomic targets
@@ -142,7 +181,7 @@ function(env_add_test _name _src)
     env_target_set(${_name} CXX_EXTENSIONS OFF)
     env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
     env_target_set_ipo(${_name})
-    
+
     env_target_warn(${_name})
 
     add_test(NAME env_${_name} COMMAND env_${_name})
@@ -158,7 +197,7 @@ function(env_add_bench _name _src)
     env_target_set(${_name} CXX_EXTENSIONS OFF)
     env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
     env_target_set_ipo(${_name})
-    
+
     env_target_warn(${_name})
     env_target_optimize(${_name})
 endfunction()

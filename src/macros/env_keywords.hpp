@@ -1,8 +1,6 @@
 #ifndef ENV_KEYWORDS_HPP
 #define ENV_KEYWORDS_HPP
 
-
-
 // keywords
 
 #define tmp template
@@ -41,7 +39,8 @@
 
 ENV_NAMESPACE_TEST_BEGIN
 
-tmp<name T> struct [[maybe_unused]] template_name_test_t
+tmp<name T>
+struct [[maybe_unused]] template_name_test_t
 {
 };
 
@@ -56,7 +55,7 @@ ENV_TEST_CASE("keyword keywords")
             nonce(b);
             if_cmp(true) ret;
 
-            [[OBJECT_ATTRIBUTES]] cmp decl(1) a{};
+            [[OBJECT_ATTRIBUTES]] cmp decl(1) a{ };
             nonce(a);
             ret;
         }
@@ -64,8 +63,8 @@ ENV_TEST_CASE("keyword keywords")
 
     [[OBJECT_ATTRIBUTES]] auto _i = 1;
     [[OBJECT_ATTRIBUTES]] const auto _scast = scast<int>(_i);
-    [[OBJECT_ATTRIBUTES]] const auto _ccast = ccast<const int &>(_scast);
-    [[OBJECT_ATTRIBUTES]] const auto _rcast = rcast<const ENV_STD::byte *>(&_ccast);
+    [[OBJECT_ATTRIBUTES]] const auto _ccast = ccast<const int&>(_scast);
+    [[OBJECT_ATTRIBUTES]] const auto _rcast = rcast<const ENV_STD::byte*>(&_ccast);
     nonce(_rcast);
 
     class [[TYPE_ATTRIBUTES]] base_t
@@ -73,8 +72,8 @@ ENV_TEST_CASE("keyword keywords")
     };
     class [[TYPE_ATTRIBUTES]] derived_t : public base_t
     {
-    } derived{};
-    [[OBJECT_ATTRIBUTES]] const auto _dcast = dcast<base_t &>(derived);
+    } derived{ };
+    [[OBJECT_ATTRIBUTES]] const auto _dcast = dcast<base_t&>(derived);
     nonce(_dcast);
 
     sass(true);
@@ -103,13 +102,13 @@ ENV_TEST_CASE("keyword keywords")
 
 ENV_TEST_CASE("type keywords")
 {
-    strct s{
-
+    strct s
+    {
     };
-    cls c{};
-    enm e{};
+    cls c { };
+    enm e { };
     typ(t) = s;
-    t a{};
+    t a{ };
     static_cast<void>(a);
 }
 
@@ -181,22 +180,23 @@ ENV_TEST_CASE("object keywords")
 
 ENV_TEST_CASE("function keywords")
 {
-    strct my_struct{
-        fun inl fi(){
+    strct my_struct
+    {
+        fun inl fi()
+        {
             ret 1;
-}
-cmp_fn static fc() { ret 1; }
+        }
+        cmp_fn static fc() { ret 1; }
 
-callb static inl cb()->void {}
-cmp_callb static cbc()->void {}
+        callb static inl cb() -> void { }
+        cmp_callb static cbc() -> void { }
 
-con inl op int() noex { ret 4; }
-cmp_con op double() { ret 4.0; }
+        con inl op int() noex { ret 4; }
+        cmp_con op double() { ret 4.0; }
 
-imp inl op char() { ret 4; }
-cmp_imp op float() { ret 4.0; }
-}
-;
+        imp inl op char() { ret 4; }
+        cmp_imp op float() { ret 4.0; }
+    };
 }
 
 #endif // ENV_KEYWORDS_HPP

@@ -1,8 +1,6 @@
 #ifndef ENV_SCOPE_HPP
 #define ENV_SCOPE_HPP
 
-
-
 // anon, semi
 
 #define ANON(_prefix) INTER(_z, _prefix, __COUNTER__)
@@ -47,14 +45,14 @@ ENV_TEST_CASE("iffy")
 ENV_TEST_CASE("if scope")
 {
     IF(
-        (true),
-        (REQUIRE(true);),
-        (REQUIRE(false);));
+            (true),
+            (REQUIRE(true);),
+            (REQUIRE(false);));
 
     IF(
-        (false),
-        (REQUIRE(false);),
-        (REQUIRE(true);));
+            (false),
+            (REQUIRE(false);),
+            (REQUIRE(true);));
 }
 
 #if ENV_CPP >= 17
@@ -66,14 +64,14 @@ ENV_TEST_CASE("if scope")
 ENV_TEST_CASE("constexpr if")
 {
     CMP_IF(
-        (true),
-        (REQUIRE(true);),
-        (REQUIRE(false);));
+            (true),
+            (REQUIRE(true);),
+            (REQUIRE(false);));
 
     CMP_IF(
-        (false),
-        (REQUIRE(false);),
-        (REQUIRE(true);));
+            (false),
+            (REQUIRE(false);),
+            (REQUIRE(true);));
 }
 
 // when
@@ -133,7 +131,7 @@ ENV_TEST_CASE("elvis")
             auto static _test{1.0};
             return _test++;
         }
-    } test{};
+    } test{ };
 
     REQUIRE_EQ(ELVIS(test(), 2), 1);
 }
@@ -149,7 +147,7 @@ ENV_TEST_CASE("elvis")
     struct
     {
         constexpr auto operator()() const { return 1; }
-    } static constexpr test{};
+    } static constexpr test{ };
     REQUIRE_EQ(CMP_ELVIS(test(), 2), 1);
 }
 
