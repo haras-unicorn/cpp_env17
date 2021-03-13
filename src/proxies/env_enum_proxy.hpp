@@ -3,34 +3,34 @@
 
 // enum concept
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 typ(enum_underlying_t) = int;
 
 enm enum_t : enum_underlying_t{A, B, C};
 
-tmp<name T> cmp_fn underlying_test(enum_c<T> _enum) noex->FWA_STD::underlying_type_t<T> { ret _enum; }
+tmp<name T> cmp_fn underlying_test(enum_c<T> _enum) noex->ENV_STD::underlying_type_t<T> { ret _enum; }
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("enum concept")
 {
-    REQUIRES(FWA_STD::is_enum_v<test::enum_t>);
-    REQUIRES_FALSE(FWA_STD::is_enum_v<int>);
+    REQUIRES(ENV_STD::is_enum_v<test::enum_t>);
+    REQUIRES_FALSE(ENV_STD::is_enum_v<int>);
 
     REQUIRE_EQT(decltype(test::underlying_test(test::enum_t::A)), test::enum_underlying_t);
 }
 
 // proxy class
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name TEnum>
     cls enum_proxy_gt
 {
 public:
     typ(enum_t) = TEnum;
-    typ(underlying_t) = FWA_STD::underlying_type_t<enum_t>;
+    typ(underlying_t) = ENV_STD::underlying_type_t<enum_t>;
     typ(proxy_t) = enum_proxy_gt<enum_t>;
 
 private:
@@ -45,12 +45,12 @@ public:
     CMP_GETTER_FML((), (underlying_t), get_underlying, (static_cast<underlying_t>(_value)));
 
     ELABORATE_ENABLE_IF_COMPAT(
-        (FWA_STD::is_same_v<T, enum_t> || FWA_STD::is_same_v<T, proxy_t>),
-        (FWA_STD::is_same_v<T, enum_t> || FWA_STD::is_same_v<T, proxy_t>),
-        (FWA_STD::is_same_v<T, proxy_t>) // TODO: enum
+        (ENV_STD::is_same_v<T, enum_t> || ENV_STD::is_same_v<T, proxy_t>),
+        (ENV_STD::is_same_v<T, enum_t> || ENV_STD::is_same_v<T, proxy_t>),
+        (ENV_STD::is_same_v<T, proxy_t>) // TODO: enum
     );
 
-    CMP_TMP_HASH { ret FWA_CORE::hash(get_underlying()); };
+    CMP_TMP_HASH { ret ENV::hash(get_underlying()); };
     CMP_TMP_EQUALITY { ret static_cast<underlying_t>(*this) == static_cast<underlying_t>(rhs); };
     CMP_TMP_COMPARISON { ret static_cast<underlying_t>(*this) < static_cast<underlying_t>(rhs); };
 
@@ -58,15 +58,15 @@ public:
     con op underlying_t() const noex { ret get_underlying(); };
 };
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 tmp<name T> typ(enum_proxy_gt) = detail::enum_proxy_gt<enum_c<T>>;
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 typ(enum_proxy_t) = enum_proxy_gt<enum_t>;
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("proxy class")
 {
@@ -113,7 +113,7 @@ ELABORATE_COND_CHECK(
     is_enum_proxy,
     (name TEnumProxy), (TEnumProxy),
     (name TEnum), (detail::enum_proxy_gt<TEnum>),
-    (FWA_STD::is_enum_v<TEnum>));
+    (ENV_STD::is_enum_v<TEnum>));
 
 COND_CONCEPT(enum_proxy, (is_enum_proxy_g<C>));
 
@@ -138,7 +138,7 @@ ENV_TEST_CASE("proxy function")
 
 tmp<name T> cmp_fn underlying_cast(enum_proxy_c<T> proxy) noex->name T::underlying_t { ret proxy; }
 
-COND_TMP_UNARY((FWA_STD::is_enum_v<T> || is_enum_proxy_g<T>))
+COND_TMP_UNARY((ENV_STD::is_enum_v<T> || is_enum_proxy_g<T>))
 typ(underlying_gt) = decltype(underlying_cast(declvalr<T>()));
 
 ENV_TEST_CASE("underlying")

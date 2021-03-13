@@ -4,17 +4,17 @@
 // 0 is considered a power of 2 here because all of this is usually used for containers and
 // sometimes you want an empty container.
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 
 COND_TMP((deduc Exp), (Exp >= 0 && Exp < 64))
 cmp_obj uint64_t pow2{1 << Exp};
 
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 
-COND_TMP((FWA_STD::size_t Exp), (Exp >= 0 && Exp < 64))
+COND_TMP((ENV_STD::size_t Exp), (Exp >= 0 && Exp < 64))
 cmp_obj uint64_t pow2{1 << Exp};
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("make_pow2")
 {
@@ -68,7 +68,7 @@ ENV_TEST_CASE("is_pow2")
 // >> and | the result so that it fills all bits on the right of the highest bit and
 // then just ++ the result for the next highest bit - the next power of two.
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 cmp_fn next_pow2(uint8_t from) noex
 {
@@ -120,7 +120,7 @@ cmp_fn next_pow2(uint64_t from) noex
     return from;
 }
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 tmp<name T>
     cmp_fn next_pow2(arithmetic_c<T> from) noex
@@ -208,13 +208,13 @@ ENV_TEST_CASE("next_pow2")
 
 // align_pow2 - ceiling
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 
 tmp<deduc Pow2, name T>
-#else  // FWA_CPP >= 17
+#else  // ENV_CPP >= 17
 
-tmp<FWA_STD::size_t Pow2, name T>
-#endif // FWA_CPP >= 17
+tmp<ENV_STD::size_t Pow2, name T>
+#endif // ENV_CPP >= 17
     cmp_fn align_pow2(arithmetic_c<T> to_align) noex
 {
     // it doesn't work in the template for some reason

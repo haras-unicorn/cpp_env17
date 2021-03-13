@@ -4,9 +4,9 @@
 // debug/production
 
 #ifdef NDEBUG
-#define DEBUG_FLAG FWA_CORE::falsy
+#define DEBUG_FLAG ENV::falsy
 #else
-#define DEBUG_FLAG FWA_CORE::truthy
+#define DEBUG_FLAG ENV::truthy
 #endif
 
 cmp_obj flag_t is_debug{DEBUG_FLAG};
@@ -23,11 +23,11 @@ TEXT_L(description, dsc, const char *, l_t);
 
 // policies
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 strct exception_policy_s{};
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 strct ignore_exceptions_s : public detail::exception_policy_s{};
 
@@ -51,21 +51,21 @@ cmp_obj adjust_on_exception_s adjust_ex{};
 
 // policy concepts
 
-COND_CHECK_UNARY(is_exception_policy, (FWA_STD::is_base_of_v<detail::exception_policy_s, T>));
+COND_CHECK_UNARY(is_exception_policy, (ENV_STD::is_base_of_v<detail::exception_policy_s, T>));
 
 COND_CONCEPT(exception_policy, (is_exception_policy_g<C>));
 
-COND_CHECK_UNARY(is_unignorable_policy, (is_exception_policy_g<T> && !FWA_STD::is_same_v<T, ignore_exceptions_s>));
+COND_CHECK_UNARY(is_unignorable_policy, (is_exception_policy_g<T> && !ENV_STD::is_same_v<T, ignore_exceptions_s>));
 
 COND_CONCEPT(unignorable_policy, (is_unignorable_policy_g<C>));
 
 // default policies
 
-typ(d_exception_policy_s) = FWA_STD::conditional_t<is_debug, throw_on_exception_s, ignore_exceptions_s>;
+typ(d_exception_policy_s) = ENV_STD::conditional_t<is_debug, throw_on_exception_s, ignore_exceptions_s>;
 
 cmp_obj d_exception_policy_s d_exception_policy{};
 
-typ(d_unignorable_policy_s) = FWA_STD::conditional_t<is_debug, throw_on_exception_s, adjust_on_exception_s>;
+typ(d_unignorable_policy_s) = ENV_STD::conditional_t<is_debug, throw_on_exception_s, adjust_on_exception_s>;
 
 cmp_obj d_unignorable_policy_s d_unignorable_policy{};
 
@@ -90,37 +90,37 @@ ENV_TEST_CASE("exception status")
 
 // exceptions
 
-struct invalid_state_t : public FWA_STD::logic_error
+struct invalid_state_t : public ENV_STD::logic_error
 {
     using logic_error::logic_error;
 };
 
-struct invalid_argument_t : public FWA_STD::logic_error
+struct invalid_argument_t : public ENV_STD::logic_error
 {
     using logic_error::logic_error;
 };
 
 // handling
 
-FWA_CLANG_SUPPRESS_PUSH("ConstantConditionsOC")
-FWA_CLANG_SUPPRESS_PUSH("UnreachableCode")
+ENV_CLANG_SUPPRESS_PUSH("ConstantConditionsOC")
+ENV_CLANG_SUPPRESS_PUSH("UnreachableCode")
 
 callb exit(message_t message)
 {
     CMP_ON((is_debug)__debugbreak(););
 
     if (message == exception_status_s::state_message)
-        FWA_STD::exit(exception_status_s::state_code);
+        ENV_STD::exit(exception_status_s::state_code);
     if (message == exception_status_s::argument_message)
-        FWA_STD::exit(exception_status_s::argument_code);
+        ENV_STD::exit(exception_status_s::argument_code);
 
-    FWA_STD::exit(exception_status_s::default_code);
+    ENV_STD::exit(exception_status_s::default_code);
 }
 
-FWA_CLANG_SUPPRESS_POP
-FWA_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
 
-COND_TMP_UNARY((FWA_STD::is_base_of_v<FWA_STD::exception, T>))
+COND_TMP_UNARY((ENV_STD::is_base_of_v<ENV_STD::exception, T>))
 callb except(message_t message) { throw T{message.data()}; }
 
 // TODO: tests for unignorable stuff
@@ -129,9 +129,9 @@ callb except(message_t message) { throw T{message.data()}; }
 
 #define EXCEPTION_POLICY_TYPE_NAME TExcPol
 
-#define EXCEPTION_POLICY_TEMPLATE_ARGUMENT name EXCEPTION_POLICY_TYPE_NAME = FWA_CORE::d_exception_policy_s
+#define EXCEPTION_POLICY_TEMPLATE_ARGUMENT name EXCEPTION_POLICY_TYPE_NAME = ENV::d_exception_policy_s
 
-#define UNIGNORABLE_POLICY_TEMPLATE_ARGUMENT name EXCEPTION_POLICY_TYPE_NAME = FWA_CORE::d_unignorable_policy_s
+#define UNIGNORABLE_POLICY_TEMPLATE_ARGUMENT name EXCEPTION_POLICY_TYPE_NAME = ENV::d_unignorable_policy_s
 
 #define EXCEPTION_POLICY_ARGUMENT_NAME exc_pol
 
@@ -151,7 +151,7 @@ callb except(message_t message) { throw T{message.data()}; }
 
 // noex
 
-#define IS_NO_THROW_EXCEPTION_POLICY !FWA_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, FWA_CORE::throw_on_exception_s>
+#define IS_NO_THROW_EXCEPTION_POLICY !ENV_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, ENV::throw_on_exception_s>
 #define NOEX_IF_NO_THROW_EXCEPTION_POLICY noex(IS_NO_THROW_EXCEPTION_POLICY)
 
 // shorthand
@@ -163,11 +163,11 @@ callb except(message_t message) { throw T{message.data()}; }
 
 // state
 
-#define SHOULD_IGNORE_EXCEPTION FWA_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, FWA_CORE::ignore_exceptions_s>
-#define SHOULD_EXIT_ON_EXCEPTION FWA_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, FWA_CORE::exit_on_exception_s>
-#define SHOULD_THROW_ON_EXCEPTION FWA_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, FWA_CORE::throw_on_exception_s>
-#define SHOULD_CHECK_EXCEPTIONS FWA_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, FWA_CORE::check_exceptions_s>
-#define SHOULD_ADJUST_ON_EXCEPTION FWA_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, FWA_CORE::adjust_on_exception_s>
+#define SHOULD_IGNORE_EXCEPTION ENV_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, ENV::ignore_exceptions_s>
+#define SHOULD_EXIT_ON_EXCEPTION ENV_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, ENV::exit_on_exception_s>
+#define SHOULD_THROW_ON_EXCEPTION ENV_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, ENV::throw_on_exception_s>
+#define SHOULD_CHECK_EXCEPTIONS ENV_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, ENV::check_exceptions_s>
+#define SHOULD_ADJUST_ON_EXCEPTION ENV_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, ENV::adjust_on_exception_s>
 
 #define WHEN_STATE_ELABORATE(_state_check, _state_exit, _state_throw, _return) \
     CMP_ON((!SHOULD_IGNORE_EXCEPTION),                                         \
@@ -182,15 +182,15 @@ callb except(message_t message) { throw T{message.data()}; }
 #define WHEN_STATE_SIMPLE(_state_check, _state_exception, _state_message, _return) \
     WHEN_STATE_ELABORATE(                                                          \
         _state_check,                                                              \
-        (FWA_CORE::exit(_state_message)),                                          \
-        (FWA_CORE::except<SPREAD(_state_exception)>(_state_message)),              \
+        (ENV::exit(_state_message)),                                               \
+        (ENV::except<SPREAD(_state_exception)>(_state_message)),                   \
         _return)
 
-#define WHEN_STATE(_state_check, _return)            \
-    WHEN_STATE_SIMPLE(                               \
-        _state_check,                                \
-        (FWA_CORE::invalid_state_t),                 \
-        FWA_CORE::exception_status_s::state_message, \
+#define WHEN_STATE(_state_check, _return)       \
+    WHEN_STATE_SIMPLE(                          \
+        _state_check,                           \
+        (ENV::invalid_state_t),                 \
+        ENV::exception_status_s::state_message, \
         _return)
 
 // arg
@@ -205,25 +205,25 @@ callb except(message_t message) { throw T{message.data()}; }
                   CMP_ON((SHOULD_ADJUST_ON_EXCEPTION), SPREAD(_adjust););                      \
               });)
 
-#define WHEN_ARG_SIMPLE(                                                    \
-    _argument_check, _argument_exception, _argument_message,                \
-    _return, _adjust)                                                       \
-    WHEN_ARG_ELABORATE(                                                     \
-        _argument_check,                                                    \
-        (FWA_CORE::exit(_argument_message)),                                \
-        (FWA_CORE::except<SPREAD(_argument_exception)>(_argument_message)), \
-        _return,                                                            \
+#define WHEN_ARG_SIMPLE(                                               \
+    _argument_check, _argument_exception, _argument_message,           \
+    _return, _adjust)                                                  \
+    WHEN_ARG_ELABORATE(                                                \
+        _argument_check,                                               \
+        (ENV::exit(_argument_message)),                                \
+        (ENV::except<SPREAD(_argument_exception)>(_argument_message)), \
+        _return,                                                       \
         _adjust)
 
-#define WHEN_ARG(_argument_check, _return, _adjust)     \
-    WHEN_ARG_SIMPLE(                                    \
-        _argument_check,                                \
-        (FWA_CORE::invalid_argument_t),                 \
-        FWA_CORE::exception_status_s::argument_message, \
-        _return,                                        \
+#define WHEN_ARG(_argument_check, _return, _adjust) \
+    WHEN_ARG_SIMPLE(                                \
+        _argument_check,                            \
+        (ENV::invalid_argument_t),                  \
+        ENV::exception_status_s::argument_message,  \
+        _return,                                    \
         _adjust)
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 struct uint_ptr_proxy_t
 {
@@ -251,7 +251,7 @@ protected:
     CONST_GETTER_FML((), (int &), _get, (*_get_ptr();));
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("exception policies")
 {

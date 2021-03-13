@@ -4,20 +4,20 @@
 // global warning suppression - please add only when necessary!!
 
 // suppress JetBrains and other inspections added by extensions
-FWA_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
 
 // anonymous empty structs - I have no idea why I can't just put this in the ANON_STRUCT macro
-FWA_CLANG_SUPPRESS_POP
-FWA_MSVC_SUPPRESS_POP
-FWA_MSVC_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
+ENV_MSVC_SUPPRESS_POP
+ENV_MSVC_SUPPRESS_POP
 
 // doctest sometimes declares variables with two const qualifiers
-FWA_CLANG_SUPPRESS_POP
-FWA_MSVC_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
+ENV_MSVC_SUPPRESS_POP
 
 // undef
 
-#if FWA_UNDEF_MACROS
+#if ENV_UNDEF_MACROS
 
 // tokens
 
@@ -53,65 +53,65 @@ FWA_MSVC_SUPPRESS_POP
 
 // compiler
 
-#undef FWA_COMPILER_MAJOR
-#undef FWA_COMPILER_MINOR
-#undef FWA_COMPILER_PATCH
-#undef FWA_COMPILER_VER
-#undef FWA_COMPILER_NAME
+#undef ENV_COMPILER_MAJOR
+#undef ENV_COMPILER_MINOR
+#undef ENV_COMPILER_PATCH
+#undef ENV_COMPILER_VER
+#undef ENV_COMPILER_NAME
 
-#undef FWA_MSVC
-#undef FWA_CLANG
-#undef FWA_GCC
+#undef ENV_MSVC
+#undef ENV_CLANG
+#undef ENV_GCC
 
 // arch
 
-#undef FWA_ARCH_NAME
+#undef ENV_ARCH_NAME
 
-#undef FWA_X64
-#undef FWA_X86
-#undef FWA_ARM
+#undef ENV_X64
+#undef ENV_X86
+#undef ENV_ARM
 
 // os
 
-#undef FWA_OS_NAME
+#undef ENV_OS_NAME
 
-#undef FWA_WIN
-#undef FWA_WIN32
-#undef FWA_WIN64
+#undef ENV_WIN
+#undef ENV_WIN32
+#undef ENV_WIN64
 
-#undef FWA_APPLE
-#undef FWA_MAC
-#undef FWA_IOS
-#undef FWA_IOS_SIM
+#undef ENV_APPLE
+#undef ENV_MAC
+#undef ENV_IOS
+#undef ENV_IOS_SIM
 
-#undef FWA_LINUX
-#undef FWA_ANDROID
+#undef ENV_LINUX
+#undef ENV_ANDROID
 
 // standard
 
-#undef FWA_CPP
+#undef ENV_CPP
 
-#undef FWA_CPP98
-#undef FWA_CPP11
-#undef FWA_CPP14
-#undef FWA_CPP17
-#undef FWA_CPP20
-#undef FWA_CPP23
+#undef ENV_CPP98
+#undef ENV_CPP11
+#undef ENV_CPP14
+#undef ENV_CPP17
+#undef ENV_CPP20
+#undef ENV_CPP23
 
 // pragma
 
-#undef FWA_PRAGMA
+#undef ENV_PRAGMA
 
-#undef FWA_MESSAGE
+#undef ENV_MESSAGE
 
-#undef FWA_CLANG_SUPPRESS_PUSH
-#undef FWA_CLANG_SUPPRESS_POP
+#undef ENV_CLANG_SUPPRESS_PUSH
+#undef ENV_CLANG_SUPPRESS_POP
 
-#undef FWA_GCC_SUPPRESS_PUSH
-#undef FWA_GCC_SUPPRESS_POP
+#undef ENV_GCC_SUPPRESS_PUSH
+#undef ENV_GCC_SUPPRESS_POP
 
-#undef FWA_MSVC_SUPPRESS_PUSH
-#undef FWA_MSVC_SUPPRESS_POP
+#undef ENV_MSVC_SUPPRESS_PUSH
+#undef ENV_MSVC_SUPPRESS_POP
 
 // attributes
 
@@ -239,6 +239,6 @@ FWA_MSVC_SUPPRESS_POP
 #undef APP_FML
 #undef FML_BODY
 
-#endif // FWA_UNDEF_MACROS
+#endif // ENV_UNDEF_MACROS
 
 #endif // ENV_CLEANUP_MACROS_HPP

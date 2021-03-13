@@ -1,7 +1,7 @@
 #ifndef ENV_CLEANUP_OPS_HPP
 #undef ENV_CLEANUP_OPS_HPP
 
-#if FWA_UNDEF_OPS
+#if ENV_UNDEF_OPS
 
 // getters
 
@@ -734,6 +734,6 @@
 #undef DEF_ID
 #undef DEF_TMP_ID
 
-#endif // FWA_UNDEF_OPS
+#endif // ENV_UNDEF_OPS
 
 #endif // ENV_CLEANUP_OPS_HPP

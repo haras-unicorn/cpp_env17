@@ -69,14 +69,14 @@ ENV_TEST_CASE("unranked ptr")
 
 // hash
 
-FWA_NAMESPACE_STD_BEGIN
+ENV_NAMESPACE_STD_BEGIN
 
 // https://stackoverflow.com/questions/20953390/what-is-the-fastest-hash-function-for-pointers
 tmp<name TValue>
     strct hash<TValue *> // NOLINT(bugprone-forward-declaration-namespace)
 {
 private:
-    typ(value_t) = FWA_STD::remove_cv_t<TValue>;
+    typ(value_t) = ENV_STD::remove_cv_t<TValue>;
 
     typ(subject_t) = const value_t *;
 
@@ -91,7 +91,7 @@ public:
     }
 };
 
-FWA_NAMESPACE_STD_END
+ENV_NAMESPACE_STD_END
 
 ENV_TEST_CASE("ptr hash")
 {
@@ -99,7 +99,7 @@ ENV_TEST_CASE("ptr hash")
     obj ptr_cgt<int> b = &a;
     obj ptr_ncgt<rank_two, int> c = &b;
 
-    REQUIRE_NE(FWA_STD::hash<ptr_cgt<int>>{}(b), FWA_STD::hash<ptr_ncgt<rank_two, int>>{}(c));
+    REQUIRE_NE(ENV_STD::hash<ptr_cgt<int>>{}(b), ENV_STD::hash<ptr_ncgt<rank_two, int>>{}(c));
 }
 
 // ptr size/align

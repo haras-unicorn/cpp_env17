@@ -31,11 +31,11 @@ COND_CHECK_UNARY(
 
         /* there are requirements on the effects of these */
         /* this one is just weird */
-        FWA_STD::is_convertible_v<decl(declval<T>() != declval<T>()), bool> &&
-        FWA_STD::is_convertible_v<decl(declval<T>() == nullptr), bool> &&
-        FWA_STD::is_convertible_v<decl(nullptr == declval<T>()), bool> &&
-        FWA_STD::is_convertible_v<decl(declval<T>() != nullptr), bool> &&
-        FWA_STD::is_convertible_v<decl(nullptr != declval<T>()), bool>);
+        ENV_STD::is_convertible_v<decl(declval<T>() != declval<T>()), bool> &&
+        ENV_STD::is_convertible_v<decl(declval<T>() == nullptr), bool> &&
+        ENV_STD::is_convertible_v<decl(nullptr == declval<T>()), bool> &&
+        ENV_STD::is_convertible_v<decl(declval<T>() != nullptr), bool> &&
+        ENV_STD::is_convertible_v<decl(nullptr != declval<T>()), bool>);
 
 ENV_TEST_CASE("nullable pointer")
 {
@@ -47,7 +47,7 @@ ENV_TEST_CASE("nullable pointer")
 // this is very hard to get right, but I hope it is good enough
 COND_CHECK_UNARY(
     is_std_function_object,
-    FWA_STD::is_object_v<T> &&
+    ENV_STD::is_object_v<T> &&
             is_callable_g<T> &&
         !is_callable_member_g<T>);
 
@@ -81,7 +81,7 @@ COND_CHECK_UNARY(
 
 ENV_TEST_CASE("hash")
 {
-    STD_REQUIRE(is_std_hash_g<FWA_STD::hash<int>>);
+    STD_REQUIRE(is_std_hash_g<ENV_STD::hash<int>>);
     STD_REQUIRE_FALSE(is_std_hash_g<int>);
 }
 

@@ -3,7 +3,7 @@
 
 #include "structure/env_structure.hpp"
 
-FWA_NAMESPACE_CORE_BEGIN
+ENV_NAMESPACE_CORE_BEGIN
 
 ENV_TEST_SUITE_BEGIN("core");
 
@@ -18,6 +18,6 @@ ENV_TEST_SUITE_BEGIN("core");
 
 ENV_TEST_SUITE_END();
 
-FWA_NAMESPACE_CORE_END
+ENV_NAMESPACE_CORE_END
 
 #endif // ENV_HPP

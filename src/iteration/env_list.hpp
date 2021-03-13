@@ -3,7 +3,7 @@
 
 // aliases
 
-tmp<name TElements> typ(list_gt) = FWA_STD::vector<TElements, allocator_gt<TElements>>;
+tmp<name TElements> typ(list_gt) = ENV_STD::vector<TElements, allocator_gt<TElements>>;
 
 tmp<name TElements> typ(view_list_gt) = list_gt<ptr_gt<TElements>>;
 
@@ -35,7 +35,7 @@ tmp<name TElements>
     return result;
 }
 
-COND_TMP((name TElements, name... TArgs), (FWA_STD::is_constructible_v<TElements, const TArgs &...>))
+COND_TMP((name TElements, name... TArgs), (ENV_STD::is_constructible_v<TElements, const TArgs &...>))
 fun inl slst(size_t size, const TArgs &...args)->list_gt<TElements>
 {
     mut result = slst<TElements>(size);
@@ -64,14 +64,14 @@ ENV_TEST_CASE("sized list")
     {
         let _copy = slst(10_s, 1);
         REQUIRE_EQ(_copy.capacity(), 16);
-        REQUIRE(FWA_STD::all_of(_copy.begin(), _copy.end(), [](auto current) { return current == 1; }));
+        REQUIRE(ENV_STD::all_of(_copy.begin(), _copy.end(), [](auto current) { return current == 1; }));
     }
 
     SUBCASE("emplace")
     {
         let _emplace = slst<int>(10_s, 2);
         REQUIRE_EQ(_emplace.capacity(), 16);
-        REQUIRE(FWA_STD::all_of(_emplace.begin(), _emplace.end(), [](auto current) { return current == 2; }));
+        REQUIRE(ENV_STD::all_of(_emplace.begin(), _emplace.end(), [](auto current) { return current == 2; }));
     }
 }
 
@@ -79,23 +79,23 @@ ENV_TEST_CASE("sized list")
 
 // TODO: make this better
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name TCommon, name... TElements>
     typ(container_common_vt) =
         common_vt<
-            FWA_STD::conditional_t<FWA_STD::is_same_v<TCommon, void_t>,
+            ENV_STD::conditional_t<ENV_STD::is_same_v<TCommon, void_t>,
                                    name variadic_vt<TElements...>::tmp at_nt<0>,
                                    TCommon>,
             TElements...>;
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 COND_TMP((name TCommon = void_t, name... TElements), (sizeof...(TElements) != empty))
 fun inl lst(TElements &&...elements)->list_gt<detail::container_common_vt<TCommon, TElements...>>
 {
     mut result = slst<detail::container_common_vt<TCommon, TElements...>>(size_t{sizeof...(TElements)});
-    ((result.emplace_back(FWA_STD::forward<TElements>(elements))), ...);
+    ((result.emplace_back(ENV_STD::forward<TElements>(elements))), ...);
 
     return result;
 }
@@ -130,7 +130,7 @@ ENV_TEST_CASE("list")
         }
         to_copy{}, to_move{};
 
-        mut result{lst(to_copy, FWA_STD::move(to_move), test_t{})};
+        mut result{lst(to_copy, ENV_STD::move(to_move), test_t{})};
         REQUIRE_EQ(result[0].get_label(), "copied");
         REQUIRE_EQ(result[1].get_label(), "moved");
         REQUIRE_EQ(result[2].get_label(), "moved");
@@ -171,9 +171,9 @@ ENV_TEST_CASE("list")
         mut result{
             lst<base_t>(
                 derived_to_copy,
-                FWA_STD::move(derived_to_move),
+                ENV_STD::move(derived_to_move),
                 other_derived_to_copy,
-                FWA_STD::move(other_derived_to_move),
+                ENV_STD::move(other_derived_to_move),
                 other_derived_t{})};
         REQUIRE_EQ(result[0].get_label(), "copied");
         REQUIRE_EQ(result[1].get_label(), "moved");

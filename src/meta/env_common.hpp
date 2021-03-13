@@ -2,7 +2,7 @@
 #define ENV_COMMON_HPP
 
 tmp<name... T>
-    typ(common_vt) = FWA_STD::common_type_t<FWA_CORE::unqualified_gt<T>...>;
+    typ(common_vt) = ENV_STD::common_type_t<ENV::unqualified_gt<T>...>;
 
 ENV_TEST_CASE("common")
 {

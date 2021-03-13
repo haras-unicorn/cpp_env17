@@ -3,13 +3,13 @@
 
 // stolen from: https://www.youtube.com/watch?t=56m34s&v=nXaxk27zwlk
 
-FWA_NAMESPACE_CORE_BEGIN
+ENV_NAMESPACE_CORE_BEGIN
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 [[maybe_unused]] void escape([[maybe_unused]] void *_this) noexcept
 {
-#if FWA_GCC || FWA_CLANG // TODO: check if clang has this extension
+#if ENV_GCC || ENV_CLANG // TODO: check if clang has this extension
     asm volatile(""
                  :
                  : "g"(_this)
@@ -21,7 +21,7 @@ FWA_NAMESPACE_TEST_BEGIN
 
 [[maybe_unused]] void clobber() noexcept
 {
-#if FWA_GCC || FWA_CLANG // TODO: check if clang has this extension
+#if ENV_GCC || ENV_CLANG // TODO: check if clang has this extension
     asm volatile(""
                  :
                  :
@@ -31,8 +31,8 @@ FWA_NAMESPACE_TEST_BEGIN
 #endif
 }
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
-FWA_NAMESPACE_CORE_END
+ENV_NAMESPACE_CORE_END
 
 #endif // ENV_PERF_HPP

@@ -6,32 +6,32 @@
 COND_CHECK_UNARY(
     is_number_literal,
     (
-        (FWA_STD::is_same_v<T, unsigned long long int>) ||
-        (FWA_STD::is_same_v<T, long double>)));
+        (ENV_STD::is_same_v<T, unsigned long long int>) ||
+        (ENV_STD::is_same_v<T, long double>)));
 
 COND_CONCEPT(number_literal, (is_number_literal_g<C>));
 
 COND_TMP((res_name, name T), (is_number_literal_g<T>))
 cmp_fn parse_literal(T literal) noex->deduc_res(T)
 {
-        if_cmp(FWA_STD::is_enum_v<TRes>) ret scast<TRes>(FWA_CORE::parse_literal<FWA_STD::underlying_type_t<TRes>>(literal));
+        if_cmp(ENV_STD::is_enum_v<TRes>) ret scast<TRes>(ENV::parse_literal<ENV_STD::underlying_type_t<TRes>>(literal));
         else ret clamp_cast<TRes>(literal);
 }
 
 // chars
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name T> let_cmp is_char_literal_g =
-    FWA_STD::is_same_v<T, char> ||
-    FWA_STD::is_same_v<T, wchar_t> ||
-#if FWA_CPP >= 20
-    FWA_STD::is_same_v<T, char8_t> || // this is why this is in detail
-#endif                                // FWA_CPP >= 20
-    FWA_STD::is_same_v<T, char16_t> ||
-    FWA_STD::is_same_v<T, char32_t>;
+    ENV_STD::is_same_v<T, char> ||
+    ENV_STD::is_same_v<T, wchar_t> ||
+#if ENV_CPP >= 20
+    ENV_STD::is_same_v<T, char8_t> || // this is why this is in detail
+#endif                                // ENV_CPP >= 20
+    ENV_STD::is_same_v<T, char16_t> ||
+    ENV_STD::is_same_v<T, char32_t>;
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 COND_CHECK_UNARY(is_char_literal, (detail::is_char_literal_g<T>));
 
@@ -40,36 +40,36 @@ COND_CONCEPT(char_literal, (detail::is_char_literal_g<C>));
 COND_TMP((res_name, name T), (is_char_literal_g<T>))
 cmp_fn parse_literal(T literal) noex->deduc_res(T)
 {
-        if_cmp(FWA_STD::is_same_v<TRes, T> || FWA_STD::is_same_v<TRes, nores_t>) ret literal;
-        else if_cmp(FWA_STD::is_enum_v<TRes>) ret scast<TRes>(parse_literal<FWA_STD::underlying_type_t<TRes>>(literal));
+        if_cmp(ENV_STD::is_same_v<TRes, T> || ENV_STD::is_same_v<TRes, nores_t>) ret literal;
+        else if_cmp(ENV_STD::is_enum_v<TRes>) ret scast<TRes>(parse_literal<ENV_STD::underlying_type_t<TRes>>(literal));
         else
         {
-                let cmp max = FWA_STD::numeric_limits<TRes>::max();
+                let cmp max = ENV_STD::numeric_limits<TRes>::max();
                 ret scast<TRes>(literal > max ? max : literal);
         }
 }
 
 // labels
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name T> let_cmp is_label_literal_g =
-    FWA_STD::is_same_v<T, const char *> ||
-    FWA_STD::is_same_v<T, const wchar_t *> ||
-#if FWA_CPP >= 20
-    FWA_STD::is_same_v<TLiteral, const char8_t *> || // this is why this is in detail
-#endif                                               // FWA_CPP >= 20
-    FWA_STD::is_same_v<T, const char16_t *> ||
-    FWA_STD::is_same_v<T, const char32_t *>;
+    ENV_STD::is_same_v<T, const char *> ||
+    ENV_STD::is_same_v<T, const wchar_t *> ||
+#if ENV_CPP >= 20
+    ENV_STD::is_same_v<TLiteral, const char8_t *> || // this is why this is in detail
+#endif                                               // ENV_CPP >= 20
+    ENV_STD::is_same_v<T, const char16_t *> ||
+    ENV_STD::is_same_v<T, const char32_t *>;
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 COND_CHECK_UNARY(is_label_literal, (detail::is_label_literal_g<T>));
 
 COND_CONCEPT(label_literal, (detail::is_label_literal_g<C>));
 
-COND_TMP((res_name, name T), (is_label_literal_g<T> && FWA_STD::is_constructible_v<TRes, T, FWA_STD::size_t>))
-cmp_fn parse_literal(T literal, FWA_STD::size_t size) noex->deduc_res(T) { ret res_con(literal, size); }
+COND_TMP((res_name, name T), (is_label_literal_g<T> && ENV_STD::is_constructible_v<TRes, T, ENV_STD::size_t>))
+cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret res_con(literal, size); }
 
 // declarations
 
@@ -77,64 +77,64 @@ cmp_fn parse_literal(T literal, FWA_STD::size_t size) noex->deduc_res(T) { ret r
         typ(CAT(_name, _t)) = __VA_ARGS__;                                                \
         cmp_fn op "" CAT(_, _suffix)(unsigned long long int literal) noex->CAT(_name, _t) \
         {                                                                                 \
-                ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); \
+                ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal));      \
         }                                                                                 \
         SCOPE_SEMI
 
-#define FLOATING_L(_name, _suffix, ...)                                                   \
-        typ(CAT(_name, _t)) = __VA_ARGS__;                                                \
-        cmp_fn op "" CAT(_, _suffix)(long double literal) noex->CAT(_name, _t)            \
-        {                                                                                 \
-                ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); \
-        }                                                                                 \
+#define FLOATING_L(_name, _suffix, ...)                                              \
+        typ(CAT(_name, _t)) = __VA_ARGS__;                                           \
+        cmp_fn op "" CAT(_, _suffix)(long double literal) noex->CAT(_name, _t)       \
+        {                                                                            \
+                ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
+        }                                                                            \
         SCOPE_SEMI
 
-#define CHAR_L(_name, _suffix, _literal, ...)                                             \
-        typ(CAT(_name, _t)) = __VA_ARGS__;                                                \
-        cmp_fn op "" CAT(_, _suffix)(_literal literal) noex->CAT(_name, _t)               \
-        {                                                                                 \
-                ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); \
-        }                                                                                 \
+#define CHAR_L(_name, _suffix, _literal, ...)                                        \
+        typ(CAT(_name, _t)) = __VA_ARGS__;                                           \
+        cmp_fn op "" CAT(_, _suffix)(_literal literal) noex->CAT(_name, _t)          \
+        {                                                                            \
+                ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
+        }                                                                            \
         SCOPE_SEMI
 
 #define TEXT_L(_name, _suffix, _literal, ...)                                                     \
         typ(CAT(_name, _t)) = __VA_ARGS__;                                                        \
-        cmp_fn op "" CAT(_, _suffix)(_literal literal, FWA_STD::size_t size) noex->CAT(_name, _t) \
+        cmp_fn op "" CAT(_, _suffix)(_literal literal, ENV_STD::size_t size) noex->CAT(_name, _t) \
         {                                                                                         \
-                ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal, size));   \
+                ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal, size));        \
         }                                                                                         \
         SCOPE_SEMI
 
-#define RT_TEXT_L(_name, _suffix, _literal, ...)                                                \
-        typ(CAT(_name, _t)) = __VA_ARGS__;                                                      \
-        fun inl op "" CAT(_, _suffix)(_literal literal, FWA_STD::size_t size)->CAT(_name, _t)   \
-        {                                                                                       \
-                ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal, size)); \
-        }                                                                                       \
+#define RT_TEXT_L(_name, _suffix, _literal, ...)                                              \
+        typ(CAT(_name, _t)) = __VA_ARGS__;                                                    \
+        fun inl op "" CAT(_, _suffix)(_literal literal, ENV_STD::size_t size)->CAT(_name, _t) \
+        {                                                                                     \
+                ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal, size));    \
+        }                                                                                     \
         SCOPE_SEMI
 
 #define WHOLE_UL(_name, _suffix, ...)                                                     \
         UNIQUE(_name, __VA_ARGS__);                                                       \
         cmp_fn op "" CAT(_, _suffix)(unsigned long long int literal) noex->CAT(_name, _t) \
         {                                                                                 \
-                ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); \
+                ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal));      \
         }                                                                                 \
         SCOPE_SEMI
 
-#define FLOATING_UL(_name, _suffix, ...)                                                  \
-        UNIQUE(_name, __VA_ARGS__);                                                       \
-        cmp_fn op "" CAT(_, _suffix)(long double literal) noex->CAT(_name, _t)            \
-        {                                                                                 \
-                ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); \
-        }                                                                                 \
+#define FLOATING_UL(_name, _suffix, ...)                                             \
+        UNIQUE(_name, __VA_ARGS__);                                                  \
+        cmp_fn op "" CAT(_, _suffix)(long double literal) noex->CAT(_name, _t)       \
+        {                                                                            \
+                ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
+        }                                                                            \
         SCOPE_SEMI
 
-#define CHAR_UL(_name, _suffix, _literal, ...)                                            \
-        UNIQUE(_name, __VA_ARGS__);                                                       \
-        cmp_fn op "" CAT(_, _suffix)(_literal literal) noex->CAT(_name, _t)               \
-        {                                                                                 \
-                ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); \
-        }                                                                                 \
+#define CHAR_UL(_name, _suffix, _literal, ...)                                       \
+        UNIQUE(_name, __VA_ARGS__);                                                  \
+        cmp_fn op "" CAT(_, _suffix)(_literal literal) noex->CAT(_name, _t)          \
+        {                                                                            \
+                ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
+        }                                                                            \
         SCOPE_SEMI
 
 // real
@@ -173,9 +173,9 @@ CHAR_L(c, c, char, char);
 
 CHAR_L(wc, wc, wchar_t, wchar_t);
 
-#if FWA_CPP >= 20
+#if ENV_CPP >= 20
 CHAR_L(c8, c8, char8_t, char8_t);
-#endif // FWA_CPP >= 20
+#endif // ENV_CPP >= 20
 
 CHAR_L(c16, c16, char16_t, char16_t);
 
@@ -183,21 +183,21 @@ CHAR_L(c32, c32, char32_t, char32_t);
 
 // text
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 
-TEXT_L(l, l, const char *, FWA_STD::string_view);
+TEXT_L(l, l, const char *, ENV_STD::string_view);
 
-TEXT_L(lw, lw, const wchar_t *, FWA_STD::wstring_view);
+TEXT_L(lw, lw, const wchar_t *, ENV_STD::wstring_view);
 
-#if FWA_CPP >= 20
-TEXT(l8, l8, const char8_t *, FWA_STD::u8string_view);
-#endif // FWA_CPP >= 20
+#if ENV_CPP >= 20
+TEXT(l8, l8, const char8_t *, ENV_STD::u8string_view);
+#endif // ENV_CPP >= 20
 
-TEXT_L(l16, l16, const char16_t *, FWA_STD::u16string_view);
+TEXT_L(l16, l16, const char16_t *, ENV_STD::u16string_view);
 
-TEXT_L(l32, l32, const char32_t *, FWA_STD::u32string_view);
+TEXT_L(l32, l32, const char32_t *, ENV_STD::u32string_view);
 
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 
 TEXT_L(l, l, const char *, const char *);
 
@@ -207,7 +207,7 @@ TEXT_L(l16, l16, const char16_t *, const char16_t *);
 
 TEXT_L(l32, l32, const char32_t *, const char16_t *);
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 // idealistic
 
@@ -228,7 +228,7 @@ let_cmp pi{PI}, e{E};
 
 CHAR_L(char, c, char32_t, char32_t);
 
-TEXT_L(label, l, const char32_t *, FWA_STD::u32string_view);
+TEXT_L(label, l, const char32_t *, ENV_STD::u32string_view);
 
 // special
 
@@ -241,6 +241,6 @@ let_cmp
     yes{truthy}, no{falsy},
     active{truthy}, inactive{falsy};
 
-WHOLE_L(byte, b, FWA_STD::byte);
+WHOLE_L(byte, b, ENV_STD::byte);
 
 #endif // ENV_LITERALS_HPP

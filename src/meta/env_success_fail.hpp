@@ -11,29 +11,29 @@ cmp_obj_p fail{false};
 
 // check
 
-tmp<name T> cmp_obj bool is_success_g{FWA_STD::is_same_v<T, success_t>};
+tmp<name T> cmp_obj bool is_success_g{ENV_STD::is_same_v<T, success_t>};
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 
-tmp<deduc Expr> cmp_obj bool is_success_n{FWA_STD::is_same_v<decl(Expr), success_t>};
+tmp<deduc Expr> cmp_obj bool is_success_n{ENV_STD::is_same_v<decl(Expr), success_t>};
 
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 
 tmp<nullptr_t Expr> cmp_obj bool is_success_n{true};
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
-tmp<name T> cmp_obj bool is_fail_g{FWA_STD::is_same_v<T, fail_t>};
+tmp<name T> cmp_obj bool is_fail_g{ENV_STD::is_same_v<T, fail_t>};
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 
-tmp<deduc Expr> cmp_obj bool is_fail_n{FWA_STD::is_same_v<decl(Expr), fail_t>};
+tmp<deduc Expr> cmp_obj bool is_fail_n{ENV_STD::is_same_v<decl(Expr), fail_t>};
 
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 
 tmp<nullptr_t Expr> cmp_obj bool is_fail_n{true};
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("check success/fail")
 {
@@ -44,9 +44,9 @@ ENV_TEST_CASE("check success/fail")
 
         REQUIRES(is_success_n<success>);
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
         REQUIRES_FALSE(is_success_n<1>);
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
     }
 
     SUBCASE("fail")
@@ -56,9 +56,9 @@ ENV_TEST_CASE("check success/fail")
 
         REQUIRES(is_fail_n<fail>);
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
         REQUIRES_FALSE(is_fail_n<1>);
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
     }
 }
 
@@ -66,7 +66,7 @@ ENV_TEST_CASE("check success/fail")
 
 // Explanation: https://stackoverflow.com/questions/66261570/c-sfinae-not-failing
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name... T>
     strct make_success_vt : value_gnt<success_t, success_t{true}>{};
@@ -74,7 +74,7 @@ tmp<name... T>
 tmp<name... T>
     strct make_fail_vt : value_gnt<fail_t, fail_t{false}>{};
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 tmp<name... T> typ(success_vt) = name detail::make_success_vt<T...>::value_type;
 

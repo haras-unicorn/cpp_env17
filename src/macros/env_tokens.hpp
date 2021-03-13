@@ -42,7 +42,7 @@ ENV_TEST_CASE("basic")
 
 ENV_TEST_CASE("strings")
 {
-    const auto string = FWA_STD::string{STRING(INTER(first_, second_, CAT(third_, fourth)))};
+    const auto string = ENV_STD::string{STRING(INTER(first_, second_, CAT(third_, fourth)))};
 
     REQUIRE_EQ(string, "first_second_third_fourth");
 }

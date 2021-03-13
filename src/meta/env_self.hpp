@@ -6,8 +6,8 @@
 #define DECL_THIS(_name)                              \
     ACCESS_BEGIN(private);                            \
     typ(_this_t) = _name;                             \
-    typ(_this_ct) = FWA_STD::add_const_t<_this_t>;    \
-    typ(_this_mt) = FWA_STD::remove_const_t<_this_t>; \
+    typ(_this_ct) = ENV_STD::add_const_t<_this_t>;    \
+    typ(_this_mt) = ENV_STD::remove_const_t<_this_t>; \
                                                       \
     typ(_this_ptr_t) = _this_t *;                     \
     typ(_c_this_ptr_t) = _this_ct *;                  \
@@ -37,18 +37,18 @@ ENV_TEST_CASE("this type")
 strct no_inheritor_s
 {
 public:
-    COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, (FWA_CORE::first_nv<false, T>));
+    COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, (ENV::first_nv<false, T>));
 
-    COND_CLASS_CHECK_UNARY(is_equality_compatible_with, (FWA_CORE::first_nv<false, T>));
+    COND_CLASS_CHECK_UNARY(is_equality_compatible_with, (ENV::first_nv<false, T>));
 
-    COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, (FWA_CORE::first_nv<false, T>));
+    COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, (ENV::first_nv<false, T>));
 };
 
 tmp<name TInheritor>
-    let_cmp is_inheritor_g{!FWA_STD::is_same_v<TInheritor, no_inheritor_s>};
+    let_cmp is_inheritor_g{!ENV_STD::is_same_v<TInheritor, no_inheritor_s>};
 
 tmp<name TThis, name TInheritor>
-    typ(self_ggt) = FWA_STD::conditional_t<is_inheritor_g<TInheritor>, TInheritor, TThis>;
+    typ(self_ggt) = ENV_STD::conditional_t<is_inheritor_g<TInheritor>, TInheritor, TThis>;
 
 ENV_TEST_CASE("no inheritor type")
 {
@@ -82,13 +82,13 @@ ENV_TEST_CASE("no inheritor type")
 
 // inheritor type
 
-#define inheritor_name name TInheritor = FWA_CORE::no_inheritor_s
+#define inheritor_name name TInheritor = ENV::no_inheritor_s
 
 #define DECL_INHERITOR_TYPE(_type)                              \
     ACCESS_BEGIN(private);                                      \
     typ(_inheritor_t) = SPREAD(_type);                          \
-    typ(_inheritor_ct) = FWA_STD::add_const_t<_inheritor_t>;    \
-    typ(_inheritor_mt) = FWA_STD::remove_const_t<_inheritor_t>; \
+    typ(_inheritor_ct) = ENV_STD::add_const_t<_inheritor_t>;    \
+    typ(_inheritor_mt) = ENV_STD::remove_const_t<_inheritor_t>; \
                                                                 \
     typ(_inheritor_ptr_t) = _inheritor_t *;                     \
     typ(_c_inheritor_ptr_t) = _inheritor_ct *;                  \
@@ -97,7 +97,7 @@ ENV_TEST_CASE("no inheritor type")
 
 #define DECL_INHERITOR DECL_INHERITOR_TYPE((TInheritor))
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 tmp<inheritor_name>
     strct with_inheritor
@@ -112,7 +112,7 @@ tmp<inheritor_name>
     }
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("inheritor type")
 {
@@ -121,27 +121,27 @@ ENV_TEST_CASE("inheritor type")
 
 // self
 
-#define DECL_SELF_INHERITOR(_name, _inheritor_type)                                         \
-    DECL_THIS(_name);                                                                       \
-    DECL_INHERITOR_TYPE(_inheritor_type);                                                   \
-                                                                                            \
-    ACCESS_BEGIN(private);                                                                  \
-    cmp_obj static bool _has_inheritor = FWA_CORE::is_inheritor_g<SPREAD(_inheritor_type)>; \
-                                                                                            \
-    typ(_self_t) = FWA_CORE::self_ggt<_this_t, SPREAD(_inheritor_type)>;                    \
-    typ(_self_ct) = FWA_STD::add_const_t<_self_t>;                                          \
-    typ(_self_mt) = FWA_STD::remove_const_t<_self_t>;                                       \
-                                                                                            \
-    typ(_self_ptr_t) = _self_t *;                                                           \
-    typ(_c_self_ptr_t) = _self_ct *;                                                        \
-    typ(_m_self_ptr_t) = _self_mt *;                                                        \
+#define DECL_SELF_INHERITOR(_name, _inheritor_type)                                    \
+    DECL_THIS(_name);                                                                  \
+    DECL_INHERITOR_TYPE(_inheritor_type);                                              \
+                                                                                       \
+    ACCESS_BEGIN(private);                                                             \
+    cmp_obj static bool _has_inheritor = ENV::is_inheritor_g<SPREAD(_inheritor_type)>; \
+                                                                                       \
+    typ(_self_t) = ENV::self_ggt<_this_t, SPREAD(_inheritor_type)>;                    \
+    typ(_self_ct) = ENV_STD::add_const_t<_self_t>;                                     \
+    typ(_self_mt) = ENV_STD::remove_const_t<_self_t>;                                  \
+                                                                                       \
+    typ(_self_ptr_t) = _self_t *;                                                      \
+    typ(_c_self_ptr_t) = _self_ct *;                                                   \
+    typ(_m_self_ptr_t) = _self_mt *;                                                   \
     ACCESS_END(public)
 
 #define DECL_SELF(_name) DECL_SELF_INHERITOR(_name, (TInheritor))
 
-#define DECL_SELF_NO_INHERITOR(_name) DECL_SELF_INHERITOR(_name, (FWA_CORE::no_inheritor_s))
+#define DECL_SELF_NO_INHERITOR(_name) DECL_SELF_INHERITOR(_name, (ENV::no_inheritor_s))
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 tmp<inheritor_name>
     strct with_self_t
@@ -176,7 +176,7 @@ strct with_self_no_inheritor_t
     }
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("self")
 {
@@ -211,8 +211,8 @@ ENV_TEST_CASE("self")
 #define DECL_BASE(_name, _type)                                            \
     ACCESS_BEGIN(private);                                                 \
     typ(BASE_NAME(_name)) = SPREAD(_type);                                 \
-    typ(BASE_CONST_NAME(_name)) = FWA_STD::add_const_t<BASE_NAME(_name)>;  \
-    typ(BASE_MUT_NAME(_name)) = FWA_STD::remove_const_t<BASE_NAME(_name)>; \
+    typ(BASE_CONST_NAME(_name)) = ENV_STD::add_const_t<BASE_NAME(_name)>;  \
+    typ(BASE_MUT_NAME(_name)) = ENV_STD::remove_const_t<BASE_NAME(_name)>; \
                                                                            \
     typ(BASE_PTR_NAME(_name)) = BASE_NAME(_name) *;                        \
     typ(BASE_CONST_PTR_NAME(_name)) = BASE_CONST_NAME(_name) *;            \
@@ -267,7 +267,7 @@ ENV_TEST_CASE("bases")
     DECL_BASE(_name, _type);    \
     friend BASE_NAME(_name)
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 tmp<name TInheritor = no_inheritor_s>
     cls crtp_t
@@ -282,7 +282,7 @@ protected:
     cmp_fn _get_label() const noex->const char * { ret "base"; }
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("self getters")
 {
@@ -292,11 +292,11 @@ ENV_TEST_CASE("self getters")
         CRTP_BASE(crtp, (test::crtp_t<subclass_t>));
 
     protected:
-        FWA_CLANG_SUPPRESS_PUSH("HidingNonVirtualFunction")
+        ENV_CLANG_SUPPRESS_PUSH("HidingNonVirtualFunction")
 
         cmp_fn _get_label() const noex->const char * { ret "derived"; }
 
-        FWA_CLANG_SUPPRESS_POP
+        ENV_CLANG_SUPPRESS_POP
     };
 
     subclass_t sub{};

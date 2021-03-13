@@ -10,7 +10,7 @@
         namespace                                                                        \
         {                                                                                \
             strct fallback_t{__VA_ARGS__};                                               \
-            COND_TMP_UNARY(FWA_STD::is_class_v<T>)                                       \
+            COND_TMP_UNARY(ENV_STD::is_class_v<T>)                                       \
             strct derived_gt : T, fallback_t{};                                          \
             EXPR_CHECK_UNARY(CAT(hasnt_, _name), _get);                                  \
         }                                                                                \
@@ -29,7 +29,7 @@
 #define SDATA_DETECTOR(_name) EXPR_CHECK_UNARY(CAT(has_, _name), T::_name);
 #define ALIAS_DETECTOR(_name) TYPE_CHECK_UNARY(CAT(has_, _name), name T::_name);
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 DATA_DETECTOR(test_data);
 FUNCTION_DETECTOR(test_function);
@@ -39,7 +39,7 @@ ALIAS_DETECTOR(test_alias);
 
 strct with_test_sdata_t { let_cmp static test_sdata{.0}; };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 TEST_CASE("members")
 {

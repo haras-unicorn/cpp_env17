@@ -1,16 +1,16 @@
 #ifndef ENV_PRAGMA_HPP
 #define ENV_PRAGMA_HPP
 
-#if FWA_CLANG || defined(__JETBRAINS_IDE__) // clang
-#define FWA_PRAGMA(...) _Pragma(__VA_ARGS__)
+#if ENV_CLANG || defined(__JETBRAINS_IDE__) // clang
+#define ENV_PRAGMA(...) _Pragma(__VA_ARGS__)
 #endif // clang
 
-#if FWA_MSVC && !defined(__JETBRAINS_IDE__) // MSVC
-#define FWA_PRAGMA(...) __pragma(__VA_ARGS__)
+#if ENV_MSVC && !defined(__JETBRAINS_IDE__) // MSVC
+#define ENV_PRAGMA(...) __pragma(__VA_ARGS__)
 #endif // MSVC
 
-#if FWA_GCC && !defined(__JETBRAINS_IDE__) // GCC
-#define FWA_PRAGMA(...) _Pragma(__VA_ARGS__)
+#if ENV_GCC && !defined(__JETBRAINS_IDE__) // GCC
+#define ENV_PRAGMA(...) _Pragma(__VA_ARGS__)
 #endif // GCC
 
-#endif //FAST_WEB_AUDIO_FWA_PRAGMA_HPP
+#endif //FAST_WEB_AUDIO_ENV_PRAGMA_HPP

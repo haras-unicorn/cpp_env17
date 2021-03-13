@@ -1,22 +1,22 @@
 #ifndef ENV_MATH_TRAITS_HPP
 #define ENV_MATH_TRAITS_HPP
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
-COND_CHECK_UNARY(is_arithmetic_enum, FWA_STD::is_convertible_v<FWA_STD::underlying_type_t<T>, int>);
+COND_CHECK_UNARY(is_arithmetic_enum, ENV_STD::is_convertible_v<ENV_STD::underlying_type_t<T>, int>);
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 COND_CHECK_UNARY(
     is_arithmetic,
     (
-        FWA_STD::is_arithmetic_v<T> ||
-        FWA_STD::is_floating_point_v<T> ||
+        ENV_STD::is_arithmetic_v<T> ||
+        ENV_STD::is_floating_point_v<T> ||
         detail::is_arithmetic_enum_g<T>));
 
 COND_CONCEPT(arithmetic, (is_arithmetic_g<C>));
 
-COND_CHECK_UNARY(is_floating, (FWA_STD::is_floating_point_v<T>));
+COND_CHECK_UNARY(is_floating, (ENV_STD::is_floating_point_v<T>));
 
 COND_CONCEPT(floating, (is_floating_g<C>));
 
@@ -24,33 +24,33 @@ COND_CHECK_UNARY(is_whole, (!is_floating_g<T>));
 
 COND_CONCEPT(whole, (is_whole_g<C>));
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
-COND_CHECK_UNARY(is_signed_enum, FWA_STD::is_signed_v<FWA_STD::underlying_type_t<T>>);
+COND_CHECK_UNARY(is_signed_enum, ENV_STD::is_signed_v<ENV_STD::underlying_type_t<T>>);
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
-COND_CHECK_UNARY(is_signed, (FWA_STD::is_signed_v<T> || detail::is_signed_enum_g<T>));
+COND_CHECK_UNARY(is_signed, (ENV_STD::is_signed_v<T> || detail::is_signed_enum_g<T>));
 
 COND_CONCEPT(signed, (is_signed_g<C>));
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
-COND_CHECK_UNARY(is_unsigned_enum, FWA_STD::is_unsigned_v<FWA_STD::underlying_type_t<T>>);
+COND_CHECK_UNARY(is_unsigned_enum, ENV_STD::is_unsigned_v<ENV_STD::underlying_type_t<T>>);
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
-COND_CHECK_UNARY(is_unsigned, (FWA_STD::is_unsigned_v<T> || detail::is_unsigned_enum_g<T>));
+COND_CHECK_UNARY(is_unsigned, (ENV_STD::is_unsigned_v<T> || detail::is_unsigned_enum_g<T>));
 
 COND_CONCEPT(unsigned, (is_unsigned_g<C>));
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
-enum unique_size_t : FWA_STD::size_t
+enum unique_size_t : ENV_STD::size_t
 {
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("math traits")
 {
@@ -93,7 +93,7 @@ ENV_TEST_CASE("math traits")
 
 // whole
 
-template <bool Signed, FWA_STD::size_t Size>
+template <bool Signed, ENV_STD::size_t Size>
 strct whole_nns;
 
 let_cmp without_sign{false};
@@ -128,7 +128,7 @@ strct whole_nns<true, 4> : type_gt<int32_t>{};
 template <>
 strct whole_nns<true, 8> : type_gt<int64_t>{};
 
-template <bool Signed, FWA_STD::size_t Size>
+template <bool Signed, ENV_STD::size_t Size>
 typ(whole_nnt) = name whole_nns<Signed, Size>::type;
 
 ENV_TEST_CASE("number traits")

@@ -6,20 +6,20 @@
 tmp<name T, name TBy>
     cmp_fn mod(arithmetic_c<T> to_mod, arithmetic_c<TBy> by) noex
 {
-    if_cmp(FWA_STD::is_enum_v<T>)
+    if_cmp(ENV_STD::is_enum_v<T>)
         ret mod(underlying_cast(to_mod), by);
-    else if_cmp(FWA_STD::is_enum_v<TBy>)
+    else if_cmp(ENV_STD::is_enum_v<TBy>)
         ret mod(to_mod, underlying_cast(by));
     else if_cmp(is_floating_g<T> || is_floating_g<TBy>)
-        ret FWA_STD::fmod(to_mod, by);
+        ret ENV_STD::fmod(to_mod, by);
     else if_cmp(is_signed_g<T> && is_signed_g<TBy>)
             ret to_mod %
         by;
     else if_cmp(is_signed_g<T>)
             ret to_mod %
-        scast<whole_nnt<true, FWA_STD::max(sizeof(T), sizeof(TBy))>>(by);
+        scast<whole_nnt<true, ENV_STD::max(sizeof(T), sizeof(TBy))>>(by);
     else if_cmp(is_signed_g<TBy>)
-            ret scast<whole_nnt<true, FWA_STD::max(sizeof(T), sizeof(TBy))>>(to_mod) %
+            ret scast<whole_nnt<true, ENV_STD::max(sizeof(T), sizeof(TBy))>>(to_mod) %
         by;
     else ret to_mod % by;
 }
@@ -35,7 +35,7 @@ ENV_TEST_CASE("mod")
     REQUIRE_EQ(mod(3, 2_s), 1);
 }
 
-FWA_MSVC_SUPPRESS_PUSH(4244) // conversion from double to int -> this is what we want here
+ENV_MSVC_SUPPRESS_PUSH(4244) // conversion from double to int -> this is what we want here
 
 // divf - floor of division
 
@@ -49,9 +49,9 @@ tmp<name TNom, name TDiv>
         div;
     else if_cmp(is_signed_g<TNom>)
             ret nom /
-        scast<whole_nnt<true, FWA_STD::max(sizeof(TNom), sizeof(TDiv))>>(div);
+        scast<whole_nnt<true, ENV_STD::max(sizeof(TNom), sizeof(TDiv))>>(div);
     else if_cmp(is_signed_g<TDiv>)
-            ret scast<whole_nnt<true, FWA_STD::max(sizeof(TNom), sizeof(TDiv))>>(nom) /
+            ret scast<whole_nnt<true, ENV_STD::max(sizeof(TNom), sizeof(TDiv))>>(nom) /
         div;
     else ret nom / div;
 }
@@ -113,7 +113,7 @@ TEST_CASE("divf")
     }
 }
 
-FWA_MSVC_SUPPRESS_POP
+ENV_MSVC_SUPPRESS_POP
 
 // alignf
 

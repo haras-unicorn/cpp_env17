@@ -125,16 +125,17 @@
 // members
 
 #define DEF_MEM_TYPE(_type, _name) typ(MEM_TYPE(_name)) = SPREAD(_type)
-#define DEF_DEDUCED_MEM_TYPE(_name, _init) typ(MEM_TYPE(_name)) = FWA_CORE::unqualified_gt<decltype(SPREAD(_init))>
+#define DEF_DEDUCED_MEM_TYPE(_name, _init) typ(MEM_TYPE(_name)) = ENV::unqualified_gt<decltype(SPREAD(_init))>
 
-#define DECL_MEM(_name) MEM_TYPE(_name) \
-MEM_NAME(_name)
+#define DECL_MEM(_name) \
+    MEM_TYPE(_name)     \
+    MEM_NAME(_name)
 #define DEF_MEM(_type, _name, _init) \
     DECL_MEM(_name) { SPREAD(_init) }
 #define DEF_DEDUCED_MEM(_name, _init) \
     DECL_MEM(_name) { SPREAD(_init) }
 #define DEF_NIL_MEM(_type, _name) \
-    DECL_MEM(_name) { FWA_CORE::nil }
+    DECL_MEM(_name) { ENV::nil }
 
 #define DECL(_type, _name)      \
     ACCESS_BEGIN(protected);    \
@@ -260,13 +261,13 @@ ENV_TEST_CASE("members")
     test{}();
 };
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 cls with_reference_getter_t
 {
     DECL((const char *), member);
 
-    con cmp with_reference_getter_t(_member_t value) : _member{FWA_STD::move(value)} {}
+    con cmp with_reference_getter_t(_member_t value) : _member{ENV_STD::move(value)} {}
 
     MEM_GETTER(member);
 };
@@ -275,12 +276,12 @@ cls with_value_getter_t
 {
     DECL((const char *), member);
 
-    con cmp with_value_getter_t(_member_t value) : _member{FWA_STD::move(value)} {}
+    con cmp with_value_getter_t(_member_t value) : _member{ENV_STD::move(value)} {}
 
     MEM_CMP_GETTER(member);
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("member getters")
 {
@@ -296,7 +297,7 @@ ENV_TEST_CASE("member getters")
         {
             DECL((const char *), member);
 
-            con cmp with_separate_reference_getters_t(_member_t value) : _member{FWA_STD::move(value)} {}
+            con cmp with_separate_reference_getters_t(_member_t value) : _member{ENV_STD::move(value)} {}
 
             MEM_CONST_GETTER(member);
             MEM_MUT_GETTER(member);
@@ -325,7 +326,7 @@ ENV_TEST_CASE("member getters")
                                                                           \
     DECL_SINGLETON_GETTER((_this_t &), PROTECTED_SINGLETON_NAME)          \
     {                                                                     \
-        let static _instance{FWA_STD::make_unique<_this_t>()};            \
+        let static _instance{ENV_STD::make_unique<_this_t>()};            \
         ret *_instance;                                                   \
     }
 
@@ -351,12 +352,12 @@ private:                                                            \
 
 #define THREADED_MUT_SINGLETON_GETTER()                                     \
     DECL_SINGLETON_GETTER(                                                  \
-        (FWA_STD::pair<FWA_STD::unique_lock<FWA_STD::mutex>, _this_t &>),   \
+        (ENV_STD::pair<ENV_STD::unique_lock<ENV_STD::mutex>, _this_t &>),   \
         PUBLIC_SINGLETON_NAME)                                              \
     {                                                                       \
-        obj static FWA_STD::mutex _mutex{};                                 \
-        ret FWA_STD::pair<FWA_STD::unique_lock<FWA_STD::mutex>, _this_t &>{ \
-            FWA_STD::unique_lock<FWA_STD::mutex>{_mutex},                   \
+        obj static ENV_STD::mutex _mutex{};                                 \
+        ret ENV_STD::pair<ENV_STD::unique_lock<ENV_STD::mutex>, _this_t &>{ \
+            ENV_STD::unique_lock<ENV_STD::mutex>{_mutex},                   \
             GET_SINGLETON};                                                 \
     }                                                                       \
                                                                             \
@@ -366,12 +367,12 @@ private:                                                                    \
 
 #define THREADED_CONST_SINGLETON_GETTER()                                         \
     DECL_SINGLETON_GETTER(                                                        \
-        (FWA_STD::pair<FWA_STD::unique_lock<FWA_STD::mutex>, const _this_t &>),   \
+        (ENV_STD::pair<ENV_STD::unique_lock<ENV_STD::mutex>, const _this_t &>),   \
         PUBLIC_SINGLETON_NAME)                                                    \
     {                                                                             \
-        obj static FWA_STD::mutex _mutex{};                                       \
-        ret FWA_STD::pair<FWA_STD::unique_lock<FWA_STD::mutex>, const _this_t &>{ \
-            FWA_STD::unique_lock<FWA_STD::mutex>{_mutex},                         \
+        obj static ENV_STD::mutex _mutex{};                                       \
+        ret ENV_STD::pair<ENV_STD::unique_lock<ENV_STD::mutex>, const _this_t &>{ \
+            ENV_STD::unique_lock<ENV_STD::mutex>{_mutex},                         \
             GET_SINGLETON};                                                       \
     }                                                                             \
                                                                                   \

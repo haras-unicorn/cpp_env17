@@ -9,43 +9,43 @@ tmp<name... T>
 tmp<>
     strct variadic_vt<>
 {
-    cmp_obj static FWA_STD::uintmax_t rank{0};
+    cmp_obj static ENV_STD::uintmax_t rank{0};
 
-    tmp<FWA_STD::uintmax_t Index>
+    tmp<ENV_STD::uintmax_t Index>
         typ(at_nt) = fail_t;
 
     typ(last_t) = fail_t;
 
-    tmp<FWA_STD::uintmax_t Index>
+    tmp<ENV_STD::uintmax_t Index>
         let_cmp static has_n = false;
 };
 
 tmp<name T>
     strct variadic_vt<T>
 {
-    cmp_obj static FWA_STD::uintmax_t rank{1};
+    cmp_obj static ENV_STD::uintmax_t rank{1};
 
-    tmp<FWA_STD::uintmax_t Index>
-        typ(at_nt) = FWA_STD::conditional_t<Index == 0, T, fail_t>;
+    tmp<ENV_STD::uintmax_t Index>
+        typ(at_nt) = ENV_STD::conditional_t<Index == 0, T, fail_t>;
 
     typ(last_t) = T;
 
-    tmp<FWA_STD::uintmax_t Index>
+    tmp<ENV_STD::uintmax_t Index>
         let_cmp static has_n = Index == 0;
 };
 
 tmp<name THead, name... TRest>
     strct variadic_vt<THead, TRest...>
 {
-    cmp_obj static FWA_STD::uintmax_t rank{sizeof...(TRest) + 1};
+    cmp_obj static ENV_STD::uintmax_t rank{sizeof...(TRest) + 1};
 
-    tmp<FWA_STD::uintmax_t Index>
-        typ(at_nt) = FWA_STD::conditional_t<Index == 0, THead, name variadic_vt<TRest...>::tmp at_nt<Index - 1>>;
+    tmp<ENV_STD::uintmax_t Index>
+        typ(at_nt) = ENV_STD::conditional_t<Index == 0, THead, name variadic_vt<TRest...>::tmp at_nt<Index - 1>>;
 
     typ(last_t) = name variadic_vt<TRest...>::last_t;
 
-    tmp<FWA_STD::uintmax_t Index>
-        let_cmp static has_n = !FWA_STD::is_same_v<at_nt<Index>, fail_t>;
+    tmp<ENV_STD::uintmax_t Index>
+        let_cmp static has_n = !ENV_STD::is_same_v<at_nt<Index>, fail_t>;
 };
 
 ENV_TEST_CASE("variadic")
@@ -61,40 +61,40 @@ ENV_TEST_CASE("variadic")
 // require
 
 tmp<name TCondition, name TResult>
-    strct require_ggs : public FWA_STD::enable_if<TCondition::value, TResult>{};
+    strct require_ggs : public ENV_STD::enable_if<TCondition::value, TResult>{};
 
 tmp<name TCondition, name TResult>
-    typ(require_ggt) = FWA_STD::enable_if_t<TCondition::value, TResult>;
+    typ(require_ggt) = ENV_STD::enable_if_t<TCondition::value, TResult>;
 
 tmp<name TCondition>
-    typ(require_gs) = FWA_STD::enable_if<TCondition::value, success_t>;
+    typ(require_gs) = ENV_STD::enable_if<TCondition::value, success_t>;
 
 tmp<name TCondition>
-    typ(require_gt) = FWA_STD::enable_if_t<TCondition::value, success_t>;
+    typ(require_gt) = ENV_STD::enable_if_t<TCondition::value, success_t>;
 
 ENV_TEST_CASE("require")
 {
-    REQUIRE_EQT(require_ggt<FWA_STD::true_type, int>, int);
+    REQUIRE_EQT(require_ggt<ENV_STD::true_type, int>, int);
 }
 
 tmp<bool Condition, name TResult>
-    strct require_ngs : public FWA_STD::enable_if<Condition, TResult>{};
+    strct require_ngs : public ENV_STD::enable_if<Condition, TResult>{};
 
 tmp<bool Condition, name TResult>
-    typ(require_ngt) = FWA_STD::enable_if_t<Condition, TResult>;
+    typ(require_ngt) = ENV_STD::enable_if_t<Condition, TResult>;
 
 tmp<bool Condition>
-    typ(require_ns) = FWA_STD::enable_if<Condition, success_t>;
+    typ(require_ns) = ENV_STD::enable_if<Condition, success_t>;
 
 tmp<bool Condition>
-    typ(require_nt) = FWA_STD::enable_if_t<Condition, success_t>;
+    typ(require_nt) = ENV_STD::enable_if_t<Condition, success_t>;
 
 ENV_TEST_CASE("require")
 {
     REQUIRE_EQT(require_ngt<true, int>, int);
 }
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 
 tmp<bool Condition, deduc Result>
     strct require_nns;
@@ -117,7 +117,7 @@ ENV_TEST_CASE("require")
     REQUIRE_EQ(require_n<true>, success);
 }
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 // declval
 
@@ -127,10 +127,10 @@ tmp<name T>
 // reference collapsing rules are applied on these
 
 tmp<name T>
-    callb declvall() noex->FWA_STD::add_lvalue_reference_t<T>;
+    callb declvall() noex->ENV_STD::add_lvalue_reference_t<T>;
 
 tmp<name T>
-    callb declvalr() noex->FWA_STD::add_rvalue_reference_t<T>;
+    callb declvalr() noex->ENV_STD::add_rvalue_reference_t<T>;
 
 ENV_TEST_CASE("declval")
 {
@@ -191,9 +191,9 @@ ENV_TEST_CASE("implies")
 // qualified
 
 tmp<name T>
-    cmp_obj bool is_qualified_g{FWA_STD::is_reference_v<T> || FWA_STD::is_const_v<T> || FWA_STD::is_volatile_v<T>};
+    cmp_obj bool is_qualified_g{ENV_STD::is_reference_v<T> || ENV_STD::is_const_v<T> || ENV_STD::is_volatile_v<T>};
 
-tmp<name T> typ(unqualified_gt) = FWA_STD::remove_cv_t<FWA_STD::remove_reference_t<T>>;
+tmp<name T> typ(unqualified_gt) = ENV_STD::remove_cv_t<ENV_STD::remove_reference_t<T>>;
 
 ENV_TEST_CASE("qualified")
 {

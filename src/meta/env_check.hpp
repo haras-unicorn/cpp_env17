@@ -4,11 +4,11 @@
 // expr
 
 #define EXPR_CHECK_OPT(_name, _tmp, _application, _extract, _extract_application, _type, _static)         \
-    tmp<SPREAD(_tmp), name = FWA_CORE::success_t>                                                         \
-        strct CAT(_name, _gs) : public FWA_STD::false_type{};                                             \
+    tmp<SPREAD(_tmp), name = ENV::success_t>                                                              \
+        strct CAT(_name, _gs) : public ENV_STD::false_type{};                                             \
                                                                                                           \
     tmp<SPREAD(_extract)>                                                                                 \
-        strct CAT(_name, _gs)<SPREAD(_extract_application), SPREAD(_type)> : public FWA_STD::true_type{}; \
+        strct CAT(_name, _gs)<SPREAD(_extract_application), SPREAD(_type)> : public ENV_STD::true_type{}; \
                                                                                                           \
     tmp<SPREAD(_tmp)>                                                                                     \
         typ(CAT(_name, _gt)) = name CAT(_name, _gs)<SPREAD(_application)>::type;                          \
@@ -36,14 +36,14 @@
 #define EXPR_CHECK_TERNARY(_name, ...) \
     EXPR_CHECK(_name, (name T1, name T2, name T3), (T1, T2, T3), __VA_ARGS__)
 
-#define EXPR_CHECK_VARIADIC(_name, ...)                   \
-    ELABORATE_EXPR_CHECK(                                 \
-        _name,                                            \
-        (name T), (T),                                    \
-        (name... TVar), (FWA_CORE::variadic_vt<TVar...>), \
+#define EXPR_CHECK_VARIADIC(_name, ...)              \
+    ELABORATE_EXPR_CHECK(                            \
+        _name,                                       \
+        (name T), (T),                               \
+        (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 EXPR_CHECK_UNARY(test_addable_unary, declvalr<T>() + declvalr<T>());
 
@@ -51,13 +51,13 @@ EXPR_CHECK_BINARY(test_addable_binary, declvalr<TLhs>() + declvalr<TRhs>());
 
 EXPR_CHECK_TERNARY(test_addable_ternary, declvalr<T1>() + declvalr<T2>() + declvalr<T3>());
 
-#if FWA_CPP >= 17 // fold expression
+#if ENV_CPP >= 17 // fold expression
 
 EXPR_CHECK_VARIADIC(test_addable_variadic, sum_res(declvalr<TVar>()...));
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("sfinae struct")
 {
@@ -79,13 +79,13 @@ ENV_TEST_CASE("sfinae struct")
         REQUIRES_FALSE(test::test_addable_ternary_g<int, void, int>);
     }
 
-#if FWA_CPP >= 17 // fold expression
+#if ENV_CPP >= 17 // fold expression
     SUBCASE("variadic")
     {
         REQUIRES(test::test_addable_variadic_g<variadic_vt<int, int, int, int>>);
         REQUIRES_FALSE(test::test_addable_variadic_g<variadic_vt<int, void, int>>);
     }
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 }
 
 // expr class
@@ -114,14 +114,14 @@ ENV_TEST_CASE("sfinae struct")
 #define EXPR_CLASS_CHECK_TERNARY(_name, ...) \
     EXPR_CLASS_CHECK(_name, (name T1, name T2, name T3), (T1, T2, T3), __VA_ARGS__)
 
-#define EXPR_CLASS_CHECK_VARIADIC(_name, ...)             \
-    ELABORATE_EXPR_CLASS_CHECK(                           \
-        _name,                                            \
-        (name T), (T),                                    \
-        (name... TVar), (FWA_CORE::variadic_vt<TVar...>), \
+#define EXPR_CLASS_CHECK_VARIADIC(_name, ...)        \
+    ELABORATE_EXPR_CLASS_CHECK(                      \
+        _name,                                       \
+        (name T), (T),                               \
+        (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 cls expr_check_class_t
 {
@@ -132,14 +132,14 @@ public:
 
     EXPR_CLASS_CHECK_TERNARY(test_addable_ternary, declvalr<T1>() + declvalr<T2>() + declvalr<T3>());
 
-#if FWA_CPP >= 17 // fold expression
+#if ENV_CPP >= 17 // fold expression
 
     EXPR_CLASS_CHECK_VARIADIC(test_addable_variadic, sum_res(declvalr<TVar>()...));
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("sfinae in class struct")
 {
@@ -161,7 +161,7 @@ ENV_TEST_CASE("sfinae in class struct")
         REQUIRES_FALSE(test::expr_check_class_t::test_addable_ternary_g<int, void, int>);
     }
 
-#if FWA_CPP >= 17 // fold expression
+#if ENV_CPP >= 17 // fold expression
 
     SUBCASE("variadic")
     {
@@ -169,7 +169,7 @@ ENV_TEST_CASE("sfinae in class struct")
         REQUIRES_FALSE(test::expr_check_class_t::test_addable_variadic_g<variadic_vt<int, void, int>>);
     }
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 }
 
 // cond
@@ -206,24 +206,24 @@ ENV_TEST_CASE("sfinae in class struct")
 #define COND_CHECK_TERNARY(_name, ...) \
     COND_CHECK(_name, (name T1, name T2, name T3), (T1, T2, T3), __VA_ARGS__)
 
-#define COND_CHECK_VARIADIC(_name, ...)                   \
-    ELABORATE_COND_CHECK(                                 \
-        _name,                                            \
-        (name T), (T),                                    \
-        (name... TVar), (FWA_CORE::variadic_vt<TVar...>), \
+#define COND_CHECK_VARIADIC(_name, ...)              \
+    ELABORATE_COND_CHECK(                            \
+        _name,                                       \
+        (name T), (T),                               \
+        (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
-COND_CHECK_UNARY(test_const_unary, FWA_STD::is_const_v<T>);
+COND_CHECK_UNARY(test_const_unary, ENV_STD::is_const_v<T>);
 
-COND_CHECK_BINARY(test_const_binary, FWA_STD::is_const_v<TLhs> &&FWA_STD::is_const_v<TRhs>);
+COND_CHECK_BINARY(test_const_binary, ENV_STD::is_const_v<TLhs> &&ENV_STD::is_const_v<TRhs>);
 
-COND_CHECK_TERNARY(test_const_ternary, FWA_STD::is_const_v<T1> &&FWA_STD::is_const_v<T2> &&FWA_STD::is_const_v<T3>);
+COND_CHECK_TERNARY(test_const_ternary, ENV_STD::is_const_v<T1> &&ENV_STD::is_const_v<T2> &&ENV_STD::is_const_v<T3>);
 
-COND_CHECK_VARIADIC(test_const_variadic, FWA_STD::conjunction_v<FWA_STD::is_const<TVar>...>);
+COND_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v<ENV_STD::is_const<TVar>...>);
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("require struct")
 {
@@ -278,28 +278,28 @@ ENV_TEST_CASE("require struct")
 #define COND_CLASS_CHECK_TERNARY(_name, ...) \
     COND_CLASS_CHECK(_name, (name T1, name T2, name T3), (T1, T2, T3), __VA_ARGS__)
 
-#define COND_CLASS_CHECK_VARIADIC(_name, ...)             \
-    ELABORATE_COND_CLASS_CHECK(                           \
-        _name,                                            \
-        (name T), (T),                                    \
-        (name... TVar), (FWA_CORE::variadic_vt<TVar...>), \
+#define COND_CLASS_CHECK_VARIADIC(_name, ...)        \
+    ELABORATE_COND_CLASS_CHECK(                      \
+        _name,                                       \
+        (name T), (T),                               \
+        (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 cls cond_check_class_t
 {
 public:
-    COND_CLASS_CHECK_UNARY(test_const_unary, FWA_STD::is_const_v<T>);
+    COND_CLASS_CHECK_UNARY(test_const_unary, ENV_STD::is_const_v<T>);
 
-    COND_CLASS_CHECK_BINARY(test_const_binary, FWA_STD::is_const_v<TLhs> && FWA_STD::is_const_v<TRhs>);
+    COND_CLASS_CHECK_BINARY(test_const_binary, ENV_STD::is_const_v<TLhs> && ENV_STD::is_const_v<TRhs>);
 
-    COND_CLASS_CHECK_TERNARY(test_const_ternary, FWA_STD::is_const_v<T1> && FWA_STD::is_const_v<T2> && FWA_STD::is_const_v<T3>);
+    COND_CLASS_CHECK_TERNARY(test_const_ternary, ENV_STD::is_const_v<T1> && ENV_STD::is_const_v<T2> && ENV_STD::is_const_v<T3>);
 
-    COND_CLASS_CHECK_VARIADIC(test_const_variadic, FWA_STD::conjunction_v<FWA_STD::is_const<TVar>...>);
+    COND_CLASS_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v<ENV_STD::is_const<TVar>...>);
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("require in class struct")
 {
@@ -362,14 +362,14 @@ ENV_TEST_CASE("require in class struct")
 #define TYPE_CHECK_TERNARY(_name, ...) \
     TYPE_CHECK(_name, (name T1, name T2, name T3), (T1, T2, T3), __VA_ARGS__)
 
-#define TYPE_CHECK_VARIADIC(_name, ...)                   \
-    ELABORATE_TYPE_CHECK(                                 \
-        _name,                                            \
-        (name T), (T),                                    \
-        (name... TVar), (FWA_CORE::variadic_vt<TVar...>), \
+#define TYPE_CHECK_VARIADIC(_name, ...)              \
+    ELABORATE_TYPE_CHECK(                            \
+        _name,                                       \
+        (name T), (T),                               \
+        (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 EXPR_TMP_UNARY(declval<T>() - declval<T>())
 strct enable_minus_gt{};
@@ -382,7 +382,7 @@ TYPE_CHECK_TERNARY(test_minus_ternary, enable_minus_gt<T1>, enable_minus_gt<T2>,
 
 TYPE_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt<TVar>...);
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("require struct")
 {
@@ -437,14 +437,14 @@ ENV_TEST_CASE("require struct")
 #define TYPE_CLASS_CHECK_TERNARY(_name, ...) \
     TYPE_CLASS_CHECK(_name, (name T1, name T2, name T3), (T1, T2, T3), __VA_ARGS__)
 
-#define TYPE_CLASS_CHECK_VARIADIC(_name, ...)             \
-    ELABORATE_TYPE_CLASS_CHECK(                           \
-        _name,                                            \
-        (name T), (T),                                    \
-        (name... TVar), (FWA_CORE::variadic_vt<TVar...>), \
+#define TYPE_CLASS_CHECK_VARIADIC(_name, ...)        \
+    ELABORATE_TYPE_CLASS_CHECK(                      \
+        _name,                                       \
+        (name T), (T),                               \
+        (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 cls type_check_class_t
 {
@@ -458,7 +458,7 @@ public:
     TYPE_CLASS_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt<TVar>...);
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("require in class struct")
 {
@@ -494,13 +494,13 @@ ENV_TEST_CASE("require in class struct")
         _name,                                                    \
         (name T), (T),                                            \
         _extract, _application,                                   \
-        (FWA_CORE::success_t),                                    \
+        (ENV::success_t),                                         \
         _static)
 
 #define EXTRACT_CHECK(_name, _extract, _application) EXTRACT_CHECK_OPT(_name, _extract, _application, SKIP)
 #define SIMPLE_EXTRACT_CHECK(_name, ...) EXTRACT_CHECK(_name, (), (__VA_ARGS__))
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 tmp<name T>
     strct tmp_struct{};
@@ -509,7 +509,7 @@ EXTRACT_CHECK(is_tmp_struct, (name T), (tmp_struct<T>));
 
 SIMPLE_EXTRACT_CHECK(is_int, int);
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("struct check")
 {
@@ -528,7 +528,7 @@ ENV_TEST_CASE("struct check")
 #define EXTRACT_CLASS_CHECK(_name, _extract, _application) EXTRACT_CHECK_OPT(_name, _extract, _application, static)
 #define SIMPLE_EXTRACT_CLASS_CHECK(_name, ...) EXTRACT_CLASS_CHECK(_name, (), (__VA_ARGS__))
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 cls struct_check_class
 {
@@ -537,7 +537,7 @@ public:
     SIMPLE_EXTRACT_CLASS_CHECK(is_int, int);
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("in class struct check")
 {

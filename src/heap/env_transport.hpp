@@ -2,10 +2,10 @@
 #define ENV_TRANSPORT_HPP
 
 COND_TMP_BINARY(
-    (FWA_STD::is_same_v<FWA_STD::remove_cv_t<TLhs>, FWA_STD::remove_volatile_t<TRhs>>)&&(FWA_STD::is_trivially_copyable_v<TRhs>)&&(FWA_STD::is_trivially_copyable_v<TLhs>))
+    (ENV_STD::is_same_v<ENV_STD::remove_cv_t<TLhs>, ENV_STD::remove_volatile_t<TRhs>>)&&(ENV_STD::is_trivially_copyable_v<TRhs>)&&(ENV_STD::is_trivially_copyable_v<TLhs>))
 callb inl copy(TLhs *from, TRhs *to, size_t amount = single) noex
 {
-    ret rcast<TRhs *>(FWA_STD::memcpy(to, from, amount * sizeof(TLhs)));
+    ret rcast<TRhs *>(ENV_STD::memcpy(to, from, amount * sizeof(TLhs)));
 }
 
 ENV_TEST_CASE("copy")
@@ -15,10 +15,10 @@ ENV_TEST_CASE("copy")
 }
 
 COND_TMP_BINARY(
-    (FWA_STD::is_same_v<FWA_STD::remove_cv_t<TLhs>, FWA_STD::remove_volatile_t<TRhs>>)&&(FWA_STD::is_trivially_copyable_v<TRhs>)&&(FWA_STD::is_trivially_copyable_v<TLhs>))
+    (ENV_STD::is_same_v<ENV_STD::remove_cv_t<TLhs>, ENV_STD::remove_volatile_t<TRhs>>)&&(ENV_STD::is_trivially_copyable_v<TRhs>)&&(ENV_STD::is_trivially_copyable_v<TLhs>))
 callb inl move(TLhs *from, TRhs *to, size_t amount = single) noex
 {
-    ret rcast<TRhs *>(FWA_STD::memmove(to, from, amount * sizeof(TLhs)));
+    ret rcast<TRhs *>(ENV_STD::memmove(to, from, amount * sizeof(TLhs)));
 }
 
 ENV_TEST_CASE("move")

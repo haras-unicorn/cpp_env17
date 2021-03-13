@@ -3,7 +3,7 @@
 
 // TODO: other call types
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 // declaration
 
@@ -32,7 +32,7 @@ public:
     cmp_obj static bool is_callable{true};
 
     typ(return_t) = TReturn;
-    cmp_obj static bool is_callback{FWA_STD::is_same_v<TReturn, void>};
+    cmp_obj static bool is_callback{ENV_STD::is_same_v<TReturn, void>};
 
     cmp_obj static bool is_consumer{false};
 
@@ -48,7 +48,7 @@ public:
 tmp<name TReturn, name TInheritor>
     strct callable_gs<TReturn() noex, TInheritor> : public callable_gs<
                                                         TReturn(),
-                                                        FWA_CORE::self_ggt<callable_gs<TReturn() noex, TInheritor>, TInheritor>>
+                                                        ENV::self_ggt<callable_gs<TReturn() noex, TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_noex{true};
 };
@@ -62,13 +62,13 @@ tmp<name TReturn, name TInheritor>
 tmp<name TReturn, name TInheritor, name... TArguments>
     strct callable_gs<TReturn(TArguments...), TInheritor> : public callable_gs<
                                                                 TReturn(),
-                                                                FWA_CORE::self_ggt<callable_gs<TReturn(TArguments...), TInheritor>, TInheritor>>
+                                                                ENV::self_ggt<callable_gs<TReturn(TArguments...), TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_consumer{true};
 
-    typ(argument_tuple_t) = FWA_STD::tuple<TArguments...>;
-    cmp_obj static FWA_STD::size_t argument_count = FWA_STD::tuple_size_v<argument_tuple_t>;
-    tmp<FWA_STD::size_t ArgumentIndex> typ(argument_at_nt) = FWA_STD::tuple_element_t<ArgumentIndex, argument_tuple_t>;
+    typ(argument_tuple_t) = ENV_STD::tuple<TArguments...>;
+    cmp_obj static ENV_STD::size_t argument_count = ENV_STD::tuple_size_v<argument_tuple_t>;
+    tmp<ENV_STD::size_t ArgumentIndex> typ(argument_at_nt) = ENV_STD::tuple_element_t<ArgumentIndex, argument_tuple_t>;
 
     typ(function_t) = TReturn(TArguments...);
     typ(function_ptr_t) = function_t *;
@@ -77,7 +77,7 @@ tmp<name TReturn, name TInheritor, name... TArguments>
 tmp<name TReturn, name TInheritor, name... TArguments>
     strct callable_gs<TReturn(TArguments...) noex, TInheritor> : public callable_gs<
                                                                      TReturn(TArguments...),
-                                                                     FWA_CORE::self_ggt<callable_gs<TReturn(TArguments...) noex, TInheritor>, TInheritor>>
+                                                                     ENV::self_ggt<callable_gs<TReturn(TArguments...) noex, TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_noex{true};
 };
@@ -111,18 +111,18 @@ EXPR_CHECK_UNARY(is_non_overloaded_functor, &T::op());
 tmp<name TQ, name TInheritor>
     strct callable_gs<
         TQ, TInheritor,
-        FWA_CORE::success_vt<
+        ENV::success_vt<
             COND_TYPE(
-                FWA_CORE::is_qualified_g<TQ> &&
-                    callable_gs<FWA_CORE::unqualified_gt<TQ>>::is_callable &&
-                !has_call_operator_g<FWA_CORE::unqualified_gt<TQ>>)>> : public callable_gs<FWA_CORE::unqualified_gt<TQ>, FWA_CORE::self_ggt<callable_gs<TQ, TInheritor>, TInheritor>>{};
+                ENV::is_qualified_g<TQ> &&
+                    callable_gs<ENV::unqualified_gt<TQ>>::is_callable &&
+                !has_call_operator_g<ENV::unqualified_gt<TQ>>)>> : public callable_gs<ENV::unqualified_gt<TQ>, ENV::self_ggt<callable_gs<TQ, TInheritor>, TInheritor>>{};
 
 // member ptr
 
 tmp<name TMember, name THolder, name TInheritor>
     strct callable_gs<
         TMember THolder::*, TInheritor,
-        FWA_CORE::success_vt<COND_TYPE(callable_gs<TMember>::is_callable)>> : public callable_gs<TMember, FWA_CORE::self_ggt<callable_gs<TMember THolder::*, TInheritor>, TInheritor>>
+        ENV::success_vt<COND_TYPE(callable_gs<TMember>::is_callable)>> : public callable_gs<TMember, ENV::self_ggt<callable_gs<TMember THolder::*, TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_member{true};
 
@@ -134,7 +134,7 @@ tmp<name TMember, name THolder, name TInheritor>
     tmp<name TInheritor, name THolder, name TReturn, name... TArguments>                                                                                                                  \
         strct callable_gs<TReturn _call (THolder::*)(TArguments...) SPREAD(_qualifier), TInheritor> : public callable_gs<                                                                 \
                                                                                                           TReturn (THolder::*)(TArguments...),                                            \
-                                                                                                          FWA_CORE::self_ggt<                                                             \
+                                                                                                          ENV::self_ggt<                                                                  \
                                                                                                               callable_gs<                                                                \
                                                                                                                   TReturn _call (THolder::*)(TArguments...) SPREAD(_qualifier),           \
                                                                                                                   TInheritor>,                                                            \
@@ -150,7 +150,7 @@ tmp<name TMember, name THolder, name TInheritor>
     tmp<name TInheritor, name THolder, name TReturn, name... TArguments>                                                                                                                  \
         strct callable_gs<TReturn _call (THolder::*)(TArguments...) SPREAD(_qualifier) noex, TInheritor> : public callable_gs<                                                            \
                                                                                                                TReturn (THolder::*)(TArguments...) noex,                                  \
-                                                                                                               FWA_CORE::self_ggt<                                                        \
+                                                                                                               ENV::self_ggt<                                                             \
                                                                                                                    callable_gs<                                                           \
                                                                                                                        TReturn _call (THolder::*)(TArguments...) SPREAD(_qualifier) noex, \
                                                                                                                        TInheritor>,                                                       \
@@ -181,12 +181,12 @@ tmp<name TMember, name THolder, name TInheritor>
 tmp<name TFunctor, name TInheritor>
     strct callable_gs<
         TFunctor, TInheritor,
-        FWA_CORE::success_vt<
-            decl(&FWA_CORE::unqualified_gt<TFunctor>::op()),
-            COND_TYPE(FWA_CORE::is_call_qualified_for_g<
+        ENV::success_vt<
+            decl(&ENV::unqualified_gt<TFunctor>::op()),
+            COND_TYPE(ENV::is_call_qualified_for_g<
                       TFunctor,
-                      name callable_gs<decl(&FWA_CORE::unqualified_gt<TFunctor>::op())>::qualified_t>)>> : public callable_gs<decl(&FWA_CORE::unqualified_gt<TFunctor>::op()),
-                                                                                                                              FWA_CORE::self_ggt<callable_gs<TFunctor, TInheritor>, TInheritor>>
+                      name callable_gs<decl(&ENV::unqualified_gt<TFunctor>::op())>::qualified_t>)>> : public callable_gs<decl(&ENV::unqualified_gt<TFunctor>::op()),
+                                                                                                                         ENV::self_ggt<callable_gs<TFunctor, TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_member{false};
 };
@@ -201,10 +201,10 @@ tmp<name TFunctor, name TInheritor>
 tmp<name TFunctor>
     strct callable_gs<
         TFunctor, no_inheritor_s,
-        FWA_CORE::success_vt<
+        ENV::success_vt<
             COND_TYPE(
-                FWA_CORE::has_call_operator_g<TFunctor> &&
-                !FWA_CORE::detail::is_non_overloaded_functor_g<TFunctor>)>>
+                ENV::has_call_operator_g<TFunctor> &&
+                !ENV::detail::is_non_overloaded_functor_g<TFunctor>)>>
 {
     EXPR_CLASS_CHECK_VARIADIC(is_callable, declval<TFunctor>()(declval<TVar>()...));
     cmp_obj static bool is_callable{true};
@@ -231,7 +231,7 @@ DEFINE_QUALIFIED_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(SKIP);
 
 #undef DEFINE_CALLABLE_STRUCTS
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 // individual traits
 
@@ -253,9 +253,9 @@ COND_CONCEPT(consumer, is_consumer_g<C>);
 
 tmp<name T> typ(argument_tuple_gt) = name detail::callable_gs<T>::argument_tuple_t;
 
-tmp<name T> cmp_obj FWA_STD::size_t argument_count_g = detail::callable_gs<T>::argument_count;
+tmp<name T> cmp_obj ENV_STD::size_t argument_count_g = detail::callable_gs<T>::argument_count;
 
-tmp<name T, FWA_STD::size_t Index> typ(argument_at_gnt) = name detail::callable_gs<T>::tmp argument_at_nt<Index>;
+tmp<name T, ENV_STD::size_t Index> typ(argument_at_gnt) = name detail::callable_gs<T>::tmp argument_at_nt<Index>;
 
 tmp<name T> typ(function_gt) = name detail::callable_gs<T>::function_t;
 
@@ -276,11 +276,11 @@ COND_CONCEPT(noex_callable, is_noex_callable_g<C>);
 // Uhh, yeah, so for some reason MSVC has an internal error if you don't do it like this
 // TODO: make small repro somehow
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name T> cmp_obj bool is_supported_callable_g{detail::callable_gs<T>::tmp is_supported<>};
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 COND_CHECK_UNARY(is_supported_callable, detail::is_supported_callable_g<T>);
 
@@ -288,16 +288,16 @@ COND_CONCEPT(supported_callable, detail::is_supported_callable_g<C>);
 
 // tests
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 strct templated_callable_t
 {
-    [[maybe_unused]] const FWA_STD::function<void()> lambda{[] {}};
-    [[maybe_unused]] const FWA_STD::function<void()> *lambda_ptr{&lambda};
+    [[maybe_unused]] const ENV_STD::function<void()> lambda{[] {}};
+    [[maybe_unused]] const ENV_STD::function<void()> *lambda_ptr{&lambda};
     tmp<name = success_t> callb op()() {}
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("callable traits")
 {
@@ -332,18 +332,18 @@ SUBCASE("check")
     REQUIRES(is_callable_g<test_t &>);           // call operator is not const qualified
     REQUIRES_FALSE(is_callable_g<const test_t>); // call operator is not const qualified
     REQUIRES(is_callable_g<test::templated_callable_t>);
-    REQUIRES(is_callable_g<FWA_STD::function<void()>>);
-    REQUIRES(is_callable_g<decl(&FWA_STD::function<void()>::op())>);
-    REQUIRES(is_callable_g<unqualified_gt<const FWA_STD::function<void()>>>);
-    REQUIRES(is_callable_g<decl(&unqualified_gt<const FWA_STD::function<void()>>::op())>);
-    REQUIRES(is_callable_g<const FWA_STD::function<void()>>);                // call operator is const qualified
-    REQUIRES_FALSE(is_callable_g<const volatile FWA_STD::function<void()>>); // call operator is const qualified
+    REQUIRES(is_callable_g<ENV_STD::function<void()>>);
+    REQUIRES(is_callable_g<decl(&ENV_STD::function<void()>::op())>);
+    REQUIRES(is_callable_g<unqualified_gt<const ENV_STD::function<void()>>>);
+    REQUIRES(is_callable_g<decl(&unqualified_gt<const ENV_STD::function<void()>>::op())>);
+    REQUIRES(is_callable_g<const ENV_STD::function<void()>>);                // call operator is const qualified
+    REQUIRES_FALSE(is_callable_g<const volatile ENV_STD::function<void()>>); // call operator is const qualified
 
     REQUIRES(is_callable_g<decl(&test_t::op())>);
     REQUIRES(is_callable_g<decl(&test_t::int_unqualified_except_int)>);
     REQUIRE_EQT(
         unqualified_gt<member_type_gt<decl(&test::templated_callable_t::lambda)>>,
-        FWA_STD::function<void()>);
+        ENV_STD::function<void()>);
     REQUIRES(is_callable_g<decl(&test::templated_callable_t::lambda)>);
     REQUIRES_FALSE(is_callable_g<decl(&test::templated_callable_t::lambda_ptr)>);
 
@@ -363,8 +363,8 @@ SUBCASE("arguments")
     REQUIRES(is_consumer_g<void(int)>);
     REQUIRES(is_consumer_g<int(int)>);
     REQUIRES(argument_count_g<decl(&test_t::const_except_double_float)> == 2);
-    REQUIRE_EQT(argument_tuple_gt<decl(&test_t::int_unqualified_except_int)>, FWA_STD::tuple<int>);
-    REQUIRE_EQT(argument_tuple_gt<decl(&test_t::const_except_double_float)>, FWA_STD::tuple<double, float>);
+    REQUIRE_EQT(argument_tuple_gt<decl(&test_t::int_unqualified_except_int)>, ENV_STD::tuple<int>);
+    REQUIRE_EQT(argument_tuple_gt<decl(&test_t::const_except_double_float)>, ENV_STD::tuple<double, float>);
 }
 SUBCASE("function")
 {
@@ -400,7 +400,7 @@ SUBCASE("qualifiers")
 SUBCASE("templated")
 {
     REQUIRE_EQT(return_gt<decl(&test::templated_callable_t::op() < void >)>, void);
-    FWA_STD::invoke(&test::templated_callable_t::op() < void >, test::templated_callable_t{});
+    ENV_STD::invoke(&test::templated_callable_t::op() < void >, test::templated_callable_t{});
 }
 }
 

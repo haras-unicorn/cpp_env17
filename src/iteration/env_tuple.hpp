@@ -3,53 +3,53 @@
 
 // implementations
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 // normal
 
 tmp<name TElements>
-    typ(pair_gt) = FWA_STD::pair<TElements, TElements>;
+    typ(pair_gt) = ENV_STD::pair<TElements, TElements>;
 
 tmp<name TFirst, name TSecond>
-    typ(pair_ggt) = FWA_STD::pair<TFirst, TSecond>;
+    typ(pair_ggt) = ENV_STD::pair<TFirst, TSecond>;
 
 tmp<size_t Size, name TElements>
-    typ(array_ngt) = FWA_STD::array<TElements, Size>;
+    typ(array_ngt) = ENV_STD::array<TElements, Size>;
 
 tmp<name... TElements>
-    typ(tuple_vt) = FWA_STD::tuple<TElements...>;
+    typ(tuple_vt) = ENV_STD::tuple<TElements...>;
 
 // view
 
 tmp<name TElements>
-    typ(view_pair_gt) = FWA_STD::pair<ptr_gt<TElements>, ptr_gt<TElements>>;
+    typ(view_pair_gt) = ENV_STD::pair<ptr_gt<TElements>, ptr_gt<TElements>>;
 
 tmp<name TFirst, name TSecond>
-    typ(view_pair_ggt) = FWA_STD::pair<ptr_gt<TFirst>, ptr_gt<TSecond>>;
+    typ(view_pair_ggt) = ENV_STD::pair<ptr_gt<TFirst>, ptr_gt<TSecond>>;
 
 tmp<size_t Size, name TElements>
-    typ(view_array_ngt) = FWA_STD::array<ptr_gt<TElements>, Size>;
+    typ(view_array_ngt) = ENV_STD::array<ptr_gt<TElements>, Size>;
 
 tmp<name... TElements>
-    typ(view_tuple_vt) = FWA_STD::tuple<ptr_gt<TElements>...>;
+    typ(view_tuple_vt) = ENV_STD::tuple<ptr_gt<TElements>...>;
 
 // poly
 
 tmp<name TElements>
-    typ(poly_pair_gt) = FWA_STD::pair<poly_gt<TElements>, poly_gt<TElements>>;
+    typ(poly_pair_gt) = ENV_STD::pair<poly_gt<TElements>, poly_gt<TElements>>;
 
 tmp<name TFirst, name TSecond>
-    typ(poly_pair_ggt) = FWA_STD::pair<poly_gt<TFirst>, poly_gt<TSecond>>;
+    typ(poly_pair_ggt) = ENV_STD::pair<poly_gt<TFirst>, poly_gt<TSecond>>;
 
 tmp<size_t Size, name TElements>
-    typ(poly_array_ngt) = FWA_STD::array<poly_gt<TElements>, Size>;
+    typ(poly_array_ngt) = ENV_STD::array<poly_gt<TElements>, Size>;
 
 tmp<name... TElements>
-    typ(poly_tuple_vt) = FWA_STD::tuple<poly_gt<TElements>...>;
+    typ(poly_tuple_vt) = ENV_STD::tuple<poly_gt<TElements>...>;
 
 // struct
 
-FWA_CLANG_SUPPRESS_PUSH("OCUnusedTemplateParameterInspection")
+ENV_CLANG_SUPPRESS_PUSH("OCUnusedTemplateParameterInspection")
 
 // variadic
 
@@ -69,7 +69,7 @@ tmp<>
 tmp<name THead, name... TRest>
     strct tuple_vs<
         variadic_vt<THead, TRest...>,
-        success_vt<COND_TYPE(!FWA_STD::conjunction_v<FWA_STD::is_same<THead, TRest>...> && sizeof...(TRest) != 1)>>
+        success_vt<COND_TYPE(!ENV_STD::conjunction_v<ENV_STD::is_same<THead, TRest>...> && sizeof...(TRest) != 1)>>
 {
     tmp<
         tmp<name, name> class TPair,
@@ -91,7 +91,7 @@ tmp<name TFirst, name TSecond>
 tmp<name THead, name... TRest>
     strct tuple_vs<
         variadic_vt<THead, TRest...>,
-        success_vt<COND_TYPE(FWA_STD::conjunction_v<FWA_STD::is_same<THead, TRest>...> && sizeof...(TRest) != 1)>>
+        success_vt<COND_TYPE(ENV_STD::conjunction_v<ENV_STD::is_same<THead, TRest>...> && sizeof...(TRest) != 1)>>
 {
     tmp<
         tmp<name, name> class TPair,
@@ -120,9 +120,9 @@ tmp<name TElements>
         typ(result_fft) = TPair<TElements, TElements>;
 };
 
-FWA_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 // abstract
 
@@ -153,9 +153,9 @@ ENV_TEST_CASE("variadic tuple")
 }
 
 tmp<name... TElements>
-    cmp_fn tpl(TElements &&...elements) noex->FWA_CORE::tuple_vt<FWA_CORE::remove_ref_gt<TElements>...>
+    cmp_fn tpl(TElements &&...elements) noex->ENV::tuple_vt<ENV::remove_ref_gt<TElements>...>
 {
-    ret{FWA_STD::forward<TElements>(elements)...};
+    ret{ENV_STD::forward<TElements>(elements)...};
 }
 
 ENV_TEST_CASE("variadic tuple construction")
@@ -194,52 +194,52 @@ ENV_TEST_CASE("sized tuple")
     REQUIRE_EQT(tuple_ngt<4_s, int>, detail::array_ngt<4_s, int>);
 }
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 // MSVC has an internal compiler error if we just use sizeof... on non-type packs here
 
-COND_TMP((name TElements, name... TArgs, FWA_STD::size_t... Indices), (FWA_STD::is_constructible_v<TElements, const TArgs &...>))
-cmp_fn tpl(FWA_STD::index_sequence<Indices...>, const TArgs &...args)
+COND_TMP((name TElements, name... TArgs, ENV_STD::size_t... Indices), (ENV_STD::is_constructible_v<TElements, const TArgs &...>))
+cmp_fn tpl(ENV_STD::index_sequence<Indices...>, const TArgs &...args)
     noex(noex(TElements{args...}))
-        ->FWA_CORE::tuple_ngt<scast<size_t>(rank_of_a<Indices...>), TElements>
+        ->ENV::tuple_ngt<scast<size_t>(rank_of_a<Indices...>), TElements>
 {
     ret{first_gvt<TElements, decltype(Indices)>{args...}...};
 };
 
-COND_TMP((name TElements, FWA_STD::size_t... Indices), (FWA_STD::is_copy_constructible_v<TElements>))
-cmp_fn tpl(FWA_STD::index_sequence<Indices...>, const TElements &to_copy)
+COND_TMP((name TElements, ENV_STD::size_t... Indices), (ENV_STD::is_copy_constructible_v<TElements>))
+cmp_fn tpl(ENV_STD::index_sequence<Indices...>, const TElements &to_copy)
     noex(noex(TElements{to_copy}))
-        ->FWA_CORE::tuple_ngt<scast<size_t>(rank_of_a<Indices...>), TElements>
+        ->ENV::tuple_ngt<scast<size_t>(rank_of_a<Indices...>), TElements>
 {
     ret{first_gvt<TElements, decltype(Indices)>{to_copy}...};
 };
 
-COND_TMP((name TElements, FWA_STD::size_t... Indices), (FWA_STD::is_default_constructible_v<TElements>))
-cmp_fn tpl(FWA_STD::index_sequence<Indices...>)
+COND_TMP((name TElements, ENV_STD::size_t... Indices), (ENV_STD::is_default_constructible_v<TElements>))
+cmp_fn tpl(ENV_STD::index_sequence<Indices...>)
     noex(noex(TElements{}))
-        ->FWA_CORE::tuple_ngt<scast<size_t>(rank_of_a<Indices...>), TElements>
+        ->ENV::tuple_ngt<scast<size_t>(rank_of_a<Indices...>), TElements>
 {
     ret{first_gvt<TElements, decltype(Indices)>{}...};
 };
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
-COND_TMP((size_t Size, name TElements, name... TArgs), (FWA_STD::is_constructible_v<TElements, TArgs...> && Size != empty))
+COND_TMP((size_t Size, name TElements, name... TArgs), (ENV_STD::is_constructible_v<TElements, TArgs...> && Size != empty))
 cmp_fn tpl(TArgs &&...args) noex(noex(TElements{TElements{args...}}))
 {
-    ret detail::tpl<TElements>(FWA_STD::make_index_sequence<Size>{}, FWA_STD::forward<TArgs>(args)...);
+    ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{}, ENV_STD::forward<TArgs>(args)...);
 }
 
-COND_TMP((size_t Size, name TElements), (FWA_STD::is_copy_constructible_v<TElements> && Size != empty))
+COND_TMP((size_t Size, name TElements), (ENV_STD::is_copy_constructible_v<TElements> && Size != empty))
 cmp_fn tpl(const TElements &to_copy) noex(noex(TElements{to_copy}))
 {
-    ret detail::tpl<TElements>(FWA_STD::make_index_sequence<Size>{}, to_copy);
+    ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{}, to_copy);
 }
 
-COND_TMP((size_t Size, name TElements), (FWA_STD::is_default_constructible_v<TElements> && Size != empty))
+COND_TMP((size_t Size, name TElements), (ENV_STD::is_default_constructible_v<TElements> && Size != empty))
 cmp_fn tpl() noex(noex(TElements{TElements{}}))
 {
-    ret detail::tpl<TElements>(FWA_STD::make_index_sequence<Size>{});
+    ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{});
 }
 
 COND_TMP((size_t Size, name TElements = nil_t), (Size == empty))
@@ -262,23 +262,23 @@ ENV_TEST_CASE("sized tuple construction")
 
 // pair hash
 
-FWA_NAMESPACE_STD_BEGIN
+ENV_NAMESPACE_STD_BEGIN
 
 tmp<name TFirst, name TSecond>
-    strct hash<FWA_CORE::detail::pair_ggt<TFirst, TSecond>>
+    strct hash<ENV::detail::pair_ggt<TFirst, TSecond>>
 {
-    typ(subject_t) = FWA_CORE::detail::pair_ggt<TFirst, TSecond>;
+    typ(subject_t) = ENV::detail::pair_ggt<TFirst, TSecond>;
 
     ON_COND((
-        FWA_CORE::is_hashable_g<typename subject_t::first_type> &&
-        FWA_CORE::is_hashable_g<typename subject_t::second_type>))
-    cmp_fn op()(const FWA_CORE::detail::pair_ggt<TFirst, TSecond> &pair) const noex->size_t
+        ENV::is_hashable_g<typename subject_t::first_type> &&
+        ENV::is_hashable_g<typename subject_t::second_type>))
+    cmp_fn op()(const ENV::detail::pair_ggt<TFirst, TSecond> &pair) const noex->size_t
     {
-        return FWA_CORE::hash(FWA_STD::get<0>(pair), FWA_STD::get<1>(pair));
+        return ENV::hash(ENV_STD::get<0>(pair), ENV_STD::get<1>(pair));
     }
 };
 
-FWA_NAMESPACE_STD_END
+ENV_NAMESPACE_STD_END
 
 ENV_TEST_CASE("pair hash")
 {

@@ -1,40 +1,40 @@
 #ifndef ENV_MESSAGES_HPP
 #define ENV_MESSAGES_HPP
 
-#ifdef FWA_MESSAGES // messages
-#if FWA_MSVC        // MSVC
-#define FWA_MESSAGE_IMPL(_message) FWA_PRAGMA(message(_message))
-#define FWA_MESSAGE_VAR(_message) FWA_MESSAGE_IMPL(PACK(_message))
-#define FWA_MESSAGE(...) FWA_MESSAGE_VAR(PACK(__VA_ARGS__))
+#ifdef ENV_MESSAGES // messages
+#if ENV_MSVC        // MSVC
+#define ENV_MESSAGE_IMPL(_message) ENV_PRAGMA(message(_message))
+#define ENV_MESSAGE_VAR(_message) ENV_MESSAGE_IMPL(PACK(_message))
+#define ENV_MESSAGE(...) ENV_MESSAGE_VAR(PACK(__VA_ARGS__))
 #endif        // MSVC
-#if FWA_CLANG // clang
-#define FWA_MESSAGE_IMPL(_message) FWA_PRAGMA(message _message)
-#define FWA_MESSAGE_VAR(_message) FWA_MESSAGE_IMPL(PACK(_message))
-#define FWA_MESSAGE(...) FWA_MESSAGE_VAR(PACK(__VA_ARGS__))
+#if ENV_CLANG // clang
+#define ENV_MESSAGE_IMPL(_message) ENV_PRAGMA(message _message)
+#define ENV_MESSAGE_VAR(_message) ENV_MESSAGE_IMPL(PACK(_message))
+#define ENV_MESSAGE(...) ENV_MESSAGE_VAR(PACK(__VA_ARGS__))
 #endif      // clang
-#if FWA_GCC // gcc
-#define FWA_MESSAGE_IMPL(_message) FWA_PRAGMA(message _message)
-#define FWA_MESSAGE_VAR(_message) FWA_MESSAGE_IMPL(PACK(_message))
-#define FWA_MESSAGE(...) FWA_MESSAGE_VAR(PACK(__VA_ARGS__))
+#if ENV_GCC // gcc
+#define ENV_MESSAGE_IMPL(_message) ENV_PRAGMA(message _message)
+#define ENV_MESSAGE_VAR(_message) ENV_MESSAGE_IMPL(PACK(_message))
+#define ENV_MESSAGE(...) ENV_MESSAGE_VAR(PACK(__VA_ARGS__))
 #endif // gcc
 
 #else        // messages
-#if FWA_MSVC // MSVC
-#define FWA_MESSAGE(...)
+#if ENV_MSVC // MSVC
+#define ENV_MESSAGE(...)
 #endif        // MSVC
-#if FWA_CLANG // clang
-#define FWA_MESSAGE(...)
+#if ENV_CLANG // clang
+#define ENV_MESSAGE(...)
 #endif      // clang
-#if FWA_GCC // gcc
-#define FWA_MESSAGE(...)
+#if ENV_GCC // gcc
+#define ENV_MESSAGE(...)
 #endif // gcc
 #endif // messages
 
 // ":" after label formats it badly
 
-FWA_MESSAGE(STRING(FWA Compiler - FWA_COMPILER_NAME, FWA_COMPILER_VER))
-FWA_MESSAGE(STRING(FWA Arch - FWA_ARCH_NAME))
-FWA_MESSAGE(STRING(FWA OS - FWA_OS_NAME))
-FWA_MESSAGE(STRING(FWA Standard - C++ FWA_CPP))
+ENV_MESSAGE(STRING(ENV Compiler - ENV_COMPILER_NAME, ENV_COMPILER_VER))
+ENV_MESSAGE(STRING(ENV Arch - ENV_ARCH_NAME))
+ENV_MESSAGE(STRING(ENV OS - ENV_OS_NAME))
+ENV_MESSAGE(STRING(ENV Standard - C++ ENV_CPP))
 
 #endif // ENV_MESSAGES_HPP

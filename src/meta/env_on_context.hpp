@@ -3,25 +3,25 @@
 
 // dep
 
-#define dep_name name TDep = FWA_CORE::void_t
+#define dep_name name TDep = ENV::void_t
 
 // cond
 // NOTE: you can only check for conditions here, so no conversion from type or expr into condition
 
-#define ON_COND(...) COND_TMP((dep_name), (FWA_STD::is_same_v<TDep, FWA_CORE::void_t> && (__VA_ARGS__)))
+#define ON_COND(...) COND_TMP((dep_name), (ENV_STD::is_same_v<TDep, ENV::void_t> && (__VA_ARGS__)))
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 tmp<name T>
     strct cond_const{
-        ON_COND(FWA_STD::is_const_v<T>) cmp_fn test(int) const noex{ret true;
+        ON_COND(ENV_STD::is_const_v<T>) cmp_fn test(int) const noex{ret true;
 }
 
 cmp_fn test(...) const noex { ret false; }
 }
 ;
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("cond")
 {
@@ -41,7 +41,7 @@ ENV_TEST_CASE("cond")
 //        strct CAT(_on_expr_, __LINE__) { SFINAE_IN_CLASS_STRUCT(ANON_NAME, (name TOnExpr), (TOnExpr), __VA_ARGS__); }; \
 //        COND_TMP((dep_name), CAT(_on_expr_, __LINE__)::tmp CAT(ANON_NAME, _g)<TDep>)
 //
-//FWA_NAMESPACE_TEST_BEGIN
+//ENV_NAMESPACE_TEST_BEGIN
 //
 //tmp<name T>
 //strct expr_addable
@@ -52,7 +52,7 @@ ENV_TEST_CASE("cond")
 //    cmp_fn test_addable(...) const noex { ret false; }
 //};
 //
-//FWA_NAMESPACE_TEST_END
+//ENV_NAMESPACE_TEST_END
 //
 //ENV_TEST_CASE("expr")
 //{
@@ -62,9 +62,9 @@ ENV_TEST_CASE("cond")
 
 //// type
 //
-//#define ON_TYPE(...) TYPE_TMP((dep_name), FWA_CORE::require_nt<FWA_CORE::is_expr_g<TDep>>, __VA_ARGS__)
+//#define ON_TYPE(...) TYPE_TMP((dep_name), ENV::require_nt<ENV::is_expr_g<TDep>>, __VA_ARGS__)
 //
-//FWA_NAMESPACE_TEST_BEGIN
+//ENV_NAMESPACE_TEST_BEGIN
 //
 //EXPR_TMP_UNARY(declval<T>() + declval<T>())
 //strct enable_plus_gt {};
@@ -78,7 +78,7 @@ ENV_TEST_CASE("cond")
 //    cmp_fn test_addable(...) const noex { ret false; }
 //};
 //
-//FWA_NAMESPACE_TEST_END
+//ENV_NAMESPACE_TEST_END
 //
 //ENV_TEST_CASE("expr")
 //{

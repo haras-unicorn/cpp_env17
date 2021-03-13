@@ -8,9 +8,9 @@ enum class endianness_t
     other = 0b00
 };
 
-FWA_NAMESPACE_DETAIL_BEGIN
-FWA_CLANG_SUPPRESS_PUSH("ConstantConditionsOC")
-FWA_CLANG_SUPPRESS_PUSH("UnreachableCode")
+ENV_NAMESPACE_DETAIL_BEGIN
+ENV_CLANG_SUPPRESS_PUSH("ConstantConditionsOC")
+ENV_CLANG_SUPPRESS_PUSH("UnreachableCode")
 
 // stolen from: https://stackoverflow.com/questions/1583791/constexpr-and-endianness
 
@@ -29,9 +29,9 @@ cmp_fn endianness() noex
                                                                        : endianness_t::other;
 }
 
-FWA_CLANG_SUPPRESS_POP
-FWA_CLANG_SUPPRESS_POP
-FWA_NAMESPACE_DETAIL_END
+ENV_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
+ENV_NAMESPACE_DETAIL_END
 
 let_cmp endianness{detail::endianness()};
 

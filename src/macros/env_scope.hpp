@@ -6,13 +6,13 @@
 #define ANON_NAME CAT(_env_anon_, __LINE__)
 #define SCOPE_SEMI typ(ANON_NAME) = void
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 let ANON_NAME{0};
 
 SCOPE_SEMI;
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 // scopes
 
@@ -54,7 +54,7 @@ ENV_TEST_CASE("if scope")
         (REQUIRE(true);));
 }
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define CMP_IF(_condition, _if_true, _if_false) IF(constexpr(_condition), _if_true, _if_false)
 #else // CPP >= 17
 #define CMP_IF(_condition, _if_true, _if_false) IF(_condition, _if_true, _if_false)
@@ -83,11 +83,11 @@ ENV_TEST_CASE("when")
     ON((false), REQUIRE(false););
 }
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define CMP_ON(_condition, ...) ON(constexpr _condition, __VA_ARGS__)
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 #define CMP_ON(_condition, ...) ON(_condition, __VA_ARGS__)
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("when")
 {
@@ -105,11 +105,11 @@ ENV_TEST_CASE("cond")
     REQUIRE_EQ(TERN((false), (1), (2)), 2);
 }
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define CMP_TERN(_condition, _if_true, _if_false) IFFY(CMP_IF(_condition, (ret _if_true;), (ret _if_false;));)
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 #define CMP_TERN(_condition, _if_true, _if_false) TERN(_condition, _if_true, _if_false)
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("cond")
 {
@@ -135,11 +135,11 @@ ENV_TEST_CASE("elvis")
     REQUIRE_EQ(ELVIS(test(), 2), 1);
 }
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define CMP_ELVIS(_lhs, _rhs) IFFY(constexpr auto ANON_NAME{_lhs}; return TERN((ANON_NAME), (ANON_NAME), (_rhs));)
 #else
 #define CMP_ELVIS(_lhs, _rhs) ELVIS(_lhs, _rhs)
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("elvis")
 {

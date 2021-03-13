@@ -1,19 +1,19 @@
 #ifndef ENV_MAP_HPP
 #define ENV_MAP_HPP
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name TKey, name TElements> typ(map_ggt) =
-    FWA_STD::unordered_map<
+    ENV_STD::unordered_map<
         TKey, TElements,
-        FWA_CORE::hasher_t, FWA_STD::equal_to<TKey>,
-        allocator_gt<FWA_STD::pair<const TKey, TElements>>>;
+        ENV::hasher_t, ENV_STD::equal_to<TKey>,
+        allocator_gt<ENV_STD::pair<const TKey, TElements>>>;
 
 tmp<name TKey, name TElements> typ(view_map_ggt) = map_ggt<TKey, ptr_gt<TElements>>;
 
 tmp<name TKey, name TElements> typ(poly_map_ggt) = map_ggt<TKey, poly_gt<TElements>>;
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 tmp<name TKey, name TElements> typ(map_ggt) = detail::map_ggt<key_c<TKey>, TElements>;
 
@@ -43,7 +43,7 @@ ENV_TEST_CASE("sized map")
     REQUIRE_EQ(_single.bucket_count(), 16);
 }
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name TKeyCommon = void_t, name TElementsCommon = void_t, name... TPairs>
     typ(map_common_vt) =
@@ -51,7 +51,7 @@ tmp<name TKeyCommon = void_t, name TElementsCommon = void_t, name... TPairs>
             detail::container_common_vt<TKeyCommon, name unqualified_gt<TPairs>::first_type...>,
             detail::container_common_vt<TElementsCommon, name unqualified_gt<TPairs>::second_type...>>;
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 // map
 
@@ -60,7 +60,7 @@ fun inl map(TPairs &&...pairs)->detail::map_common_vt<TKeyCommon, TElementsCommo
 {
     detail::map_common_vt<TKeyCommon, TElementsCommon, TPairs...> result;
     result.reserve(next_pow2(sizeof...(pairs)));
-    ((result.emplace(FWA_STD::forward<TPairs>(pairs))), ...);
+    ((result.emplace(ENV_STD::forward<TPairs>(pairs))), ...);
 
     return result;
 }
@@ -99,7 +99,7 @@ ENV_TEST_CASE("map")
         mut result{
             map(
                 to_copy_tpl,
-                tpl(1, FWA_STD::move(to_move)),
+                tpl(1, ENV_STD::move(to_move)),
                 tpl(2, test_t{}))};
         REQUIRE_EQ(result[0].get_label(), "copied");
         REQUIRE_EQ(result[1].get_label(), "moved");
@@ -142,9 +142,9 @@ ENV_TEST_CASE("map")
         mut result{
             map<int, base_t>(
                 derived_to_copy_tpl,
-                tpl(1, FWA_STD::move(derived_to_move)),
+                tpl(1, ENV_STD::move(derived_to_move)),
                 tpl(2, other_derived_to_copy),
-                tpl(3, FWA_STD::move(other_derived_to_move)),
+                tpl(3, ENV_STD::move(other_derived_to_move)),
                 tpl(4, other_derived_t{}))};
         REQUIRE_EQ(result[0].get_label(), "copied");
         REQUIRE_EQ(result[1].get_label(), "moved");

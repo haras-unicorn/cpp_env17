@@ -1,25 +1,25 @@
-include(FWAProperties)
-include(FWAFetch)
+include(ENVProperties)
+include(ENVFetch)
 
 env_log("-!- Adding dependencies... -!-")
 
-include(FWAStd)
-include(FWABoost)
-include(FWADoctest)
+include(ENVStd)
+include(ENVBoost)
+include(ENVDoctest)
 
-include(FWAMimalloc)
-include(FWAAsio)
-include(FWAPortAudio)
-include(FWAJuce)
+include(ENVMimalloc)
+include(ENVAsio)
+include(ENVPortAudio)
+include(ENVJuce)
 
-include(FWAJson)
-include(FWANode)
+include(ENVJson)
+include(ENVNode)
 
-include(FWADefault)
+include(ENVDefault)
 
 
 env_log("-!- Pruning dependencies... -!-")
 
-include(FWAExclude)
+include(ENVExclude)
 
 env_prune_directories(${PROJECT_SOURCE_DIR})

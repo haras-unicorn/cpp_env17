@@ -1,4 +1,4 @@
-include(FWALog)
+include(ENVLog)
 
 # add code
 function(env_target_link _name)

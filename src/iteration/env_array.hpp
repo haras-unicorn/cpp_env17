@@ -49,16 +49,16 @@ tmp<size_t Size, name TValue>
     typ(array_value_ngt) = name array_vs<Size>::tmp value_gt<TValue>;
 
 tmp<size_t Size, name TValue>
-    typ(array_ncgt) = array_ngt<Size, FWA_STD::add_const_t<TValue>>;
+    typ(array_ncgt) = array_ngt<Size, ENV_STD::add_const_t<TValue>>;
 
 tmp<size_t Size, name TValue>
-    typ(array_nmgt) = array_ngt<Size, FWA_STD::remove_const_t<TValue>>;
+    typ(array_nmgt) = array_ngt<Size, ENV_STD::remove_const_t<TValue>>;
 
 ENV_TEST_CASE("array traits")
 {
-    REQUIRES(FWA_STD::is_same_v<array_ngt<triple, int>, int[3]>);
-    REQUIRES(FWA_STD::is_same_v<array_vs<triple, dual>::array_gt<int>, int[3][2]>);
-    REQUIRES(FWA_STD::is_same_v<array_vs<triple, dual>::value_gt<int>, int[2]>);
+    REQUIRES(ENV_STD::is_same_v<array_ngt<triple, int>, int[3]>);
+    REQUIRES(ENV_STD::is_same_v<array_vs<triple, dual>::array_gt<int>, int[3][2]>);
+    REQUIRES(ENV_STD::is_same_v<array_vs<triple, dual>::value_gt<int>, int[2]>);
 }
 
 #endif // ENV_ARRAY_HPP

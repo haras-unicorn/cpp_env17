@@ -12,7 +12,7 @@ ENV_TEST_SUITE_BEGIN("traits");
 
 ENV_TEST_SUITE_END();
 
-#ifdef FWA_STD_REQUIREMENTS
+#ifdef ENV_STD_REQUIREMENTS
 
 ENV_TEST_SUITE_BEGIN("std requirements");
 
@@ -20,6 +20,6 @@ ENV_TEST_SUITE_BEGIN("std requirements");
 
 ENV_TEST_SUITE_END();
 
-#endif // FWA_STD_REQUIREMENTS
+#endif // ENV_STD_REQUIREMENTS
 
 #endif // ENV_TRAITS_HPP

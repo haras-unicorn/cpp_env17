@@ -1,21 +1,20 @@
-#define FWA_TESTS
-#define FWA_MESSAGES
+#define ENV_TESTS
+#define ENV_MESSAGES
 
 #include "env_core.hpp"
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] const char** argv)
+int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 {
-#if defined(FWA_TESTS) || defined(FWA_STATIC_TESTS)
+#if defined(ENV_TESTS) || defined(ENV_STATIC_TESTS)
 
     return doctest::Context{argc, argv}.run();
 
-#else // defined(FWA_TESTS)
+#else  // defined(ENV_TESTS)
     return 0;
-#endif // defined(FWA_TESTS)
+#endif // defined(ENV_TESTS)
 }
 
-
-#define FWA_UNDEF_MACROS
+#define ENV_UNDEF_MACROS
 
 #include "env_cleanup.hpp"
 
@@ -26,10 +25,10 @@ TEST_CASE("user macros && unused include")
 
 #ifdef SKIP
 #error "Macros shouldn't be defined now."
-#endif // FWA_UNDEF_META
+#endif // ENV_UNDEF_META
 #ifdef PI
 #error "Kinds shouldn't be defined now."
-#endif // FWA_UNDEF_STACK
+#endif // ENV_UNDEF_STACK
 #ifdef DECL_THIS
 #error "Operations shouldn't be defined now."
-#endif // FWA_UNDEF_META
+#endif // ENV_UNDEF_META

@@ -3,29 +3,29 @@
 
 // literals
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 typ(_id_t) =
-    FWA_STD::conditional_t<
-        FWA_STD::atomic<uint_fast64_t>::is_always_lock_free, uint_fast64_t, FWA_STD::conditional_t<FWA_STD::atomic<uint_fast32_t>::is_always_lock_free, uint_fast32_t, FWA_STD::conditional_t<FWA_STD::atomic<uint_fast16_t>::is_always_lock_free, uint_fast16_t, uint_fast8_t>>>;
+    ENV_STD::conditional_t<
+        ENV_STD::atomic<uint_fast64_t>::is_always_lock_free, uint_fast64_t, ENV_STD::conditional_t<ENV_STD::atomic<uint_fast32_t>::is_always_lock_free, uint_fast32_t, ENV_STD::conditional_t<ENV_STD::atomic<uint_fast16_t>::is_always_lock_free, uint_fast16_t, uint_fast8_t>>>;
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
-WHOLE_L(hash, h, FWA_STD::size_t);
+WHOLE_L(hash, h, ENV_STD::size_t);
 
 WHOLE_L(id, id, detail::_id_t);
 
 // std hash
 
-tmp<name T> typ(hash_gt) = FWA_STD::hash<T>;
+tmp<name T> typ(hash_gt) = ENV_STD::hash<T>;
 
 // std hashable
 
 // has_hash is weird like this because the STL tries to get a reference to void if
-// we try to instantiate FWA_STD::hash with it, so we have to check that first.
+// we try to instantiate ENV_STD::hash with it, so we have to check that first.
 // I don't know if this is UB, though. It seems a bit sketchy.
 
-EXPR_CHECK_UNARY(is_std_hashable, (COND_EXPR(!FWA_STD::is_same_v<T, void>), hash_gt<T>{}(declvalr<T>())));
+EXPR_CHECK_UNARY(is_std_hashable, (COND_EXPR(!ENV_STD::is_same_v<T, void>), hash_gt<T>{}(declvalr<T>())));
 
 COND_CONCEPT(std_hashable, (is_std_hashable_g<C>));
 
@@ -38,11 +38,11 @@ ENV_TEST_CASE("std hashable")
 // hash
 
 tmp<name T>
-    cmp_fn hash(const FWA_CORE::std_hashable_c<T> &subject)
-        noex(noex(FWA_STD::hash<FWA_CORE::unqualified_gt<T>>{}(subject)))
+    cmp_fn hash(const ENV::std_hashable_c<T> &subject)
+        noex(noex(ENV_STD::hash<ENV::unqualified_gt<T>>{}(subject)))
             ->hash_t
 {
-    cmp FWA_STD::hash<FWA_CORE::unqualified_gt<T>> _hasher{};
+    cmp ENV_STD::hash<ENV::unqualified_gt<T>> _hasher{};
     ret _hasher(subject);
 }
 

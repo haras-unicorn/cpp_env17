@@ -3,7 +3,7 @@
 
 // first
 
-FWA_CLANG_SUPPRESS_PUSH("OCUnusedTemplateParameterInspection")
+ENV_CLANG_SUPPRESS_PUSH("OCUnusedTemplateParameterInspection")
 
 tmp<name TResult, name... TIgnored>
     typ(first_gvt) = TResult;
@@ -17,7 +17,7 @@ tmp<name TResult, name TIgnored, TIgnored... Ignored>
 tmp<name TResult, TResult Result, name TIgnored, TIgnored... Ignored>
     let_cmp first_gnga = Result;
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 
 tmp<deduc Result, name... TIgnored>
     let_cmp first_nv = Result;
@@ -25,9 +25,9 @@ tmp<deduc Result, name... TIgnored>
 tmp<deduc Result, deduc... Ignored>
     let_cmp first_na = Result;
 
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
-FWA_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
 
 ENV_TEST_CASE("first")
 {
@@ -61,14 +61,14 @@ ENV_TEST_CASE("apply")
 
     SUBCASE("type")
     {
-        REQUIRE_EQT(apply_kvt<FWA_STD::underlying_type_t, test>, int);
-        REQUIRE_EQT(apply_kvt<FWA_STD::underlying_type_t, int>, fail_t);
+        REQUIRE_EQT(apply_kvt<ENV_STD::underlying_type_t, test>, int);
+        REQUIRE_EQT(apply_kvt<ENV_STD::underlying_type_t, int>, fail_t);
     }
 
     SUBCASE("functor")
     {
-        REQUIRE_EQT(apply_tvt<FWA_STD::plus<int>, int, int>, int);
-        REQUIRE_EQT(apply_tvt<FWA_STD::plus<int>, FWA_STD::string_view, int>, fail_t);
+        REQUIRE_EQT(apply_tvt<ENV_STD::plus<int>, int, int>, int);
+        REQUIRE_EQT(apply_tvt<ENV_STD::plus<int>, ENV_STD::string_view, int>, fail_t);
     }
 }
 

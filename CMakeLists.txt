@@ -12,9 +12,8 @@ set(CMAKE_MODULE_PATH
         ${PROJECT_SOURCE_DIR}/cmake/deps)
 
 
-include(FWADependencies)
+include(ENVDependencies)
 
 env_log("-!- Adding targets... -!-")
 
 env_add_test(core)
-env_add_test(graph env_juce)

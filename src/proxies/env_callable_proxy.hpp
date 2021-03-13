@@ -3,13 +3,13 @@
 
 // proxy
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name TFunction>
-    cls callable_proxy_gt : private FWA_STD::function<TFunction>
+    cls callable_proxy_gt : private ENV_STD::function<TFunction>
 {
     DECL_THIS(callable_proxy_gt);
-    DECL_BASE(std_function, (FWA_STD::function<TFunction>));
+    DECL_BASE(std_function, (ENV_STD::function<TFunction>));
 
     typ(function_t) = TFunction;
     typ(proxy_t) = callable_proxy_gt<function_t>;
@@ -25,10 +25,10 @@ tmp<name TFunction>
 
     ELABORATE_ENABLE_IF_COMPAT(
         (
-            (is_imp_convertible_tmp_g<T, callable_proxy_gt>)&&(FWA_STD::is_same_v<name T::function_t, function_t>)),
+            (is_imp_convertible_tmp_g<T, callable_proxy_gt>)&&(ENV_STD::is_same_v<name T::function_t, function_t>)),
         (
-            (is_imp_convertible_tmp_g<T, callable_proxy_gt>)&&(FWA_STD::is_same_v<name T::function_t, function_t>)),
-        (FWA_CORE::first_gnv<bool, false, T>));
+            (is_imp_convertible_tmp_g<T, callable_proxy_gt>)&&(ENV_STD::is_same_v<name T::function_t, function_t>)),
+        (ENV::first_gnv<bool, false, T>));
 
     DEF_TMP_ID;
 
@@ -51,12 +51,12 @@ public:
     (
             const auto target = _get_target();
 
-            ret target != nil ? static_cast<id_t>(reinterpret_cast<FWA_STD::uintptr_t>(target)) : n_id;
+            ret target != nil ? static_cast<id_t>(reinterpret_cast<ENV_STD::uintptr_t>(target)) : n_id;
     ),
     (
             const auto target = _get_target();
 
-            ret target != nil ? static_cast<hash_t>(reinterpret_cast<FWA_STD::uintptr_t>(target)) : n_hash;
+            ret target != nil ? static_cast<hash_t>(reinterpret_cast<ENV_STD::uintptr_t>(target)) : n_hash;
     ),
     (
             const auto target = _get_target();
@@ -73,24 +73,24 @@ protected:
 */
 };
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
-FWA_NAMESPACE_STD_BEGIN
+ENV_NAMESPACE_STD_BEGIN
 
 tmp<name TValue>
-    strct hash<FWA_CORE::detail::callable_proxy_gt<TValue>>{
-        cmp_fn op()(const FWA_CORE::detail::callable_proxy_gt<TValue> &callable) const noex{ret callable.hash();
+    strct hash<ENV::detail::callable_proxy_gt<TValue>>{
+        cmp_fn op()(const ENV::detail::callable_proxy_gt<TValue> &callable) const noex{ret callable.hash();
 }
 }
 ;
 
-FWA_NAMESPACE_STD_END
+ENV_NAMESPACE_STD_END
 
 COND_TMP_UNARY((is_supported_callable_g<T>))
 typ(callable_proxy_gt) = detail::callable_proxy_gt<function_gt<T>>;
 
 tmp<name T>
-    fun inl proxy(callable_c<T> &&value) noex { ret callable_proxy_gt<T>{FWA_STD::forward<T>(value)}; }
+    fun inl proxy(callable_c<T> &&value) noex { ret callable_proxy_gt<T>{ENV_STD::forward<T>(value)}; }
 
 ENV_TEST_CASE("callable proxy")
 {

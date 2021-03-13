@@ -1,7 +1,7 @@
 #ifndef ENV_MEMBERS_HPP
 #define ENV_MEMBERS_HPP
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name T>
     strct member_gs
@@ -17,7 +17,7 @@ tmp<name TMember, name THolder>
     typ(holder_t) = THolder;
 };
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 COND_CHECK_UNARY(is_member, detail::member_gs<T>::is_member);
 

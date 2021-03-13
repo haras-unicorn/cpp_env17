@@ -1,7 +1,7 @@
 #ifndef ENV_CLEANUP_META_HPP
 #define ENV_CLEANUP_META_HPP
 
-#if FWA_UNDEF_META
+#if ENV_UNDEF_META
 
 // constants
 
@@ -231,6 +231,6 @@
 #undef _DEF_AS_BASE
 #undef DEF_AS_BASE
 
-#endif // FWA_UNDEF_META
+#endif // ENV_UNDEF_META
 
 #endif // ENV_CLEANUP_META_HPP

@@ -5,29 +5,29 @@
 
 #define tmp template
 #define name typename
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define sass static_assert
 #define sass_msg static_assert
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 #define sass(...) static_assert(__VA_ARGS__, STRING(Assertion #__VA_ARGS__ failed.))
 #define sass_msg static_assert
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 #define cmp constexpr
 #define inl inline
 #define noex noexcept
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define if_cmp if cmp
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 #define if_cmp if
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 #define op operator
-#if FWA_CPP >= 14
+#if ENV_CPP >= 14
 #define deduc decltype(auto)
-#else // FWA_CPP >= 14
+#else // ENV_CPP >= 14
 #define deduc auto
-#endif // FWA_CPP >= 14
+#endif // ENV_CPP >= 14
 #define decl decltype
 #define ret return
 
@@ -37,13 +37,13 @@
 #define dcast dynamic_cast
 #define unused static_cast<void>
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 tmp<name T> struct [[maybe_unused]] template_name_test_t
 {
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("keyword keywords")
 {
@@ -62,7 +62,7 @@ ENV_TEST_CASE("keyword keywords")
     OBJECT_ATTRIBUTES auto _i = 1;
     OBJECT_ATTRIBUTES const auto _scast = scast<double>(_i);
     OBJECT_ATTRIBUTES const auto _ccast = ccast<const int &>(_i);
-    OBJECT_ATTRIBUTES const auto _rcast = rcast<FWA_STD::byte *>(&_i);
+    OBJECT_ATTRIBUTES const auto _rcast = rcast<ENV_STD::byte *>(&_i);
 
     class TYPE_ATTRIBUTES base_t
     {
@@ -88,13 +88,13 @@ ENV_TEST_CASE("keyword keywords")
 #define cls_p class
 #define cls cls_p TYPE_ATTRIBUTES
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define enm_p enum struct
 #define enm enm_p TYPE_ATTRIBUTES
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 #define enm_p enum struct
 #define enm enm_p
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("type keywords")
 {
@@ -108,11 +108,11 @@ ENV_TEST_CASE("type keywords")
 
 #define obj_p
 #define obj OBJECT_ATTRIBUTES obj_p
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define cmp_obj_p obj_p inl cmp
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 #define cmp_obj_p obj_p cmp
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 #define cmp_obj OBJECT_ATTRIBUTES cmp_obj_p
 
 #define temp_p deduc
@@ -122,11 +122,11 @@ ENV_TEST_CASE("type keywords")
 #define let_p const mut_p
 #define let obj let_p
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 #define let_cmp_p let_p inl cmp
-#else // FWA_CPP >= 17
+#else // ENV_CPP >= 17
 #define let_cmp_p let_p cmp
-#endif // FWA_CPP >= 17
+#endif // ENV_CPP >= 17
 #define let_cmp obj let_cmp_p
 
 ENV_TEST_CASE("object keywords")
@@ -148,20 +148,20 @@ ENV_TEST_CASE("object keywords")
 #define cmp_con_p explicit inl cmp
 #define cmp_con RETURN_ATTRIBUTES cmp_con_p
 
-#if FWA_CPP >= 14
+#if ENV_CPP >= 14
 #define fun_p auto
-#else // FWA_CPP >= 14
+#else // ENV_CPP >= 14
 #define fun_p
-#endif // FWA_CPP >= 14
+#endif // ENV_CPP >= 14
 #define fun RETURN_ATTRIBUTES fun_p
 #define cmp_fn_p fun_p inl cmp
 #define cmp_fn RETURN_ATTRIBUTES cmp_fn_p
 
-#if FWA_CPP >= 14
+#if ENV_CPP >= 14
 #define callb_p auto
-#else // FWA_CPP >= 14
+#else // ENV_CPP >= 14
 #define callb_p
-#endif // FWA_CPP >= 14
+#endif // ENV_CPP >= 14
 #define callb NO_RETURN_ATTRIBUTES callb_p
 #define cmp_callb_p callb_p inl cmp
 #define cmp_callb NO_RETURN_ATTRIBUTES cmp_callb_p

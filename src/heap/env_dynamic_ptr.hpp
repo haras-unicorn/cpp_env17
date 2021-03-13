@@ -1,7 +1,7 @@
 #ifndef ENV_DYNAMIC_PTR_HPP
 #define ENV_DYNAMIC_PTR_HPP
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name TPtr, name TAlloc, name = success_t>
     strct dynamic_data_gt
@@ -13,13 +13,13 @@ tmp<name TPtr, name TAlloc, name = success_t>
 
 protected:
     typ(alloc_t) = TAlloc;
-    typ(traits_t) = FWA_STD::allocator_traits<alloc_t>;
+    typ(traits_t) = ENV_STD::allocator_traits<alloc_t>;
 
     NIL((TAlloc), alloc);
 };
 
 tmp<name TPtr, name TAlloc>
-    strct dynamic_data_gt<TPtr, TAlloc, FWA_CORE::require_nt<FWA_STD::is_empty_v<TAlloc> && !FWA_STD::is_final_v<TAlloc>>> : protected TAlloc
+    strct dynamic_data_gt<TPtr, TAlloc, ENV::require_nt<ENV_STD::is_empty_v<TAlloc> && !ENV_STD::is_final_v<TAlloc>>> : protected TAlloc
 {
     typ(ptr_t) = TPtr;
 
@@ -28,12 +28,12 @@ tmp<name TPtr, name TAlloc>
 
 protected:
     typ(alloc_t) = TAlloc;
-    typ(traits_t) = FWA_STD::allocator_traits<alloc_t>;
+    typ(traits_t) = ENV_STD::allocator_traits<alloc_t>;
 
     GETTER(_get_alloc, (*this));
 };
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 /* TAlloc must be an allocator that meets the standard requirements of an allocator! */
 tmp<name TPtr, name TAlloc>
@@ -78,22 +78,22 @@ public:
         this->_get_data() = traits_t::allocate(this->_get_alloc(), size);
     }
 
-    COND_TMP_VARIADIC(FWA_STD::is_constructible_v<val_t, TVar...>)
+    COND_TMP_VARIADIC(ENV_STD::is_constructible_v<val_t, TVar...>)
     callb inl place(TVar && ...args) noex(is_place_noex_vt<TVar...>)
     {
-        traits_t::construct(this->_get_alloc(), this->_get_data(), FWA_STD::forward<TVar>(args)...);
+        traits_t::construct(this->_get_alloc(), this->_get_data(), ENV_STD::forward<TVar>(args)...);
     }
 
-    COND_TMP_VARIADIC(FWA_STD::is_constructible_v<val_t, TVar...>)
+    COND_TMP_VARIADIC(ENV_STD::is_constructible_v<val_t, TVar...>)
     callb inl place(ptr_t at, TVar && ...args) noex(is_place_noex_vt<TVar...>)
     {
-        traits_t::construct(this->_get_alloc(), at, FWA_STD::forward<TVar>(args)...);
+        traits_t::construct(this->_get_alloc(), at, ENV_STD::forward<TVar>(args)...);
     }
 
-    COND_TMP((name T, name... TVar), (FWA_STD::is_constructible_v<val_t, TVar...>))
+    COND_TMP((name T, name... TVar), (ENV_STD::is_constructible_v<val_t, TVar...>))
     callb inl place(unsigned_c<T> offset, TVar && ...args) noex(is_place_noex_vt<TVar...>)
     {
-        traits_t::construct(this->_get_alloc(), this->_get_data() + offset, FWA_STD::forward<TVar>(args)...);
+        traits_t::construct(this->_get_alloc(), this->_get_data() + offset, ENV_STD::forward<TVar>(args)...);
     }
 
     callb inl rem() noex(is_rem_noex)
@@ -125,33 +125,33 @@ public:
     CMP_TMP_EQUALITY { ret this->_get_data() == rhs._get_data(); };
 };
 
-FWA_NAMESPACE_STD_BEGIN
+ENV_NAMESPACE_STD_BEGIN
 
 tmp<name TPtr, name TAlloc>
-    strct hash<FWA_CORE::dynamic_ptr_gt<TPtr, TAlloc>>{
-        cmp_fn op()(const FWA_CORE::dynamic_ptr_gt<TPtr, TAlloc> &subject) const noex{
+    strct hash<ENV::dynamic_ptr_gt<TPtr, TAlloc>>{
+        cmp_fn op()(const ENV::dynamic_ptr_gt<TPtr, TAlloc> &subject) const noex{
             ret subject.hash();
 }
 }
 ;
 
-FWA_NAMESPACE_STD_END
+ENV_NAMESPACE_STD_END
 
 typ(dynamic_t) = dynamic_ptr_gt<byte_t>;
 
 TEST_CASE("dynamic")
 {
-    REQUIRE_EQ(FWA_STD::is_trivial_v<allocator_t>, FWA_STD::is_trivial_v<dynamic_t>);
+    REQUIRE_EQ(ENV_STD::is_trivial_v<allocator_t>, ENV_STD::is_trivial_v<dynamic_t>);
 
     SUBCASE("pair")
     {
-        obj dynamic_ptr_gt<FWA_STD::pair<int, int>> a;
+        obj dynamic_ptr_gt<ENV_STD::pair<int, int>> a;
         a.alloc(2);
         a.place(1, 2);
         a.place(1u, 2, 3);
 
-        REQUIRE_EQ(a.get_data()[0], FWA_STD::pair{1, 2});
-        REQUIRE_EQ(a.get_data()[1], FWA_STD::pair{2, 3});
+        REQUIRE_EQ(a.get_data()[0], ENV_STD::pair{1, 2});
+        REQUIRE_EQ(a.get_data()[1], ENV_STD::pair{2, 3});
 
         a.rem();
         a.rem(1u);

@@ -1,19 +1,19 @@
 #ifndef ENV_SET_HPP
 #define ENV_SET_HPP
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name TElements> typ(set_gt) =
-    FWA_STD::unordered_set<
+    ENV_STD::unordered_set<
         TElements,
-        FWA_CORE::hasher_t, FWA_STD::equal_to<TElements>,
+        ENV::hasher_t, ENV_STD::equal_to<TElements>,
         allocator_gt<TElements>>;
 
 tmp<name TElements> typ(view_set_gt) = set_gt<ptr_gt<TElements>>;
 
 tmp<name TElements> typ(poly_set_gt) = set_gt<poly_gt<TElements>>;
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 tmp<name TElements> typ(set_gt) = detail::set_gt<key_c<TElements>>;
 
@@ -49,7 +49,7 @@ COND_TMP((name TCommon = void_t, name... TElements), (sizeof...(TElements) != em
 fun inl set(TElements &&...elements)->set_gt<detail::container_common_vt<TCommon, TElements...>>
 {
     mut result = sset<detail::container_common_vt<TCommon, TElements...>>(size_t{sizeof...(TElements)});
-    ((result.emplace(FWA_STD::forward<TElements>(elements))), ...);
+    ((result.emplace(ENV_STD::forward<TElements>(elements))), ...);
 
     return result;
 }

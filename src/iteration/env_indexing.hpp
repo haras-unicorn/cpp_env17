@@ -3,7 +3,7 @@
 
 // literals
 
-WHOLE_L(index, i, FWA_STD::size_t);
+WHOLE_L(index, i, ENV_STD::size_t);
 
 let_cmp first{0_i}, second{1_i}, third{2_i};
 

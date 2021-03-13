@@ -1,32 +1,32 @@
 #ifndef ENV_ITERATOR_STANDARD_REQUIREMENTS_HPP
 #define ENV_ITERATOR_STANDARD_REQUIREMENTS_HPP
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
 // the standard iterator traits are just empty for non-iterator types and, therefore, won't fail for non-iterators
-EXPR_TMP_UNARY(TYPE_EXPR(name FWA_STD::iterator_traits<T>::value_type)) // sfinae friendly
+EXPR_TMP_UNARY(TYPE_EXPR(name ENV_STD::iterator_traits<T>::value_type)) // sfinae friendly
 strct iterator_traits_gt
 {
 private:
-        typ(std_traits_t) = FWA_STD::iterator_traits<T>;
+    typ(std_traits_t) = ENV_STD::iterator_traits<T>;
 
 public:
-        typ(value_t) = name std_traits_t::value_type;
-        typ(difference_t) = name std_traits_t::difference_type;
-        typ(reference_t) = name std_traits_t::reference;
-        typ(pointer_t) = name std_traits_t::pointer;
-        typ(category_t) = name std_traits_t::iterator_category;
+    typ(value_t) = name std_traits_t::value_type;
+    typ(difference_t) = name std_traits_t::difference_type;
+    typ(reference_t) = name std_traits_t::reference;
+    typ(pointer_t) = name std_traits_t::pointer;
+    typ(category_t) = name std_traits_t::iterator_category;
 
-        // needed for unordered associative containers
-        COND_CLASS_CHECK(
-            is_same,
-            (name TOther),
-            (TOther),
-            FWA_STD::is_same_v<name iterator_traits_gt::value_t, name TOther::value_t> &&
-                FWA_STD::is_same_v<name iterator_traits_gt::difference_t, name TOther::difference_t> &&
-                FWA_STD::is_same_v<name iterator_traits_gt::reference_t, name TOther::reference_t> &&
-                FWA_STD::is_same_v<name iterator_traits_gt::pointer_t, name TOther::pointer_t> &&
-                FWA_STD::is_same_v<name iterator_traits_gt::category_t, name TOther::category_t>);
+    // needed for unordered associative containers
+    COND_CLASS_CHECK(
+        is_same,
+        (name TOther),
+        (TOther),
+        ENV_STD::is_same_v<name iterator_traits_gt::value_t, name TOther::value_t> &&
+            ENV_STD::is_same_v<name iterator_traits_gt::difference_t, name TOther::difference_t> &&
+            ENV_STD::is_same_v<name iterator_traits_gt::reference_t, name TOther::reference_t> &&
+            ENV_STD::is_same_v<name iterator_traits_gt::pointer_t, name TOther::pointer_t> &&
+            ENV_STD::is_same_v<name iterator_traits_gt::category_t, name TOther::category_t>);
 };
 
 // base because some requirements have more nuance when it comes to dereferencing and incrementing
@@ -42,21 +42,21 @@ COND_CHECK_UNARY(
     is_std_legacy_iterator_lifetime_g<T> &&
         TYPE_COND(iterator_traits_gt<T>));
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 typ(iterator_value_t) = int;
 // notes: https://en.cppreference.com/w/cpp/container/unordered_set
-typ(forward_iterator_t) = FWA_STD::unordered_set<iterator_value_t>::iterator;
+typ(forward_iterator_t) = ENV_STD::unordered_set<iterator_value_t>::iterator;
 // notes: https://en.cppreference.com/w/cpp/container/set
-typ(bidirectional_iterator_t) = FWA_STD::set<iterator_value_t>::iterator;
+typ(bidirectional_iterator_t) = ENV_STD::set<iterator_value_t>::iterator;
 // notes: https://en.cppreference.com/w/cpp/container/vector
-typ(random_access_iterator_t) = FWA_STD::vector<iterator_value_t>::iterator;
+typ(random_access_iterator_t) = ENV_STD::vector<iterator_value_t>::iterator;
 // notes: https://en.cppreference.com/w/cpp/container/vector
-typ(contiguous_iterator_t) = FWA_STD::vector<iterator_value_t>::iterator;
+typ(contiguous_iterator_t) = ENV_STD::vector<iterator_value_t>::iterator;
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 // notes: https://en.cppreference.com/w/cpp/named_req/Iterator
 COND_CHECK_UNARY(
@@ -69,25 +69,25 @@ COND_CHECK_UNARY(
             EXPR_COND(*declvall<T>()) &&
 
         /* incrementing past the end or before begin is undefined behaviour */
-        FWA_STD::is_same_v<decl(++declvall<T>()), T &>);
+        ENV_STD::is_same_v<decl(++declvall<T>()), T &>);
 
 ENV_TEST_CASE("legacy iterator")
 {
-        STD_REQUIRE(is_std_legacy_iterator_g<test::forward_iterator_t>);
-        STD_REQUIRE(is_std_legacy_iterator_g<test::bidirectional_iterator_t>);
-        STD_REQUIRE(is_std_legacy_iterator_g<test::random_access_iterator_t>);
-        STD_REQUIRE(is_std_legacy_iterator_g<test::contiguous_iterator_t>);
-        STD_REQUIRE(is_std_legacy_iterator_g<int *>);
-        STD_REQUIRE(detail::is_std_legacy_iterator_lifetime_g<int>);
-        STD_REQUIRE_FALSE(detail::is_std_base_legacy_iterator_g<int>);
-        STD_REQUIRE_FALSE(is_std_legacy_iterator_g<int>);
+    STD_REQUIRE(is_std_legacy_iterator_g<test::forward_iterator_t>);
+    STD_REQUIRE(is_std_legacy_iterator_g<test::bidirectional_iterator_t>);
+    STD_REQUIRE(is_std_legacy_iterator_g<test::random_access_iterator_t>);
+    STD_REQUIRE(is_std_legacy_iterator_g<test::contiguous_iterator_t>);
+    STD_REQUIRE(is_std_legacy_iterator_g<int *>);
+    STD_REQUIRE(detail::is_std_legacy_iterator_lifetime_g<int>);
+    STD_REQUIRE_FALSE(detail::is_std_base_legacy_iterator_g<int>);
+    STD_REQUIRE_FALSE(is_std_legacy_iterator_g<int>);
 }
 
 // notes: https://en.cppreference.com/w/cpp/named_req/OutputIterator
 COND_CHECK_UNARY(
     is_std_legacy_output_iterator,
     detail::is_std_base_legacy_iterator_g<T> &&
-        (FWA_STD::is_pointer_v<T> || FWA_STD::is_class_v<T>)&&
+        (ENV_STD::is_pointer_v<T> || ENV_STD::is_class_v<T>)&&
 
         /* the standard requires that there be any assignment operator with a dereference */
         /* this is bad because it doesn't check for templates */
@@ -97,8 +97,8 @@ COND_CHECK_UNARY(
 
         /* this has more preconditions that are impossible to check. */
         /* surprisingly, there are different requirements for these. */
-        FWA_STD::is_same_v<decl(++declvall<T>()), T &> &&
-        FWA_STD::is_convertible_v<decl(declvall<T>()++), const T &>
+        ENV_STD::is_same_v<decl(++declvall<T>()), T &> &&
+        ENV_STD::is_convertible_v<decl(declvall<T>()++), const T &>
 
     /* the last expression is a combination of dereferencing, incrementing, and assignment */
     /* again, it is impossible to check because the assignment is impossible to check properly */
@@ -106,12 +106,12 @@ COND_CHECK_UNARY(
 
 ENV_TEST_CASE("output iterator")
 {
-        STD_REQUIRE(is_std_legacy_output_iterator_g<test::forward_iterator_t>);
-        STD_REQUIRE(is_std_legacy_output_iterator_g<test::bidirectional_iterator_t>);
-        STD_REQUIRE(is_std_legacy_output_iterator_g<test::random_access_iterator_t>);
-        STD_REQUIRE(is_std_legacy_output_iterator_g<test::contiguous_iterator_t>);
-        STD_REQUIRE(is_std_legacy_output_iterator_g<int *>);
-        STD_REQUIRE_FALSE(is_std_legacy_output_iterator_g<int>);
+    STD_REQUIRE(is_std_legacy_output_iterator_g<test::forward_iterator_t>);
+    STD_REQUIRE(is_std_legacy_output_iterator_g<test::bidirectional_iterator_t>);
+    STD_REQUIRE(is_std_legacy_output_iterator_g<test::random_access_iterator_t>);
+    STD_REQUIRE(is_std_legacy_output_iterator_g<test::contiguous_iterator_t>);
+    STD_REQUIRE(is_std_legacy_output_iterator_g<int *>);
+    STD_REQUIRE_FALSE(is_std_legacy_output_iterator_g<int>);
 }
 
 // notes: https://en.cppreference.com/w/cpp/named_req/InputIterator
@@ -121,29 +121,29 @@ COND_CHECK_UNARY(
 
             /* this has more preconditions that are impossible to check. */
             is_std_equality_comparable_g<T> &&
-                FWA_STD::is_convertible_v<decl(declval<const T>() != declval<const T>()), bool> &&
+                ENV_STD::is_convertible_v<decl(declval<const T>() != declval<const T>()), bool> &&
 
-                    FWA_STD::is_same_v<decl(*declval<const T>()), name detail::iterator_traits_gt<T>::reference_t> &&
-                        FWA_STD::is_convertible_v<
+                    ENV_STD::is_same_v<decl(*declval<const T>()), name detail::iterator_traits_gt<T>::reference_t> &&
+                        ENV_STD::is_convertible_v<
                             name detail::iterator_traits_gt<T>::reference_t,
                             name detail::iterator_traits_gt<T>::value_t> &&
-                            implies(FWA_STD::is_class_v<T>, has_arrow_operator_g<T>) &&
+                            implies(ENV_STD::is_class_v<T>, has_arrow_operator_g<T>) &&
 
         /* this has more preconditions that are impossible to check. */
         /* surprisingly, there are different requirements for these. */
-        FWA_STD::is_same_v<decl(++declvall<T>()), T &> &&
-        FWA_STD::is_convertible_v<decl(*declvall<T>()++), name detail::iterator_traits_gt<T>::value_t> &&
+        ENV_STD::is_same_v<decl(++declvall<T>()), T &> &&
+        ENV_STD::is_convertible_v<decl(*declvall<T>()++), name detail::iterator_traits_gt<T>::value_t> &&
 
         EXPR_COND((void)*declval<const T>(), (void)++declvall<T>(), (void)declvall<T>()++));
 
 ENV_TEST_CASE("input iterator")
 {
-        STD_REQUIRE(is_std_legacy_input_iterator_g<test::forward_iterator_t>);
-        STD_REQUIRE(is_std_legacy_input_iterator_g<test::bidirectional_iterator_t>);
-        STD_REQUIRE(is_std_legacy_input_iterator_g<test::random_access_iterator_t>);
-        STD_REQUIRE(is_std_legacy_input_iterator_g<test::contiguous_iterator_t>);
-        STD_REQUIRE(is_std_legacy_input_iterator_g<int *>);
-        STD_REQUIRE_FALSE(is_std_legacy_input_iterator_g<int>);
+    STD_REQUIRE(is_std_legacy_input_iterator_g<test::forward_iterator_t>);
+    STD_REQUIRE(is_std_legacy_input_iterator_g<test::bidirectional_iterator_t>);
+    STD_REQUIRE(is_std_legacy_input_iterator_g<test::random_access_iterator_t>);
+    STD_REQUIRE(is_std_legacy_input_iterator_g<test::contiguous_iterator_t>);
+    STD_REQUIRE(is_std_legacy_input_iterator_g<int *>);
+    STD_REQUIRE_FALSE(is_std_legacy_input_iterator_g<int>);
 }
 
 // notes: https://en.cppreference.com/w/cpp/named_req/ForwardIterator
@@ -159,10 +159,10 @@ COND_CHECK_UNARY(
         /* in the standard it should be mutable only if it's an output iterator,
          * but since all of these checks are not complete, I just leave this */
         (
-            FWA_STD::is_same_v<
+            ENV_STD::is_same_v<
                 name detail::iterator_traits_gt<T>::reference_t,
                 name detail::iterator_traits_gt<T>::value_t &> ||
-            FWA_STD::is_same_v<
+            ENV_STD::is_same_v<
                 name detail::iterator_traits_gt<T>::reference_t,
                 const name detail::iterator_traits_gt<T>::value_t &>)&&
 
@@ -171,17 +171,17 @@ COND_CHECK_UNARY(
          *  the value initialized-iterators (since C++14)." */
 
         /* I checked that these are compatible with the input and output iterator requirements */
-        FWA_STD::is_same_v<decl(declvall<T>()++), T> &&
-        FWA_STD::is_same_v<decl(*declvall<T>()++), name detail::iterator_traits_gt<T>::reference_t>);
+        ENV_STD::is_same_v<decl(declvall<T>()++), T> &&
+        ENV_STD::is_same_v<decl(*declvall<T>()++), name detail::iterator_traits_gt<T>::reference_t>);
 
 ENV_TEST_CASE("forward iterator")
 {
-        STD_REQUIRE(is_std_legacy_forward_iterator_g<test::forward_iterator_t>);
-        STD_REQUIRE(is_std_legacy_forward_iterator_g<test::bidirectional_iterator_t>);
-        STD_REQUIRE(is_std_legacy_forward_iterator_g<test::random_access_iterator_t>);
-        STD_REQUIRE(is_std_legacy_forward_iterator_g<test::contiguous_iterator_t>);
-        STD_REQUIRE(is_std_legacy_forward_iterator_g<int *>);
-        STD_REQUIRE_FALSE(is_std_legacy_forward_iterator_g<int>);
+    STD_REQUIRE(is_std_legacy_forward_iterator_g<test::forward_iterator_t>);
+    STD_REQUIRE(is_std_legacy_forward_iterator_g<test::bidirectional_iterator_t>);
+    STD_REQUIRE(is_std_legacy_forward_iterator_g<test::random_access_iterator_t>);
+    STD_REQUIRE(is_std_legacy_forward_iterator_g<test::contiguous_iterator_t>);
+    STD_REQUIRE(is_std_legacy_forward_iterator_g<int *>);
+    STD_REQUIRE_FALSE(is_std_legacy_forward_iterator_g<int>);
 }
 
 // notes: https://en.cppreference.com/w/cpp/named_req/BidirectionalIterator
@@ -192,20 +192,20 @@ COND_CHECK_UNARY(
         /* decrementing past the end or before begin is undefined behaviour */
 
         /* this has a lot more requirements that are impossible to check */
-        FWA_STD::is_same_v<decl(--declvall<T>()), T &> &&
+        ENV_STD::is_same_v<decl(--declvall<T>()), T &> &&
 
-            FWA_STD::is_convertible_v<decl(declvall<T>()--), const T &> &&
-                FWA_STD::is_same_v<decl(*declvall<T>()--), name detail::iterator_traits_gt<T>::reference_t>);
+            ENV_STD::is_convertible_v<decl(declvall<T>()--), const T &> &&
+                ENV_STD::is_same_v<decl(*declvall<T>()--), name detail::iterator_traits_gt<T>::reference_t>);
 
 ENV_TEST_CASE("bidirectional iterator")
 {
-        // it seems that this is a bit implementation defined
-        // STD_REQUIRE_FALSE(is_std_legacy_bidirectional_iterator_g<test::forward_iterator_t>);
-        STD_REQUIRE(is_std_legacy_bidirectional_iterator_g<test::bidirectional_iterator_t>);
-        STD_REQUIRE(is_std_legacy_bidirectional_iterator_g<test::random_access_iterator_t>);
-        STD_REQUIRE(is_std_legacy_bidirectional_iterator_g<test::contiguous_iterator_t>);
-        STD_REQUIRE(is_std_legacy_bidirectional_iterator_g<int *>);
-        STD_REQUIRE_FALSE(is_std_legacy_bidirectional_iterator_g<int>);
+    // it seems that this is a bit implementation defined
+    // STD_REQUIRE_FALSE(is_std_legacy_bidirectional_iterator_g<test::forward_iterator_t>);
+    STD_REQUIRE(is_std_legacy_bidirectional_iterator_g<test::bidirectional_iterator_t>);
+    STD_REQUIRE(is_std_legacy_bidirectional_iterator_g<test::random_access_iterator_t>);
+    STD_REQUIRE(is_std_legacy_bidirectional_iterator_g<test::contiguous_iterator_t>);
+    STD_REQUIRE(is_std_legacy_bidirectional_iterator_g<int *>);
+    STD_REQUIRE_FALSE(is_std_legacy_bidirectional_iterator_g<int>);
 }
 
 // notes: https://en.cppreference.com/w/cpp/named_req/RandomAccessIterator
@@ -216,58 +216,58 @@ COND_CHECK_UNARY(
         /* any kind of going past the end or before begin is undefined behaviour */
 
         /* increment has a few more requirements that are impossible to check */
-        FWA_STD::is_same_v<
+        ENV_STD::is_same_v<
             decl(declvall<T>() += declval<name detail::iterator_traits_gt<T>::difference_t>()),
             T &>
             &&
-                FWA_STD::is_same_v<
+                ENV_STD::is_same_v<
                     decl(declval<const T>() + declval<name detail::iterator_traits_gt<T>::difference_t>()),
                     T>
                     &&
-                        FWA_STD::is_same_v<
+                        ENV_STD::is_same_v<
                             decl(declval<name detail::iterator_traits_gt<T>::difference_t>() + declval<const T>()),
                             T>
                             &&
 
                                 /* decrement has a few more requirements that are impossible to check */
                                 /* surprisingly, there is no requirement for the inverse subtraction operator */
-                                FWA_STD::is_same_v<
+                                ENV_STD::is_same_v<
                                     decl(declvall<T>() -= declval<name detail::iterator_traits_gt<T>::difference_t>()),
                                     T &>
                                     &&
-                                        FWA_STD::is_same_v<
+                                        ENV_STD::is_same_v<
                                             decl(declval<const T>() - declval<name detail::iterator_traits_gt<T>::difference_t>()),
                                             T>
                                             &&
-                                                FWA_STD::is_same_v<
+                                                ENV_STD::is_same_v<
                                                     decl(declval<const T>() - declval<const T>()),
                                                     name detail::iterator_traits_gt<T>::difference_t>
                                                     &&
 
                                                         /* subscript */
-                                                        FWA_STD::is_convertible_v<
+                                                        ENV_STD::is_convertible_v<
                                                             decl(declval<const T>()[declval<name detail::iterator_traits_gt<T>::difference_t>()]),
                                                             name detail::iterator_traits_gt<T>::reference_t>
                                                             &&
 
                                                                 /* other than having to be a total order, these have a few more requirements */
-                                                                FWA_STD::is_convertible_v<decl(declval<const T>() < declval<const T>()), bool> &&
-                                                                    FWA_STD::is_convertible_v<decl(declval<const T>() > declval<const T>()), bool> &&
-                                                                        FWA_STD::is_convertible_v<decl(declval<const T>() <= declval<const T>()), bool> &&
-                                                                            FWA_STD::is_convertible_v<decl(declval<const T>() >= declval<const T>()), bool>);
+                                                                ENV_STD::is_convertible_v<decl(declval<const T>() < declval<const T>()), bool> &&
+                                                                    ENV_STD::is_convertible_v<decl(declval<const T>() > declval<const T>()), bool> &&
+                                                                        ENV_STD::is_convertible_v<decl(declval<const T>() <= declval<const T>()), bool> &&
+                                                                            ENV_STD::is_convertible_v<decl(declval<const T>() >= declval<const T>()), bool>);
 
 ENV_TEST_CASE("random access iterator")
 {
-        // it seems that this is a bit implementation defined
-        // STD_REQUIRE_FALSE(is_std_legacy_random_access_iterator_g<test::forward_iterator_t>);
-        // STD_REQUIRE_FALSE(is_std_legacy_random_access_iterator_g<test::bidirectional_iterator_t>);
-        STD_REQUIRE(is_std_legacy_random_access_iterator_g<test::random_access_iterator_t>);
-        STD_REQUIRE(is_std_legacy_random_access_iterator_g<test::contiguous_iterator_t>);
-        STD_REQUIRE(is_std_legacy_random_access_iterator_g<int *>);
-        STD_REQUIRE_FALSE(is_std_legacy_random_access_iterator_g<int>);
+    // it seems that this is a bit implementation defined
+    // STD_REQUIRE_FALSE(is_std_legacy_random_access_iterator_g<test::forward_iterator_t>);
+    // STD_REQUIRE_FALSE(is_std_legacy_random_access_iterator_g<test::bidirectional_iterator_t>);
+    STD_REQUIRE(is_std_legacy_random_access_iterator_g<test::random_access_iterator_t>);
+    STD_REQUIRE(is_std_legacy_random_access_iterator_g<test::contiguous_iterator_t>);
+    STD_REQUIRE(is_std_legacy_random_access_iterator_g<int *>);
+    STD_REQUIRE_FALSE(is_std_legacy_random_access_iterator_g<int>);
 }
 
-#if FWA_CPP >= 17
+#if ENV_CPP >= 17
 
 // notes: https://en.cppreference.com/w/cpp/named_req/ContiguousIterator
 COND_CHECK_UNARY(
@@ -276,21 +276,21 @@ COND_CHECK_UNARY(
 
         /* it says in the standard that int should be any integral and that the actual result should be equal,
          * but I think this is good enough for a compile time check */
-        FWA_STD::is_same_v<decl(*(declval<T>() + int{})), decl(*(FWA_STD::addressof(*declval<T>()) + int{}))>);
+        ENV_STD::is_same_v<decl(*(declval<T>() + int{})), decl(*(ENV_STD::addressof(*declval<T>()) + int{}))>);
 
 ENV_TEST_CASE("contiguous iterator")
 {
-        // it seems that this is a bit implementation defined
-        // STD_REQUIRE_FALSE(is_std_legacy_contiguous_iterator_g<test::forward_iterator_t>);
-        // STD_REQUIRE_FALSE(is_std_legacy_contiguous_iterator_g<test::bidirectional_iterator_t>);
-        // STD_REQUIRE_FALSE(is_std_legacy_contiguous_iterator_g<test::random_access_iterator_t>);
-        // according to: https://en.cppreference.com/w/cpp/container/vector
-        // vector doesn't have to have a contiguous iterator...
-        // STD_REQUIRE(is_std_legacy_contiguous_iterator_g<test::contiguous_iterator_t>);
-        STD_REQUIRE(is_std_legacy_contiguous_iterator_g<int *>);
-        STD_REQUIRE_FALSE(is_std_legacy_contiguous_iterator_g<int>);
+    // it seems that this is a bit implementation defined
+    // STD_REQUIRE_FALSE(is_std_legacy_contiguous_iterator_g<test::forward_iterator_t>);
+    // STD_REQUIRE_FALSE(is_std_legacy_contiguous_iterator_g<test::bidirectional_iterator_t>);
+    // STD_REQUIRE_FALSE(is_std_legacy_contiguous_iterator_g<test::random_access_iterator_t>);
+    // according to: https://en.cppreference.com/w/cpp/container/vector
+    // vector doesn't have to have a contiguous iterator...
+    // STD_REQUIRE(is_std_legacy_contiguous_iterator_g<test::contiguous_iterator_t>);
+    STD_REQUIRE(is_std_legacy_contiguous_iterator_g<int *>);
+    STD_REQUIRE_FALSE(is_std_legacy_contiguous_iterator_g<int>);
 }
 
-#endif // FWA_CPP17
+#endif // ENV_CPP17
 
 #endif // ENV_ITERATOR_STANDARD_REQUIREMENTS_HPP

@@ -4,13 +4,13 @@
 EXPR_TMP_BINARY(declvalr<TRhs>()(declvall<iterator_element_gt<TLhs>>()))
 callb inl each(TLhs begin, TLhs end, TRhs call)
 {
-    ret FWA_STD::for_each(begin, end, call);
+    ret ENV_STD::for_each(begin, end, call);
 }
 
 EXPR_TMP_BINARY(declvalr<TRhs>()(declvall<iterable_element_gt<TLhs>>()))
 callb inl each(TLhs &&iterable, TRhs call)
 {
-    ret FWA_CORE::each(iterable.begin(), iterable.end(), call);
+    ret ENV::each(iterable.begin(), iterable.end(), call);
 }
 
 // index
@@ -18,13 +18,13 @@ callb inl each(TLhs &&iterable, TRhs call)
 EXPR_TMP_BINARY(declvalr<TRhs>()(declvalr<index_t>(), declvall<iterator_element_gt<TLhs>>()))
 callb inl index(TLhs begin, TLhs end, TRhs call)
 {
-    ret FWA_CORE::each(begin, end, [call, index = 0_i](auto &element) mutable { call(index++, element); });
+    ret ENV::each(begin, end, [call, index = 0_i](auto &element) mutable { call(index++, element); });
 }
 
 EXPR_TMP_BINARY(declvalr<TRhs>()(declvalr<index_t>(), declvall<iterable_element_gt<TLhs>>()))
 callb inl index(TLhs &&iterable, TRhs call)
 {
-    ret FWA_CORE::index(iterable.begin(), iterable.end(), call);
+    ret ENV::index(iterable.begin(), iterable.end(), call);
 }
 
 ENV_TEST_CASE("index")
@@ -36,23 +36,23 @@ ENV_TEST_CASE("index")
 
 // place
 
-COND_TMP((name TElements, name... TArgs), FWA_STD::is_constructible_v<TElements, TArgs...>)
+COND_TMP((name TElements, name... TArgs), ENV_STD::is_constructible_v<TElements, TArgs...>)
 callb inl place(list_gt<TElements> &list, TArgs &&...args)
 {
-    ret list.emplace_back(FWA_STD::forward<TArgs>(args)...);
+    ret list.emplace_back(ENV_STD::forward<TArgs>(args)...);
 }
 
-COND_TMP((name TElements, name... TArgs), FWA_STD::is_constructible_v<TElements, TArgs...>)
+COND_TMP((name TElements, name... TArgs), ENV_STD::is_constructible_v<TElements, TArgs...>)
 callb inl place(set_gt<TElements> &set, TArgs &&...args)
 {
-    ret set.emplace(FWA_STD::forward<TArgs>(args)...);
+    ret set.emplace(ENV_STD::forward<TArgs>(args)...);
 }
 
 COND_TMP((name TKey, name TElements, name... TArgs),
-         FWA_STD::is_constructible_v<FWA_CORE::tuple_vt<TKey, TElements>, TArgs...>)
+         ENV_STD::is_constructible_v<ENV::tuple_vt<TKey, TElements>, TArgs...>)
 callb inl place(map_ggt<TKey, TElements> &map, TArgs &&...args)
 {
-    ret map.emplace(FWA_STD::forward<TArgs>(args)...);
+    ret map.emplace(ENV_STD::forward<TArgs>(args)...);
 }
 
 ENV_TEST_CASE("place")
@@ -83,37 +83,37 @@ ENV_TEST_CASE("place")
 
 // TODO: arrays
 
-EXPR_TMP_TERNARY(place(declvall<T1>(), declvalr<T3>()(declvall<FWA_CORE::iterator_element_gt<T2>>())))
+EXPR_TMP_TERNARY(place(declvall<T1>(), declvalr<T3>()(declvall<ENV::iterator_element_gt<T2>>())))
 fun inl trans(T2 begin, T2 end, T3 call)
 {
     obj T1 result{};
-    let size = FWA_STD::distance(begin, end);
+    let size = ENV_STD::distance(begin, end);
     result.reserve(next_pow2(clamp_cast<size_t>(size)));
 
-    FWA_CORE::each(begin, end, [&result, call](auto &element) mutable { place(result, call(element)); });
+    ENV::each(begin, end, [&result, call](auto &element) mutable { place(result, call(element)); });
     ret result;
 }
 
-EXPR_TMP_TERNARY(place(declvall<T1>(), declvalr<T3>()(declvall<FWA_CORE::iterable_element_gt<T2>>())))
+EXPR_TMP_TERNARY(place(declvall<T1>(), declvalr<T3>()(declvall<ENV::iterable_element_gt<T2>>())))
 fun inl trans(T2 &&iterable, T3 call)
 {
-    ret FWA_CORE::trans<T1>(iterable.begin(), iterable.end(), call);
+    ret ENV::trans<T1>(iterable.begin(), iterable.end(), call);
 }
 
 EXPR_TMP_BINARY(place(
-    declvall<FWA_CORE::list_gt<FWA_CORE::iterator_element_gt<TLhs>>>(),
-    declvalr<TRhs>()(declvall<FWA_CORE::iterator_element_gt<TLhs>>())))
+    declvall<ENV::list_gt<ENV::iterator_element_gt<TLhs>>>(),
+    declvalr<TRhs>()(declvall<ENV::iterator_element_gt<TLhs>>())))
 fun inl trans(TLhs begin, TLhs end, TRhs call)
 {
-    ret FWA_CORE::trans<list_gt<iterator_element_gt<TLhs>>>(begin, end, call);
+    ret ENV::trans<list_gt<iterator_element_gt<TLhs>>>(begin, end, call);
 }
 
 EXPR_TMP_BINARY(place(
-    declvall<FWA_CORE::unqualified_gt<TLhs>>(),
-    declvalr<TRhs>()(declvall<FWA_CORE::iterable_element_gt<TLhs>>())))
+    declvall<ENV::unqualified_gt<TLhs>>(),
+    declvalr<TRhs>()(declvall<ENV::iterable_element_gt<TLhs>>())))
 fun inl trans(TLhs &&iterable, TRhs call)
 {
-    ret FWA_CORE::trans<FWA_CORE::unqualified_gt<TLhs>>(iterable.begin(), iterable.end(), call);
+    ret ENV::trans<ENV::unqualified_gt<TLhs>>(iterable.begin(), iterable.end(), call);
 }
 
 ENV_TEST_CASE("trans")
@@ -127,13 +127,13 @@ ENV_TEST_CASE("trans")
     SUBCASE("list -> set")
     {
         let _list = lst(1, 2, 3);
-        let _set = trans<FWA_CORE::set_gt<double>>(_list, [](auto v) { return v + 1; });
+        let _set = trans<ENV::set_gt<double>>(_list, [](auto v) { return v + 1; });
         REQUIRE_EQ(*_set.find(4), 4);
     }
     SUBCASE("set -> map")
     {
         let _set = set(tpl(1, 2), tpl(3, 4));
-        mut _map = trans<FWA_CORE::map_ggt<int, int>>(_set, [](auto p) { return p; });
+        mut _map = trans<ENV::map_ggt<int, int>>(_set, [](auto p) { return p; });
         REQUIRE_EQ(_map[1], 2);
     }
     SUBCASE("map -> list")
@@ -149,13 +149,13 @@ ENV_TEST_CASE("trans")
 EXPR_TMP_BINARY(declvalr<TRhs>()(declvalr<iterable_element_gt<TLhs>>()))
 callb inl rem(TLhs &iterable, TRhs condition)
 {
-    iterable.erase(FWA_STD::remove_if(iterable.begin(), iterable.end(), condition), iterable.end());
+    iterable.erase(ENV_STD::remove_if(iterable.begin(), iterable.end(), condition), iterable.end());
 }
 
-COND_TMP_UNARY(FWA_CORE::is_equatable_g<FWA_CORE::iterable_element_gt<T>>)
+COND_TMP_UNARY(ENV::is_equatable_g<ENV::iterable_element_gt<T>>)
 callb inl rem(T &iterable, const iterable_element_gt<T> &element)
 {
-    iterable.erase(FWA_STD::remove(iterable.begin(), iterable.end(), element), iterable.end());
+    iterable.erase(ENV_STD::remove(iterable.begin(), iterable.end(), element), iterable.end());
 }
 
 ENV_TEST_CASE("rem")
@@ -177,28 +177,28 @@ ENV_TEST_CASE("rem")
 
 // all
 
-COND_TMP_BINARY(FWA_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterator_element_gt<TLhs>>())), bool>)
+COND_TMP_BINARY(ENV_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterator_element_gt<TLhs>>())), bool>)
 fun inl all(TLhs begin, TLhs end, TRhs condition)
 {
-    ret FWA_STD::all_of(begin, end, condition);
+    ret ENV_STD::all_of(begin, end, condition);
 }
 
-COND_TMP_BINARY(FWA_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterable_element_gt<TLhs>>())), bool>)
+COND_TMP_BINARY(ENV_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterable_element_gt<TLhs>>())), bool>)
 fun inl all(TLhs &&iterable, TRhs condition)
 {
-    ret FWA_CORE::all(iterable.begin(), iterable.end(), condition);
+    ret ENV::all(iterable.begin(), iterable.end(), condition);
 }
 
-COND_TMP_UNARY(FWA_CORE::is_equatable_g<FWA_CORE::iterator_element_gt<T>>)
+COND_TMP_UNARY(ENV::is_equatable_g<ENV::iterator_element_gt<T>>)
 fun inl all(T begin, T end, const iterator_element_gt<T> &element)
 {
-    ret FWA_STD::all_of(begin, end, [&element](const auto &current) { ret current == element; });
+    ret ENV_STD::all_of(begin, end, [&element](const auto &current) { ret current == element; });
 }
 
-COND_TMP_UNARY(FWA_CORE::is_equatable_g<FWA_CORE::iterable_element_gt<T>>)
+COND_TMP_UNARY(ENV::is_equatable_g<ENV::iterable_element_gt<T>>)
 fun inl all(T &&iterable, const iterable_element_gt<T> &element)
 {
-    ret FWA_CORE::all(iterable.begin(), iterable.end(), element);
+    ret ENV::all(iterable.begin(), iterable.end(), element);
 }
 
 TEST_CASE("all")
@@ -218,28 +218,28 @@ TEST_CASE("all")
 
 // any
 
-COND_TMP_BINARY(FWA_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterator_element_gt<TLhs>>())), bool>)
+COND_TMP_BINARY(ENV_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterator_element_gt<TLhs>>())), bool>)
 fun inl any(TLhs begin, TLhs end, TRhs condition)
 {
-    ret FWA_STD::any_of(begin, end, condition);
+    ret ENV_STD::any_of(begin, end, condition);
 }
 
-COND_TMP_BINARY(FWA_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterable_element_gt<TLhs>>())), bool>)
+COND_TMP_BINARY(ENV_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterable_element_gt<TLhs>>())), bool>)
 fun inl any(TLhs &&iterable, TRhs condition)
 {
-    ret FWA_CORE::any(iterable.begin(), iterable.end(), condition);
+    ret ENV::any(iterable.begin(), iterable.end(), condition);
 }
 
-COND_TMP_UNARY(FWA_CORE::is_equatable_g<FWA_CORE::iterator_element_gt<T>>)
+COND_TMP_UNARY(ENV::is_equatable_g<ENV::iterator_element_gt<T>>)
 fun inl any(T begin, T end, const iterator_element_gt<T> &element)
 {
-    ret FWA_STD::any_of(begin, end, [&element](const auto &current) { ret current == element; });
+    ret ENV_STD::any_of(begin, end, [&element](const auto &current) { ret current == element; });
 }
 
-COND_TMP_UNARY(FWA_CORE::is_equatable_g<FWA_CORE::iterable_element_gt<T>>)
+COND_TMP_UNARY(ENV::is_equatable_g<ENV::iterable_element_gt<T>>)
 fun inl any(T &&iterable, const iterable_element_gt<T> &element)
 {
-    ret FWA_CORE::any(iterable.begin(), iterable.end(), element);
+    ret ENV::any(iterable.begin(), iterable.end(), element);
 }
 
 TEST_CASE("any")
@@ -259,28 +259,28 @@ TEST_CASE("any")
 
 // none
 
-COND_TMP_BINARY(FWA_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterator_element_gt<TLhs>>())), bool>)
+COND_TMP_BINARY(ENV_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterator_element_gt<TLhs>>())), bool>)
 fun inl none(TLhs begin, TLhs end, TRhs condition)
 {
-    ret FWA_STD::none_of(begin, end, condition);
+    ret ENV_STD::none_of(begin, end, condition);
 }
 
-COND_TMP_BINARY(FWA_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterable_element_gt<TLhs>>())), bool>)
+COND_TMP_BINARY(ENV_STD::is_same_v<decl(declvalr<TRhs>()(declvalr<iterable_element_gt<TLhs>>())), bool>)
 fun inl none(TLhs &&iterable, TRhs condition)
 {
-    ret FWA_CORE::none(iterable.begin(), iterable.end(), condition);
+    ret ENV::none(iterable.begin(), iterable.end(), condition);
 }
 
-COND_TMP_UNARY(FWA_CORE::is_equatable_g<FWA_CORE::iterator_element_gt<T>>)
+COND_TMP_UNARY(ENV::is_equatable_g<ENV::iterator_element_gt<T>>)
 fun inl none(T begin, T end, const iterator_element_gt<T> &element)
 {
-    ret FWA_STD::none_of(begin, end, [&element](const auto &current) { ret current == element; });
+    ret ENV_STD::none_of(begin, end, [&element](const auto &current) { ret current == element; });
 }
 
-COND_TMP_UNARY(FWA_CORE::is_equatable_g<FWA_CORE::iterable_element_gt<T>>)
+COND_TMP_UNARY(ENV::is_equatable_g<ENV::iterable_element_gt<T>>)
 fun inl none(T &&iterable, const iterable_element_gt<T> &element)
 {
-    ret FWA_CORE::none(iterable.begin(), iterable.end(), element);
+    ret ENV::none(iterable.begin(), iterable.end(), element);
 }
 
 TEST_CASE("none")

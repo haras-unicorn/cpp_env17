@@ -1,7 +1,7 @@
 #ifndef ENV_CLEANUP_STACK_HPP
 #define ENV_CLEANUP_STACK_HPP
 
-#if FWA_UNDEF_STACK
+#if ENV_UNDEF_STACK
 
 #undef WHOLE_L
 #undef FLOATING_L
@@ -16,6 +16,6 @@
 #undef PI
 #undef E
 
-#endif // FWA_UNDEF_STACK
+#endif // ENV_UNDEF_STACK
 
 #endif // ENV_CLEANUP_STACK_HPP

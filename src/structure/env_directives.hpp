@@ -4,30 +4,30 @@
 /*
  *
  *
- * This file is just a documentation of directives that can be passed to FWA.
+ * This file is just a documentation of directives that can be passed to ENV.
  *
  *
  * TESTING DIRECTIVES:
  *
- * FWA_TESTS:
+ * ENV_TESTS:
  * Enables static and runtime tests with doctest.
  *
- * FWA_STATIC_TESTS:
- * Same as FWA_TESTS, but only enables the static ones.
+ * ENV_STATIC_TESTS:
+ * Same as ENV_TESTS, but only enables the static ones.
  *
- * FWA_SKIP_TESTS:
+ * ENV_SKIP_TESTS:
  * Skip all tests.
  *
- * FWA_<MODULE_NAME>_SKIP_TESTS:
+ * ENV_<MODULE_NAME>_SKIP_TESTS:
  * Skips tests from the specified module.
  *
  *
  *
  * FEATURE DIRECTIVES:
  *
- * FWA_STD_REQUIREMENTS:
+ * ENV_STD_REQUIREMENTS:
  * Enables checks for named standard requirements.
- * It is automatically enabled if FWA_TESTS or FWA_STATIC_TESTS are enabled.
+ * It is automatically enabled if ENV_TESTS or ENV_STATIC_TESTS are enabled.
  * See: https://en.cppreference.com/w/cpp/named_req.
  *
  *

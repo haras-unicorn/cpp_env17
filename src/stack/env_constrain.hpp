@@ -5,7 +5,7 @@
 
 tmp<name T> cmp_fn floor(arithmetic_c<T> of) noex
 {
-    if_cmp(is_floating_g<T>) ret FWA_STD::floor(of);
+    if_cmp(is_floating_g<T>) ret ENV_STD::floor(of);
     else ret of;
 }
 
@@ -20,7 +20,7 @@ ENV_TEST_CASE("floor")
 
 tmp<name T> cmp_fn ceil(arithmetic_c<T> of) noex
 {
-    if_cmp(is_floating_g<T>) ret FWA_STD::ceil(of);
+    if_cmp(is_floating_g<T>) ret ENV_STD::ceil(of);
     else ret of;
 }
 
@@ -35,7 +35,7 @@ ENV_TEST_CASE("ceil")
 
 tmp<name T> cmp_fn round(arithmetic_c<T> of) noex
 {
-    if_cmp(is_floating_g<T>) ret FWA_STD::round(of);
+    if_cmp(is_floating_g<T>) ret ENV_STD::round(of);
     else ret of;
 }
 
@@ -95,8 +95,8 @@ ENV_TEST_CASE("sign")
 
 tmp<name T> cmp_fn abs(arithmetic_c<T> of) noex
 {
-    if_cmp(FWA_STD::is_enum_v<T>) ret abs(underlying_cast(of));
-    else if_cmp(is_signed_g<T>) ret FWA_STD::abs(of);
+    if_cmp(ENV_STD::is_enum_v<T>) ret abs(underlying_cast(of));
+    else if_cmp(is_signed_g<T>) ret ENV_STD::abs(of);
     else ret of;
 }
 

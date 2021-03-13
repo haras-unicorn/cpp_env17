@@ -10,7 +10,7 @@
 
 #define FORMAT ANON_STRUCT
 
-FWA_CLANG_SUPPRESS_PUSH("bugprone-macro-parentheses")
+ENV_CLANG_SUPPRESS_PUSH("bugprone-macro-parentheses")
 
 #define ACCESS_BEGIN(_access) \
     ANON_STRUCT;              \
@@ -19,7 +19,7 @@ FWA_CLANG_SUPPRESS_PUSH("bugprone-macro-parentheses")
     ANON_STRUCT;            \
     PACK(_access) : ANON_STRUCT
 
-FWA_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
 
 #define CLASS_SEMI ANON_STRUCT
 

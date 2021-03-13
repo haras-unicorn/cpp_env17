@@ -31,15 +31,15 @@ ENV_TEST_CASE("completeness")
 
 // enum concept
 
-COND_CONCEPT(enum, (FWA_STD::is_enum_v<C>));
+COND_CONCEPT(enum, (ENV_STD::is_enum_v<C>));
 
 // conversion traits
 
-COND_CHECK_BINARY(is_convertible, (FWA_STD::is_constructible_v<TRhs, TLhs>));
+COND_CHECK_BINARY(is_convertible, (ENV_STD::is_constructible_v<TRhs, TLhs>));
 
 COND_CONCEPT_UNARY(convertible, (is_convertible_g<C, T>));
 
-COND_CHECK_BINARY(is_imp_convertible, (FWA_STD::is_convertible_v<TLhs, TRhs>));
+COND_CHECK_BINARY(is_imp_convertible, (ENV_STD::is_convertible_v<TLhs, TRhs>));
 
 COND_CONCEPT_UNARY(imp_convertible, (is_imp_convertible_g<C, T>));
 
@@ -148,7 +148,7 @@ EXPR_CHECK_BINARY(
 
 COND_CONCEPT(comparable, (is_comparable_g<C>));
 
-COND_CHECK_UNARY(is_data, (FWA_STD::is_object_v<T> && !FWA_STD::is_pointer_v<T>));
+COND_CHECK_UNARY(is_data, (ENV_STD::is_object_v<T> && !ENV_STD::is_pointer_v<T>));
 
 COND_CONCEPT(data, (is_data_g<C>));
 
@@ -175,19 +175,19 @@ ENV_TEST_CASE("behaviour traits")
 
 // iterable traits
 
-FWA_NAMESPACE_DETAIL_BEGIN
+ENV_NAMESPACE_DETAIL_BEGIN
 
-tmp<name T> typ(iterator_element_gt) = name FWA_STD::iterator_traits<T>::value_type;
+tmp<name T> typ(iterator_element_gt) = name ENV_STD::iterator_traits<T>::value_type;
 
 tmp<name T> typ(iterable_element_gt) = iterator_element_gt<decltype(declvalr<T>().begin())>;
 
-FWA_NAMESPACE_DETAIL_END
+ENV_NAMESPACE_DETAIL_END
 
 EXPR_CHECK_UNARY(is_iterator, (TYPE_EXPR(detail::iterator_element_gt<T>)));
 
 COND_CONCEPT(iterator, (is_iterator_g<C>));
 
-COND_CHECK_BINARY(is_iterator_with_element, (FWA_STD::is_same_v<detail::iterator_element_gt<TLhs>, TRhs>));
+COND_CHECK_BINARY(is_iterator_with_element, (ENV_STD::is_same_v<detail::iterator_element_gt<TLhs>, TRhs>));
 
 COND_CONCEPT_UNARY(iterator_with_element, (is_iterator_with_element_g<C, T>));
 
@@ -195,7 +195,7 @@ EXPR_CHECK_UNARY(is_iterable, (TYPE_EXPR(detail::iterable_element_gt<T>)));
 
 COND_CONCEPT(iterable, (is_iterable_g<C>));
 
-COND_CHECK_BINARY(is_iterable_with_element, (FWA_STD::is_same_v<detail::iterable_element_gt<TLhs>, TRhs>));
+COND_CHECK_BINARY(is_iterable_with_element, (ENV_STD::is_same_v<detail::iterable_element_gt<TLhs>, TRhs>));
 
 COND_CONCEPT_UNARY(iterable_with_element, (is_iterable_with_element_g<C, T>));
 
@@ -207,16 +207,16 @@ ENV_TEST_CASE("iterable traits")
 {
     SUBCASE("iterator")
     {
-        REQUIRES(is_iterator_g<FWA_STD::vector<int>::iterator>);
-        REQUIRE_EQT(iterator_element_gt<FWA_STD::vector<int>::iterator>, int);
-        REQUIRES(is_iterator_with_element_g<FWA_STD::vector<int>::iterator, int>);
+        REQUIRES(is_iterator_g<ENV_STD::vector<int>::iterator>);
+        REQUIRE_EQT(iterator_element_gt<ENV_STD::vector<int>::iterator>, int);
+        REQUIRES(is_iterator_with_element_g<ENV_STD::vector<int>::iterator, int>);
     }
 
     SUBCASE("iterable")
     {
-        REQUIRES(is_iterable_g<FWA_STD::vector<int>>);
-        REQUIRE_EQT(iterable_element_gt<FWA_STD::vector<int>>, int);
-        REQUIRES(is_iterable_with_element_g<FWA_STD::vector<int>, int>);
+        REQUIRES(is_iterable_g<ENV_STD::vector<int>>);
+        REQUIRE_EQT(iterable_element_gt<ENV_STD::vector<int>>, int);
+        REQUIRES(is_iterable_with_element_g<ENV_STD::vector<int>, int>);
     }
 }
 

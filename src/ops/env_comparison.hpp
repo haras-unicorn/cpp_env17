@@ -7,7 +7,7 @@
 #define CHECK_IS_VALID(_type, _subject) (_subject.IS_VALID_NAME())
 
 #define HASH_NAME hash
-#define GET_HASH(_type, _subject) (FWA_CORE::hash(_subject))
+#define GET_HASH(_type, _subject) (ENV::hash(_subject))
 
 #define EQUALS_NAME equals
 #define CHECK_EQUALS(_type, _lhs, _rhs) (_lhs.EQUALS_NAME(_rhs))
@@ -25,70 +25,70 @@
 
 // validity
 
-#define DEFINE_NULLPTR_EQ_OPERATOR(_type, _pre, _post)                              \
-    RETURN_ATTRIBUTES _pre inl FWA_CORE::flag_t op == (FWA_CORE::nil_t) const _post \
-    {                                                                               \
-        ret !CHECK_IS_VALID(_type, (*this));                                        \
+#define DEFINE_NULLPTR_EQ_OPERATOR(_type, _pre, _post)                    \
+    RETURN_ATTRIBUTES _pre inl ENV::flag_t op == (ENV::nil_t) const _post \
+    {                                                                     \
+        ret !CHECK_IS_VALID(_type, (*this));                              \
     }
 
-#define DEFINE_NULLPTR_NE_OPERATOR(_type, _pre, _post)                              \
-    RETURN_ATTRIBUTES _pre inl FWA_CORE::flag_t op != (FWA_CORE::nil_t) const _post \
-    {                                                                               \
-        ret CHECK_IS_VALID(_type, (*this));                                         \
-    }
-
-#define DEFINE_IS_INVALID(_type, _pre, _post)                            \
-    RETURN_ATTRIBUTES _pre inl FWA_CORE::flag_t is_invalid() const _post \
-    {                                                                    \
-        ret !CHECK_IS_VALID(_type, (*this));                             \
-    }
-
-#define DEFINE_BOOL_OPERATOR(_type, _pre, _post)                          \
-    RETURN_ATTRIBUTES _pre inl explicit op FWA_CORE::flag_t() const _post \
+#define DEFINE_NULLPTR_NE_OPERATOR(_type, _pre, _post)                    \
+    RETURN_ATTRIBUTES _pre inl ENV::flag_t op != (ENV::nil_t) const _post \
     {                                                                     \
         ret CHECK_IS_VALID(_type, (*this));                               \
     }
 
-#define DEFINE_STATIC_IS_VALID(_type, _pre, _post)                                                        \
-    RETURN_ATTRIBUTES _pre static inl FWA_CORE::flag_t IS_VALID_NAME(const SPREAD(_type) & subject) _post \
-    {                                                                                                     \
-        ret CHECK_IS_VALID(_type, subject);                                                               \
+#define DEFINE_IS_INVALID(_type, _pre, _post)                       \
+    RETURN_ATTRIBUTES _pre inl ENV::flag_t is_invalid() const _post \
+    {                                                               \
+        ret !CHECK_IS_VALID(_type, (*this));                        \
+    }
+
+#define DEFINE_BOOL_OPERATOR(_type, _pre, _post)                     \
+    RETURN_ATTRIBUTES _pre inl explicit op ENV::flag_t() const _post \
+    {                                                                \
+        ret CHECK_IS_VALID(_type, (*this));                          \
+    }
+
+#define DEFINE_STATIC_IS_VALID(_type, _pre, _post)                                                   \
+    RETURN_ATTRIBUTES _pre static inl ENV::flag_t IS_VALID_NAME(const SPREAD(_type) & subject) _post \
+    {                                                                                                \
+        ret CHECK_IS_VALID(_type, subject);                                                          \
     }
 
 #define DECLARE_IS_VALID_FUNCTION(_type, _pre, _post) \
-    RETURN_ATTRIBUTES _pre inl FWA_CORE::flag_t IS_VALID_NAME() const _post
+    RETURN_ATTRIBUTES _pre inl ENV::flag_t IS_VALID_NAME() const _post
 
 // hash
 
-#define DEFINE_CALCULATE_HASH(_type, _pre, _post)                            \
-    RETURN_ATTRIBUTES _pre inl FWA_CORE::hash_t calculate_hash() const _post \
-    {                                                                        \
-        ret GET_HASH(_type, (*this));                                        \
+#define DEFINE_CALCULATE_HASH(_type, _pre, _post)                       \
+    RETURN_ATTRIBUTES _pre inl ENV::hash_t calculate_hash() const _post \
+    {                                                                   \
+        ret GET_HASH(_type, (*this));                                   \
     }
 
-#define DEFINE_HASH_OPERATOR(_type, _pre, _post)                          \
-    RETURN_ATTRIBUTES _pre inl explicit op FWA_CORE::hash_t() const _post \
-    {                                                                     \
-        ret GET_HASH(_type, (*this));                                     \
+#define DEFINE_HASH_OPERATOR(_type, _pre, _post)                     \
+    RETURN_ATTRIBUTES _pre inl explicit op ENV::hash_t() const _post \
+    {                                                                \
+        ret GET_HASH(_type, (*this));                                \
     }
 
-#define DEFINE_STATIC_HASH(_type, _pre, _post)                                                        \
-    RETURN_ATTRIBUTES _pre static inl FWA_CORE::hash_t HASH_NAME(const SPREAD(_type) & subject) _post \
-    {                                                                                                 \
-        ret GET_HASH(_type, subject);                                                                 \
+#define DEFINE_STATIC_HASH(_type, _pre, _post)                                                   \
+    RETURN_ATTRIBUTES _pre static inl ENV::hash_t HASH_NAME(const SPREAD(_type) & subject) _post \
+    {                                                                                            \
+        ret GET_HASH(_type, subject);                                                            \
     }
 
 #define DECLARE_HASH_FUNCTION(_type, _pre, _post) \
-    RETURN_ATTRIBUTES _pre inl FWA_CORE::hash_t HASH_NAME() const _post
+    RETURN_ATTRIBUTES _pre inl ENV::hash_t HASH_NAME() const _post
 
 // possibly tmp modular
 
 #define DECLARE_BINARY_CHECK(_name, _type, _pre, _post) \
-    RETURN_ATTRIBUTES _pre inl FWA_CORE::flag_t         \
+    RETURN_ATTRIBUTES _pre inl ENV::flag_t              \
     _name(const SPREAD(_type) & rhs) const _post
 
 #define DECLARE_STATIC_BINARY_CHECK(_name, _type_lhs, _type_rhs, _pre, _post) \
-    RETURN_ATTRIBUTES _pre static inl FWA_CORE::flag_t                        \
+    RETURN_ATTRIBUTES _pre static inl ENV::flag_t                             \
     _name(const SPREAD(_type_lhs) & lhs, const SPREAD(_type_rhs) & rhs) _post
 
 #define DECLARE_NO_TEMPLATE_BINARY_CHECK(_name, _type, _pre, _post) \
@@ -102,17 +102,17 @@
     COND_TMP_BINARY(_condition)                                                     \
     DECLARE_STATIC_BINARY_CHECK(_name, (TLhs), (TRhs), _pre, _post)
 
-#define HASH_EQ_TEMPLATE_CONDITION(_type) FWA_CORE::are_hash_eq_compatible_g<SPREAD(_type), T>
+#define HASH_EQ_TEMPLATE_CONDITION(_type) ENV::are_hash_eq_compatible_g<SPREAD(_type), T>
 
-#define STATIC_HASH_EQ_TEMPLATE_CONDITION(_type) FWA_CORE::are_hash_eq_compatible_g<TLhs, TRhs>
+#define STATIC_HASH_EQ_TEMPLATE_CONDITION(_type) ENV::are_hash_eq_compatible_g<TLhs, TRhs>
 
-#define EQUALITY_TEMPLATE_CONDITION(_type) FWA_CORE::are_equality_compatible_g<SPREAD(_type), T>
+#define EQUALITY_TEMPLATE_CONDITION(_type) ENV::are_equality_compatible_g<SPREAD(_type), T>
 
-#define STATIC_EQUALITY_TEMPLATE_CONDITION(_type) FWA_CORE::are_equality_compatible_g<TLhs, TRhs>
+#define STATIC_EQUALITY_TEMPLATE_CONDITION(_type) ENV::are_equality_compatible_g<TLhs, TRhs>
 
-#define COMPARISON_TEMPLATE_CONDITION(_type) FWA_CORE::are_comparison_compatible_g<SPREAD(_type), T>
+#define COMPARISON_TEMPLATE_CONDITION(_type) ENV::are_comparison_compatible_g<SPREAD(_type), T>
 
-#define STATIC_COMPARISON_TEMPLATE_CONDITION(_type) FWA_CORE::are_comparison_compatible_g<TLhs, TRhs>
+#define STATIC_COMPARISON_TEMPLATE_CONDITION(_type) ENV::are_comparison_compatible_g<TLhs, TRhs>
 
 #define DECLARE_HASH_EQ_TEMPLATE_BINARY_CHECK(_name, _type, _pre, _post) \
     DECLARE_TEMPLATE_BINARY_CHECK(                                       \
@@ -380,7 +380,7 @@
 
 // This is too much to test and most of the untested stuff is just boilerplate anyway.
 
-FWA_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
+ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
 
 // non tmp compound
 
@@ -583,7 +583,7 @@ FWA_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
 
 #define SFINAE_COMPAT(_expression) ELABORATE_SFINAE_COMPAT(_expression, _expression, _expression)
 
-FWA_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP
 
 // traits
 
@@ -593,7 +593,7 @@ COND_CHECK_BINARY(are_equality_compatible, (TLhs::tmp is_equality_compatible_wit
 
 COND_CHECK_BINARY(are_comparison_compatible, (TLhs::tmp is_comparison_compatible_with_g<TRhs>));
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 cls comparable_t
 {
@@ -605,12 +605,12 @@ cls comparable_t
     MEM_CMP_GETTER(value);
 
     CMP_VALIDITY { ret get_value() >= 0; };
-    CMP_HASH { ret static_cast<FWA_CORE::hash_t>(get_value()); };
+    CMP_HASH { ret static_cast<ENV::hash_t>(get_value()); };
     CMP_EQUALITY { ret get_value() == rhs.get_value(); };
     CMP_COMPARISON { ret get_value() < rhs.get_value(); };
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("comparison")
 {
@@ -647,7 +647,7 @@ ENV_TEST_CASE("comparison")
     }
 }
 
-FWA_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_TEST_BEGIN
 
 tmp<name TValue>
     cls tmp_comparable_gt
@@ -661,12 +661,12 @@ tmp<name TValue>
 
     ENABLE_IF_COMPAT((is_specialization_g<T, tmp_comparable_gt>));
     CMP_VALIDITY { ret get_value() >= _value_t{0}; };
-    CMP_TMP_HASH { ret static_cast<FWA_CORE::hash_t>(get_value()); };
+    CMP_TMP_HASH { ret static_cast<ENV::hash_t>(get_value()); };
     CMP_TMP_EQUALITY { ret get_value() == static_cast<_value_t>(rhs.get_value()); };
     CMP_TMP_COMPARISON { ret get_value() < static_cast<_value_t>(rhs.get_value()); };
 };
 
-FWA_NAMESPACE_TEST_END
+ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("template comparison")
 {

@@ -5,11 +5,11 @@
 
 // ref
 
-COND_CHECK_UNARY(is_lvalue_ref, (FWA_STD::is_lvalue_reference_v<T>));
+COND_CHECK_UNARY(is_lvalue_ref, (ENV_STD::is_lvalue_reference_v<T>));
 
-COND_CHECK_UNARY(is_rvalue_ref, (FWA_STD::is_rvalue_reference_v<T>));
+COND_CHECK_UNARY(is_rvalue_ref, (ENV_STD::is_rvalue_reference_v<T>));
 
-COND_CHECK_UNARY(is_ref, (FWA_STD::is_reference_v<T>));
+COND_CHECK_UNARY(is_ref, (ENV_STD::is_reference_v<T>));
 
 enm ref_type_t{
     lvalue,
@@ -22,18 +22,18 @@ tmp<name T>
                                                                      : ref_type_t::none;
 
 tmp<name T>
-    typ(remove_ref_gt) = FWA_STD::remove_reference_t<T>;
+    typ(remove_ref_gt) = ENV_STD::remove_reference_t<T>;
 
 tmp<name T>
-    typ(add_lvalue_ref_gt) = FWA_STD::add_lvalue_reference_t<T>;
+    typ(add_lvalue_ref_gt) = ENV_STD::add_lvalue_reference_t<T>;
 
 tmp<name T>
-    typ(add_rvalue_ref_gt) = FWA_STD::add_rvalue_reference_t<T>;
+    typ(add_rvalue_ref_gt) = ENV_STD::add_rvalue_reference_t<T>;
 
 tmp<name T, ref_type_t RefType>
     typ(set_ref_gnt) =
-        FWA_STD::conditional_t<
-            RefType == ref_type_t::lvalue, add_lvalue_ref_gt<remove_ref_gt<T>>, FWA_STD::conditional_t<RefType == ref_type_t::rvalue, add_rvalue_ref_gt<remove_ref_gt<T>>, remove_ref_gt<T>>>;
+        ENV_STD::conditional_t<
+            RefType == ref_type_t::lvalue, add_lvalue_ref_gt<remove_ref_gt<T>>, ENV_STD::conditional_t<RefType == ref_type_t::rvalue, add_rvalue_ref_gt<remove_ref_gt<T>>, remove_ref_gt<T>>>;
 
 tmp<name TFrom, name TTo>
     typ(copy_ref_ggt) = set_ref_gnt<TTo, ref_type_g<TFrom>>;
@@ -99,20 +99,20 @@ ENV_TEST_CASE("ref qualifier")
 
 // const
 
-COND_CHECK_UNARY(is_const, (FWA_STD::is_const_v<remove_ref_gt<T>>));
+COND_CHECK_UNARY(is_const, (ENV_STD::is_const_v<remove_ref_gt<T>>));
 
 tmp<name T>
-    typ(add_const_gt) = FWA_STD::add_const_t<T>;
+    typ(add_const_gt) = ENV_STD::add_const_t<T>;
 
 tmp<name T>
-    typ(remove_const_gt) = set_ref_gnt<FWA_STD::remove_const_t<remove_ref_gt<T>>, ref_type_g<T>>;
+    typ(remove_const_gt) = set_ref_gnt<ENV_STD::remove_const_t<remove_ref_gt<T>>, ref_type_g<T>>;
 
 tmp<name T, bool Condition>
     typ(set_const_gnt) =
-        FWA_STD::conditional_t<
+        ENV_STD::conditional_t<
             Condition,
-            set_ref_gnt<FWA_STD::add_const_t<remove_ref_gt<T>>, ref_type_g<T>>,
-            set_ref_gnt<FWA_STD::remove_const_t<remove_ref_gt<T>>, ref_type_g<T>>>;
+            set_ref_gnt<ENV_STD::add_const_t<remove_ref_gt<T>>, ref_type_g<T>>,
+            set_ref_gnt<ENV_STD::remove_const_t<remove_ref_gt<T>>, ref_type_g<T>>>;
 
 tmp<name TFrom, name TTo>
     typ(copy_const_ggt) = set_const_gnt<TTo, is_const_g<TFrom>>;
@@ -152,20 +152,20 @@ ENV_TEST_CASE("const qualifier")
 
 // volatile
 
-COND_CHECK_UNARY(is_volatile, (FWA_STD::is_volatile_v<remove_ref_gt<T>>));
+COND_CHECK_UNARY(is_volatile, (ENV_STD::is_volatile_v<remove_ref_gt<T>>));
 
 tmp<name T>
-    typ(remove_volatile_gt) = set_ref_gnt<FWA_STD::remove_volatile_t<remove_ref_gt<T>>, ref_type_g<T>>;
+    typ(remove_volatile_gt) = set_ref_gnt<ENV_STD::remove_volatile_t<remove_ref_gt<T>>, ref_type_g<T>>;
 
 tmp<name T>
-    typ(add_volatile_gt) = FWA_STD::add_volatile_t<T>;
+    typ(add_volatile_gt) = ENV_STD::add_volatile_t<T>;
 
 tmp<name T, bool Condition>
     typ(set_volatile_gnt) =
-        FWA_STD::conditional_t<
+        ENV_STD::conditional_t<
             Condition,
-            set_ref_gnt<FWA_STD::add_volatile_t<remove_ref_gt<T>>, ref_type_g<T>>,
-            set_ref_gnt<FWA_STD::remove_volatile_t<remove_ref_gt<T>>, ref_type_g<T>>>;
+            set_ref_gnt<ENV_STD::add_volatile_t<remove_ref_gt<T>>, ref_type_g<T>>,
+            set_ref_gnt<ENV_STD::remove_volatile_t<remove_ref_gt<T>>, ref_type_g<T>>>;
 
 tmp<name TFrom, name TTo>
     typ(copy_volatile_ggt) = set_volatile_gnt<TTo, is_volatile_g<TFrom>>;
@@ -206,7 +206,7 @@ ENV_TEST_CASE("volatile qualifier")
 // cv
 
 tmp<name T>
-    typ(remove_cv_gt) = set_ref_gnt<FWA_STD::remove_cv_t<remove_ref_gt<T>>, ref_type_g<T>>;
+    typ(remove_cv_gt) = set_ref_gnt<ENV_STD::remove_cv_t<remove_ref_gt<T>>, ref_type_g<T>>;
 
 tmp<name T, bool Const, bool Volatile>
     typ(set_cv_gnnt) = set_volatile_gnt<set_const_gnt<T, Const>, Volatile>;
@@ -239,7 +239,7 @@ ENV_TEST_CASE("cv qualifiers")
 // qualifiers
 
 tmp<name T>
-    typ(remove_qualifiers_gt) = FWA_STD::remove_cv_t<FWA_STD::remove_reference_t<T>>;
+    typ(remove_qualifiers_gt) = ENV_STD::remove_cv_t<ENV_STD::remove_reference_t<T>>;
 
 tmp<name T, bool Const, bool Volatile, ref_type_t RefType>
     typ(set_qualifiers_gnnnt) = set_cv_gnnt<set_ref_gnt<T, RefType>, Const, Volatile>;

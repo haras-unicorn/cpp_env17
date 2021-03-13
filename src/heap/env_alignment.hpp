@@ -3,13 +3,13 @@
 
 // align_t
 
-WHOLE_UL(align, align, FWA_STD::size_t);
+WHOLE_UL(align, align, ENV_STD::size_t);
 
 // max align
 
-strct alignas(next_pow2(alignof(FWA_STD::max_align_t))) max_align_t
+strct alignas(next_pow2(alignof(ENV_STD::max_align_t))) max_align_t
 {
-    byte_t data[next_pow2(alignof(FWA_STD::max_align_t))];
+    byte_t data[next_pow2(alignof(ENV_STD::max_align_t))];
 };
 
 let_cmp max_align{align_t{alignof(max_align_t)}};
@@ -70,9 +70,9 @@ public:
 };
 
 tmp<size_t Size = single, align_t Align = max_align>
-    typ(aligned_nnt) = FWA_STD::aligned_storage_t<Size, Align>;
+    typ(aligned_nnt) = ENV_STD::aligned_storage_t<Size, Align>;
 
 tmp<align_t Align = max_align>
-    typ(aligned_nt) = FWA_STD::aligned_storage_t<single, Align>;
+    typ(aligned_nt) = ENV_STD::aligned_storage_t<single, Align>;
 
 #endif // ENV_ALIGNMENT_HPP
