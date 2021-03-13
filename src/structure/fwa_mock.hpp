@@ -1,0 +1,4 @@
+#ifndef FWA_CORE_MOCK_HPP
+#define FWA_CORE_MOCK_HPP
+
+#endif // FWA_CORE_MOCK_HPP

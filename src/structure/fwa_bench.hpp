@@ -1,0 +1,4 @@
+#ifndef FWA_CORE_BENCH_HPP
+#define FWA_CORE_BENCH_HPP
+
+#endif // FWA_CORE_BENCH_HPP

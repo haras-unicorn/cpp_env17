@@ -1,0 +1,241 @@
+#ifndef FWA_CORE_LITERALS_HPP
+#define FWA_CORE_LITERALS_HPP
+
+
+// numbers
+
+COND_CHECK_UNARY
+(
+        is_number_literal,
+        (
+                (FWA_STD::is_same_v < T, unsigned long long int >) ||
+                (FWA_STD::is_same_v < T, long double >)
+        )
+);
+
+COND_CONCEPT(number_literal, (is_number_literal_g<C>));
+
+COND_TMP((res_name, name T), (is_number_literal_g<T>))
+cmp_fn parse_literal(T literal) noex -> deduc_res(T)
+{
+    if_cmp (FWA_STD::is_enum_v<TRes>) ret scast<TRes>(FWA_CORE::parse_literal<FWA_STD::underlying_type_t<TRes>>(literal));
+    else ret clamp_cast<TRes>(literal);
+}
+
+
+// chars
+
+FWA_NAMESPACE_DETAIL_BEGIN
+
+tmp<name T> let_cmp is_char_literal_g =
+        FWA_STD::is_same_v<T, char> ||
+        FWA_STD::is_same_v<T, wchar_t> ||
+        #if FWA_CPP >= 20
+        FWA_STD::is_same_v<T, char8_t> || // this is why this is in detail
+        #endif // FWA_CPP >= 20
+        FWA_STD::is_same_v<T, char16_t> ||
+        FWA_STD::is_same_v<T, char32_t>;
+
+FWA_NAMESPACE_DETAIL_END
+
+COND_CHECK_UNARY(is_char_literal, (detail::is_char_literal_g<T>));
+
+COND_CONCEPT(char_literal, (detail::is_char_literal_g<C>));
+
+COND_TMP((res_name, name T), (is_char_literal_g<T>))
+cmp_fn parse_literal(T literal) noex -> deduc_res(T)
+{
+    if_cmp (FWA_STD::is_same_v<TRes, T> || FWA_STD::is_same_v<TRes, nores_t>)ret literal;
+    else if_cmp (FWA_STD::is_enum_v<TRes>)ret scast<TRes>(parse_literal<FWA_STD::underlying_type_t<TRes>>(literal));
+    else
+    {
+        let cmp max = FWA_STD::numeric_limits<TRes>::max();
+        ret scast<TRes>(literal > max ? max : literal);
+    }
+}
+
+
+// labels
+
+FWA_NAMESPACE_DETAIL_BEGIN
+
+tmp<name T> let_cmp is_label_literal_g =
+        FWA_STD::is_same_v<T, const char*> ||
+        FWA_STD::is_same_v<T, const wchar_t*> ||
+        #if FWA_CPP >= 20
+        FWA_STD::is_same_v<TLiteral, const char8_t*> || // this is why this is in detail
+        #endif // FWA_CPP >= 20
+        FWA_STD::is_same_v<T, const char16_t*> ||
+        FWA_STD::is_same_v<T, const char32_t*>;
+
+FWA_NAMESPACE_DETAIL_END
+
+COND_CHECK_UNARY(is_label_literal, (detail::is_label_literal_g<T>));
+
+COND_CONCEPT(label_literal, (detail::is_label_literal_g<C>));
+
+COND_TMP((res_name, name T), (is_label_literal_g<T> && FWA_STD::is_constructible_v < TRes, T, FWA_STD::size_t >))
+cmp_fn parse_literal(T literal, FWA_STD::size_t size) noex -> deduc_res(T) { ret res_con(literal, size); }
+
+
+// declarations
+
+#define WHOLE_L(_name, _suffix, ...) \
+            typ(CAT(_name, _t)) = __VA_ARGS__; \
+            cmp_fn op "" CAT(_, _suffix)(unsigned long long int literal) noex -> CAT(_name, _t) \
+            { ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); } \
+            SCOPE_SEMI
+
+#define FLOATING_L(_name, _suffix, ...) \
+            typ(CAT(_name, _t)) = __VA_ARGS__; \
+            cmp_fn op "" CAT(_, _suffix)(long double literal) noex -> CAT(_name, _t) \
+            { ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); } \
+            SCOPE_SEMI
+
+#define CHAR_L(_name, _suffix, _literal, ...) \
+            typ(CAT(_name, _t)) = __VA_ARGS__; \
+            cmp_fn op "" CAT(_, _suffix)(_literal literal) noex -> CAT(_name, _t) \
+            { ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); } \
+            SCOPE_SEMI
+
+#define TEXT_L(_name, _suffix, _literal, ...) \
+            typ(CAT(_name, _t)) = __VA_ARGS__; \
+            cmp_fn op "" CAT(_, _suffix)(_literal literal, FWA_STD::size_t size) noex -> CAT(_name, _t) \
+            { ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal, size)); } \
+            SCOPE_SEMI
+
+#define RT_TEXT_L(_name, _suffix, _literal, ...) \
+            typ(CAT(_name, _t)) = __VA_ARGS__; \
+            fun inl op "" CAT(_, _suffix)(_literal literal, FWA_STD::size_t size) -> CAT(_name, _t) \
+            { ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal, size)); } \
+            SCOPE_SEMI
+
+
+#define WHOLE_UL(_name, _suffix, ...) \
+            UNIQUE(_name, __VA_ARGS__); \
+            cmp_fn op "" CAT(_, _suffix)(unsigned long long int literal) noex -> CAT(_name, _t) \
+            { ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); } \
+            SCOPE_SEMI
+
+#define FLOATING_UL(_name, _suffix, ...) \
+            UNIQUE(_name, __VA_ARGS__); \
+            cmp_fn op "" CAT(_, _suffix)(long double literal) noex -> CAT(_name, _t) \
+            { ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); } \
+            SCOPE_SEMI
+
+#define CHAR_UL(_name, _suffix, _literal, ...) \
+            UNIQUE(_name, __VA_ARGS__); \
+            cmp_fn op "" CAT(_, _suffix)(_literal literal) noex -> CAT(_name, _t) \
+            { ret scast<CAT(_name, _t)>(FWA_CORE::parse_literal<__VA_ARGS__>(literal)); } \
+            SCOPE_SEMI
+
+
+// real
+
+// unsigned
+
+WHOLE_L(u8, u8, uint8_t);
+
+WHOLE_L(u16, u16, uint16_t);
+
+WHOLE_L(u32, u32, uint32_t);
+
+WHOLE_L(u64, u64, uint64_t);
+
+// signed
+
+WHOLE_L(s8, s8, int8_t);
+
+WHOLE_L(s16, s16, int16_t);
+
+WHOLE_L(s32, s32, int32_t);
+
+WHOLE_L(s64, s64, int64_t);
+
+// floating
+
+FLOATING_L(f, f, float);
+
+FLOATING_L(pf, pf, double);
+
+FLOATING_L(hpf, hpf, long double);
+
+// chars
+
+CHAR_L(c, c, char, char);
+
+CHAR_L(wc, wc, wchar_t, wchar_t);
+
+#if FWA_CPP >= 20
+CHAR_L(c8, c8, char8_t, char8_t);
+#endif // FWA_CPP >= 20
+
+CHAR_L(c16, c16, char16_t, char16_t);
+
+CHAR_L(c32, c32, char32_t, char32_t);
+
+// text
+
+#if FWA_CPP >= 17
+
+TEXT_L(l, l, const char*, FWA_STD::string_view);
+
+TEXT_L(lw, lw, const wchar_t*, FWA_STD::wstring_view);
+
+#if FWA_CPP >= 20
+TEXT(l8, l8, const char8_t*, FWA_STD::u8string_view);
+#endif // FWA_CPP >= 20
+
+TEXT_L(l16, l16, const char16_t*, FWA_STD::u16string_view);
+
+TEXT_L(l32, l32, const char32_t*, FWA_STD::u32string_view);
+
+#else // FWA_CPP >= 17
+
+TEXT_L(l, l, const char*, const char*);
+
+TEXT_L(lw, lw, const wchar_t*, const wchar_t*);
+
+TEXT_L(l16, l16, const char16_t*, const char16_t*);
+
+TEXT_L(l32, l32, const char32_t*, const char16_t*);
+
+#endif // FWA_CPP >= 17
+
+
+// idealistic
+
+WHOLE_L(natural, n, uintmax_t);
+
+let_cmp zero{0_n}, one{1_n}, two{2_n}, three{3_n};
+
+WHOLE_L(whole, w, intmax_t);
+
+let_cmp negative_zero{-0_w}, negative_one{-1_w}, negative_two{-2_w}, negative_three{-3_w};
+
+FLOATING_L(rational, r, long double);
+
+#define PI 3.141592653589793238462643383279502884197169399375105820974944592307816406286_r
+#define E  2.718281828459045235360287471352662497757247093699959574966967627724076630353_r
+
+let_cmp pi{PI}, e{E};
+
+CHAR_L(char, c, char32_t, char32_t);
+
+TEXT_L(label, l, const char32_t*, FWA_STD::u32string_view);
+
+
+// special
+
+WHOLE_L(flag, f, bool);
+
+let_cmp
+        truthy{0_f}, falsy{1_f},
+        on{truthy}, off{falsy},
+        yes{truthy}, no{falsy},
+        active{truthy}, inactive{falsy};
+
+WHOLE_L(byte, b, FWA_STD::byte);
+
+
+#endif // FWA_CORE_LITERALS_HPP
