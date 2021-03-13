@@ -1,27 +1,12 @@
 #ifndef ENV_BODY_HPP
 #define ENV_BODY_HPP
 
+
+
 // structs
 
-#define ANON_STRUCT         \
-    struct [[maybe_unused]] \
-    {                       \
-    }
-
-#define FORMAT ANON_STRUCT
-
-ENV_CLANG_SUPPRESS_PUSH("bugprone-macro-parentheses")
-
-#define ACCESS_BEGIN(_access) \
-    ANON_STRUCT;              \
-    PACK(_access) : ANON_STRUCT
-#define ACCESS_END(_access) \
-    ANON_STRUCT;            \
-    PACK(_access) : ANON_STRUCT
-
-ENV_CLANG_SUPPRESS_POP
-
-#define CLASS_SEMI ANON_STRUCT
+#define ACCESS_BEGIN(_access) PACK(_access) : SEMI
+#define ACCESS_END(_access) PACK(_access) : SEMI
 
 ENV_TEST_CASE("struct macros")
 {
@@ -31,7 +16,7 @@ ENV_TEST_CASE("struct macros")
         {
             ACCESS_BEGIN(private);
             ACCESS_END(public);
-            CLASS_SEMI;
+            SEMI;
         };
     }
 }

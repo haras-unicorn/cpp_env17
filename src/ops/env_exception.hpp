@@ -107,7 +107,7 @@ ENV_CLANG_SUPPRESS_PUSH("UnreachableCode")
 
 callb exit(message_t message)
 {
-    CMP_ON((is_debug)__debugbreak(););
+    CMP_ON((is_debug), __debugbreak(););
 
     if (message == exception_status_s::state_message)
         ENV_STD::exit(exception_status_s::state_code);

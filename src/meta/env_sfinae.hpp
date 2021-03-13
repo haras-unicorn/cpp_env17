@@ -193,7 +193,8 @@ ENV_TEST_CASE("implies")
 tmp<name T>
     cmp_obj bool is_qualified_g{ENV_STD::is_reference_v<T> || ENV_STD::is_const_v<T> || ENV_STD::is_volatile_v<T>};
 
-tmp<name T> typ(unqualified_gt) = ENV_STD::remove_cv_t<ENV_STD::remove_reference_t<T>>;
+tmp<name T>
+    typ(unqualified_gt) = ENV_STD::remove_cv_t<ENV_STD::remove_reference_t<T>>;
 
 ENV_TEST_CASE("qualified")
 {

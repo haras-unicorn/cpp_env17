@@ -55,16 +55,19 @@ COND_CONCEPT_UNARY(static_castable, (is_static_castable_g<C, T>));
 ENV_TEST_CASE("conversion traits")
 {
     strct tmp_derived_t : public variadic_vt<int>{};
-    strct tmp_explicit_t{explicit op variadic_vt<int>(){}};
+    strct tmp_explicit_t{explicit op variadic_vt<int>(){ret{};
+}
+}
+;
 
-    REQUIRES(is_imp_convertible_g<tmp_derived_t, variadic_vt<int>>);
-    REQUIRES(!is_imp_convertible_g<tmp_explicit_t, variadic_vt<int>>);
+REQUIRES(is_imp_convertible_g<tmp_derived_t, variadic_vt<int>>);
+REQUIRES(!is_imp_convertible_g<tmp_explicit_t, variadic_vt<int>>);
 
-    REQUIRES(is_exp_convertible_g<tmp_explicit_t, variadic_vt<int>>);
-    REQUIRES(!is_exp_convertible_g<tmp_derived_t, variadic_vt<int>>);
+REQUIRES(is_exp_convertible_g<tmp_explicit_t, variadic_vt<int>>);
+REQUIRES(!is_exp_convertible_g<tmp_derived_t, variadic_vt<int>>);
 
-    REQUIRES(is_convertible_g<tmp_derived_t, variadic_vt<int>>);
-    REQUIRES(is_convertible_g<tmp_explicit_t, variadic_vt<int>>);
+REQUIRES(is_convertible_g<tmp_derived_t, variadic_vt<int>>);
+REQUIRES(is_convertible_g<tmp_explicit_t, variadic_vt<int>>);
 }
 
 // template conversion traits
@@ -94,12 +97,15 @@ ELABORATE_COND_CONCEPT(
 ENV_TEST_CASE("template conversion traits")
 {
     strct tmp_derived_t : public variadic_vt<int>{};
-    strct tmp_explicit_t{explicit op variadic_vt<int>(){}};
+    strct tmp_explicit_t{explicit op variadic_vt<int>(){ret{};
+}
+}
+;
 
-    REQUIRES(is_imp_convertible_tmp_g<tmp_derived_t, variadic_vt>);
-    REQUIRES(!is_imp_convertible_tmp_g<tmp_explicit_t, variadic_vt>);
+REQUIRES(is_imp_convertible_tmp_g<tmp_derived_t, variadic_vt>);
+REQUIRES(!is_imp_convertible_tmp_g<tmp_explicit_t, variadic_vt>);
 
-    REQUIRE_EQT(tmp_ts<variadic_vt>::converted_gt<tmp_derived_t>, variadic_vt<int>);
+REQUIRE_EQT(tmp_ts<variadic_vt>::converted_gt<tmp_derived_t>, variadic_vt<int>);
 }
 
 // behaviour traits

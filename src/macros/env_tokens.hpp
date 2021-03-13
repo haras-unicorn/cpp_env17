@@ -1,6 +1,8 @@
 #ifndef ENV_TOKENS_HPP
 #define ENV_TOKENS_HPP
 
+
+
 // basic
 
 #define SKIP
@@ -16,16 +18,17 @@
 
 ENV_TEST_CASE("basic")
 {
-    SKIP
-
-        struct
+    struct
     {
         void g() {}
     } test{};
-    test.g EMPTY COMMA OPEN 3 CLOSE;
+    test.g EMPTY;
+    [[maybe_unused]] int a = OPEN 3 CLOSE COMMA b = 2;
 
     ERASE(something)
     CONSUME(other, thing)
+
+    SKIP
 }
 
 // strings
@@ -36,15 +39,15 @@ ENV_TEST_CASE("basic")
 #define INTER_IMPL(_lhs, _middle, _rhs) _lhs##_middle##_rhs
 #define INTER(_lhs, _middle, _rhs) INTER_IMPL(_lhs, _middle, _rhs)
 
-#define STRING_IMPL(_) #_
-#define STRING_VAR(_) STRING_IMPL(_)
-#define STRING(...) STRING_VAR(PACK(__VA_ARGS__))
+#define STRING_IMPL(...) #__VA_ARGS__
+#define STRING_VAR(...) STRING_IMPL(__VA_ARGS__)
+#define STRING(...) STRING_VAR(__VA_ARGS__)
 
 ENV_TEST_CASE("strings")
 {
-    const auto string = ENV_STD::string{STRING(INTER(first_, second_, CAT(third_, fourth)))};
+    const auto string = ENV_STD::string{STRING(INTER(first_, second_, CAT(third_, fourth)), fifth)};
 
-    REQUIRE_EQ(string, "first_second_third_fourth");
+    REQUIRE_EQ(string, "first_second_third_fourth, fifth");
 }
 
 // spread

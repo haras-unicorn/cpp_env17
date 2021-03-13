@@ -39,20 +39,11 @@ ENV_TEST_CASE("ratios")
     }
 }
 
-ENV_NAMESPACE_DETAIL_BEGIN
-
-EXTRACT_CHECK(
-    is_ratio,
-    (std_ratio_num_t Nominator, std_ratio_num_t Denominator),
-    (ENV_STD::ratio<Nominator, Denominator>));
-
-ENV_NAMESPACE_DETAIL_END
-
-COND_CHECK_UNARY(is_nratio, (detail::is_ratio_g<T> && T::num > 0 && T::den > 0));
+COND_CHECK_UNARY(is_nratio, (T::num > 0 && T::den > 0));
 
 COND_CONCEPT(nratio, (is_nratio_g<C>));
 
-COND_CHECK_UNARY(is_ratio, (detail::is_ratio_g<T>));
+COND_CHECK_UNARY(is_ratio, (T::num || T::den));
 
 COND_CONCEPT(ratio, (is_ratio_g<C>));
 

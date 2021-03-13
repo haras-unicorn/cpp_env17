@@ -1,6 +1,8 @@
 #ifndef ENV_RESULT_HPP
 #define ENV_RESULT_HPP
 
+
+
 // nullptr - since void is also here
 
 typ(nullptr_t) = decltype(nullptr);
@@ -8,6 +10,7 @@ typ(nullptr_t) = decltype(nullptr);
 ENV_TEST_CASE("nullptr")
 {
     obj nullptr_t some_nullptr{};
+    nonce(some_nullptr);
 }
 
 // no return

@@ -1,5 +1,6 @@
 #define ENV_TESTS
 #define ENV_MESSAGES
+#define ENV_STANDARD_REQUIREMENTS
 
 #include "env.hpp"
 

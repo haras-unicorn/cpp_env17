@@ -1,6 +1,8 @@
 #ifndef ENV_DETECTORS_HPP
 #define ENV_DETECTORS_HPP
 
+
+
 // from: https://en.wikibooks.org/wiki/More_C++_Idioms/Member_Detector
 // especially useful for detecting overloaded member functions
 
@@ -16,7 +18,7 @@
         }                                                                                \
                                                                                          \
         COND_CHECK_UNARY(CAT(has_, _name), !INTER(hasnt_, _name, _g) < derived_gt<T> >); \
-    };                                                                                   \
+    }                                                                                    \
                                                                                          \
     using CAT(_has_, _name)::INTER(has_, _name, _gs);                                    \
     using CAT(_has_, _name)::INTER(has_, _name, _gt);                                    \
@@ -26,8 +28,8 @@
 #define FUNCTION_DETECTOR(_name) MEMBER_DETECTOR(_name, &T::_name, void _name();)
 #define OPERATOR_DETECTOR(_name, _operator, ...) MEMBER_DETECTOR(_name, &T::_operator, __VA_ARGS__)
 
-#define SDATA_DETECTOR(_name) EXPR_CHECK_UNARY(CAT(has_, _name), T::_name);
-#define ALIAS_DETECTOR(_name) TYPE_CHECK_UNARY(CAT(has_, _name), name T::_name);
+#define SDATA_DETECTOR(_name) EXPR_CHECK_UNARY(CAT(has_, _name), T::_name)
+#define ALIAS_DETECTOR(_name) TYPE_CHECK_UNARY(CAT(has_, _name), name T::_name)
 
 ENV_NAMESPACE_TEST_BEGIN
 
@@ -47,7 +49,7 @@ TEST_CASE("members")
 
     SUBCASE("data detector")
     {
-        strct with_test_data_t { obj double test_data; };
+        strct with_test_data_t { double test_data; };
         REQUIRES(test::has_test_data_g<with_test_data_t>);
         REQUIRES_FALSE(test::has_test_data_g<empty_t>);
         REQUIRES_FALSE(test::has_test_data_g<int>);

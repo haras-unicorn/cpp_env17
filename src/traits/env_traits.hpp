@@ -3,12 +3,12 @@
 
 ENV_TEST_SUITE_BEGIN("traits");
 
-#include "env_arithmetic.hpp"
 #include "env_basic_traits.hpp"
-#include "env_callable.hpp"
-#include "env_members.hpp"
 #include "env_qualifiers.hpp"
+#include "env_members.hpp"
+#include "env_arithmetic.hpp"
 #include "env_ratios.hpp"
+#include "env_callable.hpp"
 
 ENV_TEST_SUITE_END();
 

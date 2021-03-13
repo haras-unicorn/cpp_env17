@@ -1,6 +1,8 @@
 #ifndef ENV_KEYWORDS_HPP
 #define ENV_KEYWORDS_HPP
 
+
+
 // keywords
 
 #define tmp template
@@ -35,7 +37,7 @@
 #define rcast reinterpret_cast
 #define ccast const_cast
 #define dcast dynamic_cast
-#define unused static_cast<void>
+#define nonce static_cast<void>
 
 ENV_NAMESPACE_TEST_BEGIN
 
@@ -47,30 +49,33 @@ ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("keyword keywords")
 {
-    struct TYPE_ATTRIBUTES test
+    struct [[TYPE_ATTRIBUTES]] test
     {
         NO_RETURN_ATTRIBUTES inl void op()(int b = 1) noex
         {
-            unused(b);
+            nonce(b);
             if_cmp(true) ret;
 
-            OBJECT_ATTRIBUTES cmp decl(1) a{};
+            [[OBJECT_ATTRIBUTES]] cmp decl(1) a{};
+            nonce(a);
             ret;
         }
     };
 
-    OBJECT_ATTRIBUTES auto _i = 1;
-    OBJECT_ATTRIBUTES const auto _scast = scast<double>(_i);
-    OBJECT_ATTRIBUTES const auto _ccast = ccast<const int &>(_i);
-    OBJECT_ATTRIBUTES const auto _rcast = rcast<ENV_STD::byte *>(&_i);
+    [[OBJECT_ATTRIBUTES]] auto _i = 1;
+    [[OBJECT_ATTRIBUTES]] const auto _scast = scast<int>(_i);
+    [[OBJECT_ATTRIBUTES]] const auto _ccast = ccast<const int &>(_scast);
+    [[OBJECT_ATTRIBUTES]] const auto _rcast = rcast<const ENV_STD::byte *>(&_ccast);
+    nonce(_rcast);
 
-    class TYPE_ATTRIBUTES base_t
+    class [[TYPE_ATTRIBUTES]] base_t
     {
     };
-    class TYPE_ATTRIBUTES derived_t : public base_t
+    class [[TYPE_ATTRIBUTES]] derived_t : public base_t
     {
     } derived{};
-    OBJECT_ATTRIBUTES const auto _dcast = dcast<base_t &>(derived);
+    [[OBJECT_ATTRIBUTES]] const auto _dcast = dcast<base_t &>(derived);
+    nonce(_dcast);
 
     sass(true);
     sass_msg(true, "I'm true!");
@@ -78,19 +83,19 @@ ENV_TEST_CASE("keyword keywords")
 
 // types
 
-#define typ_impl(_name) using _name
-#define typ_p(_name) typ_impl(_name)
-#define typ(_name) typ_p(_name) TYPE_ATTRIBUTES
+#define typ_p using
+#define typ_a(_name, ...) typ_p _name [[__VA_ARGS__]]
+#define typ(_name) typ_p _name [[TYPE_ATTRIBUTES]]
 
 #define strct_p struct
-#define strct strct_p TYPE_ATTRIBUTES
+#define strct strct_p [[TYPE_ATTRIBUTES]]
 
 #define cls_p class
-#define cls cls_p TYPE_ATTRIBUTES
+#define cls cls_p [[TYPE_ATTRIBUTES]]
 
 #if ENV_CPP >= 17
 #define enm_p enum struct
-#define enm enm_p TYPE_ATTRIBUTES
+#define enm enm_p [[TYPE_ATTRIBUTES]]
 #else // ENV_CPP >= 17
 #define enm_p enum struct
 #define enm enm_p
@@ -98,22 +103,26 @@ ENV_TEST_CASE("keyword keywords")
 
 ENV_TEST_CASE("type keywords")
 {
-    strct s{};
+    strct s{
+
+    };
     cls c{};
     enm e{};
-    typ(fst) = s;
+    typ(t) = s;
+    t a{};
+    static_cast<void>(a);
 }
 
 // objects
 
 #define obj_p
-#define obj OBJECT_ATTRIBUTES obj_p
+#define obj [[OBJECT_ATTRIBUTES]] obj_p
 #if ENV_CPP >= 17
 #define cmp_obj_p obj_p inl cmp
 #else // ENV_CPP >= 17
 #define cmp_obj_p obj_p cmp
 #endif // ENV_CPP >= 17
-#define cmp_obj OBJECT_ATTRIBUTES cmp_obj_p
+#define cmp_obj [[OBJECT_ATTRIBUTES]] cmp_obj_p
 
 #define temp_p deduc
 #define temp obj temp_p
@@ -132,30 +141,34 @@ ENV_TEST_CASE("type keywords")
 ENV_TEST_CASE("object keywords")
 {
     obj int d{1};
+    nonce(d);
     temp c{2};
+    nonce(c);
     let a{1};
+    nonce(a);
     mut b{a};
+    nonce(b);
 }
 
 // functions
 
 #define imp_p
-#define imp RETURN_ATTRIBUTES imp_p
+#define imp [[RETURN_ATTRIBUTES]] imp_p
 #define cmp_imp_p inl cmp
-#define cmp_imp RETURN_ATTRIBUTES cmp_imp_p
+#define cmp_imp [[RETURN_ATTRIBUTES]] cmp_imp_p
 #define con_p explicit
-#define con RETURN_ATTRIBUTES con_p
+#define con [[RETURN_ATTRIBUTES]] con_p
 #define cmp_con_p explicit inl cmp
-#define cmp_con RETURN_ATTRIBUTES cmp_con_p
+#define cmp_con [[RETURN_ATTRIBUTES]] cmp_con_p
 
 #if ENV_CPP >= 14
 #define fun_p auto
 #else // ENV_CPP >= 14
 #define fun_p
 #endif // ENV_CPP >= 14
-#define fun RETURN_ATTRIBUTES fun_p
+#define fun [[RETURN_ATTRIBUTES]] fun_p
 #define cmp_fn_p fun_p inl cmp
-#define cmp_fn RETURN_ATTRIBUTES cmp_fn_p
+#define cmp_fn [[RETURN_ATTRIBUTES]] cmp_fn_p
 
 #if ENV_CPP >= 14
 #define callb_p auto
@@ -168,8 +181,9 @@ ENV_TEST_CASE("object keywords")
 
 ENV_TEST_CASE("function keywords")
 {
-    strct fs{
-        fun inl fi(){ret 1;
+    strct my_struct{
+        fun inl fi(){
+            ret 1;
 }
 cmp_fn static fc() { ret 1; }
 

@@ -1,6 +1,8 @@
 #ifndef ENV_ON_CONTEXT_HPP
 #define ENV_ON_CONTEXT_HPP
 
+
+
 // dep
 
 #define dep_name name TDep = ENV::void_t
@@ -37,9 +39,9 @@ ENV_TEST_CASE("cond")
 
 //// expr
 //
-//#define ON_EXPR(...) \
-//        strct CAT(_on_expr_, __LINE__) { SFINAE_IN_CLASS_STRUCT(ANON_NAME, (name TOnExpr), (TOnExpr), __VA_ARGS__); }; \
-//        COND_TMP((dep_name), CAT(_on_expr_, __LINE__)::tmp CAT(ANON_NAME, _g)<TDep>)
+//#define ON_EXPR(...)
+//        strct CAT(_on_expr_, __LINE__) { SFINAE_IN_CLASS_STRUCT(ANON, (name TOnExpr), (TOnExpr), __VA_ARGS__); };
+//        COND_TMP((dep_name), CAT(_on_expr_, __LINE__)::tmp CAT(ANON, _g)<TDep>)
 //
 //ENV_NAMESPACE_TEST_BEGIN
 //

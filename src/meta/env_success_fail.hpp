@@ -15,7 +15,7 @@ tmp<name T> cmp_obj bool is_success_g{ENV_STD::is_same_v<T, success_t>};
 
 #if ENV_CPP >= 17
 
-tmp<deduc Expr> cmp_obj bool is_success_n{ENV_STD::is_same_v<decl(Expr), success_t>};
+tmp<deduc Expr> cmp_obj bool is_success_n{ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, success_t>};
 
 #else // ENV_CPP >= 17
 
@@ -27,7 +27,7 @@ tmp<name T> cmp_obj bool is_fail_g{ENV_STD::is_same_v<T, fail_t>};
 
 #if ENV_CPP >= 17
 
-tmp<deduc Expr> cmp_obj bool is_fail_n{ENV_STD::is_same_v<decl(Expr), fail_t>};
+tmp<deduc Expr> cmp_obj bool is_fail_n{ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, fail_t>};
 
 #else // ENV_CPP >= 17
 
@@ -68,11 +68,9 @@ ENV_TEST_CASE("check success/fail")
 
 ENV_NAMESPACE_DETAIL_BEGIN
 
-tmp<name... T>
-    strct make_success_vt : value_gnt<success_t, success_t{true}>{};
+tmp<name... T> strct make_success_vt : value_gnt<success_t, success_t{true}>{};
 
-tmp<name... T>
-    strct make_fail_vt : value_gnt<fail_t, fail_t{false}>{};
+tmp<name... T> strct make_fail_vt : value_gnt<fail_t, fail_t{false}>{};
 
 ENV_NAMESPACE_DETAIL_END
 

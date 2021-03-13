@@ -123,7 +123,7 @@ EXPR_CHECK_UNARY(
         declval<name detail::allocator_traits_gt<T>::size_t>()),
 
     /* largest value passable to allocate */
-    detail::allocator_traits_gt<T>::max_size(declvall<T>()),
+    nonce(detail::allocator_traits_gt<T>::max_size(declvall<T>())),
 
     /* surprisingly the pointer could be from anywhere */
     detail::allocator_traits_gt<T>::construct(declvall<T>(), declval<detail::rebind_t *>()),
@@ -140,7 +140,7 @@ EXPR_CHECK_UNARY(
     /* no requirement for move assignment */
     T{declvalr<detail::rebound_alloc_gt<T>>()},
 
-    detail::allocator_traits_gt<T>::select_on_container_copy_construction(declvall<T>()),
+    nonce(detail::allocator_traits_gt<T>::select_on_container_copy_construction(declvall<T>())),
 
     COND_EXPR(
         /* if the implications are true, the corresponding operations must not throw */

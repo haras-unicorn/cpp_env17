@@ -1,6 +1,8 @@
 #ifndef ENV_CHECK_HPP
 #define ENV_CHECK_HPP
 
+
+
 // expr
 
 #define EXPR_CHECK_OPT(_name, _tmp, _application, _extract, _extract_application, _type, _static)         \
@@ -59,7 +61,7 @@ EXPR_CHECK_VARIADIC(test_addable_variadic, sum_res(declvalr<TVar>()...));
 
 ENV_NAMESPACE_TEST_END
 
-ENV_TEST_CASE("sfinae struct")
+ENV_TEST_CASE("expr check")
 {
     SUBCASE("unary")
     {
@@ -141,7 +143,7 @@ public:
 
 ENV_NAMESPACE_TEST_END
 
-ENV_TEST_CASE("sfinae in class struct")
+ENV_TEST_CASE("expr check class")
 {
     SUBCASE("unary")
     {
@@ -225,7 +227,7 @@ COND_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v<ENV_STD::is_cons
 
 ENV_NAMESPACE_TEST_END
 
-ENV_TEST_CASE("require struct")
+ENV_TEST_CASE("cond check")
 {
     SUBCASE("unary")
     {
@@ -301,7 +303,7 @@ public:
 
 ENV_NAMESPACE_TEST_END
 
-ENV_TEST_CASE("require in class struct")
+ENV_TEST_CASE("cond check class")
 {
     SUBCASE("unary")
     {
@@ -384,7 +386,7 @@ TYPE_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt<TVar>...);
 
 ENV_NAMESPACE_TEST_END
 
-ENV_TEST_CASE("require struct")
+ENV_TEST_CASE("type check")
 {
     SUBCASE("unary")
     {
@@ -449,7 +451,7 @@ ENV_NAMESPACE_TEST_BEGIN
 cls type_check_class_t
 {
 public:
-    TYPE_CLASS_CHECK_UNARY(test_minus_unary, enable_minus_gt<T>);
+    PACK(TYPE_CLASS_CHECK_UNARY(test_minus_unary, enable_minus_gt<T>));
 
     TYPE_CLASS_CHECK_BINARY(test_minus_binary, enable_minus_gt<TLhs>, enable_minus_gt<TRhs>);
 
@@ -460,7 +462,7 @@ public:
 
 ENV_NAMESPACE_TEST_END
 
-ENV_TEST_CASE("require in class struct")
+ENV_TEST_CASE("type check class")
 {
     SUBCASE("unary")
     {
@@ -484,70 +486,6 @@ ENV_TEST_CASE("require in class struct")
     {
         REQUIRES(test::type_check_class_t::test_minus_variadic_g<variadic_vt<const int, const int>>);
         REQUIRES_FALSE(test::type_check_class_t::test_minus_variadic_g<variadic_vt<int, void, const int>>);
-    }
-}
-
-// extract
-
-#define EXTRACT_CHECK_OPT(_name, _extract, _application, _static) \
-    EXPR_CHECK_OPT(                                               \
-        _name,                                                    \
-        (name T), (T),                                            \
-        _extract, _application,                                   \
-        (ENV::success_t),                                         \
-        _static)
-
-#define EXTRACT_CHECK(_name, _extract, _application) EXTRACT_CHECK_OPT(_name, _extract, _application, SKIP)
-#define SIMPLE_EXTRACT_CHECK(_name, ...) EXTRACT_CHECK(_name, (), (__VA_ARGS__))
-
-ENV_NAMESPACE_TEST_BEGIN
-
-tmp<name T>
-    strct tmp_struct{};
-
-EXTRACT_CHECK(is_tmp_struct, (name T), (tmp_struct<T>));
-
-SIMPLE_EXTRACT_CHECK(is_int, int);
-
-ENV_NAMESPACE_TEST_END
-
-ENV_TEST_CASE("struct check")
-{
-    REQUIRES(test::is_tmp_struct_g<test::tmp_struct<int>>);
-    REQUIRES_FALSE(test::is_tmp_struct_g<int>);
-
-    SUBCASE("simple")
-    {
-        REQUIRES(test::is_int_g<int>);
-        REQUIRES_FALSE(test::is_int_g<void>);
-    }
-}
-
-// extract class
-
-#define EXTRACT_CLASS_CHECK(_name, _extract, _application) EXTRACT_CHECK_OPT(_name, _extract, _application, static)
-#define SIMPLE_EXTRACT_CLASS_CHECK(_name, ...) EXTRACT_CLASS_CHECK(_name, (), (__VA_ARGS__))
-
-ENV_NAMESPACE_TEST_BEGIN
-
-cls struct_check_class
-{
-public:
-    EXTRACT_CLASS_CHECK(is_tmp_struct, (name T), (tmp_struct<T>));
-    SIMPLE_EXTRACT_CLASS_CHECK(is_int, int);
-};
-
-ENV_NAMESPACE_TEST_END
-
-ENV_TEST_CASE("in class struct check")
-{
-    REQUIRES(test::struct_check_class::is_tmp_struct_g<test::tmp_struct<int>>);
-    REQUIRES_FALSE(test::struct_check_class::is_tmp_struct_g<int>);
-
-    SUBCASE("simple")
-    {
-        REQUIRES(test::struct_check_class::is_int_g<int>);
-        REQUIRES_FALSE(test::struct_check_class::is_int_g<void>);
     }
 }
 

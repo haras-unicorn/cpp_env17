@@ -60,9 +60,10 @@ tmp<name TReturn, name TInheritor>
 // argument
 
 tmp<name TReturn, name TInheritor, name... TArguments>
-    strct callable_gs<TReturn(TArguments...), TInheritor> : public callable_gs<
-                                                                TReturn(),
-                                                                ENV::self_ggt<callable_gs<TReturn(TArguments...), TInheritor>, TInheritor>>
+    strct callable_gs<TReturn(TArguments...), TInheritor>
+    : public callable_gs<
+          TReturn(),
+          ENV::self_ggt<callable_gs<TReturn(TArguments...), TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_consumer{true};
 
@@ -75,9 +76,10 @@ tmp<name TReturn, name TInheritor, name... TArguments>
 };
 
 tmp<name TReturn, name TInheritor, name... TArguments>
-    strct callable_gs<TReturn(TArguments...) noex, TInheritor> : public callable_gs<
-                                                                     TReturn(TArguments...),
-                                                                     ENV::self_ggt<callable_gs<TReturn(TArguments...) noex, TInheritor>, TInheritor>>
+    strct callable_gs<TReturn(TArguments...) noex, TInheritor>
+    : public callable_gs<
+          TReturn(TArguments...),
+          ENV::self_ggt<callable_gs<TReturn(TArguments...) noex, TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_noex{true};
 };
@@ -115,14 +117,16 @@ tmp<name TQ, name TInheritor>
             COND_TYPE(
                 ENV::is_qualified_g<TQ> &&
                     callable_gs<ENV::unqualified_gt<TQ>>::is_callable &&
-                !has_call_operator_g<ENV::unqualified_gt<TQ>>)>> : public callable_gs<ENV::unqualified_gt<TQ>, ENV::self_ggt<callable_gs<TQ, TInheritor>, TInheritor>>{};
+                !has_call_operator_g<ENV::unqualified_gt<TQ>>)>>
+    : public callable_gs<ENV::unqualified_gt<TQ>, ENV::self_ggt<callable_gs<TQ, TInheritor>, TInheritor>>{};
 
 // member ptr
 
 tmp<name TMember, name THolder, name TInheritor>
     strct callable_gs<
         TMember THolder::*, TInheritor,
-        ENV::success_vt<COND_TYPE(callable_gs<TMember>::is_callable)>> : public callable_gs<TMember, ENV::self_ggt<callable_gs<TMember THolder::*, TInheritor>, TInheritor>>
+        ENV::success_vt<COND_TYPE(callable_gs<TMember>::is_callable)>>
+    : public callable_gs<TMember, ENV::self_ggt<callable_gs<TMember THolder::*, TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_member{true};
 
@@ -130,51 +134,52 @@ tmp<name TMember, name THolder, name TInheritor>
     typ(qualified_t) = THolder;
 };
 
-#define DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, _qualifier)                                                                                                                    \
-    tmp<name TInheritor, name THolder, name TReturn, name... TArguments>                                                                                                                  \
-        strct callable_gs<TReturn _call (THolder::*)(TArguments...) SPREAD(_qualifier), TInheritor> : public callable_gs<                                                                 \
-                                                                                                          TReturn (THolder::*)(TArguments...),                                            \
-                                                                                                          ENV::self_ggt<                                                                  \
-                                                                                                              callable_gs<                                                                \
-                                                                                                                  TReturn _call (THolder::*)(TArguments...) SPREAD(_qualifier),           \
-                                                                                                                  TInheritor>,                                                            \
-                                                                                                              TInheritor>>                                                                \
-    {                                                                                                                                                                                     \
-        cmp_obj static bool is_noex{false};                                                                                                                                               \
-        cmp_obj static bool is_member{true};                                                                                                                                              \
-                                                                                                                                                                                          \
-        typ(holder_t) = THolder;                                                                                                                                                          \
-        typ(qualified_t) = THolder SPREAD(_qualifier);                                                                                                                                    \
-    };                                                                                                                                                                                    \
-                                                                                                                                                                                          \
-    tmp<name TInheritor, name THolder, name TReturn, name... TArguments>                                                                                                                  \
-        strct callable_gs<TReturn _call (THolder::*)(TArguments...) SPREAD(_qualifier) noex, TInheritor> : public callable_gs<                                                            \
-                                                                                                               TReturn (THolder::*)(TArguments...) noex,                                  \
-                                                                                                               ENV::self_ggt<                                                             \
-                                                                                                                   callable_gs<                                                           \
-                                                                                                                       TReturn _call (THolder::*)(TArguments...) SPREAD(_qualifier) noex, \
-                                                                                                                       TInheritor>,                                                       \
-                                                                                                                   TInheritor>>                                                           \
-    {                                                                                                                                                                                     \
-        cmp_obj static bool is_noex{true};                                                                                                                                                \
-        cmp_obj static bool is_member{true};                                                                                                                                              \
-                                                                                                                                                                                          \
-        typ(holder_t) = THolder;                                                                                                                                                          \
-        typ(qualified_t) = THolder SPREAD(_qualifier);                                                                                                                                    \
+#define DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, _qualifier)                           \
+    tmp<name TInheritor, name THolder, name TReturn, name... TArguments>                         \
+        strct callable_gs<TReturn _call (THolder::*)(TArguments...) _qualifier, TInheritor>      \
+        : public callable_gs<                                                                    \
+              TReturn (THolder::*)(TArguments...),                                               \
+              ENV::self_ggt<                                                                     \
+                  callable_gs<                                                                   \
+                      TReturn _call (THolder::*)(TArguments...) _qualifier,                      \
+                      TInheritor>,                                                               \
+                  TInheritor>>                                                                   \
+    {                                                                                            \
+        cmp_obj static bool is_noex{false};                                                      \
+        cmp_obj static bool is_member{true};                                                     \
+                                                                                                 \
+        typ(holder_t) = THolder;                                                                 \
+        typ(qualified_t) = THolder _qualifier;                                                   \
+    };                                                                                           \
+    tmp<name TInheritor, name THolder, name TReturn, name... TArguments>                         \
+        strct callable_gs<TReturn _call (THolder::*)(TArguments...) _qualifier noex, TInheritor> \
+        : public callable_gs<                                                                    \
+              TReturn (THolder::*)(TArguments...) noex,                                          \
+              ENV::self_ggt<                                                                     \
+                  callable_gs<                                                                   \
+                      TReturn _call (THolder::*)(TArguments...) _qualifier noex,                 \
+                      TInheritor>,                                                               \
+                  TInheritor>>                                                                   \
+    {                                                                                            \
+        cmp_obj static bool is_noex{true};                                                       \
+        cmp_obj static bool is_member{true};                                                     \
+                                                                                                 \
+        typ(holder_t) = THolder;                                                                 \
+        typ(qualified_t) = THolder _qualifier;                                                   \
     }
 
-#define DEFINE_QUALIFIED_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call)        \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (&));                \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (&&));               \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (const));            \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (const &));          \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (const &&));         \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (volatile));         \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (volatile &));       \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (volatile &&));      \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (const volatile));   \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (const volatile &)); \
-    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, (const volatile &&))
+#define DEFINE_QUALIFIED_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call)      \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, &);                \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, &&);               \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, const);            \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, const &);          \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, const &&);         \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, volatile);         \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, volatile &);       \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, volatile &&);      \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, const volatile);   \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, const volatile &); \
+    DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, const volatile &&)
 
 // functors
 
@@ -185,8 +190,9 @@ tmp<name TFunctor, name TInheritor>
             decl(&ENV::unqualified_gt<TFunctor>::op()),
             COND_TYPE(ENV::is_call_qualified_for_g<
                       TFunctor,
-                      name callable_gs<decl(&ENV::unqualified_gt<TFunctor>::op())>::qualified_t>)>> : public callable_gs<decl(&ENV::unqualified_gt<TFunctor>::op()),
-                                                                                                                         ENV::self_ggt<callable_gs<TFunctor, TInheritor>, TInheritor>>
+                      name callable_gs<decl(&ENV::unqualified_gt<TFunctor>::op())>::qualified_t>)>>
+    : public callable_gs<decl(&ENV::unqualified_gt<TFunctor>::op()),
+                         ENV::self_ggt<callable_gs<TFunctor, TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_member{false};
 };
@@ -292,8 +298,8 @@ ENV_NAMESPACE_TEST_BEGIN
 
 strct templated_callable_t
 {
-    [[maybe_unused]] const ENV_STD::function<void()> lambda{[] {}};
-    [[maybe_unused]] const ENV_STD::function<void()> *lambda_ptr{&lambda};
+    const ENV_STD::function<void()> lambda{[] {}};
+    const ENV_STD::function<void()> *lambda_ptr{&lambda};
     tmp<name = success_t> callb op()() {}
 };
 
@@ -302,24 +308,24 @@ ENV_NAMESPACE_TEST_END
 ENV_TEST_CASE("callable traits")
 {
     strct test_t{
-        [[maybe_unused]] void overloaded(){}
+        void overloaded(){}
 
-        [[maybe_unused]] void overloaded(int){}
+        void overloaded(int){}
 
-        [[maybe_unused]] static void static_except(){}
+        static void static_except(){}
 
-        [[maybe_unused]] virtual int int_unqualified_except_int(int){ret 1;
+        virtual int int_unqualified_except_int(int){ret 1;
 }
 
-[[maybe_unused]] char char_unqualified_noex() noex { ret 2; }
+char char_unqualified_noex() noex { ret 2; }
 
-[[maybe_unused]] void const_except_double_float(double, float) const {}
+void const_except_double_float(double, float) const {}
 
-[[maybe_unused]] void lvalue_except_char(char) & {}
+void lvalue_except_char(char) & {}
 
-[[maybe_unused]] void volatile_rvalue_noex() volatile &&noex {}
+void volatile_rvalue_noex() volatile &&noex {}
 
-[[maybe_unused]] float op()(char, int) { ret 20; }
+float op()(char, int) { ret 20; }
 }
 ;
 

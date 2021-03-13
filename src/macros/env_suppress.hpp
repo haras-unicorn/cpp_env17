@@ -1,6 +1,8 @@
 #ifndef ENV_SUPPRESS_HPP
 #define ENV_SUPPRESS_HPP
 
+
+
 #if ENV_CLANG || defined(__JETBRAINS_IDE__) // clang
 #define ENV_CLANG_SUPPRESS_PUSH(_warning) \
     ENV_PRAGMA("clang diagnostic push")   \
@@ -34,20 +36,5 @@
 #define ENV_GCC_SUPPRESS_PUSH(_warning)
 #define ENV_GCC_SUPPRESS_POP
 #endif // gcc
-
-// global warning suppression - please add only when necessary!!
-
-// suppress JetBrains and other inspections added by extensions
-ENV_CLANG_SUPPRESS_PUSH("-Wunknown-pragmas")
-
-// TODO - investigate this and fix for JetBrains IDE's
-// anonymous empty structs - I have no idea why I can't just put this in the ANON_STRUCT macro
-ENV_CLANG_SUPPRESS_PUSH("-Wmissing-declarations")
-ENV_MSVC_SUPPRESS_PUSH(4408)
-ENV_MSVC_SUPPRESS_PUSH(4201)
-
-// doctest sometimes declares variables with two const qualifiers
-ENV_CLANG_SUPPRESS_PUSH("-Wduplicate-decl-specifier")
-ENV_MSVC_SUPPRESS_PUSH(4114)
 
 #endif // ENV_SUPPRESS_HPP

@@ -217,14 +217,14 @@ ENV_CLANG_SUPPRESS_POP
     DEF_DEFAULT_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, (), (), ())                           \
     DEF_DEFAULT_ASSIGNMENT_OPERATORS(_name, _assignment_attribute, (), (), ())                              \
     DEF_DEFAULT_DESTRUCTOR(_name, _destructor_attribute, (), (), ())                                        \
-    CLASS_SEMI
+    SEMI
 
 #define ELABORATE_DEFAULT_NOCON_LIFE(_name, _constructor_attribute, _assignment_attribute, _destructor_attribute) \
     ACCESS_BEGIN(public);                                                                                         \
     DEF_DEFAULT_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, (), (), ())                                 \
     DEF_DEFAULT_ASSIGNMENT_OPERATORS(_name, _assignment_attribute, (), (), ())                                    \
     DEF_DEFAULT_DESTRUCTOR(_name, _destructor_attribute, (), (), ())                                              \
-    CLASS_SEMI
+    SEMI
 
 #define DEFAULT_LIFE(_name, _attribute) \
     ELABORATE_DEFAULT_LIFE(_name, _attribute, _attribute, _attribute)
@@ -276,7 +276,7 @@ ENV_TEST_CASE("default lifetime")
     DEF_AUTO_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, _construct, _copy, _move)               \
     DEF_AUTO_ASSIGNMENT_OPERATORS(_name, _assignment_attribute, _construct, _copy, _move)                  \
     DEF_AUTO_DESTRUCTOR(_name, _destructor_attribute, _construct, _copy, _move)                            \
-    CLASS_SEMI
+    SEMI
 
 #define ELABORATE_AUTO_NOCON_LIFE(                                                             \
     _name, _constructor_attribute, _assignment_attribute, _destructor_attribute, _copy, _move) \
@@ -284,7 +284,7 @@ ENV_TEST_CASE("default lifetime")
     DEF_AUTO_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, (), _copy, _move)           \
     DEF_AUTO_ASSIGNMENT_OPERATORS(_name, _assignment_attribute, (), _copy, _move)              \
     DEF_AUTO_DESTRUCTOR(_name, _destructor_attribute, (), _copy, _move)                        \
-    CLASS_SEMI
+    SEMI
 
 #define AUTO_LIFE(_name, _attribute, _construct, _copy, _move) \
     ELABORATE_AUTO_LIFE(_name, _attribute, _attribute, _attribute, _construct, _copy, _move)
@@ -370,7 +370,7 @@ ENV_TEST_CASE("auto lifetime")
     DEF_MANUAL_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, _construct, _copy, _move)             \
     DEF_MANUAL_ASSIGNMENT_OPERATORS(_name, _assignment_attribute, _construct, _copy, _move)                \
     DEF_MANUAL_DESTRUCTOR(_name, _destructor_attribute, _construct, _copy, _move)                          \
-    CLASS_SEMI
+    SEMI
 
 #define ELABORATE_MANUAL_NOCON_LIFE(                                                                       \
     _name, _constructor_attribute, _assignment_attribute, _destructor_attribute, _construct, _copy, _move) \
@@ -378,7 +378,7 @@ ENV_TEST_CASE("auto lifetime")
     DEF_MANUAL_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, _construct, _copy, _move)             \
     DEF_MANUAL_ASSIGNMENT_OPERATORS(_name, _assignment_attribute, _construct, _copy, _move)                \
     DEF_MANUAL_DESTRUCTOR(_name, _destructor_attribute, _construct, _copy, _move)                          \
-    CLASS_SEMI
+    SEMI
 
 #define MANUAL_LIFE(_name, _attribute, _construct, _copy, _move) \
     ELABORATE_MANUAL_LIFE(_name, _attribute, _attribute, _attribute, _construct, _copy, _move)
@@ -481,7 +481,7 @@ ENV_TEST_CASE("manual lifetime")
     DEF_DEFAULT_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, (), (), ())          \
     DECL_DELETED_ASSIGNMENT_OPERATORS(_name)                                               \
     DEF_DEFAULT_DESTRUCTOR(_name, _destructor_attribute, (), (), ())                       \
-    CLASS_SEMI
+    SEMI
 
 #define DEFAULT_CONST_LIFE(_name, _attribute) \
     ELABORATE_DEFAULT_CONST_LIFE(_name, _attribute, _attribute)
@@ -510,7 +510,7 @@ ENV_TEST_CASE("const default lifetime")
     DEF_AUTO_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, _construct, _copy, _move)                      \
     DECL_DELETED_ASSIGNMENT_OPERATORS(_name)                                                                      \
     DEF_AUTO_DESTRUCTOR(_name, _destructor_attribute, _construct, _copy, _move)                                   \
-    CLASS_SEMI
+    SEMI
 
 #define AUTO_CONST_LIFE(_name, _attribute, _construct, _copy, _move) \
     ELABORATE_AUTO_CONST_LIFE(_name, _attribute, _attribute, _construct, _copy, _move)
@@ -557,7 +557,7 @@ ENV_TEST_CASE("const auto lifetime")
     DEF_MANUAL_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, _construct, _copy, _move)                      \
     DECL_DELETED_ASSIGNMENT_OPERATORS(_name)                                                                        \
     DEF_MANUAL_DESTRUCTOR(_name, _destructor_attribute, _construct, _copy, _move)                                   \
-    CLASS_SEMI
+    SEMI
 
 #define MANUAL_CONST_LIFE(_name, _attribute, _construct, _copy, _move) \
     ELABORATE_MANUAL_CONST_LIFE(_name, _attribute, _attribute, _construct, _copy, _move)

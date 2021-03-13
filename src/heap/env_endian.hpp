@@ -17,7 +17,7 @@ ENV_CLANG_SUPPRESS_PUSH("UnreachableCode")
 cmp_fn endianness() noex
 {
     // converts chars to uint32_t on current platform
-    obj cmp uint32_t _native{'ABCD'};
+    obj cmp uint32_t _native{"ABCD"};
 
     // 41 42 43 44 = 'ABCD' hex ASCII code
     obj cmp uint32_t _little{0x41424344u};

@@ -1,20 +1,6 @@
 #ifndef ENV_CLEANUP_MACROS_HPP
 #define ENV_CLEANUP_MACROS_HPP
 
-// global warning suppression - please add only when necessary!!
-
-// suppress JetBrains and other inspections added by extensions
-ENV_CLANG_SUPPRESS_POP
-
-// anonymous empty structs - I have no idea why I can't just put this in the ANON_STRUCT macro
-ENV_CLANG_SUPPRESS_POP
-ENV_MSVC_SUPPRESS_POP
-ENV_MSVC_SUPPRESS_POP
-
-// doctest sometimes declares variables with two const qualifiers
-ENV_CLANG_SUPPRESS_POP
-ENV_MSVC_SUPPRESS_POP
-
 // undef
 
 #if ENV_UNDEF_MACROS
@@ -150,8 +136,8 @@ ENV_MSVC_SUPPRESS_POP
 
 // types
 
-#undef typ_impl
 #undef typ_p
+#undef typ_a
 #undef typ
 
 #undef strct_p
@@ -203,7 +189,7 @@ ENV_MSVC_SUPPRESS_POP
 
 // scope
 
-#undef ANON_NAME
+#undef ANON
 
 #undef SCOPE_IMPL
 #undef SCOPE

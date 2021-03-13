@@ -79,7 +79,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
         {                                                                                 \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal));      \
         }                                                                                 \
-        SCOPE_SEMI
+        SEMI
 
 #define FLOATING_L(_name, _suffix, ...)                                              \
         typ(CAT(_name, _t)) = __VA_ARGS__;                                           \
@@ -87,7 +87,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
         {                                                                            \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
         }                                                                            \
-        SCOPE_SEMI
+        SEMI
 
 #define CHAR_L(_name, _suffix, _literal, ...)                                        \
         typ(CAT(_name, _t)) = __VA_ARGS__;                                           \
@@ -95,7 +95,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
         {                                                                            \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
         }                                                                            \
-        SCOPE_SEMI
+        SEMI
 
 #define TEXT_L(_name, _suffix, _literal, ...)                                                     \
         typ(CAT(_name, _t)) = __VA_ARGS__;                                                        \
@@ -103,7 +103,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
         {                                                                                         \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal, size));        \
         }                                                                                         \
-        SCOPE_SEMI
+        SEMI
 
 #define RT_TEXT_L(_name, _suffix, _literal, ...)                                              \
         typ(CAT(_name, _t)) = __VA_ARGS__;                                                    \
@@ -111,7 +111,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
         {                                                                                     \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal, size));    \
         }                                                                                     \
-        SCOPE_SEMI
+        SEMI
 
 #define WHOLE_UL(_name, _suffix, ...)                                                     \
         UNIQUE(_name, __VA_ARGS__);                                                       \
@@ -119,7 +119,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
         {                                                                                 \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal));      \
         }                                                                                 \
-        SCOPE_SEMI
+        SEMI
 
 #define FLOATING_UL(_name, _suffix, ...)                                             \
         UNIQUE(_name, __VA_ARGS__);                                                  \
@@ -127,7 +127,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
         {                                                                            \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
         }                                                                            \
-        SCOPE_SEMI
+        SEMI
 
 #define CHAR_UL(_name, _suffix, _literal, ...)                                       \
         UNIQUE(_name, __VA_ARGS__);                                                  \
@@ -135,7 +135,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
         {                                                                            \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
         }                                                                            \
-        SCOPE_SEMI
+        SEMI
 
 // real
 
