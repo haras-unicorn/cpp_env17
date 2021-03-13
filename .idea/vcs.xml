@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/env_bench_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_debug/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_debug_clang/_deps/env_bench_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_debug_clang/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_debug_gcc/_deps/env_bench_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_debug_gcc/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_debug_msvc/_deps/env_bench_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_debug_msvc/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_release/_deps/env_bench_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_release/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_release_clang/_deps/env_bench_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_release_clang/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_release_gcc/_deps/env_bench_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_release_gcc/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_release_msvc/_deps/env_bench_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build_release_msvc/_deps/env_test_fetch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/env_test_fetch-src" vcs="Git" />
+  </component>
+</project>
