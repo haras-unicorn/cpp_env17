@@ -1,6 +1,7 @@
-env_add_dependency(std INTERFACE)
+env_add_dep(std)
 
-env_target_precompile(std
+env_target_precompile(
+        std_dep
         INTERFACE
         <utility>
         <type_traits>
@@ -42,4 +43,5 @@ env_target_precompile(std
         <exception>
 
         <iostream>
-        <filesystem>)
+        <filesystem>
+)

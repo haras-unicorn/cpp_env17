@@ -6,6 +6,10 @@
  *
  * This file is just a documentation of directives that can be passed to ENV.
  *
+ * 
+ * ENV_MESSAGES:
+ * Display messages about compiler, arch, OS during compilation
+ * 
  *
  * TESTING DIRECTIVES:
  *
@@ -17,9 +21,13 @@
  *
  * ENV_SKIP_TESTS:
  * Skip all tests.
- *
- * ENV_<MODULE_NAME>_SKIP_TESTS:
- * Skips tests from the specified module.
+ * 
+ * 
+ * 
+ * BENCHMARKING DIRECTIVES:
+ * 
+ * ENV_BENCHMARK:
+ * Enables benchmarks with Google benchmark.
  *
  *
  *

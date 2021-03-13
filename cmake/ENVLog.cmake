@@ -1,3 +1,3 @@
 function(env_log)
-    message(STATUS "[fwa]: ${ARGN}")
+    message(STATUS "[env]: ${ARGN}")
 endfunction()

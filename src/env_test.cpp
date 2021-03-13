@@ -1,7 +1,7 @@
 #define ENV_TESTS
 #define ENV_MESSAGES
 
-#include "env_core.hpp"
+#include "env.hpp"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 {
@@ -20,7 +20,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 
 TEST_CASE("user macros && unused include")
 {
-    REQUIRE(::fwa::core::test::unused_include_workaround);
+    REQUIRE(::env::test::unused_include_workaround);
 }
 
 #ifdef SKIP

@@ -3,9 +3,9 @@
 
 #include "structure/env_structure.hpp"
 
-ENV_NAMESPACE_CORE_BEGIN
+ENV_NAMESPACE_BEGIN
 
-ENV_TEST_SUITE_BEGIN("core");
+ENV_TEST_SUITE_BEGIN("env");
 
 #include "heap/env_heap.hpp"
 #include "iteration/env_iteration.hpp"
@@ -18,6 +18,6 @@ ENV_TEST_SUITE_BEGIN("core");
 
 ENV_TEST_SUITE_END();
 
-ENV_NAMESPACE_CORE_END
+ENV_NAMESPACE_END
 
 #endif // ENV_HPP

@@ -61,32 +61,4 @@
 #define ENV_TEST_CASE_TMP(_name, _tmp, ...) DOCTEST_TEST_CASE_TEMPLATE(_name, _tmp, __VA_ARGS__)
 #endif // ENV_SKIP_TESTS
 
-#if defined(ENV_GRAPH_SKIP_TESTS) || defined(ENV_SKIP_TESTS) || (defined(ENV_STATIC_TESTS) && !defined(ENV_TESTS))
-#define ENV_GRAPH_TEST_SUITE_BEGIN(_name) DOCTEST_TEST_SUITE_BEGIN(_name *ENV_DOCT::skip(true))
-#define ENV_GRAPH_TEST_SUITE_END() DOCTEST_TEST_SUITE_END()
-#define ENV_GRAPH_TEST_CASE(_name) DOCTEST_TEST_CASE(_name *ENV_DOCT::skip(true))
-#define ENV_GRAPH_TEST_CASE_CLASS(_name) DOCTEST_TEST_CASE_CLASS(_name *ENV_DOCT::skip(true))
-#define ENV_GRAPH_TEST_CASE_TMP(_name, _tmp, ...) DOCTEST_TEST_CASE_TEMPLATE(_name *ENV_DOCT::skip(true), _tmp, __VA_ARGS__)
-#else // ENV_GRAPH_SKIP_TESTS
-#define ENV_GRAPH_TEST_SUITE_BEGIN(_name) DOCTEST_TEST_SUITE_BEGIN(_name)
-#define ENV_GRAPH_TEST_SUITE_END() DOCTEST_TEST_SUITE_END()
-#define ENV_GRAPH_TEST_CASE(_name) DOCTEST_TEST_CASE(_name)
-#define ENV_GRAPH_TEST_CASE_CLASS(_name) DOCTEST_TEST_CASE_CLASS(_name)
-#define ENV_GRAPH_TEST_CASE_TMP(_name, _tmp, ...) DOCTEST_TEST_CASE_TEMPLATE(_name, _tmp, __VA_ARGS__)
-#endif // ENV_GRAPH_SKIP_TESTS
-
-#if defined(ENV_EXEC_SKIP_TESTS) || defined(ENV_SKIP_TESTS) || (defined(ENV_STATIC_TESTS) && !defined(ENV_TESTS))
-#define ENV_EXEC_TEST_SUITE_BEGIN(_name) DOCTEST_TEST_SUITE_BEGIN(_name *ENV_DOCT::skip(true))
-#define ENV_EXEC_TEST_SUITE_END() DOCTEST_TEST_SUITE_END()
-#define ENV_EXEC_TEST_CASE(_name) DOCTEST_TEST_CASE(_name *ENV_DOCT::skip(true))
-#define ENV_EXEC_TEST_CASE_CLASS(_name) DOCTEST_TEST_CASE_CLASS(_name *ENV_DOCT::skip(true))
-#define ENV_EXEC_TEST_CASE_TMP(_name, _tmp, ...) DOCTEST_TEST_CASE_TEMPLATE(_name *ENV_DOCT::skip(true), _tmp, __VA_ARGS__)
-#else // ENV_EXEC_SKIP_TESTS
-#define ENV_EXEC_TEST_SUITE_BEGIN(_name) DOCTEST_TEST_SUITE_BEGIN(_name)
-#define ENV_EXEC_TEST_SUITE_END() DOCTEST_TEST_SUITE_END()
-#define ENV_EXEC_TEST_CASE(_name) DOCTEST_TEST_CASE(_name)
-#define ENV_EXEC_TEST_CASE_CLASS(_name) DOCTEST_TEST_CASE_CLASS(_name)
-#define ENV_EXEC_TEST_CASE_TMP(_name, _tmp, ...) DOCTEST_TEST_CASE_TEMPLATE(_name, _tmp, __VA_ARGS__)
-#endif // ENV_EXEC_SKIP_TESTS
-
 #endif // ENV_TEST_HPP

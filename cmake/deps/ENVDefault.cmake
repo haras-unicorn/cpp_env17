@@ -1,6 +1,6 @@
-env_add_dependency(default INTERFACE)
+env_add_dep(default)
 
-env_target_include(default INTERFACE ${PROJECT_SOURCE_DIR}/src)
-env_target_link(default INTERFACE env_std env_boost)
+env_target_include(default_dep INTERFACE ${PROJECT_SOURCE_DIR}/src)
+env_target_link(default_dep INTERFACE env_std_dep env_boost_dep env_alloc_dep)
 
-env_target_compile(default INTERFACE cxx_std_17)
+env_target_compile(default_dep INTERFACE cxx_std_17)

@@ -1,1 +1,1 @@
-env_add_dependency(boost INTERFACE)
+env_add_dep(boost)
