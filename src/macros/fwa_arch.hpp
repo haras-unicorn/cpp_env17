@@ -1,6 +1,5 @@
-#ifndef FWA_CORE_ARCH_HPP
-#define FWA_CORE_ARCH_HPP
-
+#ifndef ENV_ARCH_HPP
+#define ENV_ARCH_HPP
 
 // https://sourceforge.net/p/predef/wiki/Architectures/
 
@@ -30,5 +29,4 @@
 #define FWA_ARM 0
 #endif // FWA_ARM
 
-
-#endif // FWA_CORE_ARCH_HPP
+#endif // ENV_ARCH_HPP

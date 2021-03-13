@@ -1,5 +1,5 @@
-#ifndef FWA_CORE_FIXED_HPP
-#define FWA_CORE_FIXED_HPP
+#ifndef ENV_FIXED_HPP
+#define ENV_FIXED_HPP
 
 
 tmp<name TVal = byte_t, name TAlloc = allocator_gt <TVal>>
@@ -43,4 +43,4 @@ strct fixed_ptr_gt
 typ(fixed_ptr_t) = fixed_ptr_gt<byte_t, allocator_gt < byte_t>>;
 
 
-#endif // FWA_CORE_FIXED_HPP
+#endif // ENV_FIXED_HPP

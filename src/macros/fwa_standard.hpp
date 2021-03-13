@@ -1,10 +1,9 @@
-#ifndef FWA_CORE_STANDARD_HPP
-#define FWA_CORE_STANDARD_HPP
-
+#ifndef ENV_STANDARD_HPP
+#define ENV_STANDARD_HPP
 
 // https://sourceforge.net/p/predef/wiki/Standards/
 
-#ifdef __cplusplus // language
+#ifdef __cplusplus         // language
 #if __cplusplus == 199711L // c++98
 #define FWA_CPP 98
 #define FWA_CPP98 1
@@ -41,7 +40,6 @@
 #error "Unsupported language."
 #endif // language
 
-
 #ifndef FWA_CPP98
 #define FWA_CPP98 0
 #endif // FWA_CPP98
@@ -61,5 +59,4 @@
 #define FWA_CPP23 0
 #endif // FWA_CPP23
 
-
-#endif // FWA_CORE_STANDARD_HPP
+#endif // ENV_STANDARD_HPP

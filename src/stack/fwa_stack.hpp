@@ -1,22 +1,20 @@
-#ifndef FWA_CORE_STACK_HPP
-#define FWA_CORE_STACK_HPP
+#ifndef ENV_STACK_HPP
+#define ENV_STACK_HPP
 
-FWA_CORE_TEST_SUITE_BEGIN("stack");
+ENV_TEST_SUITE_BEGIN("stack");
 
+#include "env_casting.hpp"
+#include "env_nil.hpp"
 
-#include "fwa_casting.hpp"
-#include "fwa_nil.hpp"
+#include "env_hash.hpp"
+#include "env_literals.hpp"
+#include "env_size.hpp"
+#include "env_values.hpp"
 
-#include "fwa_literals.hpp"
-#include "fwa_size.hpp"
-#include "fwa_hash.hpp"
-#include "fwa_values.hpp"
+#include "env_constrain.hpp"
+#include "env_div.hpp"
+#include "env_pow2.hpp"
 
-#include "fwa_constrain.hpp"
-#include "fwa_div.hpp"
-#include "fwa_pow2.hpp"
+ENV_TEST_SUITE_END();
 
-
-FWA_CORE_TEST_SUITE_END();
-
-#endif // FWA_CORE_STACK_HPP
+#endif // ENV_STACK_HPP

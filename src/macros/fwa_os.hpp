@@ -1,5 +1,5 @@
-#ifndef FWA_CORE_OS_HPP
-#define FWA_CORE_OS_HPP
+#ifndef ENV_OS_HPP
+#define ENV_OS_HPP
 
 // https://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
 
@@ -42,7 +42,6 @@
 #error "Unsupported OS."
 #endif // os
 
-
 #ifndef FWA_WIN
 #define FWA_WIN 0
 #endif // FWA_WIN
@@ -73,5 +72,4 @@
 #define FWA_ANDROID 0
 #endif // FWA_ANDROID
 
-
-#endif // FWA_CORE_OS_HPP
+#endif // ENV_OS_HPP

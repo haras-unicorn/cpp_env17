@@ -1,7 +1,7 @@
 #define FWA_TESTS
 #define FWA_MESSAGES
 
-#include "fwa_core.hpp"
+#include "env_core.hpp"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char** argv)
 {
@@ -17,7 +17,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char** argv)
 
 #define FWA_UNDEF_MACROS
 
-#include "fwa_cleanup.hpp"
+#include "env_cleanup.hpp"
 
 TEST_CASE("user macros && unused include")
 {

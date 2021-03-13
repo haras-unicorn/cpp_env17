@@ -8,7 +8,13 @@ project(fast-web-audio
 
 set(CMAKE_MODULE_PATH
         ${CMAKE_MODULE_PATH}
-        ${PROJECT_SOURCE_DIR}/cmake_modules
-        ${PROJECT_SOURCE_DIR}/cmake_modules/dependencies)
+        ${PROJECT_SOURCE_DIR}/cmake
+        ${PROJECT_SOURCE_DIR}/cmake/deps)
 
-include(FWATargets)
+
+include(FWADependencies)
+
+env_log("-!- Adding targets... -!-")
+
+env_add_test(core)
+env_add_test(graph env_juce)

@@ -1,6 +1,5 @@
-#ifndef FWA_CORE_GLUE_HPP
-#define FWA_CORE_GLUE_HPP
-
+#ifndef ENV_GLUE_HPP
+#define ENV_GLUE_HPP
 
 #ifndef FWA_ALLOCATOR
 #define FWA_ALLOCATOR FWA_STD::allocator
@@ -10,5 +9,4 @@
 #define FWA_DELETER FWA_STD::default_delete
 #endif // FWA_ALLOCATOR
 
-
-#endif // FWA_CORE_GLUE_HPP
+#endif // ENV_GLUE_HPP

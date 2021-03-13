@@ -1,11 +1,9 @@
-#ifndef FWA_CORE_ON_CONTEXT_HPP
-#define FWA_CORE_ON_CONTEXT_HPP
-
+#ifndef ENV_ON_CONTEXT_HPP
+#define ENV_ON_CONTEXT_HPP
 
 // dep
 
 #define dep_name name TDep = FWA_CORE::void_t
-
 
 // cond
 // NOTE: you can only check for conditions here, so no conversion from type or expr into condition
@@ -15,21 +13,21 @@
 FWA_NAMESPACE_TEST_BEGIN
 
 tmp<name T>
-strct cond_const
-{
-    ON_COND(FWA_STD::is_const_v < T >) cmp_fn test(int) const noex { ret true; }
+    strct cond_const{
+        ON_COND(FWA_STD::is_const_v<T>) cmp_fn test(int) const noex{ret true;
+}
 
-    cmp_fn test(...) const noex { ret false; }
-};
+cmp_fn test(...) const noex { ret false; }
+}
+;
 
 FWA_NAMESPACE_TEST_END
 
-FWA_CORE_TEST_CASE("cond")
+ENV_TEST_CASE("cond")
 {
-    REQUIRES(test::cond_const<const int>{ }.test(0));
-    REQUIRES_FALSE(test::cond_const<int>{ }.test(0));
+    REQUIRES(test::cond_const<const int>{}.test(0));
+    REQUIRES_FALSE(test::cond_const<int>{}.test(0));
 }
-
 
 // TODO: do this for type
 // I believe it can be done somehow, but the thing is that the only reason that the cond works is that
@@ -56,12 +54,11 @@ FWA_CORE_TEST_CASE("cond")
 //
 //FWA_NAMESPACE_TEST_END
 //
-//FWA_CORE_TEST_CASE("expr")
+//ENV_TEST_CASE("expr")
 //{
 //    REQUIRES(test::expr_addable<int>{ }.test_addable(0));
 //    REQUIRES_FALSE(test::expr_addable<void>{ }.test_addable(0));
 //}
-
 
 //// type
 //
@@ -83,11 +80,10 @@ FWA_CORE_TEST_CASE("cond")
 //
 //FWA_NAMESPACE_TEST_END
 //
-//FWA_CORE_TEST_CASE("expr")
+//ENV_TEST_CASE("expr")
 //{
 //    REQUIRES(test::type_addable<int>{ }.test_addable(0));
 //    REQUIRES_FALSE(test::type_addable<nullptr_t>{}.test_addable(0));
 //}
 
-
-#endif // FWA_CORE_ON_CONTEXT_HPP
+#endif // ENV_ON_CONTEXT_HPP

@@ -1,5 +1,5 @@
-#ifndef FWA_CORE_DIRECTIVES_HPP
-#define FWA_CORE_DIRECTIVES_HPP
+#ifndef ENV_DIRECTIVES_HPP
+#define ENV_DIRECTIVES_HPP
 
 /*
  *
@@ -33,4 +33,4 @@
  *
  */
 
-#endif // FWA_CORE_DIRECTIVES_HPP
+#endif // ENV_DIRECTIVES_HPP

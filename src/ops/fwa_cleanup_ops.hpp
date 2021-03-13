@@ -1,9 +1,7 @@
-#ifndef FWA_CORE_CLEANUP_OPS_HPP
-#undef FWA_CORE_CLEANUP_OPS_HPP
-
+#ifndef ENV_CLEANUP_OPS_HPP
+#undef ENV_CLEANUP_OPS_HPP
 
 #if FWA_UNDEF_OPS
-
 
 // getters
 
@@ -16,7 +14,6 @@
 #undef GETTER_NAME
 
 #undef GET_MEM
-
 
 // const and mutable
 
@@ -35,7 +32,6 @@
 #undef MEM_GETTER_TMP
 
 #undef MEM_GETTER
-
 
 // const or mutable
 
@@ -79,7 +75,6 @@
 
 #undef MEM_MUT_GETTER
 
-
 // members
 
 #undef DEF_MEM_TYPE
@@ -106,14 +101,12 @@
 
 #undef _NIL
 
-
 // singleton getters
 
 #undef PROTECTED_SINGLETON_NAME
 #undef PUBLIC_SINGLETON_NAME
 
 #undef GET_SINGLETON
-
 
 #undef DECL_SINGLETON_GETTER
 
@@ -127,11 +120,9 @@
 
 #undef THREADED_CONST_SINGLETON_GETTER
 
-
 // lifetime
 
 // names
-
 
 // modular definitions
 
@@ -148,14 +139,12 @@
 
 #undef DEF_DESTRUCT
 
-
 // modular lifetime
 
 #undef DELETE_METHOD
 #undef DEFAULT_METHOD
 
 #undef WRAP_LIFETIME_ATTRIBUTE
-
 
 #undef DECL_DEFAULT_CONSTRUCTOR
 
@@ -177,7 +166,6 @@
 
 #undef DEF_MANUAL_DEFAULT_CONSTRUCTOR
 
-
 #undef DECL_COPY_MOVE_CONSTRUCTORS
 
 #undef DECL_DELETED_COPY_MOVE_CONSTRUCTORS
@@ -197,7 +185,6 @@
 #undef DEF_AUTO_COPY_MOVE_CONSTRUCTORS
 
 #undef DEF_MANUAL_COPY_MOVE_CONSTRUCTORS
-
 
 #undef DECL_ASSIGNMENT_OPERATORS
 
@@ -219,7 +206,6 @@
 
 #undef DEF_MANUAL_ASSIGNMENT_OPERATORS
 
-
 #undef DECL_DESTRUCTOR
 
 #undef DECL_DELETED_DESTRUCTOR
@@ -240,7 +226,6 @@
 
 #undef DEF_MANUAL_DESTRUCTOR
 
-
 // manual methods
 
 #undef DECL_LIFETIME_FUN
@@ -253,7 +238,6 @@
 #undef DECL_COPY_MOVE
 
 #undef DECL_DESTRUCT
-
 
 // lifetime
 
@@ -367,7 +351,6 @@
 
 #undef SIMPLE_MANUAL_SINGLE_LIFE
 
-
 // comparison
 
 // names and getter calls
@@ -390,7 +373,6 @@
 #undef CHECK_LESS
 #undef CHECK_TEMPLATE_LESS
 
-
 // non tmp modular
 
 // validity
@@ -407,7 +389,6 @@
 
 #undef DECLARE_IS_VALID_FUNCTION
 
-
 // hash
 
 #undef DEFINE_CALCULATE_HASH
@@ -418,20 +399,17 @@
 
 #undef DECLARE_HASH_FUNCTION
 
-
 // possibly tmp modular
 
 #undef DECLARE_BINARY_CHECK
 
 #undef DECLARE_STATIC_BINARY_CHECK
 
-
 #undef DECLARE_NO_TEMPLATE_BINARY_CHECK
 
 #undef DECLARE_TEMPLATE_BINARY_CHECK
 
 #undef DECLARE_STATIC_TEMPLATE_BINARY_CHECK
-
 
 #undef HASH_EQ_TEMPLATE_CONDITION
 
@@ -445,7 +423,6 @@
 
 #undef STATIC_COMPARISON_TEMPLATE_CONDITION
 
-
 #undef DECLARE_HASH_EQ_TEMPLATE_BINARY_CHECK
 
 #undef DECLARE_HASH_EQ_STATIC_TEMPLATE_BINARY_CHECK
@@ -458,7 +435,6 @@
 
 #undef DECLARE_COMPARISON_STATIC_TEMPLATE_BINARY_CHECK
 
-
 // hash
 
 #undef DEFINE_HASH_EQ
@@ -469,7 +445,6 @@
 
 #undef DEFINE_STATIC_HASH_EQ
 
-
 #undef DEFINE_TEMPLATE_HASH_EQ
 
 #undef DEFINE_TEMPLATE_HASH_IS_EQUAL_TO
@@ -477,7 +452,6 @@
 #undef DEFINE_TEMPLATE_HASH_IS_NOT_EQUAL_TO
 
 #undef DEFINE_STATIC_TEMPLATE_HASH_EQ
-
 
 // equality
 
@@ -493,7 +467,6 @@
 
 #undef DECLARE_EQUALS_FUNCTION
 
-
 #undef DEFINE_TEMPLATE_EQ_OPERATOR
 
 #undef DEFINE_TEMPLATE_NE_OPERATOR
@@ -505,7 +478,6 @@
 #undef DEFINE_TEMPLATE_STATIC_EQUALS
 
 #undef DECLARE_TEMPLATE_EQUALS_FUNCTION
-
 
 // comparison
 
@@ -529,7 +501,6 @@
 
 #undef DECLARE_LESS_FUNCTION
 
-
 #undef DEFINE_TEMPLATE_LESS_OPERATOR
 
 #undef DEFINE_TEMPLATE_IS_LESS_THAN
@@ -550,7 +521,6 @@
 
 #undef DECLARE_TEMPLATE_LESS_FUNCTION
 
-
 // non tmp compound
 
 // validity
@@ -569,7 +539,6 @@
 #undef SUPER_VALIDITY
 #undef SUB_VALIDITY
 
-
 // hash
 
 #undef ELABORATE_HASH_ON
@@ -585,7 +554,6 @@
 #undef NOEX_HASH
 #undef SUPER_HASH
 #undef SUB_HASH
-
 
 // possibly tmp compound
 
@@ -605,7 +573,6 @@
 #undef SUPER_TMP_HASH
 #undef SUB_TMP_HASH
 
-
 // equality
 
 #undef ELABORATE_EQUALITY_ON
@@ -622,7 +589,6 @@
 #undef SUPER_EQUALITY
 #undef SUB_EQUALITY
 
-
 #undef ELABORATE_TMP_EQUALITY_ON
 
 #undef ELABORATE_TMP_EQUALITY
@@ -636,7 +602,6 @@
 #undef NOEX_TMP_EQUALITY
 #undef SUPER_TMP_EQUALITY
 #undef SUB_TMP_EQUALITY
-
 
 // comparison
 
@@ -654,7 +619,6 @@
 #undef SUPER_COMPARISON
 #undef SUB_COMPARISON
 
-
 #undef ELABORATE_TMP_COMPARISON_ON
 
 #undef ELABORATE_TMP_COMPARISON
@@ -669,7 +633,6 @@
 #undef SUPER_TMP_COMPARISON
 #undef SUB_TMP_COMPARISON
 
-
 // compatibility
 
 #undef ENABLE_IF_HASH_EQ_COMPAT
@@ -680,7 +643,6 @@
 
 #undef ENABLE_IF_COMPAT
 
-
 #undef SFINAE_HASH_EQ_COMPAT
 #undef SFINAE_EQUALITY_COMPAT
 #undef SFINAE_COMPARISON_COMPAT
@@ -688,8 +650,6 @@
 #undef ELABORATE_SFINAE_COMPAT
 
 #undef SFINAE_COMPAT
-
-
 
 // exception
 
@@ -705,7 +665,6 @@
 
 #undef UNIGNORABLE_POLICY_TEMPLATE_ARGUMENT
 
-
 #undef EXCEPTION_POLICY_ARGUMENT_NAME
 
 #undef EXCEPTION_POLICY_RUNTIME_ARGUMENT
@@ -718,7 +677,6 @@
 #undef exc_arg
 #undef unignore
 
-
 // noex
 
 #undef IS_NO_THROW_EXCEPTION_POLICY
@@ -728,7 +686,6 @@
 
 #undef is_noex_pol
 #undef noex_pol
-
 
 // when
 
@@ -777,8 +734,6 @@
 #undef DEF_ID
 #undef DEF_TMP_ID
 
-
 #endif // FWA_UNDEF_OPS
 
-
-#endif // FWA_CORE_CLEANUP_OPS_HPP
+#endif // ENV_CLEANUP_OPS_HPP

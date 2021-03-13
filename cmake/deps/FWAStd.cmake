@@ -1,6 +1,6 @@
-fwa_add_dependency(std INTERFACE)
+env_add_dependency(std INTERFACE)
 
-fwa_target_precompile(std
+env_target_precompile(std
         INTERFACE
         <utility>
         <type_traits>

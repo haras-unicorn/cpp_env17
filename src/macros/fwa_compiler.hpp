@@ -1,6 +1,5 @@
-#ifndef FWA_CORE_COMPILER_HPP
-#define FWA_CORE_COMPILER_HPP
-
+#ifndef ENV_COMPILER_HPP
+#define ENV_COMPILER_HPP
 
 // stolen and modified from doctest.h
 
@@ -36,7 +35,6 @@
 #error "Unsupported C++ compiler."
 #endif // compiler
 
-
 #ifndef FWA_MSVC
 #define FWA_MSVC 0
 #endif // FWA_MSVC
@@ -49,5 +47,4 @@
 
 #define FWA_COMPILER_VER ((FWA_COMPILER_MAJOR)*10000000 + (FWA_COMPILER_MINOR)*100000 + (FWA_COMPILER_PATCH))
 
-
-#endif // FWA_CORE_COMPILER_HPP
+#endif // ENV_COMPILER_HPP

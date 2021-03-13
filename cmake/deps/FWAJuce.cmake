@@ -1,14 +1,14 @@
-fwa_fetch(
+env_fetch(
         juce
         GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
         GIT_TAG 6.0.4)
 
-fwa_add_dependency(juce STATIC)
+env_add_dependency(juce STATIC)
 
-fwa_target_link(
+env_target_link(
         juce
         PRIVATE
-        fwa_asio
+        env_asio
         juce::juce_core
         juce::juce_events
         juce::juce_audio_basics
@@ -20,28 +20,28 @@ fwa_target_link(
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
 
-fwa_target_set(
+env_target_set(
         juce
         POSITION_INDEPENDENT_CODE TRUE
         VISIBILITY_INLINES_HIDDEN TRUE
         C_VISIBILITY_PRESET hidden
         CXX_VISIBILITY_PRESET hidden)
 
-fwa_target_definitions(
+env_target_definitions(
         juce
         PUBLIC
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0
         JUCE_ASIO=1
         INTERFACE
-        $<TARGET_PROPERTY:fwa_juce,COMPILE_DEFINITIONS>)
+        $<TARGET_PROPERTY:env_juce,COMPILE_DEFINITIONS>)
 
-fwa_target_include(
+env_target_include(
         juce
         INTERFACE
-        $<TARGET_PROPERTY:fwa_juce,INCLUDE_DIRECTORIES>)
+        $<TARGET_PROPERTY:env_juce,INCLUDE_DIRECTORIES>)
 
-fwa_target_precompile(
+env_target_precompile(
         juce
         INTERFACE
         <juce_core/juce_core.h>

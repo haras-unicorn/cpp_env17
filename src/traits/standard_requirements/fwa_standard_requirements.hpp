@@ -1,6 +1,5 @@
-#ifndef FWA_CORE_STANDARD_REQUIREMENTS_HPP
-#define FWA_CORE_STANDARD_REQUIREMENTS_HPP
-
+#ifndef ENV_STANDARD_REQUIREMENTS_HPP
+#define ENV_STANDARD_REQUIREMENTS_HPP
 
 // This project is modelling: https://en.cppreference.com/w/cpp/named_req.
 // The goal of this project is to be able to statically check the conformance of user-created data structures.
@@ -36,26 +35,24 @@
 // Example: https://en.cppreference.com/w/cpp/named_req/EmplaceConstructible
 //  - is_std_emplace_constructible_into should be called is_std_emplace_constructible
 
-
 // There are the type properties requirements and some library-wide requirements in this one.
 // This is due to the fact that requirements later on are dependent upon these.
-#include "fwa_basic_standard_requirements.hpp"
+#include "env_basic_standard_requirements.hpp"
 
-#include "fwa_iterator_standard_requirements.hpp"
+#include "env_iterator_standard_requirements.hpp"
 
 // the rest of the library-wide requirements
-#include "fwa_library_wide_standard_requirements.hpp"
+#include "env_library_wide_standard_requirements.hpp"
 // this one has a lot of requirements, so it has its own file
-#include "fwa_allocator_requirements.hpp"
+#include "env_allocator_requirements.hpp"
 
-#include "fwa_container_element_requirements.hpp"
+#include "env_container_element_requirements.hpp"
 // containers have so many requirements that this is needed
-#include "fwa_container_traits_requirements.hpp"
-#include "fwa_container_standard_requirements.hpp"
+#include "env_container_standard_requirements.hpp"
+#include "env_container_traits_requirements.hpp"
 
-#include "fwa_concurrency_requirements.hpp"
+#include "env_concurrency_requirements.hpp"
 
-#include "fwa_other_requirements.hpp"
+#include "env_other_requirements.hpp"
 
-
-#endif // FWA_CORE_STANDARD_REQUIREMENTS_HPP
+#endif // ENV_STANDARD_REQUIREMENTS_HPP

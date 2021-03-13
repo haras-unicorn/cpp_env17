@@ -25,11 +25,11 @@
 #define FWA_UNDEF_OPS 1
 #endif // FWA_UNDEF_MACROS
 
-#include "ops/fwa_cleanup_ops.hpp"
-#include "stack/fwa_cleanup_stack.hpp"
-#include "meta/fwa_cleanup_meta.hpp"
-#include "macros/fwa_cleanup_macros.hpp"
-#include "structure/fwa_cleanup_structure.hpp"
+#include "ops/env_cleanup_ops.hpp"
+#include "stack/env_cleanup_stack.hpp"
+#include "meta/env_cleanup_meta.hpp"
+#include "macros/env_cleanup_macros.hpp"
+#include "structure/env_cleanup_structure.hpp"
 
 
 #endif // FWA_CLEANUP_HPP

@@ -1,25 +1,23 @@
-#ifndef FWA_CORE_HPP
-#define FWA_CORE_HPP
+#ifndef ENV_HPP
+#define ENV_HPP
 
-
-#include "structure/fwa_structure.hpp"
+#include "structure/env_structure.hpp"
 
 FWA_NAMESPACE_CORE_BEGIN
 
-FWA_CORE_TEST_SUITE_BEGIN("core");
+ENV_TEST_SUITE_BEGIN("core");
 
-#include "macros/fwa_macros.hpp"
-#include "meta/fwa_meta.hpp"
-#include "traits/fwa_traits.hpp"
-#include "stack/fwa_stack.hpp"
-#include "ops/fwa_ops.hpp"
-#include "heap/fwa_heap.hpp"
-#include "proxies/fwa_proxies.hpp"
-#include "iteration/fwa_iteration.hpp"
+#include "heap/env_heap.hpp"
+#include "iteration/env_iteration.hpp"
+#include "macros/env_macros.hpp"
+#include "meta/env_meta.hpp"
+#include "ops/env_ops.hpp"
+#include "proxies/env_proxies.hpp"
+#include "stack/env_stack.hpp"
+#include "traits/env_traits.hpp"
 
-FWA_CORE_TEST_SUITE_END();
+ENV_TEST_SUITE_END();
 
 FWA_NAMESPACE_CORE_END
 
-
-#endif // FWA_CORE_HPP
+#endif // ENV_HPP

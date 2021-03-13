@@ -1,16 +1,14 @@
-#ifndef FWA_CORE_PROXIES_HPP
-#define FWA_CORE_PROXIES_HPP
+#ifndef ENV_PROXIES_HPP
+#define ENV_PROXIES_HPP
 
-FWA_CORE_TEST_SUITE_BEGIN("proxies");
+ENV_TEST_SUITE_BEGIN("proxies");
 
+#include "env_enum_proxy.hpp"
 
-#include "fwa_enum_proxy.hpp"
+#include "env_strings.hpp"
 
-#include "fwa_strings.hpp"
+#include "env_callable_proxy.hpp"
 
-#include "fwa_callable_proxy.hpp"
+ENV_TEST_SUITE_END();
 
-
-FWA_CORE_TEST_SUITE_END();
-
-#endif // FWA_CORE_PROXIES_HPP
+#endif // ENV_PROXIES_HPP

@@ -1,6 +1,5 @@
-#ifndef FWA_CORE_KEYWORDS_HPP
-#define FWA_CORE_KEYWORDS_HPP
-
+#ifndef ENV_KEYWORDS_HPP
+#define ENV_KEYWORDS_HPP
 
 // keywords
 
@@ -40,12 +39,13 @@
 
 FWA_NAMESPACE_TEST_BEGIN
 
-tmp<name T>
-struct [[maybe_unused]] template_name_test_t { };
+tmp<name T> struct [[maybe_unused]] template_name_test_t
+{
+};
 
 FWA_NAMESPACE_TEST_END
 
-FWA_CORE_TEST_CASE("keyword keywords")
+ENV_TEST_CASE("keyword keywords")
 {
     struct TYPE_ATTRIBUTES test
     {
@@ -54,24 +54,27 @@ FWA_CORE_TEST_CASE("keyword keywords")
             unused(b);
             if_cmp(true) ret;
 
-            OBJECT_ATTRIBUTES cmp decl(1) a{ };
+            OBJECT_ATTRIBUTES cmp decl(1) a{};
             ret;
         }
     };
 
     OBJECT_ATTRIBUTES auto _i = 1;
     OBJECT_ATTRIBUTES const auto _scast = scast<double>(_i);
-    OBJECT_ATTRIBUTES const auto _ccast = ccast<const int&>(_i);
-    OBJECT_ATTRIBUTES const auto _rcast = rcast<FWA_STD::byte*>(&_i);
+    OBJECT_ATTRIBUTES const auto _ccast = ccast<const int &>(_i);
+    OBJECT_ATTRIBUTES const auto _rcast = rcast<FWA_STD::byte *>(&_i);
 
-    class TYPE_ATTRIBUTES base_t { };
-    class TYPE_ATTRIBUTES derived_t : public base_t { } derived{ };
-    OBJECT_ATTRIBUTES const auto _dcast = dcast<base_t&>(derived);
+    class TYPE_ATTRIBUTES base_t
+    {
+    };
+    class TYPE_ATTRIBUTES derived_t : public base_t
+    {
+    } derived{};
+    OBJECT_ATTRIBUTES const auto _dcast = dcast<base_t &>(derived);
 
     sass(true);
     sass_msg(true, "I'm true!");
 }
-
 
 // types
 
@@ -93,14 +96,13 @@ FWA_CORE_TEST_CASE("keyword keywords")
 #define enm enm_p
 #endif // FWA_CPP >= 17
 
-FWA_CORE_TEST_CASE("type keywords")
+ENV_TEST_CASE("type keywords")
 {
-    strct s { };
-    cls c { };
-    enm e { };
+    strct s{};
+    cls c{};
+    enm e{};
     typ(fst) = s;
 }
-
 
 // objects
 
@@ -127,14 +129,13 @@ FWA_CORE_TEST_CASE("type keywords")
 #endif // FWA_CPP >= 17
 #define let_cmp obj let_cmp_p
 
-FWA_CORE_TEST_CASE("object keywords")
+ENV_TEST_CASE("object keywords")
 {
     obj int d{1};
     temp c{2};
     let a{1};
     mut b{a};
 }
-
 
 // functions
 
@@ -165,24 +166,23 @@ FWA_CORE_TEST_CASE("object keywords")
 #define cmp_callb_p callb_p inl cmp
 #define cmp_callb NO_RETURN_ATTRIBUTES cmp_callb_p
 
-
-FWA_CORE_TEST_CASE("function keywords")
+ENV_TEST_CASE("function keywords")
 {
-    strct fs
-    {
-        fun inl fi() { ret 1; }
-        cmp_fn static fc() { ret 1; }
+    strct fs{
+        fun inl fi(){ret 1;
+}
+cmp_fn static fc() { ret 1; }
 
-        callb static inl cb() -> void { }
-        cmp_callb static cbc() -> void { }
+callb static inl cb()->void {}
+cmp_callb static cbc()->void {}
 
-        con inl op int() noex { ret 4; }
-        cmp_con op double() { ret 4.0; }
+con inl op int() noex { ret 4; }
+cmp_con op double() { ret 4.0; }
 
-        imp inl op char() { ret 4; }
-        cmp_imp op float() { ret 4.0; }
-    };
+imp inl op char() { ret 4; }
+cmp_imp op float() { ret 4.0; }
+}
+;
 }
 
-
-#endif // FWA_CORE_KEYWORDS_HPP
+#endif // ENV_KEYWORDS_HPP

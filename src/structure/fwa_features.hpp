@@ -1,6 +1,5 @@
-#ifndef FWA_CORE_FEATURES_HPP
-#define FWA_CORE_FEATURES_HPP
-
+#ifndef ENV_FEATURES_HPP
+#define ENV_FEATURES_HPP
 
 // std requirements
 
@@ -16,5 +15,4 @@
 #define STD_REQUIRE_FALSE(...)
 #endif // FWA_STD_REQUIREMENTS
 
-
-#endif // FWA_CORE_FEATURES_HPP
+#endif // ENV_FEATURES_HPP

@@ -1,25 +1,23 @@
-#ifndef FWA_CORE_MACROS_HPP
-#define FWA_CORE_MACROS_HPP
+#ifndef ENV_MACROS_HPP
+#define ENV_MACROS_HPP
 
-FWA_CORE_TEST_SUITE_BEGIN("macros");
+ENV_TEST_SUITE_BEGIN("macros");
 
+#include "env_tokens.hpp"
 
-#include "fwa_tokens.hpp"
+#include "env_arch.hpp"
+#include "env_compiler.hpp"
+#include "env_messages.hpp"
+#include "env_os.hpp"
+#include "env_pragma.hpp"
+#include "env_standard.hpp"
+#include "env_suppress.hpp"
 
-#include "fwa_compiler.hpp"
-#include "fwa_arch.hpp"
-#include "fwa_os.hpp"
-#include "fwa_standard.hpp"
-#include "fwa_pragma.hpp"
-#include "fwa_suppress.hpp"
-#include "fwa_messages.hpp"
+#include "env_attributes.hpp"
+#include "env_body.hpp"
+#include "env_keywords.hpp"
+#include "env_scope.hpp"
 
-#include "fwa_attributes.hpp"
-#include "fwa_keywords.hpp"
-#include "fwa_scope.hpp"
-#include "fwa_body.hpp"
+ENV_TEST_SUITE_END();
 
-
-FWA_CORE_TEST_SUITE_END();
-
-#endif // FWA_CORE_MACROS_HPP
+#endif // ENV_MACROS_HPP

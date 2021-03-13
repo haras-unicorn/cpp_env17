@@ -1,13 +1,13 @@
-#ifndef FWA_CORE_SUCCESS_FAIL_HPP
-#define FWA_CORE_SUCCESS_FAIL_HPP
-
+#ifndef ENV_SUCCESS_FAIL_HPP
+#define ENV_SUCCESS_FAIL_HPP
 
 // tags
 
-enm success_t : bool { } cmp_obj_p success{true};
+enm success_t : bool {}
+cmp_obj_p success{true};
 
-enm fail_t : bool { } cmp_obj_p fail{false};
-
+enm fail_t : bool {}
+cmp_obj_p fail{false};
 
 // check
 
@@ -35,7 +35,7 @@ tmp<nullptr_t Expr> cmp_obj bool is_fail_n{true};
 
 #endif // FWA_CPP >= 17
 
-FWA_CORE_TEST_CASE("check success/fail")
+ENV_TEST_CASE("check success/fail")
 {
     SUBCASE("success")
     {
@@ -62,7 +62,6 @@ FWA_CORE_TEST_CASE("check success/fail")
     }
 }
 
-
 // make
 
 // Explanation: https://stackoverflow.com/questions/66261570/c-sfinae-not-failing
@@ -70,10 +69,10 @@ FWA_CORE_TEST_CASE("check success/fail")
 FWA_NAMESPACE_DETAIL_BEGIN
 
 tmp<name... T>
-strct make_success_vt : value_gnt<success_t, success_t{true}> { };
+    strct make_success_vt : value_gnt<success_t, success_t{true}>{};
 
 tmp<name... T>
-strct make_fail_vt : value_gnt<fail_t, fail_t{false}> { };
+    strct make_fail_vt : value_gnt<fail_t, fail_t{false}>{};
 
 FWA_NAMESPACE_DETAIL_END
 
@@ -85,7 +84,7 @@ tmp<name... T> typ(fail_vt) = name detail::make_fail_vt<T...>::value_type;
 
 tmp<name... T> let_cmp fail_v = detail::make_fail_vt<T...>::value;
 
-FWA_CORE_TEST_CASE ("make success/fail")
+ENV_TEST_CASE("make success/fail")
 {
     SUBCASE("success")
     {
@@ -99,5 +98,4 @@ FWA_CORE_TEST_CASE ("make success/fail")
     }
 }
 
-
-#endif // FWA_CORE_SUCCESS_FAIL_HPP
+#endif // ENV_SUCCESS_FAIL_HPP

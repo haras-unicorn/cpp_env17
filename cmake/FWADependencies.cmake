@@ -1,7 +1,7 @@
 include(FWAProperties)
 include(FWAFetch)
 
-fwa_log("-!- Adding dependencies... -!-")
+env_log("-!- Adding dependencies... -!-")
 
 include(FWAStd)
 include(FWABoost)
@@ -18,8 +18,8 @@ include(FWANode)
 include(FWADefault)
 
 
-fwa_log("-!- Pruning dependencies... -!-")
+env_log("-!- Pruning dependencies... -!-")
 
 include(FWAExclude)
 
-fwa_prune_directories(${PROJECT_SOURCE_DIR})
+env_prune_directories(${PROJECT_SOURCE_DIR})

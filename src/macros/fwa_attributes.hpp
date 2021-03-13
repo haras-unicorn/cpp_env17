@@ -1,6 +1,5 @@
-#ifndef FWA_CORE_ATTRIBUTES_HPP
-#define FWA_CORE_ATTRIBUTES_HPP
-
+#ifndef ENV_ATTRIBUTES_HPP
+#define ENV_ATTRIBUTES_HPP
 
 // attributes
 
@@ -16,26 +15,30 @@
 #define NO_RETURN_ATTRIBUTES
 #endif // FWA_CPP >= 17
 
-FWA_CORE_TEST_CASE ("attributes")
+ENV_TEST_CASE("attributes")
 {
-    OBJECT_ATTRIBUTES constexpr int a{ };
-
+    OBJECT_ATTRIBUTES constexpr int a{};
 
     struct TYPE_ATTRIBUTES test_t
     {
-        RETURN_ATTRIBUTES int f() { }
+        RETURN_ATTRIBUTES int f() {}
 
-        NO_RETURN_ATTRIBUTES void g() { }
+        NO_RETURN_ATTRIBUTES void g() {}
     };
 }
-
 
 // tag
 
 #if FWA_CPP >= 17
-#define TAG(_name) struct TYPE_ATTRIBUTES CAT(_name, _t) {} inline constexpr PACK(_name){}
+#define TAG(_name)                        \
+    struct TYPE_ATTRIBUTES CAT(_name, _t) \
+    {                                     \
+    } inline constexpr PACK(_name) {}
 #else // FWA_CPP >= 17
-#define TAG(_name) struct TYPE_ATTRIBUTES CAT(_name, _t) {} constexpr PACK(_name){}
+#define TAG(_name)                        \
+    struct TYPE_ATTRIBUTES CAT(_name, _t) \
+    {                                     \
+    } constexpr PACK(_name) {}
 #endif // FWA_CPP >= 17
 
 FWA_NAMESPACE_TEST_BEGIN
@@ -44,17 +47,16 @@ TAG(tag_test);
 
 FWA_NAMESPACE_TEST_END
 
-FWA_CORE_TEST_CASE("tag")
+ENV_TEST_CASE("tag")
 {
     REQUIRE_EQT(decltype(test::tag_test), const test::tag_test_t);
 }
 
-
 // unique
 
-#define UNIQUE(_name, ...) \
-        using CAT(_name, _underlying_t) TYPE_ATTRIBUTES = __VA_ARGS__; \
-        enum TYPE_ATTRIBUTES CAT(_name, _t) : CAT(_name, _underlying_t) {}
+#define UNIQUE(_name, ...)                                         \
+    using CAT(_name, _underlying_t) TYPE_ATTRIBUTES = __VA_ARGS__; \
+    enum TYPE_ATTRIBUTES CAT(_name, _t) : CAT(_name, _underlying_t) {}
 
 FWA_NAMESPACE_TEST_BEGIN
 
@@ -62,27 +64,26 @@ UNIQUE(unique_test, int);
 
 FWA_NAMESPACE_TEST_END
 
-FWA_CORE_TEST_CASE("unique")
+ENV_TEST_CASE("unique")
 {
     OBJECT_ATTRIBUTES static constexpr test::unique_test_t _unique{20};
 
     REQUIRES(_unique == test::unique_test_t{20});
-    REQUIRE_EQT(FWA_STD::underlying_type_t < decltype(_unique) >, int);
+    REQUIRE_EQT(FWA_STD::underlying_type_t<decltype(_unique)>, int);
 }
-
 
 // unique tag
 
 #if FWA_CPP >= 17
-#define UTAG(_name, ...) \
-        using CAT(_name, _underlying_t) TYPE_ATTRIBUTES = __VA_ARGS__; \
-        enum class TYPE_ATTRIBUTES CAT(_name, _t) : CAT(_name, _underlying_t) {} \
-        inline constexpr PACK(_name){}
+#define UTAG(_name, ...)                                                     \
+    using CAT(_name, _underlying_t) TYPE_ATTRIBUTES = __VA_ARGS__;           \
+    enum class TYPE_ATTRIBUTES CAT(_name, _t) : CAT(_name, _underlying_t) {} \
+    inline constexpr PACK(_name) {}
 #else // FWA_CPP >= 17
-#define UTAG(_name, ...) \
-        using CAT(_name, _underlying_t) TYPE_ATTRIBUTES = __VA_ARGS__; \
-        enum class CAT(_name, _t) : CAT(_name, _underlying_t) {} \
-        constexpr PACK(_name){}
+#define UTAG(_name, ...)                                           \
+    using CAT(_name, _underlying_t) TYPE_ATTRIBUTES = __VA_ARGS__; \
+    enum class CAT(_name, _t) : CAT(_name, _underlying_t) {}       \
+    constexpr PACK(_name) {}
 #endif // FWA_CPP >= 17
 
 FWA_NAMESPACE_TEST_BEGIN
@@ -91,11 +92,10 @@ UTAG(unique_tag_test, int);
 
 FWA_NAMESPACE_TEST_END
 
-FWA_CORE_TEST_CASE("unique")
+ENV_TEST_CASE("unique")
 {
-    REQUIRES(test::unique_tag_test == test::unique_tag_test_t{ });
-    REQUIRE_EQT(FWA_STD::underlying_type_t < decltype(test::unique_tag_test) >, int);
+    REQUIRES(test::unique_tag_test == test::unique_tag_test_t{});
+    REQUIRE_EQT(FWA_STD::underlying_type_t<decltype(test::unique_tag_test)>, int);
 }
 
-
-#endif // FWA_CORE_ATTRIBUTES_HPP
+#endif // ENV_ATTRIBUTES_HPP

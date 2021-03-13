@@ -1,9 +1,7 @@
-#ifndef FWA_CORE_CLEANUP_META_HPP
-#define FWA_CORE_CLEANUP_META_HPP
-
+#ifndef ENV_CLEANUP_META_HPP
+#define ENV_CLEANUP_META_HPP
 
 #if FWA_UNDEF_META
-
 
 // constants
 
@@ -16,7 +14,6 @@
 #undef deduc_res
 #undef res_t
 #undef res_cast
-
 
 // templates
 
@@ -38,7 +35,6 @@
 #undef TYPE_COND
 #undef COND_EXPR
 #undef COND_TYPE
-
 
 // cond tmp
 
@@ -67,7 +63,6 @@
 #undef TYPE_TMP_TERNARY
 #undef TYPE_TMP_VARIADIC
 #undef TYPE
-
 
 // expr check
 
@@ -134,13 +129,11 @@
 #undef EXTRACT_CLASS_CHECK
 #undef SIMPLE_EXTRACT_CLASS_CHECK
 
-
 // on context
 
 #undef ON_COND
 #undef ON_EXPR
 #undef ON_TYPE
-
 
 // cond concept
 
@@ -172,7 +165,6 @@
 #undef TYPE_CONCEPT_TERNARY
 #undef TYPE_CONCEPT_VARIADIC
 
-
 // members
 
 #undef MEMBER_DETECTOR
@@ -183,7 +175,6 @@
 
 #undef SDATA_DETECTOR
 #undef ALIAS_DETECTOR
-
 
 // self
 
@@ -240,8 +231,6 @@
 #undef _DEF_AS_BASE
 #undef DEF_AS_BASE
 
-
 #endif // FWA_UNDEF_META
 
-
-#endif // FWA_CORE_CLEANUP_META_HPP
+#endif // ENV_CLEANUP_META_HPP

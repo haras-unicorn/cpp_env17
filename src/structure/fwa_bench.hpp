@@ -1,4 +1,4 @@
-#ifndef FWA_CORE_BENCH_HPP
-#define FWA_CORE_BENCH_HPP
+#ifndef ENV_BENCH_HPP
+#define ENV_BENCH_HPP
 
-#endif // FWA_CORE_BENCH_HPP
+#endif // ENV_BENCH_HPP

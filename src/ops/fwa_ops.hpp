@@ -1,16 +1,14 @@
-#ifndef FWA_CORE_OPERATIONS_HPP
-#define FWA_CORE_OPERATIONS_HPP
+#ifndef ENV_OPERATIONS_HPP
+#define ENV_OPERATIONS_HPP
 
-FWA_CORE_TEST_SUITE_BEGIN("operations");
+ENV_TEST_SUITE_BEGIN("operations");
 
+#include "env_comparison.hpp"
+#include "env_exception.hpp"
+#include "env_getters.hpp"
+#include "env_id.hpp"
+#include "env_lifetime.hpp"
 
-#include "fwa_getters.hpp"
-#include "fwa_lifetime.hpp"
-#include "fwa_comparison.hpp"
-#include "fwa_exception.hpp"
-#include "fwa_id.hpp"
+ENV_TEST_SUITE_END();
 
-
-FWA_CORE_TEST_SUITE_END();
-
-#endif // FWA_CORE_OPERATIONS_HPP
+#endif // ENV_OPERATIONS_HPP

@@ -1,13 +1,12 @@
-#ifndef FWA_CORE_SUPPRESS_HPP
-#define FWA_CORE_SUPPRESS_HPP
-
+#ifndef ENV_SUPPRESS_HPP
+#define ENV_SUPPRESS_HPP
 
 #if FWA_CLANG || defined(__JETBRAINS_IDE__) // clang
 #define FWA_CLANG_SUPPRESS_PUSH(_warning) \
-            FWA_PRAGMA("clang diagnostic push") \
-            FWA_PRAGMA(STRING(clang diagnostic ignored _warning))
+    FWA_PRAGMA("clang diagnostic push")   \
+    FWA_PRAGMA(STRING(clang diagnostic ignored _warning))
 #define FWA_CLANG_SUPPRESS_POP \
-            FWA_PRAGMA("clang diagnostic pop")
+    FWA_PRAGMA("clang diagnostic pop")
 #else // clang
 #define FWA_CLANG_SUPPRESS_PUSH(_warning)
 #define FWA_CLANG_SUPPRESS_POP
@@ -15,10 +14,11 @@
 
 #if FWA_MSVC && !defined(__JETBRAINS_IDE__) // MSVC
 #define FWA_MSVC_SUPPRESS_PUSH(_warning) \
-            FWA_PRAGMA(warning(push)) \
-            FWA_PRAGMA(warning(disable : _warning))
+    FWA_PRAGMA(warning(push))            \
+    FWA_PRAGMA(warning(disable           \
+                       : _warning))
 #define FWA_MSVC_SUPPRESS_POP \
-            FWA_PRAGMA(warning(pop))
+    FWA_PRAGMA(warning(pop))
 #else // MSVC
 #define FWA_MSVC_SUPPRESS_PUSH(_warning)
 #define FWA_MSVC_SUPPRESS_POP
@@ -26,15 +26,14 @@
 
 #if FWA_GCC && !defined(__JETBRAINS_IDE__) // gcc
 #define FWA_GCC_SUPPRESS_PUSH(_warning) \
-            FWA_PRAGMA("GCC diagnostic push") \
-            FWA_PRAGMA(STRING(GCC diagnostic ignored _warning))
+    FWA_PRAGMA("GCC diagnostic push")   \
+    FWA_PRAGMA(STRING(GCC diagnostic ignored _warning))
 #define FWA_GCC_SUPPRESS_POP \
-            FWA_PRAGMA("GCC diagnostic pop")
+    FWA_PRAGMA("GCC diagnostic pop")
 #else // gcc
 #define FWA_GCC_SUPPRESS_PUSH(_warning)
 #define FWA_GCC_SUPPRESS_POP
 #endif // gcc
-
 
 // global warning suppression - please add only when necessary!!
 
@@ -51,5 +50,4 @@ FWA_MSVC_SUPPRESS_PUSH(4201)
 FWA_CLANG_SUPPRESS_PUSH("-Wduplicate-decl-specifier")
 FWA_MSVC_SUPPRESS_PUSH(4114)
 
-
-#endif // FWA_CORE_SUPPRESS_HPP
+#endif // ENV_SUPPRESS_HPP

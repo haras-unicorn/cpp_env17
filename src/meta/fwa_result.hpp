@@ -1,28 +1,29 @@
-#ifndef FWA_CORE_RESULT_HPP
-#define FWA_CORE_RESULT_HPP
-
+#ifndef ENV_RESULT_HPP
+#define ENV_RESULT_HPP
 
 // nullptr - since void is also here
 
 typ(nullptr_t) = decltype(nullptr);
 
-FWA_CORE_TEST_CASE("nullptr")
+ENV_TEST_CASE("nullptr")
 {
-    obj nullptr_t some_nullptr{ };
+    obj nullptr_t some_nullptr{};
 }
-
 
 // no return
 
 typ(void_t) = void;
 typ(noret_t) = void_t;
 
-FWA_CORE_TEST_CASE("no return")
+ENV_TEST_CASE("no return")
 {
-    strct { callb op()() const noex -> noret_t { } } no_return;
+    strct
+    {
+        callb op()() const noex->noret_t {}
+    }
+    no_return;
     no_return();
 }
-
 
 // result
 
@@ -36,13 +37,13 @@ TAG(nores);
 
 FWA_NAMESPACE_TEST_BEGIN
 
-tmp<res_name> cmp_fn cast_res() noex -> deduc_res(int) { ret res_cast(1); }
+tmp<res_name> cmp_fn cast_res() noex->deduc_res(int) { ret res_cast(1); }
 
-tmp<res_name> cmp_fn con_res() noex -> deduc_res(int) { ret res_con(1); }
+tmp<res_name> cmp_fn con_res() noex->deduc_res(int) { ret res_con(1); }
 
 FWA_NAMESPACE_TEST_END
 
-FWA_CORE_TEST_CASE("result")
+ENV_TEST_CASE("result")
 {
     let res_cast_i = test::cast_res<int>();
     let res_cast = test::cast_res();
@@ -53,5 +54,4 @@ FWA_CORE_TEST_CASE("result")
     REQUIRE_EQT(decltype(res_con_i), decltype(res_con));
 }
 
-
-#endif // FWA_CORE_RESULT_HPP
+#endif // ENV_RESULT_HPP

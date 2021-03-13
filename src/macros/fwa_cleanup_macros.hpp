@@ -1,6 +1,5 @@
-#ifndef FWA_CORE_CLEANUP_MACROS_HPP
-#define FWA_CORE_CLEANUP_MACROS_HPP
-
+#ifndef ENV_CLEANUP_MACROS_HPP
+#define ENV_CLEANUP_MACROS_HPP
 
 // global warning suppression - please add only when necessary!!
 
@@ -16,11 +15,9 @@ FWA_MSVC_SUPPRESS_POP
 FWA_CLANG_SUPPRESS_POP
 FWA_MSVC_SUPPRESS_POP
 
-
 // undef
 
 #if FWA_UNDEF_MACROS
-
 
 // tokens
 
@@ -53,7 +50,6 @@ FWA_MSVC_SUPPRESS_POP
 
 #undef SPREAD_IMPL
 #undef SPREAD
-
 
 // compiler
 
@@ -102,7 +98,6 @@ FWA_MSVC_SUPPRESS_POP
 #undef FWA_CPP20
 #undef FWA_CPP23
 
-
 // pragma
 
 #undef FWA_PRAGMA
@@ -117,7 +112,6 @@ FWA_MSVC_SUPPRESS_POP
 
 #undef FWA_MSVC_SUPPRESS_PUSH
 #undef FWA_MSVC_SUPPRESS_POP
-
 
 // attributes
 
@@ -207,7 +201,6 @@ FWA_MSVC_SUPPRESS_POP
 #undef cmp_callb_p
 #undef cmp_callb
 
-
 // scope
 
 #undef ANON_NAME
@@ -230,7 +223,6 @@ FWA_MSVC_SUPPRESS_POP
 #undef ELVIS
 #undef CMP_ELVIS
 
-
 // body
 
 // structs
@@ -247,8 +239,6 @@ FWA_MSVC_SUPPRESS_POP
 #undef APP_FML
 #undef FML_BODY
 
-
 #endif // FWA_UNDEF_MACROS
 
-
-#endif // FWA_CORE_CLEANUP_MACROS_HPP
+#endif // ENV_CLEANUP_MACROS_HPP
