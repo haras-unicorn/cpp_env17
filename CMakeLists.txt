@@ -20,7 +20,7 @@ include(ENVDeps)
 
 env_log("-!- Adding targets... -!-")
 
-env_add_test(env ${PROJECT_SOURCE_DIR}/src/env_test.cpp)
-env_add_bench(env ${PROJECT_SOURCE_DIR}/src/env_bench.cpp)
+env_add_test(env ${PROJECT_SOURCE_DIR}/src/env/env_test.cpp)
+env_add_bench(env ${PROJECT_SOURCE_DIR}/src/env/env_bench.cpp)
 
 env_add_export(env)
