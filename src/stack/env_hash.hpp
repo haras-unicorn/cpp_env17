@@ -1,19 +1,24 @@
 #ifndef ENV_HASH_HPP
 #define ENV_HASH_HPP
 
+
 // literals
 
 ENV_NAMESPACE_DETAIL_BEGIN
 
 typ(_id_t) =
-    ENV_STD::conditional_t<
-        ENV_STD::atomic<uint_fast64_t>::is_always_lock_free, uint_fast64_t, ENV_STD::conditional_t<ENV_STD::atomic<uint_fast32_t>::is_always_lock_free, uint_fast32_t, ENV_STD::conditional_t<ENV_STD::atomic<uint_fast16_t>::is_always_lock_free, uint_fast16_t, uint_fast8_t>>>;
+ENV_STD::conditional_t<
+        ENV_STD::atomic<uint_fast64_t>::is_always_lock_free, uint_fast64_t, ENV_STD::conditional_t<
+                ENV_STD::atomic<uint_fast32_t>::is_always_lock_free, uint_fast32_t, ENV_STD::conditional_t<
+                        ENV_STD::atomic<uint_fast16_t>::is_always_lock_free, uint_fast16_t,
+                        uint_fast8_t>>>;
 
 ENV_NAMESPACE_DETAIL_END
 
 WHOLE_L(hash, h, ENV_STD::size_t);
 
 WHOLE_L(id, id, detail::_id_t);
+
 
 // std hash
 
@@ -25,7 +30,7 @@ tmp<name T> typ(hash_gt) = ENV_STD::hash<T>;
 // we try to instantiate ENV_STD::hash with it, so we have to check that first.
 // I don't know if this is UB, though. It seems a bit sketchy.
 
-EXPR_CHECK_UNARY(is_std_hashable, (COND_EXPR(!ENV_STD::is_same_v<T, void>), hash_gt<T>{}(declvalr<T>())));
+EXPR_CHECK_UNARY(is_std_hashable, (COND_EXPR(!ENV_STD::is_same_v < T, void > ), hash_gt<T>{ }(declvalr<T>())));
 
 COND_CONCEPT(std_hashable, (is_std_hashable_g<C>));
 
@@ -35,14 +40,14 @@ ENV_TEST_CASE("std hashable")
     REQUIRES_FALSE(is_std_hashable_g<void>);
 }
 
+
 // hash
 
 tmp<name T>
-    cmp_fn hash(const ENV::std_hashable_c<T> &subject)
-        noex(noex(ENV_STD::hash<ENV::unqualified_gt<T>>{}(subject)))
-            ->hash_t
+cmp_fn hash(const ENV::std_hashable_c<T>& subject)
+noex(noex(ENV_STD::hash<ENV::unqualified_gt<T>>{ }(subject))) -> hash_t
 {
-    cmp ENV_STD::hash<ENV::unqualified_gt<T>> _hasher{};
+    cmp ENV_STD::hash<ENV::unqualified_gt<T>> _hasher{ };
     ret _hasher(subject);
 }
 
@@ -58,9 +63,9 @@ ENV_TEST_CASE("hash std hashable")
 
 EXPR_CHECK_UNARY(has_hash, (declval<T>().hash()));
 
-EXPR_TMP_UNARY((has_hash_g<T>, COND_EXPR(!is_std_hashable_g<remove_qualifiers_gt<T>>)))
+EXPR_TMP_UNARY((has_hash_g<T>, COND_EXPR(!is_std_hashable_g<remove_qualifiers_gt < T>>)))
 
-cmp_fn hash(const T &subject) noex(noex(subject.hash()))->hash_t { ret subject.hash(); }
+cmp_fn hash(const T& subject) noex(noex(subject.hash())) -> hash_t { ret subject.hash(); }
 
 // hashable
 
@@ -70,7 +75,7 @@ COND_CONCEPT(hashable, (is_hashable_g<C>));
 
 // key
 
-COND_CHECK_UNARY(is_key, (is_hashable_g<T> && is_equatable_g<T>));
+COND_CHECK_UNARY(is_key, (is_hashable_g<T> && is_equatable_g < T > ));
 
 COND_CONCEPT(key, (is_key_g<C>));
 
@@ -82,9 +87,9 @@ COND_CONCEPT(key, (is_key_g<C>));
 // Here's the gist - this is good enough for combining hashes - just call this as much as you have to and you're good.
 
 tmp<name TFirst, name TSecond>
-    cmp_fn hash(const hashable_c<TFirst> &_first, const hashable_c<TSecond> &_second)
-        noex(noex(hash(_first), hash(_second)))
-            ->hash_t
+cmp_fn hash(const hashable_c<TFirst>& _first, const hashable_c<TSecond>& _second)
+noex(noex(hash(_first), hash(_second)))
+-> hash_t
 {
     let seed = hash(_first);
     ret seed ^ (hash(_second) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
@@ -102,9 +107,9 @@ ENV_TEST_CASE("combine")
 strct hasher_t
 {
     tmp<name T>
-        cmp_fn op()(const hashable_c<T> &subject) const noex(noex(hash(subject)))->hash_t { ret hash(subject); }
+    cmp_fn op()(const hashable_c<T>& subject) const noex(noex(hash(subject))) -> hash_t { ret hash(subject); }
 }
-inl cmp hasher{};
+inl cmp hasher{ };
 
 ENV_TEST_CASE("hasher")
 {

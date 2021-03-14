@@ -1,6 +1,7 @@
 #ifndef ENV_TRAITS_HPP
 #define ENV_TRAITS_HPP
 
+
 ENV_TEST_SUITE_BEGIN("traits");
 
 #include "env_basic_traits.hpp"
@@ -12,6 +13,7 @@ ENV_TEST_SUITE_BEGIN("traits");
 
 ENV_TEST_SUITE_END();
 
+
 #ifdef ENV_STD_REQUIREMENTS
 
 ENV_TEST_SUITE_BEGIN("std requirements");
@@ -21,5 +23,6 @@ ENV_TEST_SUITE_BEGIN("std requirements");
 ENV_TEST_SUITE_END();
 
 #endif // ENV_STD_REQUIREMENTS
+
 
 #endif // ENV_TRAITS_HPP

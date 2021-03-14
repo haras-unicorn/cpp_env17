@@ -4,7 +4,8 @@
 
 #include "env_impl.hpp"
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] const char** argv)
 {
 #if defined(ENV_TESTS) || defined(ENV_STATIC_TESTS)
 
@@ -15,14 +16,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 #endif // defined(ENV_TESTS)
 }
 
+
 #define ENV_UNDEF_MACROS
 
 #include "env_cleanup.hpp"
+
 
 TEST_CASE("user macros && unused include")
 {
     REQUIRE(::env::test::unused_include_workaround);
 }
+
 
 #ifdef SKIP
 #error "Macros shouldn't be defined now."

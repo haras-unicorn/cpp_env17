@@ -3,10 +3,12 @@
 
 // floor
 
-tmp<name T> cmp_fn floor(arithmetic_c<T> of) noex
+tmp<name T> cmp_fn floor(arithmetic_c <T> of) noex
 {
-    if_cmp(is_floating_g<T>) ret ENV_STD::floor(of);
-    else ret of;
+    if_cmp(is_floating_g < T >)
+        ret ENV_STD::floor(of);
+    else
+        ret of;
 }
 
 ENV_TEST_CASE("floor")
@@ -18,10 +20,12 @@ ENV_TEST_CASE("floor")
 
 // ceil
 
-tmp<name T> cmp_fn ceil(arithmetic_c<T> of) noex
+tmp<name T> cmp_fn ceil(arithmetic_c <T> of) noex
 {
-    if_cmp(is_floating_g<T>) ret ENV_STD::ceil(of);
-    else ret of;
+    if_cmp(is_floating_g < T >)
+        ret ENV_STD::ceil(of);
+    else
+        ret of;
 }
 
 ENV_TEST_CASE("ceil")
@@ -33,10 +37,12 @@ ENV_TEST_CASE("ceil")
 
 // round
 
-tmp<name T> cmp_fn round(arithmetic_c<T> of) noex
+tmp<name T> cmp_fn round(arithmetic_c <T> of) noex
 {
-    if_cmp(is_floating_g<T>) ret ENV_STD::round(of);
-    else ret of;
+    if_cmp(is_floating_g < T >)
+        ret ENV_STD::round(of);
+    else
+        ret of;
 }
 
 ENV_TEST_CASE("round")
@@ -49,7 +55,7 @@ ENV_TEST_CASE("round")
 
 // step
 
-tmp<name T> cmp_fn step(arithmetic_c<T> of) noex { ret 0 < of; }
+tmp<name T> cmp_fn step(arithmetic_c <T> of) noex { ret 0 < of; }
 
 ENV_TEST_CASE("step")
 {
@@ -61,10 +67,11 @@ ENV_TEST_CASE("step")
 
 // ramp
 
-tmp<name T> cmp_fn ramp(arithmetic_c<T> of) noex
+tmp<name T> cmp_fn ramp(arithmetic_c <T> of) noex
 {
-    if_cmp(is_signed_g<T>) ret step(of) * of;
-    else ret of;
+    if_cmp(is_signed_g < T >) ret step(of) * of;
+    else
+        ret of;
 }
 
 ENV_TEST_CASE("step")
@@ -77,10 +84,12 @@ ENV_TEST_CASE("step")
 
 // sign
 
-tmp<name T> cmp_fn sign(arithmetic_c<T> of) noex
+tmp<name T> cmp_fn sign(arithmetic_c <T> of) noex
 {
-    if_cmp(is_signed_g<T>) ret(0 < of) - (of < 0);
-    else ret 0 < of;
+    if_cmp(is_signed_g < T >)
+        ret (0 < of) - (of < 0);
+    else
+        ret 0 < of;
 }
 
 ENV_TEST_CASE("sign")
@@ -93,11 +102,14 @@ ENV_TEST_CASE("sign")
 
 // abs
 
-tmp<name T> cmp_fn abs(arithmetic_c<T> of) noex
+tmp<name T> cmp_fn abs(arithmetic_c <T> of) noex
 {
-    if_cmp(ENV_STD::is_enum_v<T>) ret abs(underlying_cast(of));
-    else if_cmp(is_signed_g<T>) ret ENV_STD::abs(of);
-    else ret of;
+    if_cmp(ENV_STD::is_enum_v<T>)
+        ret abs(underlying_cast(of));
+    else if_cmp(is_signed_g < T >)
+        ret ENV_STD::abs(of);
+    else
+        ret of;
 }
 
 ENV_TEST_CASE("abs")

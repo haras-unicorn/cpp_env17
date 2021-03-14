@@ -1,6 +1,7 @@
 #ifndef ENV_NIL_HPP
 #define ENV_NIL_HPP
 
+
 // checks
 
 EXPR_CHECK_UNARY(is_zero_constructible, T(0));
@@ -12,59 +13,62 @@ ENV_NAMESPACE_TEST_BEGIN
 strct trivial_equatable_t
 {
     int i;
-    cmp_fn op == (trivial_equatable_t other) const noex { ret i == other.i; }
-    cmp_fn op != (trivial_equatable_t other) const noex { ret i != other.i; }
+    cmp_fn op==(trivial_equatable_t other) const noex { ret i == other.i; }
+    cmp_fn op!=(trivial_equatable_t other) const noex { ret i != other.i; }
 };
 
 ENV_NAMESPACE_TEST_END
 
 TEST_CASE("nil checks")
 {
-    REQUIRES(is_nullptr_constructible_g<int *>);
-    REQUIRES(is_zero_constructible_g<int *>);
+    REQUIRES(is_nullptr_constructible_g<int*>);
+    REQUIRES(is_zero_constructible_g<int*>);
 
     REQUIRES(!is_nullptr_constructible_g<int>);
     REQUIRES(is_zero_constructible_g<int>);
 
     REQUIRES(!is_nullptr_constructible_g<test::trivial_equatable_t>);
     REQUIRES(!is_zero_constructible_g<test::trivial_equatable_t>);
-    REQUIRES(ENV_STD::is_default_constructible_v<test::trivial_equatable_t>);
+    REQUIRES(ENV_STD::is_default_constructible_v < test::trivial_equatable_t >);
 }
+
 
 // nil
 
-strct nil_t{
+strct nil_t
+{
     ENV_CLANG_SUPPRESS_PUSH("google-explicit-constructor")
 
-        COND_TMP_UNARY(
+    COND_TMP_UNARY(
             is_nullptr_constructible_g<T>)
-            imp inl cmp op T() const noex{ret T(nullptr);
-}
+    imp inl cmp op T() const noex
+    {
+        ret T(nullptr);
+    }
 
-COND_TMP_UNARY(
-    !is_nullptr_constructible_g<T> &&
-    is_zero_constructible_g<T>)
-imp inl cmp op T() const noex { ret T(0); }
+    COND_TMP_UNARY(
+            !is_nullptr_constructible_g<T> &&
+            is_zero_constructible_g<T>)
+    imp inl cmp op T() const noex { ret T(0); }
 
-COND_TMP_UNARY(
-    !is_nullptr_constructible_g<T> &&
-    !is_zero_constructible_g<T> &&
-    ENV_STD::is_default_constructible_v<T>)
-imp inl cmp op T() const noex { ret T(); }
+    COND_TMP_UNARY(
+            !is_nullptr_constructible_g<T> &&
+            !is_zero_constructible_g<T> &&
+            ENV_STD::is_default_constructible_v < T >)
+    imp inl cmp op T() const noex { ret T(); }
 
-ENV_CLANG_SUPPRESS_POP
-}
-;
+    ENV_CLANG_SUPPRESS_POP
+};
 
-let_cmp nil = nil_t{};
+let_cmp nil = nil_t{ };
 
-COND_CHECK_UNARY(is_nillable, is_imp_convertible_g<nil_t, T>);
+COND_CHECK_UNARY(is_nillable, is_imp_convertible_g < nil_t, T >);
 
 COND_CONCEPT(nillable, is_nillable_g<C>);
 
 ENV_TEST_CASE("nil init")
 {
-    cmp int *i_ptr{nil};
+    cmp int* i_ptr{nil};
     REQUIRES(i_ptr == nullptr);
 
     cmp nullptr_t null_ptr{nil};
@@ -78,32 +82,33 @@ ENV_TEST_CASE("nil init")
     REQUIRES(trivial.i == 0);
 }
 
+
 // equality
 
-cmp_fn op == (obj nil_t lhs, obj nil_t rhs)noex { ret true; }
+cmp_fn op==([[maybe_unused]] nil_t lhs, [[maybe_unused]] nil_t rhs) noex { ret true; }
 
-cmp_fn op != (obj nil_t lhs, obj nil_t rhs)noex { ret false; }
+cmp_fn op!=([[maybe_unused]] nil_t lhs, [[maybe_unused]] nil_t rhs) noex { ret false; }
 
 tmp<name T>
-        cmp_fn op == (equatable_c<nillable_c<T>> && lhs, nil_t rhs) noex
+cmp_fn op==(equatable_c <nillable_c<T>>&& lhs, nil_t rhs) noex
 {
     ret ENV_STD::forward<T>(lhs) == static_cast<unqualified_gt<T>>(rhs);
 }
 
 tmp<name T>
-        cmp_fn op == (nil_t lhs, equatable_c<nillable_c<T>> &&rhs)noex
+cmp_fn op==(nil_t lhs, equatable_c <nillable_c<T>>&& rhs) noex
 {
     ret static_cast<unqualified_gt<T>>(lhs) == ENV_STD::forward<T>(rhs);
 }
 
 tmp<name T>
-        cmp_fn op != (equatable_c<nillable_c<T>> && lhs, nil_t rhs) noex
+cmp_fn op!=(equatable_c <nillable_c<T>>&& lhs, nil_t rhs) noex
 {
     ret ENV_STD::forward<T>(lhs) != static_cast<unqualified_gt<T>>(rhs);
 }
 
 tmp<name T>
-        cmp_fn op != (nil_t lhs, equatable_c<nillable_c<T>> &&rhs)noex
+cmp_fn op!=(nil_t lhs, equatable_c <nillable_c<T>>&& rhs) noex
 {
     ret static_cast<unqualified_gt<T>>(lhs) != ENV_STD::forward<T>(rhs);
 }
@@ -113,8 +118,8 @@ ENV_TEST_CASE("nil equals")
     cmp test::trivial_equatable_t n_trivial(nil), trivial{1};
 
     cmp int i = 1;
-    const int *ptr = &i;
-    cmp int *null_ptr{nullptr};
+    const int* ptr = &i;
+    cmp int* null_ptr{nullptr};
 
     SUBCASE("eq")
     {
@@ -180,5 +185,6 @@ ENV_TEST_CASE("nil equals")
         }
     }
 }
+
 
 #endif // ENV_NIL_HPP

@@ -1,6 +1,7 @@
 #ifndef ENV_CLEANUP_HPP
 #define ENV_CLEANUP_HPP
 
+
 #ifdef ENV_UNDEF_OPS
 #undef ENV_UNDEF_OPS
 #define ENV_UNDEF_OPS 1
@@ -24,10 +25,12 @@
 #define ENV_UNDEF_OPS 1
 #endif // ENV_UNDEF_MACROS
 
+
 #include "macros/env_cleanup_macros.hpp"
 #include "meta/env_cleanup_meta.hpp"
 #include "ops/env_cleanup_ops.hpp"
 #include "stack/env_cleanup_stack.hpp"
 #include "structure/env_cleanup_structure.hpp"
+
 
 #endif // ENV_CLEANUP_HPP

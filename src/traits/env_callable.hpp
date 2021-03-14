@@ -35,6 +35,8 @@ public:
     cmp_obj static bool is_callback{ENV_STD::is_same_v<TReturn, void>};
 
     cmp_obj static bool is_consumer{false};
+    typ(argument_tuple_t) = ENV_STD::tuple<>;
+    cmp_obj static ENV_STD::size_t argument_count = 0;
 
     typ(function_t) = TReturn();
     typ(function_ptr_t) = function_t*;
@@ -117,12 +119,15 @@ EXPR_CHECK_UNARY(is_non_overloaded_functor, &T::op());
 tmp<name TQ, name TInheritor>
 strct callable_gs<
         TQ, TInheritor,
-        ENV::success_vt<
-        COND_TYPE(
-                ENV::is_qualified_g <TQ> &&
-                callable_gs<ENV::unqualified_gt < TQ>>::is_callable &&
-                !has_call_operator_g < ENV::unqualified_gt < TQ >>)>> :
-public callable_gs<ENV::unqualified_gt<TQ>, ENV::self_ggt<callable_gs<TQ, TInheritor>, TInheritor>> { };
+COND_TYPE
+(
+        ENV::is_qualified_g <TQ> &&
+        callable_gs<ENV::unqualified_gt < TQ>>::is_callable &&
+        !has_call_operator_g < ENV::unqualified_gt < TQ >>
+)> :
+public callable_gs<
+        ENV::unqualified_gt<TQ>,
+        ENV::self_ggt<callable_gs<TQ, TInheritor>, TInheritor>> { };
 
 
 // member ptr
@@ -130,8 +135,10 @@ public callable_gs<ENV::unqualified_gt<TQ>, ENV::self_ggt<callable_gs<TQ, TInher
 tmp<name TMember, name THolder, name TInheritor>
 strct callable_gs<
         TMember THolder::*, TInheritor,
-        ENV::success_vt<COND_TYPE(callable_gs<TMember>::is_callable)>>
-        : public callable_gs<TMember, ENV::self_ggt<callable_gs<TMember THolder::*, TInheritor>, TInheritor>>
+        ENV::success_vt<COND_TYPE(callable_gs<TMember>::is_callable)>> :
+        public callable_gs<
+                TMember,
+                ENV::self_ggt<callable_gs<TMember THolder::*, TInheritor>, TInheritor>>
 {
     cmp_obj static bool is_member{true};
 
@@ -367,9 +374,11 @@ ENV_TEST_CASE("callable traits")
 
         REQUIRES(is_callable_g<decl(&test_t::op())>);
         REQUIRES(is_callable_g<decl(&test_t::int_unqualified_except_int)>);
-        REQUIRE_EQT(
+        REQUIRE_EQT
+        (
                 unqualified_gt<member_type_gt < decl(&test::templated_callable_t::lambda)>>,
-                ENV_STD::function < void() >);
+                ENV_STD::function < void() >
+        );
         REQUIRES(is_callable_g<decl(&test::templated_callable_t::lambda)>);
         REQUIRES_FALSE(is_callable_g<decl(&test::templated_callable_t::lambda_ptr)>);
 
@@ -389,6 +398,7 @@ ENV_TEST_CASE("callable traits")
         REQUIRES(is_consumer_g<void(int)>);
         REQUIRES(is_consumer_g<int(int)>);
         REQUIRES(argument_count_g<decl(&test_t::const_except_double_float)> == 2);
+        REQUIRES(argument_count_g<decl(&test_t::op())> == 2);
         REQUIRE_EQT(argument_tuple_gt<decl(&test_t::int_unqualified_except_int)>, ENV_STD::tuple < int >);
         REQUIRE_EQT(argument_tuple_gt<decl(&test_t::const_except_double_float)>, ENV_STD::tuple < double, float >);
     }
@@ -403,6 +413,7 @@ ENV_TEST_CASE("callable traits")
         REQUIRES(is_noex_callable_g<decl(&test_t::char_unqualified_noex)>);
         REQUIRES(is_noex_callable_g<decl(&test_t::volatile_rvalue_noex)>);
         REQUIRES_FALSE(is_noex_callable_g<test_t>);
+        REQUIRES_FALSE(is_noex_callable_g<decl(&test_t::op())>);
     }
     SUBCASE("member")
     {

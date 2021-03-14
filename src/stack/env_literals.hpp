@@ -1,35 +1,39 @@
 #ifndef ENV_LITERALS_HPP
 #define ENV_LITERALS_HPP
 
+
 // numbers
 
-COND_CHECK_UNARY(
-    is_number_literal,
-    (
-        (ENV_STD::is_same_v<T, unsigned long long int>) ||
-        (ENV_STD::is_same_v<T, long double>)));
+COND_CHECK_UNARY
+(
+        is_number_literal,
+        ENV_STD::is_same_v < T, unsigned long long int > ||
+                                ENV_STD::is_same_v < T, long double >
+);
 
 COND_CONCEPT(number_literal, (is_number_literal_g<C>));
 
 COND_TMP((res_name, name T), (is_number_literal_g<T>))
-cmp_fn parse_literal(T literal) noex->deduc_res(T)
+cmp_fn parse_literal(T literal) noex -> deduc_res(T)
 {
-        if_cmp(ENV_STD::is_enum_v<TRes>) ret scast<TRes>(ENV::parse_literal<ENV_STD::underlying_type_t<TRes>>(literal));
-        else ret clamp_cast<TRes>(literal);
+    if_cmp(ENV_STD::is_enum_v<TRes>) ret scast<TRes>(ENV::parse_literal<ENV_STD::underlying_type_t<TRes>>(literal));
+    else
+        ret clamp_cast<TRes>(literal);
 }
+
 
 // chars
 
 ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name T> let_cmp is_char_literal_g =
-    ENV_STD::is_same_v<T, char> ||
-    ENV_STD::is_same_v<T, wchar_t> ||
-#if ENV_CPP >= 20
-    ENV_STD::is_same_v<T, char8_t> || // this is why this is in detail
-#endif                                // ENV_CPP >= 20
-    ENV_STD::is_same_v<T, char16_t> ||
-    ENV_STD::is_same_v<T, char32_t>;
+        ENV_STD::is_same_v<T, char> ||
+        ENV_STD::is_same_v<T, wchar_t> ||
+        #if ENV_CPP >= 20
+        ENV_STD::is_same_v<T, char8_t> || // this is why this is in detail
+        #endif // ENV_CPP >= 20
+        ENV_STD::is_same_v<T, char16_t> ||
+        ENV_STD::is_same_v<T, char32_t>;
 
 ENV_NAMESPACE_DETAIL_END
 
@@ -38,29 +42,30 @@ COND_CHECK_UNARY(is_char_literal, (detail::is_char_literal_g<T>));
 COND_CONCEPT(char_literal, (detail::is_char_literal_g<C>));
 
 COND_TMP((res_name, name T), (is_char_literal_g<T>))
-cmp_fn parse_literal(T literal) noex->deduc_res(T)
+cmp_fn parse_literal(T literal) noex -> deduc_res(T)
 {
-        if_cmp(ENV_STD::is_same_v<TRes, T> || ENV_STD::is_same_v<TRes, nores_t>) ret literal;
-        else if_cmp(ENV_STD::is_enum_v<TRes>) ret scast<TRes>(parse_literal<ENV_STD::underlying_type_t<TRes>>(literal));
-        else
-        {
-                let cmp max = ENV_STD::numeric_limits<TRes>::max();
-                ret scast<TRes>(literal > max ? max : literal);
-        }
+    if_cmp(ENV_STD::is_same_v<TRes, T> || ENV_STD::is_same_v<TRes, nores_t>) ret literal;
+    else if_cmp(ENV_STD::is_enum_v<TRes>) ret scast<TRes>(parse_literal<ENV_STD::underlying_type_t<TRes>>(literal));
+    else
+    {
+        let cmp max = ENV_STD::numeric_limits<TRes>::max();
+        ret scast<TRes>(literal > max ? max : literal);
+    }
 }
+
 
 // labels
 
 ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name T> let_cmp is_label_literal_g =
-    ENV_STD::is_same_v<T, const char *> ||
-    ENV_STD::is_same_v<T, const wchar_t *> ||
-#if ENV_CPP >= 20
-    ENV_STD::is_same_v<TLiteral, const char8_t *> || // this is why this is in detail
-#endif                                               // ENV_CPP >= 20
-    ENV_STD::is_same_v<T, const char16_t *> ||
-    ENV_STD::is_same_v<T, const char32_t *>;
+        ENV_STD::is_same_v<T, const char*> ||
+        ENV_STD::is_same_v<T, const wchar_t*> ||
+        #if ENV_CPP >= 20
+        ENV_STD::is_same_v<TLiteral, const char8_t *> || // this is why this is in detail
+        #endif // ENV_CPP >= 20
+        ENV_STD::is_same_v<T, const char16_t*> ||
+        ENV_STD::is_same_v<T, const char32_t*>;
 
 ENV_NAMESPACE_DETAIL_END
 
@@ -68,8 +73,9 @@ COND_CHECK_UNARY(is_label_literal, (detail::is_label_literal_g<T>));
 
 COND_CONCEPT(label_literal, (detail::is_label_literal_g<C>));
 
-COND_TMP((res_name, name T), (is_label_literal_g<T> && ENV_STD::is_constructible_v<TRes, T, ENV_STD::size_t>))
-cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret res_con(literal, size); }
+COND_TMP((res_name, name T), (is_label_literal_g<T> && ENV_STD::is_constructible_v < TRes, T, ENV_STD::size_t >))
+cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex -> deduc_res(T) { ret res_con(literal, size); }
+
 
 // declarations
 
@@ -136,6 +142,7 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex->deduc_res(T) { ret r
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal)); \
         }                                                                            \
         SEMI
+
 
 // real
 
@@ -209,6 +216,7 @@ TEXT_L(l32, l32, const char32_t *, const char16_t *);
 
 #endif // ENV_CPP >= 17
 
+
 // idealistic
 
 WHOLE_L(natural, n, uintmax_t);
@@ -230,17 +238,19 @@ CHAR_L(char, c, char32_t, char32_t);
 
 TEXT_L(label, l, const char32_t *, ENV_STD::u32string_view);
 
+
 // special
 
 WHOLE_L(flag, f, bool);
 
 let_cmp
-    truthy{0_f},
-    falsy{1_f},
-    on{truthy}, off{falsy},
-    yes{truthy}, no{falsy},
-    active{truthy}, inactive{falsy};
+        truthy{0_f},
+        falsy{1_f},
+        on{truthy}, off{falsy},
+        yes{truthy}, no{falsy},
+        active{truthy}, inactive{falsy};
 
 WHOLE_L(byte, b, ENV_STD::byte);
+
 
 #endif // ENV_LITERALS_HPP

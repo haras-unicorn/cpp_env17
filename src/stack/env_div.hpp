@@ -4,24 +4,23 @@
 // mod
 
 tmp<name T, name TBy>
-    cmp_fn mod(arithmetic_c<T> to_mod, arithmetic_c<TBy> by) noex
+cmp_fn mod(arithmetic_c <T> to_mod, arithmetic_c <TBy> by) noex
 {
     if_cmp(ENV_STD::is_enum_v<T>)
         ret mod(underlying_cast(to_mod), by);
     else if_cmp(ENV_STD::is_enum_v<TBy>)
         ret mod(to_mod, underlying_cast(by));
-    else if_cmp(is_floating_g<T> || is_floating_g<TBy>)
+    else if_cmp(is_floating_g < T > || is_floating_g < TBy >)
         ret ENV_STD::fmod(to_mod, by);
-    else if_cmp(is_signed_g<T> && is_signed_g<TBy>)
-            ret to_mod %
-        by;
-    else if_cmp(is_signed_g<T>)
-            ret to_mod %
-        scast<whole_nnt<true, ENV_STD::max(sizeof(T), sizeof(TBy))>>(by);
-    else if_cmp(is_signed_g<TBy>)
-            ret scast<whole_nnt<true, ENV_STD::max(sizeof(T), sizeof(TBy))>>(to_mod) %
-        by;
-    else ret to_mod % by;
+    else if_cmp(is_signed_g < T > && is_signed_g < TBy >)
+        ret to_mod % by;
+    else if_cmp(is_signed_g < T >)
+        ret to_mod %
+            scast<whole_nnt<true, ENV_STD::max(sizeof(T), sizeof(TBy))>>(by);
+    else if_cmp(is_signed_g < TBy >)
+        ret scast<whole_nnt<true, ENV_STD::max(sizeof(T), sizeof(TBy))>>(to_mod) % by;
+    else
+        ret to_mod % by;
 }
 
 ENV_TEST_CASE("mod")
@@ -35,25 +34,24 @@ ENV_TEST_CASE("mod")
     REQUIRE_EQ(mod(3, 2_s), 1);
 }
 
+
 ENV_MSVC_SUPPRESS_PUSH(4244) // conversion from double to int -> this is what we want here
 
 // divf - floor of division
 
 tmp<name TNom, name TDiv>
-    cmp_fn divf(arithmetic_c<TNom> nom, arithmetic_c<TDiv> div) noex
+cmp_fn divf(arithmetic_c <TNom> nom, arithmetic_c <TDiv> div) noex
 {
-    if_cmp(is_floating_g<TNom> || is_floating_g<TDiv>)
+    if_cmp(is_floating_g < TNom > || is_floating_g < TDiv >)
         ret scast<int64_t>(nom / div);
-    else if_cmp(is_signed_g<TNom> && is_signed_g<TDiv>)
-            ret nom /
-        div;
-    else if_cmp(is_signed_g<TNom>)
-            ret nom /
-        scast<whole_nnt<true, ENV_STD::max(sizeof(TNom), sizeof(TDiv))>>(div);
-    else if_cmp(is_signed_g<TDiv>)
-            ret scast<whole_nnt<true, ENV_STD::max(sizeof(TNom), sizeof(TDiv))>>(nom) /
-        div;
-    else ret nom / div;
+    else if_cmp(is_signed_g < TNom > && is_signed_g < TDiv >)
+        ret nom / div;
+    else if_cmp(is_signed_g < TNom >)
+        ret nom / scast<whole_nnt<true, ENV_STD::max(sizeof(TNom), sizeof(TDiv))>>(div);
+    else if_cmp(is_signed_g < TDiv >)
+        ret scast<whole_nnt<true, ENV_STD::max(sizeof(TNom), sizeof(TDiv))>>(nom) / div;
+    else
+        ret nom / div;
 }
 
 TEST_CASE("divf")
@@ -80,18 +78,16 @@ TEST_CASE("divf")
 // TODO - test this thing more
 
 tmp<name TNom, name TDiv>
-    cmp_fn divc(arithmetic_c<TNom> nom, arithmetic_c<TDiv> div) noex
+cmp_fn divc(arithmetic_c <TNom> nom, arithmetic_c <TDiv> div) noex
 {
-    if_cmp(is_unsigned_g<TNom> && is_unsigned_g<TDiv>)
-            ret divf(nom, div) +
-        !!mod(nom, div);
-    else if_cmp(is_signed_g<TNom> && is_unsigned_g<TDiv>)
-            ret divf(nom, div) +
-        !!mod(nom, div) * sign(nom);
-    else if_cmp(is_unsigned_g<TNom> && is_signed_g<TDiv>)
-            ret divf(nom, div) +
-        !!mod(nom, div) * sign(div);
-    else ret divf(nom, div) + !!mod(nom, div) * sign(nom) * sign(div);
+    if_cmp(is_unsigned_g < TNom > && is_unsigned_g < TDiv >)
+        ret divf(nom, div) + !!mod(nom, div);
+    else if_cmp(is_signed_g < TNom > && is_unsigned_g < TDiv >)
+        ret divf(nom, div) + !!mod(nom, div) * sign(nom);
+    else if_cmp(is_unsigned_g < TNom > && is_signed_g < TDiv >)
+        ret divf(nom, div) + !!mod(nom, div) * sign(div);
+    else
+        ret divf(nom, div) + !!mod(nom, div) * sign(nom) * sign(div);
 }
 
 TEST_CASE("divf")
@@ -115,10 +111,11 @@ TEST_CASE("divf")
 
 ENV_MSVC_SUPPRESS_POP
 
+
 // alignf
 
 tmp<name T, name TAlign>
-    cmp_fn alignf(arithmetic_c<T> to_align, arithmetic_c<TAlign> align) noex
+cmp_fn alignf(arithmetic_c <T> to_align, arithmetic_c <TAlign> align) noex
 {
     ret divf(to_align, align) * align;
 }
@@ -147,21 +144,18 @@ ENV_TEST_CASE("alignf")
 // TODO - test this thing more
 
 tmp<name T, name TAlign>
-    cmp_fn alignc(arithmetic_c<T> to_align, arithmetic_c<TAlign> align) noex
+cmp_fn alignc(arithmetic_c <T> to_align, arithmetic_c <TAlign> align) noex
 {
-    if_cmp(is_floating_g<T> || is_floating_g<TAlign>)
-            ret divc(to_align, align) *
-        align;
-    else if_cmp(is_unsigned_g<T> && is_unsigned_g<TAlign>)
-            ret divf((to_align + align - 1), align) *
-        align;
-    else if_cmp(is_unsigned_g<T> && is_signed_g<TAlign>)
-            ret divf((to_align + abs(align) - 1), align) *
-        align;
-    else if_cmp(is_signed_g<T> && is_unsigned_g<TAlign>)
-            ret divf((to_align + sign(to_align) * (align - 1)), align) *
-        align;
-    else ret divf((to_align + sign(to_align) * (abs(align) - 1)), align) * align;
+    if_cmp(is_floating_g < T > || is_floating_g < TAlign >)
+        ret divc(to_align, align) * align;
+    else if_cmp(is_unsigned_g < T > && is_unsigned_g < TAlign >)
+        ret divf((to_align + align - 1), align) * align;
+    else if_cmp(is_unsigned_g < T > && is_signed_g < TAlign >)
+        ret divf((to_align + abs(align) - 1), align) * align;
+    else if_cmp(is_signed_g < T > && is_unsigned_g < TAlign >)
+        ret divf((to_align + sign(to_align) * (align - 1)), align) * align;
+    else
+        ret divf((to_align + sign(to_align) * (abs(align) - 1)), align) * align;
 }
 
 ENV_TEST_CASE("alignc")
@@ -184,5 +178,6 @@ ENV_TEST_CASE("alignc")
         REQUIRE_EQ(alignc(-0.3, -0.2), doctest::Approx{-0.4});
     }
 }
+
 
 #endif // ENV_MATH_HPP

@@ -1,15 +1,17 @@
 #ifndef ENV_CASTING_HPP
 #define ENV_CASTING_HPP
 
+
 // bit cast
 
 // stolen from: https://en.cppreference.com/w/cpp/numeric/bit_cast
 // constexpr support needs compiler magic
 
 COND_TMP_BINARY((
-    (sizeof(TLhs) == sizeof(TRhs)) &&
-    (ENV_STD::is_trivially_copyable_v<TRhs>)&&(ENV_STD::is_trivially_copyable_v<TLhs>)&&(ENV_STD::is_trivially_constructible_v<TLhs>)))
-fun inl bit_cast(const TRhs &from) noexcept->TLhs
+                        (sizeof(TLhs) == sizeof(TRhs)) &&
+                        (ENV_STD::is_trivially_copyable_v < TRhs > ) && (ENV_STD::is_trivially_copyable_v < TLhs > ) &&
+                        (ENV_STD::is_trivially_constructible_v < TLhs > )))
+fun inl bit_cast(const TRhs& from) noexcept -> TLhs
 {
     TLhs to;
     std::memcpy(&to, &from, sizeof(TLhs));
@@ -22,10 +24,11 @@ ENV_TEST_CASE("bit cast")
     REQUIRE(u);
 }
 
+
 // clamp cast
 
 tmp<res_name, name T>
-    cmp_fn clamp_cast(arithmetic_c<T> from) noex->deduc_res(T)
+cmp_fn clamp_cast(arithmetic_c <T> from) noex -> deduc_res(T)
 {
     if_cmp(ENV_STD::is_same_v<TRes, T> || ENV_STD::is_same_v<TRes, nores_t>)
     {
@@ -57,9 +60,10 @@ TEST_CASE("clamp_cast")
     REQUIRE_EQ(clamp_cast<int16_t>(-70000), -32768);
 }
 
+
 // underlying cast
 
-tmp<name T> cmp_fn underlying_cast(enum_c<T> _enum) noex->ENV_STD::underlying_type_t<T>
+tmp<name T> cmp_fn underlying_cast(enum_c <T> _enum) noex -> ENV_STD::underlying_type_t<T>
 {
     ret scast<ENV_STD::underlying_type_t<T>>(_enum);
 }
@@ -71,5 +75,6 @@ ENV_TEST_CASE("underlying cast")
 
     REQUIRES(underlying_cast(a) == 10);
 }
+
 
 #endif // ENV_CASTING_HPP
