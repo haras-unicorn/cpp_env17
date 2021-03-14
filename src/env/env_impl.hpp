@@ -4,7 +4,7 @@
 
 #include "structure/env_structure.hpp"
 
-ENV_NAMESPACE_BEGIN
+ENV_BEGIN
 
 ENV_TEST_SUITE_BEGIN("env");
 
@@ -19,7 +19,7 @@ ENV_TEST_SUITE_BEGIN("env");
 
 ENV_TEST_SUITE_END();
 
-ENV_NAMESPACE_END
+ENV_END
 
 
 #endif // ENV_IMPL_HPP

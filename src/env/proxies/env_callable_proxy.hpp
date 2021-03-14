@@ -81,7 +81,7 @@ protected:
 
 ENV_DETAIL_END
 
-ENV_NAMESPACE_STD_BEGIN
+ENV_STD_BEGIN
 
 tmp<name TValue>
 strct hash<ENV::detail::callable_proxy_gt<TValue>>
@@ -92,7 +92,7 @@ strct hash<ENV::detail::callable_proxy_gt<TValue>>
     }
 };
 
-ENV_NAMESPACE_STD_END
+ENV_STD_END
 
 COND_TMP_UNARY((is_supported_callable_g < T > ))
 typ(callable_proxy_gt) = detail::callable_proxy_gt<function_gt < T>>;

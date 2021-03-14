@@ -2,13 +2,13 @@
 #define ENV_CLEANUP_STRUCTURE_HPP
 
 
-ENV_NAMESPACE_BEGIN
+ENV_BEGIN
 ENV_TEST_BEGIN
 
 [[maybe_unused]] inline constexpr static auto unused_include_workaround{true};
 
 ENV_TEST_END
-ENV_NAMESPACE_END
+ENV_END
 
 
 // features
@@ -36,14 +36,14 @@ ENV_NAMESPACE_END
 // core -> std
 
 #undef ENV_STD
-#undef ENV_NAMESPACE_STD_END
-#undef ENV_NAMESPACE_STD_BEGIN
+#undef ENV_STD_END
+#undef ENV_STD_BEGIN
 
 // core -> global
 
 #undef ENV_GLOBAL
-#undef ENV_NAMESPACE_GLOBAL_END
-#undef ENV_NAMESPACE_GLOBAL_BEGIN
+#undef ENV_GLOBAL_END
+#undef ENV_GLOBAL_BEGIN
 
 // native test, benchmark
 
@@ -53,8 +53,8 @@ ENV_NAMESPACE_END
 // env namespaces
 
 #undef ENV
-#undef ENV_NAMESPACE_END
-#undef ENV_NAMESPACE_BEGIN
+#undef ENV_END
+#undef ENV_BEGIN
 
 // detail, test, format...
 

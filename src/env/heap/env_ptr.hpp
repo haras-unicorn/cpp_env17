@@ -71,7 +71,7 @@ ENV_TEST_CASE("unranked ptr")
 
 // hash
 
-ENV_NAMESPACE_STD_BEGIN
+ENV_STD_BEGIN
 
 // only MSVC doesn't have a specialization - not worth it
 
@@ -95,7 +95,7 @@ ENV_NAMESPACE_STD_BEGIN
 //    }
 //};
 
-ENV_NAMESPACE_STD_END
+ENV_STD_END
 
 ENV_TEST_CASE("ptr hash")
 {

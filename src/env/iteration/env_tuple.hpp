@@ -269,7 +269,7 @@ ENV_TEST_CASE("sized tuple construction")
 
 // pair hash
 
-ENV_NAMESPACE_STD_BEGIN
+ENV_STD_BEGIN
 
 tmp<name TFirst, name TSecond>
 strct hash<ENV::detail::pair_ggt<TFirst, TSecond>>
@@ -284,7 +284,7 @@ strct hash<ENV::detail::pair_ggt<TFirst, TSecond>>
     }
 };
 
-ENV_NAMESPACE_STD_END
+ENV_STD_END
 
 ENV_TEST_CASE("pair hash")
 {

@@ -4,7 +4,7 @@
 
 // stolen from: https://www.youtube.com/watch?t=56m34s&v=nXaxk27zwlk
 
-ENV_NAMESPACE_BEGIN
+ENV_BEGIN
 
 ENV_BENCH_BEGIN
 
@@ -29,7 +29,7 @@ ENV_BENCH_BEGIN
 
 ENV_BENCH_END
 
-ENV_NAMESPACE_END
+ENV_END
 
 
 #endif // ENV_PERF_HPP
