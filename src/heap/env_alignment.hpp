@@ -26,6 +26,9 @@ ENV_TEST_CASE("alignment")
 
 // aligned
 
+// I'm actually pleased with the performance of this thing
+// I didn't expect that it would be just marginally slower than (or equal to) using a type like int on -O3
+
 tmp<size_t size = single, align_t align = max_align>
 cls aligned_nnt
 {
@@ -127,7 +130,8 @@ ENV_BENCH(aligned_storage_heap)
     ENV_BLOOP
     {
         state.PauseTiming();
-        ENV_STD::vector<aligned_nnt<4_s, 4_algn>> vec{ };
+        ENV_STD::vector<aligned_nnt < 4_s, 4_algn>>
+        vec{ };
         vec.reserve(state.range(0));
         benchmark::DoNotOptimize(vec.data());
         state.ResumeTiming();
