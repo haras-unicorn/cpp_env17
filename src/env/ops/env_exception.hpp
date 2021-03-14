@@ -247,9 +247,9 @@ struct uint_ptr_proxy_t
 
     DEFAULT_LIFE(uint_ptr_proxy_t, CMP);
 
-    CONST_GETTER_FML((), (auto), op *, (_get();));
+    CONST_GETTER_FML((), (int), op *, (_get();));
 
-    CONST_GETTER_FML((), (auto), get, (_get();));
+    CONST_GETTER_FML((), (int), get, (_get();));
 
     tmp<exc_name>
     callb inl multiply_positive(int to_add, exc_arg) noex_pol

@@ -7,10 +7,15 @@
  *
  * This file is just a documentation of directives that can be passed to ENV.
  *
- * 
+ *
+ * MACRO DIRECTIVES:
+ *
  * ENV_MESSAGES:
  * Display messages about compiler, architecture, OS, and C++ standard during compilation.
- * 
+ *
+ * ENV_UNDEF_<MODULE>:
+ * Undefine macros from <MODULE> and its children. <MODULE> can be one of: "OPS", "STACK", "META", "MACROS"
+ *
  *
  * TESTING DIRECTIVES:
  *
