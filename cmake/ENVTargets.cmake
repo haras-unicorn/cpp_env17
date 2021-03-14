@@ -77,26 +77,41 @@ endfunction()
 
 # warnings
 
-if (MSVC)
+if (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
         env_log("Adding warnings to \"${_name}\".")
 
-        target_compile_options(${_name} PRIVATE /W4 /WX /permissive- /Zc:__cplusplus)
+        target_compile_options(
+                ${_name}
+                PRIVATE
+                /W4 /WX
+                /permissive- # standards compliance
+                /Zc:__cplusplus # otherwise we can't detect the C++ standard
+        )
     endfunction()
-elseif (GCC)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
         env_log("Adding warnings to \"${_name}\".")
 
-        target_compile_options(${_name} PRIVATE -Wall -Wextra -pedantic -Werror -ftrack-macro-expansion=0)
+        target_compile_options(
+                ${_name}
+                PRIVATE
+                -Wall -Wextra -Wpedantic -Werror
+                -ftrack-macro-expansion=0 # so messages are printed nicely
+        )
     endfunction()
-elseif (CLANG)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
         env_log("Adding warnings to \"${_name}\".")
 
-        target_compile_options(${_name} PRIVATE -Wall -Wextra -pedantic -Werror)
+        target_compile_options(
+                ${_name}
+                PRIVATE
+                -Wall -Wextra -Wpedantic -Werror
+        )
     endfunction()
 else ()
     function(env_target_warn _name)
@@ -109,21 +124,21 @@ endif ()
 # optimizations
 
 if (CMAKE_BUILD_TYPE STREQUAL Release)
-    if (MSVC)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL MSVC)
         function(env_target_optimize _name)
             env_prefix(${_name} env _name)
             env_log("Adding optimizations to \"${_name}\".")
 
             target_compile_options(${_name} PRIVATE /O2)
         endfunction()
-    elseif (GCC)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
         function(env_target_optimize _name)
             env_prefix(${_name} env _name)
             env_log("Adding optimizations to \"${_name}\".")
 
             target_compile_options(${_name} PRIVATE -O3)
         endfunction()
-    elseif (CLANG)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
         function(env_target_optimize _name)
             env_prefix(${_name} env _name)
             env_log("Adding optimizations to \"${_name}\".")
@@ -154,10 +169,16 @@ function(env_add_executable _name)
 endfunction()
 
 function(env_add_library _name)
-    env_prefix(${_name} env _prefixed)
-    env_log("Adding \"${_prefixed}\" library.")
+    env_prefix(${_name} env _name)
 
-    add_library(${_prefixed} ${ARGN})
+    env_log("Adding \"${_name}\" library.")
+    add_library(${_name} ${ARGN})
+endfunction()
+
+function(env_add_alias _name)
+    env_prefix(${_name} env _prefixed)
+
+    env_log("Adding \"env::${_name}\" alias.")
     add_library(env::${_name} ALIAS ${_prefixed})
 endfunction()
 
@@ -168,15 +189,15 @@ function(env_add_dep _name)
     env_suffix(${_name} dep _name)
     env_log(" - Adding \"${_name}\" dependency. - ")
 
-    env_add_library(${_name} INTERFACE)
+    env_add_library(${_name} INTERFACE IMPORTED)
 endfunction()
 
 function(env_add_test _name _src)
-    env_suffix("${_name}" test _name)
+    env_suffix(${_name} test _name)
     env_log(" - Adding \"${_name}\" test. - ")
 
     env_add_executable(${_name} ${_src})
-    env_target_link(${_name} PRIVATE ${ARGN} PRIVATE env_default_dep env_test_dep env_bench_dep)
+    env_target_link(${_name} PRIVATE ${ARGN} PRIVATE env_default_dep)
 
     env_target_set(${_name} CXX_EXTENSIONS OFF)
     env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
@@ -188,11 +209,11 @@ function(env_add_test _name _src)
 endfunction()
 
 function(env_add_bench _name _src)
-    env_suffix("${_name}" bench _name)
+    env_suffix(${_name} bench _name)
     env_log(" - Adding \"${_name}\" benchmark. - ")
 
     env_add_executable(${_name} ${_src})
-    env_target_link(${_name} PRIVATE ${ARGN} PRIVATE env_default_dep env_test_dep env_bench_dep)
+    env_target_link(${_name} PRIVATE ${ARGN} PRIVATE env_default_dep)
 
     env_target_set(${_name} CXX_EXTENSIONS OFF)
     env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
@@ -200,4 +221,13 @@ function(env_add_bench _name _src)
 
     env_target_warn(${_name})
     env_target_optimize(${_name})
+endfunction()
+
+function(env_add_export _name)
+    env_log(" - Adding \"${_name}\" export. - ")
+
+    env_add_library(${_name} INTERFACE)
+    env_add_alias(${_name})
+    env_target_link(${_name} INTERFACE ${ARGN} INTERFACE env_default_dep)
+    env_target_include(${_name} INTERFACE ${PROJECT_SOURCE_DIR}/include)
 endfunction()

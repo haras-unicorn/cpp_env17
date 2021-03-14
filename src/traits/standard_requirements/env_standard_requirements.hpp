@@ -48,8 +48,8 @@
 
 #include "env_container_element_requirements.hpp"
 // containers have so many requirements that this is needed
-#include "env_container_standard_requirements.hpp"
 #include "env_container_traits_requirements.hpp"
+#include "env_container_standard_requirements.hpp"
 
 #include "env_concurrency_requirements.hpp"
 

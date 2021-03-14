@@ -1,6 +1,7 @@
 #ifndef ENV_DIRECTIVES_HPP
 #define ENV_DIRECTIVES_HPP
 
+
 /*
  *
  *
@@ -22,13 +23,11 @@
  * ENV_SKIP_TESTS:
  * Skip all tests.
  * 
- * 
- * 
+ *
  * BENCHMARKING DIRECTIVES:
  * 
  * ENV_BENCHMARK:
  * Enables benchmarks with Google benchmark.
- *
  *
  *
  * FEATURE DIRECTIVES:
@@ -40,5 +39,6 @@
  *
  *
  */
+
 
 #endif // ENV_DIRECTIVES_HPP

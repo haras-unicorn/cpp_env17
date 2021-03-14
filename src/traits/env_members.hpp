@@ -1,16 +1,17 @@
 #ifndef ENV_MEMBERS_HPP
 #define ENV_MEMBERS_HPP
 
+
 ENV_NAMESPACE_DETAIL_BEGIN
 
 tmp<name T>
-    strct member_gs
+strct member_gs
 {
     cmp_obj static bool is_member{false};
 };
 
 tmp<name TMember, name THolder>
-    strct member_gs<TMember THolder::*> : public type_gt<TMember>
+strct member_gs<TMember THolder::*> : public type_gt<TMember>
 {
     cmp_obj static bool is_member{true};
 
@@ -37,12 +38,13 @@ TEST_CASE("members")
     REQUIRE_EQT(member_holder_gt<decl(&test::a)>, test);
 }
 
+
 // operators
 
 // member access
 
-OPERATOR_DETECTOR(arrow_operator, operator->, void *operator->(););
-OPERATOR_DETECTOR(subscript_operator, operator[], int &operator[](int););
+OPERATOR_DETECTOR(arrow_operator, operator->, void* operator->(););
+OPERATOR_DETECTOR(subscript_operator, operator[], int& operator[](int););
 
 // call
 
@@ -63,15 +65,18 @@ OPERATOR_DETECTOR(bitand_assign_operator, operator&=, int operator&=(int););
 OPERATOR_DETECTOR(bitor_assign_operator, operator|=, int operator|=(int););
 OPERATOR_DETECTOR(bitxor_assign_operator, operator^=, int operator^=(int););
 
-COND_CHECK_UNARY(
-    has_bit_operators,
-    has_bitand_operator_g<T> &&
+COND_CHECK_UNARY
+(
+        has_bit_operators,
+        has_bitand_operator_g<T> &&
         has_bitor_operator_g<T> &&
-            has_bitxor_operator_g<T> &&
-                has_bitnot_operator_g<T> &&
+        has_bitxor_operator_g<T> &&
+        has_bitnot_operator_g<T> &&
 
-                    has_bitand_assign_operator_g<T> &&
-                        has_bitor_assign_operator_g<T> &&
-                            has_bitxor_assign_operator_g<T>);
+        has_bitand_assign_operator_g<T> &&
+        has_bitor_assign_operator_g<T> &&
+        has_bitxor_assign_operator_g<T>
+);
+
 
 #endif // ENV_MEMBERS_HPP

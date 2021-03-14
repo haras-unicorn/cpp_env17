@@ -5,14 +5,14 @@
 
 ENV_NAMESPACE_BEGIN
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_NAMESPACE_BENCH_BEGIN
 
-[[maybe_unused]] void escape([[maybe_unused]] void *_this) noexcept
+[[maybe_unused]] void escape([[maybe_unused]] void* that) noexcept
 {
-#if ENV_GCC || ENV_CLANG // TODO: check if clang has this extension
+#if ENV_GCC || ENV_CLANG
     asm volatile(""
                  :
-                 : "g"(_this)
+                 : "g"(that)
                  : "memory");
 #else // MSVC - just don't...
 //    __asm [[maybe_unused]] auto volatile _copy = _this;
@@ -21,7 +21,7 @@ ENV_NAMESPACE_TEST_BEGIN
 
 [[maybe_unused]] void clobber() noexcept
 {
-#if ENV_GCC || ENV_CLANG // TODO: check if clang has this extension
+#if ENV_GCC || ENV_CLANG
     asm volatile(""
                  :
                  :
@@ -31,7 +31,7 @@ ENV_NAMESPACE_TEST_BEGIN
 #endif
 }
 
-ENV_NAMESPACE_TEST_END
+ENV_NAMESPACE_BENCH_END
 
 ENV_NAMESPACE_END
 

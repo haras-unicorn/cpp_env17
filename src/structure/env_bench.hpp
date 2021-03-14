@@ -10,9 +10,12 @@
 // benchmark macros
 
 #if defined(ENV_BENCHMARK)
-#define ENV_BENCH(...) BENCHMARK(__VA_ARGS__)
+#define ENV_BENCH(_name)                             \
+        static void _name(ENV_GBENCH::State& state); \
+        BENCHMARK(_name);                            \
+        static void _name(ENV_GBENCH::State& state)
 #else // defined(ENV_BENCHMARK)
-#define ENV_BENCH(...)
+#define ENV_BENCH(_name)
 #endif // defined(ENV_BENCHMARK)
 
 #endif // ENV_BENCH_HPP

@@ -1,6 +1,7 @@
 #ifndef ENV_RATIOS_HPP
 #define ENV_RATIOS_HPP
 
+
 ENV_NAMESPACE_DETAIL_BEGIN
 
 typ(std_ratio_num_t) = decl(ENV_STD::ratio<1, 1>::num);
@@ -8,22 +9,16 @@ typ(std_ratio_num_t) = decl(ENV_STD::ratio<1, 1>::num);
 ENV_NAMESPACE_DETAIL_END
 
 tmp<uintmax_t Nominator, uintmax_t Denominator = 1>
-    typ(nratio_nns) =
-        ENV_STD::ratio<
-            scast<detail::std_ratio_num_t>(Nominator),
-            scast<detail::std_ratio_num_t>(Denominator)>;
+typ(nratio_nns) = ENV_STD::ratio<Nominator, Denominator>;
 
 tmp<uintmax_t Nominator, uintmax_t Denominator>
-    cmp_obj nratio_nns<Nominator, Denominator> nratio{};
+cmp_obj nratio_nns<Nominator, Denominator> nratio{ };
 
 tmp<intmax_t Nominator, intmax_t Denominator = 1>
-    typ(ratio_nns) =
-        ENV_STD::ratio<
-            scast<detail::std_ratio_num_t>(Nominator),
-            scast<detail::std_ratio_num_t>(Denominator)>;
+typ(ratio_nns) = ENV_STD::ratio<Nominator, Denominator>;
 
 tmp<intmax_t Nominator, intmax_t Denominator>
-    cmp_obj ratio_nns<Nominator, Denominator> ratio{};
+cmp_obj ratio_nns<Nominator, Denominator> ratio{ };
 
 ENV_TEST_CASE("ratios")
 {
@@ -64,5 +59,6 @@ ENV_TEST_CASE("ratio checks")
         REQUIRES_FALSE(is_ratio_g<int>);
     }
 }
+
 
 #endif // ENV_RATIOS_HPP

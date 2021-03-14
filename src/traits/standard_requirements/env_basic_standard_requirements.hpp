@@ -1,9 +1,10 @@
 #ifndef ENV_BASIC_STANDARD_REQUIREMENTS_HPP
 #define ENV_BASIC_STANDARD_REQUIREMENTS_HPP
 
+
 // basic
 
-EXPR_CHECK_UNARY(is_std_default_constructible, T{}, T());
+EXPR_CHECK_UNARY(is_std_default_constructible, T{ }, T());
 
 ENV_TEST_CASE("default constructible")
 {
@@ -27,7 +28,7 @@ ENV_TEST_CASE("move constructible")
     STD_REQUIRE_FALSE(is_std_move_constructible_g<void>);
 }
 
-COND_CHECK_UNARY(is_std_copy_assignable, ENV_STD::is_same_v<decl(declvall<T>() = declvall<const T>()), T &>);
+COND_CHECK_UNARY(is_std_copy_assignable, ENV_STD::is_same_v<decl(declvall<T>() = declvall<const T>()), T&>);
 
 ENV_TEST_CASE("copy assignable")
 {
@@ -36,7 +37,7 @@ ENV_TEST_CASE("copy assignable")
     STD_REQUIRE_FALSE(is_std_copy_constructible_g<void>);
 }
 
-COND_CHECK_UNARY(is_std_move_assignable, ENV_STD::is_same_v<decl(declvall<T>() = declvalr<T>()), T &>);
+COND_CHECK_UNARY(is_std_move_assignable, ENV_STD::is_same_v<decl(declvall<T>() = declvalr<T>()), T&>);
 
 ENV_TEST_CASE("move assignable")
 {
@@ -56,6 +57,7 @@ ENV_TEST_CASE("destructible")
     STD_REQUIRE(is_std_destructible_g<int>);
     STD_REQUIRE_FALSE(is_std_destructible_g<void>);
 }
+
 
 // type properties - it would be very hard or impossible to check for these without the standard type traits.
 
@@ -95,10 +97,15 @@ ENV_TEST_CASE("pod")
     STD_REQUIRE_FALSE(is_std_pod_g<void>);
 }
 
+
 // library-wide - defined here because these are really common
 
 // notes: https://en.cppreference.com/w/cpp/named_req/EqualityComparable
-COND_CHECK_UNARY(is_std_equality_comparable, ENV_STD::is_convertible_v<decl(declval<const T>() == declval<const T>()), bool>);
+COND_CHECK_UNARY
+(
+        is_std_equality_comparable,
+        ENV_STD::is_convertible_v<decl(declval<const T>() == declval<const T>()), bool>
+);
 
 ENV_TEST_CASE("equality comparable")
 {
@@ -107,7 +114,11 @@ ENV_TEST_CASE("equality comparable")
 }
 
 // notes: https://en.cppreference.com/w/cpp/named_req/LessThanComparable
-COND_CHECK_UNARY(is_std_less_than_comparable, ENV_STD::is_convertible_v<decl(declval<const T>() < declval<const T>()), bool>);
+COND_CHECK_UNARY
+(
+        is_std_less_than_comparable,
+        ENV_STD::is_convertible_v<decl(declval<const T>()<declval<const T>()), bool>
+);
 
 ENV_TEST_CASE("less than comparable")
 {
@@ -123,5 +134,6 @@ ENV_TEST_CASE("swappable")
     STD_REQUIRE(is_std_swappable_g<int>);
     STD_REQUIRE_FALSE(is_std_swappable_g<void>);
 }
+
 
 #endif // ENV_BASIC_STANDARD_REQUIREMENTS_HPP

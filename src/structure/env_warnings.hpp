@@ -1,5 +1,5 @@
-#ifndef ENV_SUPPRESS_HPP
-#define ENV_SUPPRESS_HPP
+#ifndef ENV_WARNINGS_HPP
+#define ENV_WARNINGS_HPP
 
 #if ENV_CLANG || defined(__JETBRAINS_IDE__) // clang
 #define ENV_CLANG_SUPPRESS_PUSH(_warning) \
@@ -35,12 +35,4 @@
 #endif // gcc
 
 
-// global suppress
-
-#ifdef ENV_MESSAGES // messages
-ENV_CLANG_SUPPRESS_PUSH("-W#pragma-messages")
-#endif // messages
-
-ENV_CLANG_SUPPRESS_PUSH("-Wunknown-pragmas") // clang-tidy
-
-#endif // ENV_SUPPRESS_HPP
+#endif // ENV_WARNINGS_HPP
