@@ -76,7 +76,9 @@ ENV_TEST_CASE("proxy class")
 {
     const auto a = test::enum_t::A;
     const test::enum_proxy_t proxy_a{a};
+    nonce(proxy_a);
     const test::enum_proxy_t proxy_b{test::enum_t::B};
+    nonce(proxy_b);
 
     SUBCASE("hash")
     {

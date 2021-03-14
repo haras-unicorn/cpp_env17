@@ -24,28 +24,20 @@
 // assertion macros
 
 #if defined(ENV_TESTS)
-#define REQUIRE_EQT(...)                            \
-    static_assert(ENV_STD::is_same_v<__VA_ARGS__>); \
-    DOCTEST_REQUIRE(ENV_STD::is_same_v<__VA_ARGS__>)
-#define REQUIRE_NET(...)                             \
-    static_assert(!ENV_STD::is_same_v<__VA_ARGS__>); \
-    DOCTEST_REQUIRE_FALSE(ENV_STD::is_same_v<__VA_ARGS__>)
-#define REQUIRES(...)           \
-    static_assert(__VA_ARGS__); \
-    DOCTEST_REQUIRE(__VA_ARGS__)
-#define REQUIRES_FALSE(...)      \
-    static_assert(!__VA_ARGS__); \
-    DOCTEST_REQUIRE_FALSE(__VA_ARGS__)
+#define REQUIRE_EQT(...) static_assert(ENV_STD::is_same_v<__VA_ARGS__>); DOCTEST_REQUIRE(ENV_STD::is_same_v<__VA_ARGS__>)
+#define REQUIRE_NET(...) static_assert(!ENV_STD::is_same_v<__VA_ARGS__>); DOCTEST_REQUIRE_FALSE(ENV_STD::is_same_v<__VA_ARGS__>)
+#define REQUIRES(...) static_assert(__VA_ARGS__); DOCTEST_REQUIRE(__VA_ARGS__)
+#define REQUIRES_FALSE(...) static_assert(!__VA_ARGS__); DOCTEST_REQUIRE_FALSE(__VA_ARGS__)
 #elif defined(ENV_STATIC_TESTS)
 #define REQUIRE_EQT(...) static_assert(ENV_STD::is_same_v<__VA_ARGS__>)
 #define REQUIRE_NET(...) static_assert(!ENV_STD::is_same_v<__VA_ARGS__>)
 #define REQUIRES(...) static_assert(__VA_ARGS__)
 #define REQUIRES_FALSE(...) static_assert(!__VA_ARGS__)
 #else // ENV_TESTS
-#define REQUIRE_EQT(...)
-#define REQUIRE_NET(...)
-#define REQUIRES(...)
-#define REQUIRES_FALSE(...)
+#define REQUIRE_EQT(...) static_cast<void>(ENV_STD::is_same_v<__VA_ARGS__>)
+#define REQUIRE_NET(...) static_cast<void>(ENV_STD::is_same_v<__VA_ARGS__>)
+#define REQUIRES(...) static_cast<void>(__VA_ARGS__)
+#define REQUIRES_FALSE(...) static_cast<void>(__VA_ARGS__)
 #endif // ENV_TESTS
 
 

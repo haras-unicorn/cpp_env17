@@ -99,6 +99,8 @@ ENV_TEST_CASE("combine")
 {
     let _21 = hash(2, 1);
     let _12 = hash(1, 2);
+    nonce(_21);
+    nonce(_12);
     REQUIRE_NE(_21, _12);
 }
 

@@ -10,6 +10,8 @@ tmp<name T> cmp_fn id(T* ptr) noex { ret (id_t) ptr; }
 ENV_TEST_CASE("id")
 {
     int a{ }, b{ };
+    nonce(a);
+    nonce(b);
     REQUIRE_NE(id(&a), id(&b));
     REQUIRE_EQ(id(&a), id(&a));
 }

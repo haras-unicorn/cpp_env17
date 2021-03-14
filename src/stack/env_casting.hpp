@@ -16,13 +16,14 @@ COND_TMP_BINARY
 fun inl bit_cast(const TRhs& from) noexcept -> TLhs
 {
     TLhs to;
-    std::memcpy(&to, &from, sizeof(TLhs));
+    ENV_STD::memcpy(&to, &from, sizeof(TLhs));
     return to;
 }
 
 ENV_TEST_CASE("bit cast")
 {
     let u = bit_cast<uint8_t, int8_t>(-1);
+    nonce(u);
     REQUIRE(u);
 }
 

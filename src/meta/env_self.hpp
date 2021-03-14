@@ -307,6 +307,7 @@ ENV_TEST_CASE("self getters")
 
     subclass_t sub{ };
     test::crtp_t<> base{ };
+    nonce(base);
 
     // sub.get_as_crtp_base returns the base but it has the inheritor in the tmp, so
     // it returns itself in _self() and that results in unwanted behaviour for this test.

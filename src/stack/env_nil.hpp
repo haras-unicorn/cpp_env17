@@ -165,6 +165,7 @@ ENV_TEST_CASE("nil equals")
         SUBCASE("lhs")
         {
             let ptr_res = nil != ptr;
+            nonce(ptr_res);
             let cmp one_res = nil != 1;
             let cmp trivial_res = nil != trivial;
 
@@ -176,6 +177,7 @@ ENV_TEST_CASE("nil equals")
         SUBCASE("rhs")
         {
             let ptr_res = ptr != nil;
+            nonce(ptr_res);
             let cmp one_res = 1 != nil;
             let cmp trivial_res = trivial != nil;
 

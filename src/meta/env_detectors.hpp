@@ -81,7 +81,7 @@ TEST_CASE("members")
 
     SUBCASE("alias detector")
     {
-        strct with_test_alias_t { typ(test_alias) = double; };
+        strct with_test_alias_t { typ_a(test_alias, maybe_unused) = double; };
         REQUIRES(test::has_test_alias_g<with_test_alias_t>);
         REQUIRES_FALSE(test::has_test_alias_g<empty_t>);
         REQUIRES_FALSE(test::has_test_alias_g<int>);

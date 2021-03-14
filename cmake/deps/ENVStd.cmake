@@ -6,10 +6,11 @@ env_target_precompile(
         <utility>
         <type_traits>
 
-        <bitset>
-
         <memory>
+        <cstring>
         <iterator>
+
+        <bitset>
 
         <any>
         <optional>
@@ -38,6 +39,7 @@ env_target_precompile(
         <atomic>
         <chrono>
 
+        <cmath>
         <functional>
         <algorithm>
         <exception>

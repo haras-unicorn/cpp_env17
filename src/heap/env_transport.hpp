@@ -17,6 +17,8 @@ callb inl copy(TLhs* from, TRhs* to, size_t amount = single) noex
 ENV_TEST_CASE("copy")
 {
     int a{1}, b{2};
+    nonce(a);
+    nonce(b);
     REQUIRE_EQ(*copy(&a, &b), 1);
 }
 
@@ -36,6 +38,7 @@ callb inl copy_overlapped(TLhs* from, TRhs* to, size_t amount = single) noex
 ENV_TEST_CASE("move")
 {
     int a[]{1, 2, 3};
+    nonce(a);
     REQUIRE_EQ(*copy_overlapped(&a[0], &a[1], 2_s), 1);
 }
 

@@ -43,6 +43,7 @@ ENV_TEST_CASE("ranked ptr")
     REQUIRE_EQ(*b, a);
 
     obj ptr_ncgt<rank_two, int> c = &b;
+    nonce(c);
     REQUIRE_EQ(**c, a);
 }
 
@@ -64,6 +65,7 @@ ENV_TEST_CASE("unranked ptr")
     REQUIRE_EQ(*b, a);
 
     obj ptr_gt<decltype(b)> c = &b;
+    nonce(c);
     REQUIRE_EQ(**c, a);
 }
 
@@ -100,8 +102,9 @@ ENV_TEST_CASE("ptr hash")
     let a = 1;
     obj ptr_cgt<int> b = &a;
     obj ptr_ncgt<rank_two, int> c = &b;
+    nonce(c);
 
-    REQUIRE_NE(ENV_STD::hash < ptr_cgt < int >> { }(b), ENV_STD::hash < ptr_ncgt<rank_two, int>>{ }(c));
+    REQUIRE_NE(ENV_STD::hash < ptr_cgt<int >> { }(b), ENV_STD::hash < ptr_ncgt<rank_two, int>>{ }(c));
 }
 
 // ptr size/align

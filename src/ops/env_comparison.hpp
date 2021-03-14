@@ -637,12 +637,14 @@ ENV_TEST_CASE("comparison")
 {
     cmp test::comparable_t comparable_small{10};
     cmp test::comparable_t comparable_big{20};
+    nonce(comparable_big);
 
     SUBCASE("validity")
     {
         REQUIRE(static_cast<bool>(comparable_small));
         REQUIRE(comparable_small.is_valid());
         let null_result = comparable_small != nil;
+        nonce(null_result);
         REQUIRE(null_result);
     }
 
