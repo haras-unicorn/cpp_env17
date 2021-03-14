@@ -1,6 +1,7 @@
 #ifndef ENV_CONSTANT_HPP
 #define ENV_CONSTANT_HPP
 
+
 // type
 
 tmp<name TType>
@@ -12,6 +13,7 @@ ENV_TEST_CASE("type constant")
     REQUIRE_EQT(type_gt<double>::type, double);
     REQUIRE_EQT(type_gt<void>::type, void);
 }
+
 
 // value
 
@@ -47,5 +49,6 @@ ENV_TEST_CASE("value constant")
         REQUIRE_EQT(decltype(val_con(true)), value_gnt<bool, true>);
     }
 }
+
 
 #endif // ENV_CONSTANT_HPP

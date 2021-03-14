@@ -1,6 +1,7 @@
 #ifndef ENV_STANDARD_HPP
 #define ENV_STANDARD_HPP
 
+
 // https://sourceforge.net/p/predef/wiki/Standards/
 
 #ifdef __cplusplus         // language
@@ -58,5 +59,6 @@
 #ifndef ENV_CPP23
 #define ENV_CPP23 0
 #endif // ENV_CPP23
+
 
 #endif // ENV_STANDARD_HPP

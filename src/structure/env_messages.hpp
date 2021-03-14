@@ -1,6 +1,7 @@
 #ifndef ENV_MESSAGES_HPP
 #define ENV_MESSAGES_HPP
 
+
 #ifdef ENV_MESSAGES // messages
 #if ENV_MSVC        // MSVC
 #define ENV_MESSAGE_IMPL(...) ENV_PRAGMA(message(__VA_ARGS__))
@@ -38,5 +39,6 @@ ENV_MESSAGE(Env Compiler - ENV_COMPILER_NAME, ENV_COMPILER_VER)
 ENV_MESSAGE(Env Arch - ENV_ARCH_NAME)
 ENV_MESSAGE(Env OS - ENV_OS_NAME)
 ENV_MESSAGE(Env Standard - C++ ENV_CPP)
+
 
 #endif // ENV_MESSAGES_HPP

@@ -1,6 +1,7 @@
 #ifndef ENV_KEYWORDS_HPP
 #define ENV_KEYWORDS_HPP
 
+
 // keywords
 
 #define tmp template
@@ -52,12 +53,11 @@ ENV_TEST_CASE("keyword keywords")
     {
         NO_RETURN_ATTRIBUTES inl void op()(int b = 1) noex
         {
-            nonce(b);
-            if_cmp(true) ret;
-
             [[OBJECT_ATTRIBUTES]] cmp decl(1) a{ };
             nonce(a);
-            ret;
+
+            nonce(b);
+            if_cmp(true) ret;
         }
     };
 
@@ -79,6 +79,7 @@ ENV_TEST_CASE("keyword keywords")
     sass(true);
     sass_msg(true, "I'm true!");
 }
+
 
 // types
 
@@ -111,6 +112,7 @@ ENV_TEST_CASE("type keywords")
     t a{ };
     static_cast<void>(a);
 }
+
 
 // objects
 
@@ -149,6 +151,7 @@ ENV_TEST_CASE("object keywords")
     nonce(b);
 }
 
+
 // functions
 
 #define imp_p
@@ -182,10 +185,7 @@ ENV_TEST_CASE("function keywords")
 {
     strct my_struct
     {
-        fun inl fi()
-        {
-            ret 1;
-        }
+        fun inl fi() { ret 1; }
         cmp_fn static fc() { ret 1; }
 
         callb static inl cb() -> void { }
@@ -197,6 +197,10 @@ ENV_TEST_CASE("function keywords")
         imp inl op char() { ret 4; }
         cmp_imp op float() { ret 4.0; }
     };
+
+    nonce(my_struct{ }.fi());
+    nonce(my_struct::cbc());
 }
+
 
 #endif // ENV_KEYWORDS_HPP

@@ -32,5 +32,9 @@
 #define SPREAD_IMPL(_tuple) SINGLE(PACK _tuple)
 #define SPREAD(_tuple) SPREAD_IMPL(_tuple)
 
+// uid
+
+#define UID(_prefix) INTER(_z, _prefix, __COUNTER__)
+
 
 #endif // ENV_TOKENS_HPP

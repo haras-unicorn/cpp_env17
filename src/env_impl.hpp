@@ -4,7 +4,6 @@
 
 #include "structure/env_structure.hpp"
 
-
 ENV_NAMESPACE_BEGIN
 
 ENV_TEST_SUITE_BEGIN("env");

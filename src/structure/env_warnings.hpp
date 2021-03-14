@@ -1,6 +1,7 @@
 #ifndef ENV_WARNINGS_HPP
 #define ENV_WARNINGS_HPP
 
+
 #if ENV_CLANG // clang
 #define ENV_CLANG_SUPPRESS_PUSH(_warning) \
     ENV_PRAGMA(clang diagnostic push) \

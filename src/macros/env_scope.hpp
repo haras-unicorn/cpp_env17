@@ -1,27 +1,23 @@
 #ifndef ENV_SCOPE_HPP
 #define ENV_SCOPE_HPP
 
+
 // anon, semi
 
-#define ANON(_prefix) INTER(_z, _prefix, __COUNTER__)
-#define SEMI using ANON(_env_scope_anon) [[maybe_unused]] = void
+#define SEMI using UID(_env_scope_anon) [[maybe_unused]] = void
 
 ENV_NAMESPACE_TEST_BEGIN
 
-let ANON{0};
+let UID{0};
 
 SEMI;
 
 ENV_NAMESPACE_TEST_END
 
+
 // scopes
 
-#define SCOPE_IMPL(...) \
-    do                  \
-    {                   \
-        __VA_ARGS__     \
-    } while (false)
-
+#define SCOPE_IMPL(...) do { __VA_ARGS__ } while (false)
 #define SCOPE(...) SCOPE_IMPL(__VA_ARGS__)
 
 ENV_TEST_CASE("scope")
@@ -38,21 +34,26 @@ ENV_TEST_CASE("iffy")
     REQUIRE_EQ(a, 1);
 }
 
+
 // if
 
 #define IF(_condition, _if_true, _if_false) SCOPE(if _condition { SPREAD(_if_true) } else {SPREAD(_if_false)})
 
 ENV_TEST_CASE("if scope")
 {
-    IF(
+    IF
+    (
             (true),
             (REQUIRE(true);),
-            (REQUIRE(false);));
+            (REQUIRE(false);)
+    );
 
-    IF(
+    IF
+    (
             (false),
             (REQUIRE(false);),
-            (REQUIRE(true);));
+            (REQUIRE(true);)
+    );
 }
 
 #if ENV_CPP >= 17
@@ -73,6 +74,7 @@ ENV_TEST_CASE("constexpr if")
             (REQUIRE(false);),
             (REQUIRE(true);));
 }
+
 
 // when
 
@@ -96,6 +98,7 @@ ENV_TEST_CASE("when")
     CMP_ON((false), REQUIRE(false););
 }
 
+
 // tern
 
 #define TERN(_condition, _if_true, _if_false) _condition ? SPREAD(_if_true) : SPREAD(_if_false)
@@ -117,6 +120,7 @@ ENV_TEST_CASE("cond")
     REQUIRE_EQ(CMP_TERN((true), (1), (2)), 1);
     REQUIRE_EQ(CMP_TERN((false), (1), (2)), 2);
 }
+
 
 // elvis
 
@@ -150,5 +154,6 @@ ENV_TEST_CASE("elvis")
     } static constexpr test{ };
     REQUIRE_EQ(CMP_ELVIS(test(), 2), 1);
 }
+
 
 #endif // ENV_SCOPE_HPP

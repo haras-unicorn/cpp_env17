@@ -179,5 +179,9 @@ ENV_NAMESPACE_END
 #undef SPREAD_IMPL
 #undef SPREAD
 
+// uid
+
+#undef UID
+
 
 #endif // ENV_CLEANUP_STRUCTURE_HPP

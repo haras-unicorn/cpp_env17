@@ -93,7 +93,7 @@
 
 // scope
 
-#undef ANON
+#undef UID
 
 #undef SCOPE_IMPL
 #undef SCOPE
@@ -117,12 +117,8 @@
 
 // structs
 
-#undef ANON_STRUCT
-
-#undef FORMAT
 #undef ACCESS_BEGIN
 #undef ACCESS_END
-#undef CLASS_SEMI
 
 // application formula body
 

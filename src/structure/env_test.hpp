@@ -1,6 +1,7 @@
 #ifndef ENV_TEST_HPP
 #define ENV_TEST_HPP
 
+
 // doctest entry point
 
 #if defined(ENV_TESTS) || defined(ENV_STATIC_TESTS)
@@ -16,7 +17,9 @@
 #define DOCTEST_CONFIG_INCLUDE_TYPE_TRAITS
 
 #include <doctest/doctest.h>
+
 #endif // !defined(DOCTEST_LIBRARY_INCLUDED)
+
 
 // assertion macros
 
@@ -45,14 +48,15 @@
 #define REQUIRES_FALSE(...)
 #endif // ENV_TESTS
 
+
 // test macros
 
 #if defined(ENV_SKIP_TESTS) || defined(ENV_SKIP_TESTS) || (defined(ENV_STATIC_TESTS) && !defined(ENV_TESTS))
-#define ENV_TEST_SUITE_BEGIN(_name) DOCTEST_TEST_SUITE_BEGIN(_name *ENV_DOCT::skip(true))
+#define ENV_TEST_SUITE_BEGIN(_name) DOCTEST_TEST_SUITE_BEGIN(_name * ENV_DTEST::skip(true))
 #define ENV_TEST_SUITE_END() DOCTEST_TEST_SUITE_END()
-#define ENV_TEST_CASE(_name) DOCTEST_TEST_CASE(_name *ENV_DOCT::skip(true))
-#define ENV_TEST_CASE_CLASS(_name) DOCTEST_TEST_CASE_CLASS(_name *ENV_DOCT::skip(true))
-#define ENV_TEST_CASE_TMP(_name, _tmp, ...) DOCTEST_TEST_CASE_TEMPLATE(_name *ENV_DOCT::skip(true), _tmp, __VA_ARGS__)
+#define ENV_TEST_CASE(_name) DOCTEST_TEST_CASE(_name * ENV_DTEST::skip(true))
+#define ENV_TEST_CASE_CLASS(_name) DOCTEST_TEST_CASE_CLASS(_name * ENV_DTEST::skip(true))
+#define ENV_TEST_CASE_TMP(_name, _tmp, ...) DOCTEST_TEST_CASE_TEMPLATE(_name * ENV_DTEST::skip(true), _tmp, __VA_ARGS__)
 #else // ENV_SKIP_TESTS
 #define ENV_TEST_SUITE_BEGIN(_name) DOCTEST_TEST_SUITE_BEGIN(_name)
 #define ENV_TEST_SUITE_END() DOCTEST_TEST_SUITE_END()
@@ -60,5 +64,6 @@
 #define ENV_TEST_CASE_CLASS(_name) DOCTEST_TEST_CASE_CLASS(_name)
 #define ENV_TEST_CASE_TMP(_name, _tmp, ...) DOCTEST_TEST_CASE_TEMPLATE(_name, _tmp, __VA_ARGS__)
 #endif // ENV_SKIP_TESTS
+
 
 #endif // ENV_TEST_HPP

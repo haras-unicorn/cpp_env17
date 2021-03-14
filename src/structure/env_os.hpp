@@ -1,6 +1,7 @@
 #ifndef ENV_OS_HPP
 #define ENV_OS_HPP
 
+
 // https://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) // win
@@ -71,5 +72,6 @@
 #ifndef ENV_ANDROID
 #define ENV_ANDROID 0
 #endif // ENV_ANDROID
+
 
 #endif // ENV_OS_HPP

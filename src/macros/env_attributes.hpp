@@ -1,6 +1,7 @@
 #ifndef ENV_ATTRIBUTES_HPP
 #define ENV_ATTRIBUTES_HPP
 
+
 // attributes
 
 #if ENV_CPP >= 17
@@ -28,6 +29,7 @@ ENV_TEST_CASE("attributes")
     };
 }
 
+
 // tag
 
 #if ENV_CPP >= 17
@@ -53,6 +55,7 @@ ENV_TEST_CASE("tag")
     REQUIRE_EQT(decltype(test::tag_test), const test::tag_test_t);
 }
 
+
 // unique
 
 #define UNIQUE(_name, ...)                                             \
@@ -72,6 +75,7 @@ ENV_TEST_CASE("unique")
     REQUIRES(_unique == test::unique_test_t{20});
     REQUIRE_EQT(ENV_STD::underlying_type_t < decltype(_unique) >, int);
 }
+
 
 // unique tag
 
@@ -98,5 +102,6 @@ ENV_TEST_CASE("unique")
     REQUIRES(test::unique_tag_test == test::unique_tag_test_t{ });
     REQUIRE_EQT(ENV_STD::underlying_type_t < decltype(test::unique_tag_test) >, int);
 }
+
 
 #endif // ENV_ATTRIBUTES_HPP

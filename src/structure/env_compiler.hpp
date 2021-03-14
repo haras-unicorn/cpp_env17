@@ -1,6 +1,7 @@
 #ifndef ENV_COMPILER_HPP
 #define ENV_COMPILER_HPP
 
+
 // stolen and modified from doctest.h
 
 // GCC/Clang and GCC/MSVC are mutually exclusive, but Clang/MSVC are not because of clang-cl...
@@ -46,5 +47,6 @@
 #endif // ENV_GCC
 
 #define ENV_COMPILER_VER ((ENV_COMPILER_MAJOR)*10000000 + (ENV_COMPILER_MINOR)*100000 + (ENV_COMPILER_PATCH))
+
 
 #endif // ENV_COMPILER_HPP

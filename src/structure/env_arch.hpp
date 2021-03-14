@@ -1,6 +1,7 @@
 #ifndef ENV_ARCH_HPP
 #define ENV_ARCH_HPP
 
+
 // https://sourceforge.net/p/predef/wiki/Architectures/
 
 #if defined(__amd64__) || defined(_M_AMD64) // amd
@@ -28,5 +29,6 @@
 #ifndef ENV_ARM
 #define ENV_ARM 0
 #endif // ENV_ARM
+
 
 #endif // ENV_ARCH_HPP

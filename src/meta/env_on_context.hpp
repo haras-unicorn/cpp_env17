@@ -42,8 +42,8 @@ ENV_TEST_CASE("cond")
 //// expr
 //
 //#define ON_EXPR(...)
-//        strct CAT(_on_expr_, __LINE__) { SFINAE_IN_CLASS_STRUCT(ANON, (name TOnExpr), (TOnExpr), __VA_ARGS__); };
-//        COND_TMP((dep_name), CAT(_on_expr_, __LINE__)::tmp CAT(ANON, _g)<TDep>)
+//        strct CAT(_on_expr_, __LINE__) { SFINAE_IN_CLASS_STRUCT(ID, (name TOnExpr), (TOnExpr), __VA_ARGS__); };
+//        COND_TMP((dep_name), CAT(_on_expr_, __LINE__)::tmp CAT(ID, _g)<TDep>)
 //
 //ENV_NAMESPACE_TEST_BEGIN
 //
