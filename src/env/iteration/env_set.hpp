@@ -1,7 +1,7 @@
 #ifndef ENV_SET_HPP
 #define ENV_SET_HPP
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name TElements> typ(set_gt) =
     ENV_STD::unordered_set<
@@ -13,7 +13,7 @@ tmp<name TElements> typ(view_set_gt) = set_gt<ptr_gt<TElements>>;
 
 tmp<name TElements> typ(poly_set_gt) = set_gt<poly_gt<TElements>>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 tmp<name TElements> typ(set_gt) = detail::set_gt<key_c<TElements>>;
 

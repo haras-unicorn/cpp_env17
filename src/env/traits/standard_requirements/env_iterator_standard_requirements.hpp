@@ -2,7 +2,7 @@
 #define ENV_ITERATOR_STANDARD_REQUIREMENTS_HPP
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 // the standard iterator traits are just empty for non-iterator types and, therefore, won't fail for non-iterators
 EXPR_TMP_UNARY(TYPE_EXPR(name ENV_STD::iterator_traits<T>::value_type)) // sfinae friendly
@@ -49,10 +49,10 @@ COND_CHECK_UNARY
         TYPE_COND(iterator_traits_gt<T>)
 );
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 typ(iterator_value_t) = int;
 // notes: https://en.cppreference.com/w/cpp/container/unordered_set
@@ -64,7 +64,7 @@ typ(random_access_iterator_t) = ENV_STD::vector<iterator_value_t>::iterator;
 // notes: https://en.cppreference.com/w/cpp/container/vector
 typ(contiguous_iterator_t) = ENV_STD::vector<iterator_value_t>::iterator;
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 
 // notes: https://en.cppreference.com/w/cpp/named_req/Iterator

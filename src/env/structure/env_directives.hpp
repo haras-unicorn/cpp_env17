@@ -9,16 +9,16 @@
  *
  * 
  * ENV_MESSAGES:
- * Display messages about compiler, arch, OS during compilation
+ * Display messages about compiler, architecture, OS, and C++ standard during compilation.
  * 
  *
  * TESTING DIRECTIVES:
  *
  * ENV_TESTS:
- * Enables static and runtime tests with doctest.
+ * Enable static and runtime tests with doctest.
  *
  * ENV_STATIC_TESTS:
- * Same as ENV_TESTS, but only enables the static ones.
+ * Same as ENV_TESTS, but only enable the static ones.
  *
  * ENV_SKIP_TESTS:
  * Skip all tests.
@@ -27,7 +27,13 @@
  * BENCHMARKING DIRECTIVES:
  * 
  * ENV_BENCHMARK:
- * Enables benchmarks with Google benchmark.
+ * Enable benchmarks with Google benchmark.
+ *
+ *
+ * NAMESPACE DIRECTIVES:
+ *
+ * ENV_NAMESPACE:
+ * If defined, env shall be put in this namespace. It can be a nested namespace.
  *
  *
  * FEATURE DIRECTIVES:

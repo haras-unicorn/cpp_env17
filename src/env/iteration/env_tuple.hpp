@@ -4,7 +4,7 @@
 
 // implementations
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 // normal
 
@@ -123,7 +123,7 @@ strct tuple_ngt<dual, TElements>
 
 ENV_CLANG_SUPPRESS_POP
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
 // abstract
@@ -199,7 +199,7 @@ ENV_TEST_CASE("sized tuple")
     REQUIRE_EQT(tuple_ngt<4_s, int>, detail::array_ngt < 4_s, int >);
 }
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 // MSVC has an internal compiler error if we just use sizeof... on non-type packs here
 
@@ -225,7 +225,7 @@ noex(noex(TElements{ })) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices.
     ret {ENV::first_gvt<TElements, decltype(Indices)>{ }...};
 }
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_TMP((size_t Size, name TElements, name... TArgs),
          (ENV_STD::is_constructible_v<TElements, TArgs...> && Size != empty))

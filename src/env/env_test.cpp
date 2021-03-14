@@ -1,6 +1,7 @@
 #define ENV_TESTS
 #define ENV_MESSAGES
 #define ENV_STANDARD_REQUIREMENTS
+#define ENV_NAMESPACE env
 
 #include "env_impl.hpp"
 

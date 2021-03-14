@@ -2,7 +2,7 @@
 #define ENV_CALLABLE_HPP
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 // declaration
 
@@ -254,7 +254,7 @@ DEFINE_QUALIFIED_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(SKIP);
 
 #undef DEFINE_CALLABLE_STRUCTS
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
 // individual traits
@@ -306,11 +306,11 @@ COND_CONCEPT(noex_callable, is_noex_callable_g<C>);
 // Uhh, yeah, so for some reason MSVC has an internal error if you don't do it like this
 // TODO: make small repro somehow
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name T> cmp_obj bool is_supported_callable_g{detail::callable_gs<T>::tmp is_supported<>};
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_CHECK_UNARY(is_supported_callable, detail::is_supported_callable_g<T>);
 
@@ -319,7 +319,7 @@ COND_CONCEPT(supported_callable, detail::is_supported_callable_g<C>);
 
 // tests
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 strct templated_callable_t
 {
@@ -328,7 +328,7 @@ strct templated_callable_t
     tmp<name = success_t> callb op()() { }
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("callable traits")
 {

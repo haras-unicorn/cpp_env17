@@ -2,7 +2,7 @@
 #define ENV_MEMBERS_HPP
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name T>
 strct member_gs
@@ -18,7 +18,7 @@ strct member_gs<TMember THolder::*> : public type_gt<TMember>
     typ(holder_t) = THolder;
 };
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_CHECK_UNARY(is_member, detail::member_gs<T>::is_member);
 

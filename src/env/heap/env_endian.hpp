@@ -31,7 +31,7 @@ ENV_TEST_CASE("endianness")
 }
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 ENV_CLANG_SUPPRESS_PUSH("ConstantConditionsOC")
 ENV_CLANG_SUPPRESS_PUSH("UnreachableCode")
 ENV_CLANG_SUPPRESS_PUSH("-Wfour-char-constants")
@@ -60,7 +60,7 @@ cmp_fn endianness() noex
 ENV_CLANG_SUPPRESS_POP
 ENV_CLANG_SUPPRESS_POP
 ENV_CLANG_SUPPRESS_POP
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
 let_cmp endianness{detail::endianness()};

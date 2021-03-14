@@ -265,7 +265,7 @@ ENV_TEST_CASE("members")
 }
 
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 cls with_reference_getter_t
 {
@@ -285,7 +285,7 @@ cls with_value_getter_t
     MEM_CMP_GETTER(member);
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("member getters")
 {

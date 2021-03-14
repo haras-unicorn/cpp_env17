@@ -2,7 +2,7 @@
 #define ENV_MAP_HPP
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name TKey, name TElements> typ(map_ggt) =
 ENV_STD::unordered_map<
@@ -14,7 +14,7 @@ tmp<name TKey, name TElements> typ(view_map_ggt) = map_ggt<TKey, ptr_gt < TEleme
 
 tmp<name TKey, name TElements> typ(poly_map_ggt) = map_ggt<TKey, poly_gt < TElements>>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
 tmp<name TKey, name TElements> typ(map_ggt) = detail::map_ggt<key_c < TKey>, TElements>;
@@ -49,7 +49,7 @@ ENV_TEST_CASE("sized map")
      // REQUIRE_EQ(_single.bucket_count(), 16);
 }
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name TKeyCommon = void_t, name TElementsCommon = void_t, name... TPairs>
 typ(map_common_vt) =
@@ -57,7 +57,7 @@ map_ggt<
         detail::container_common_vt<TKeyCommon, name unqualified_gt<TPairs>::first_type...>,
         detail::container_common_vt<TElementsCommon, name unqualified_gt<TPairs>::second_type...>>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
 // map

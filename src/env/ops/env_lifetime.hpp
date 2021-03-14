@@ -742,7 +742,7 @@ ENV_TEST_CASE("singleton manual lifetime")
 
 // subclass test
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 cls poly_base_t
 {
@@ -754,7 +754,7 @@ cls poly_base_t
     MEM_VAL_GETTER(poly_data);
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("subclass lifetime")
 {

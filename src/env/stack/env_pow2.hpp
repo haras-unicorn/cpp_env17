@@ -68,7 +68,7 @@ ENV_TEST_CASE("is_pow2")
 // >> and | the result so that it fills all bits on the right of the highest bit and
 // then just ++ the result for the next highest bit - the next power of two.
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 cmp_fn next_pow2(uint8_t from) noex
 {
@@ -120,7 +120,7 @@ cmp_fn next_pow2(uint64_t from) noex
     return from;
 }
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 tmp<name T>
     cmp_fn next_pow2(arithmetic_c<T> from) noex

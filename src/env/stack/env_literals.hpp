@@ -24,7 +24,7 @@ cmp_fn parse_literal(T literal) noex -> deduc_res(T)
 
 // chars
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name T> let_cmp is_char_literal_g =
         ENV_STD::is_same_v<T, char> ||
@@ -35,7 +35,7 @@ tmp<name T> let_cmp is_char_literal_g =
         ENV_STD::is_same_v<T, char16_t> ||
         ENV_STD::is_same_v<T, char32_t>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_CHECK_UNARY(is_char_literal, (detail::is_char_literal_g<T>));
 
@@ -56,7 +56,7 @@ cmp_fn parse_literal(T literal) noex -> deduc_res(T)
 
 // labels
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name T> let_cmp is_label_literal_g =
         ENV_STD::is_same_v<T, const char*> ||
@@ -67,7 +67,7 @@ tmp<name T> let_cmp is_label_literal_g =
         ENV_STD::is_same_v<T, const char16_t*> ||
         ENV_STD::is_same_v<T, const char32_t*>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_CHECK_UNARY(is_label_literal, (detail::is_label_literal_g<T>));
 

@@ -6,7 +6,7 @@
 
 ENV_NAMESPACE_BEGIN
 
-ENV_NAMESPACE_BENCH_BEGIN
+ENV_BENCH_BEGIN
 
 [[maybe_unused]] void escape([[maybe_unused]] void* that) noexcept
 {
@@ -27,7 +27,7 @@ ENV_NAMESPACE_BENCH_BEGIN
 #endif
 }
 
-ENV_NAMESPACE_BENCH_END
+ENV_BENCH_END
 
 ENV_NAMESPACE_END
 

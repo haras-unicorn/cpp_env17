@@ -35,13 +35,13 @@ TAG(nores);
 #define res_cast(...) CMP_TERN((ENV_STD::is_same_v<TRes, nores_t>), (__VA_ARGS__), (scast<TRes>(__VA_ARGS__)))
 #define res_con(...) CMP_TERN((ENV_STD::is_same_v<TRes, nores_t>), (__VA_ARGS__), (TRes(__VA_ARGS__)))
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 tmp<res_name> cmp_fn cast_res() noex -> deduc_res(int) { ret res_cast(1); }
 
 tmp<res_name> cmp_fn con_res() noex -> deduc_res(int) { ret res_con(1); }
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("result")
 {

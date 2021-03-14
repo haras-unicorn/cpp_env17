@@ -4,7 +4,7 @@
 
 // proxy
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name TFunction>
 cls callable_proxy_gt : private ENV_STD::function<TFunction>
@@ -79,7 +79,7 @@ protected:
 */
 };
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 ENV_NAMESPACE_STD_BEGIN
 

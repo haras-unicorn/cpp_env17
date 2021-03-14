@@ -4,7 +4,7 @@
 
 // literals
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 typ(_id_t) =
 ENV_STD::conditional_t<
@@ -13,7 +13,7 @@ ENV_STD::conditional_t<
                         ENV_STD::atomic<uint_fast16_t>::is_always_lock_free, uint_fast16_t,
                         uint_fast8_t>>>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 WHOLE_L(hash, h, ENV_STD::size_t);
 

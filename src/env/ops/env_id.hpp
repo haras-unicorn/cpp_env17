@@ -78,7 +78,7 @@ ENV_TEST_CASE("identifiable")
 #define DEF_TMP_ID DEF_ID_OPT(TMP_)
 
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 cls id_struct_t
 {
@@ -91,7 +91,7 @@ public:
     DEF_TMP_ID;
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("id operations")
 {

@@ -12,7 +12,7 @@
 
 #define ON_COND(...) COND_TMP((dep_name), (ENV_STD::is_same_v<TDep, ENV::void_t> && (__VA_ARGS__)))
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 tmp<name T>
 strct cond_const
@@ -25,7 +25,7 @@ strct cond_const
     cmp_fn test(...) const noex { ret false; }
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("cond")
 {

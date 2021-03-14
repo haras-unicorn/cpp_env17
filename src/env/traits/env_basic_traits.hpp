@@ -208,13 +208,13 @@ ENV_TEST_CASE("behaviour traits")
 
 // iterable traits
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name T> typ(iterator_element_gt) = name ENV_STD::iterator_traits<T>::value_type;
 
 tmp<name T> typ(iterable_element_gt) = iterator_element_gt<decltype(declvalr<T>().begin())>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 EXPR_CHECK_UNARY(is_iterator, (TYPE_EXPR(detail::iterator_element_gt<T>)));
 

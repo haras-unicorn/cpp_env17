@@ -6,13 +6,13 @@
 
 #define SEMI using UID(_env_scope_anon) [[maybe_unused]] = void
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 let UID{0};
 
 SEMI;
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 
 // scopes

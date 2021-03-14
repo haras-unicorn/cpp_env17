@@ -38,14 +38,14 @@
 #define dcast dynamic_cast
 #define nonce static_cast<void>
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 tmp<name T>
 struct [[maybe_unused]] template_name_test_t
 {
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("keyword keywords")
 {

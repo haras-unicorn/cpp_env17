@@ -122,7 +122,7 @@ ENV_TEST_CASE("aligned")
 }
 
 
-ENV_NAMESPACE_BENCH_BEGIN
+ENV_BENCH_BEGIN
 
 
 ENV_BENCH(aligned_storage_heap)
@@ -174,7 +174,7 @@ ENV_BENCH(aligned_int_heap)
 ENV_TIME(aligned_int_heap, ->Range(1<<20, 1<<30))
 
 
-ENV_NAMESPACE_BENCH_END
+ENV_BENCH_END
 
 
 #endif // ENV_ALIGNMENT_HPP

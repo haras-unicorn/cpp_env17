@@ -2,7 +2,7 @@
 #define ENV_CONTAINER_TRAITS_REQUIREMENTS_HPP
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 TYPE_TMP_UNARY(name T::iterator)
 strct container_traits_gt
@@ -411,7 +411,7 @@ EXPR_CHECK_UNARY
           declval<name unordered_associative_container_traits_gt<T>::size_t>())
 );
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
 #endif // ENV_CONTAINER_TRAITS_REQUIREMENTS_HPP

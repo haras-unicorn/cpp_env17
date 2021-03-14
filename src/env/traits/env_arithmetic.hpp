@@ -2,11 +2,11 @@
 #define ENV_MATH_TRAITS_HPP
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 COND_CHECK_UNARY(is_arithmetic_enum, ENV_STD::is_convertible_v < ENV_STD::underlying_type_t < T >, int >);
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_CHECK_UNARY
 (
@@ -26,33 +26,33 @@ COND_CHECK_UNARY(is_whole, (!is_floating_g<T>));
 
 COND_CONCEPT(whole, (is_whole_g<C>));
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 COND_CHECK_UNARY(is_signed_enum, ENV_STD::is_signed_v < ENV_STD::underlying_type_t < T >>);
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_CHECK_UNARY(is_signed, (ENV_STD::is_signed_v < T > || detail::is_signed_enum_g<T>));
 
 COND_CONCEPT(signed, (is_signed_g<C>));
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 COND_CHECK_UNARY(is_unsigned_enum, ENV_STD::is_unsigned_v < ENV_STD::underlying_type_t < T >>);
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_CHECK_UNARY(is_unsigned, (ENV_STD::is_unsigned_v < T > || detail::is_unsigned_enum_g<T>));
 
 COND_CONCEPT(unsigned, (is_unsigned_g<C>));
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 enum unique_size_t : ENV_STD::size_t
 {
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("math traits")
 {

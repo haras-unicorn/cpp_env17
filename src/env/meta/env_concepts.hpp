@@ -20,7 +20,7 @@
 #define COND_CONCEPT_BINARY(_name, ...) ELABORATE_COND_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
 #define COND_CONCEPT_TERNARY(_name, ...) ELABORATE_COND_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 COND_CONCEPT(number, ENV_STD::is_arithmetic_v < C >);
 
@@ -30,7 +30,7 @@ cmp_fn add(number_c<TLhs>&& lhs, number_c<TRhs>&& rhs) noex
     ret ENV_STD::forward<TLhs>(lhs) + ENV_STD::forward<TRhs>(rhs);
 }
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("require concept")
 {
@@ -55,7 +55,7 @@ ENV_TEST_CASE("require concept")
 #define EXPR_CONCEPT_BINARY(_name, ...) ELABORATE_EXPR_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
 #define EXPR_CONCEPT_TERNARY(_name, ...) ELABORATE_EXPR_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 EXPR_CONCEPT(addable, declvalr<number_r<C>>() + declvalr<C>());
 
@@ -65,7 +65,7 @@ cmp_fn add(addable_c<T>&& lhs, addable_c<T>&& rhs) noex
     ret ENV_STD::forward<T>(lhs) + ENV_STD::forward<T>(rhs);
 }
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("sfinae concept")
 {
@@ -90,7 +90,7 @@ ENV_TEST_CASE("sfinae concept")
 #define TYPE_CONCEPT_BINARY(_name, ...) ELABORATE_TYPE_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
 #define TYPE_CONCEPT_TERNARY(_name, ...) ELABORATE_TYPE_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 TYPE_CONCEPT(subtractable, enable_minus_gt < C >);
 
@@ -100,7 +100,7 @@ cmp_fn subtract(subtractable_c<TLhs>&& lhs, subtractable_c<TRhs>&& rhs) noex
     ret ENV_STD::forward<TLhs>(lhs) - ENV_STD::forward<TRhs>(rhs);
 }
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("sfinae concept")
 {

@@ -614,7 +614,7 @@ COND_CHECK_BINARY(are_comparison_compatible, (TLhs::tmp is_comparison_compatible
 
 // tests
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 cls comparable_t
 {
@@ -631,7 +631,7 @@ cls comparable_t
     CMP_COMPARISON { ret get_value() < rhs.get_value(); };
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("comparison")
 {
@@ -673,7 +673,7 @@ ENV_TEST_CASE("comparison")
 
 // tmp tests
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 tmp<name TValue>
 cls tmp_comparable_gt
@@ -693,7 +693,7 @@ cls tmp_comparable_gt
     CMP_TMP_COMPARISON { ret get_value() < static_cast<_value_t>(rhs.get_value()); }
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("template comparison")
 {

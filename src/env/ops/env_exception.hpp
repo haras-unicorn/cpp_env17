@@ -31,11 +31,11 @@ TEXT_L(description, dsc, const char *, l_t);
 
 // policies
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 strct exception_policy_s { };
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 strct ignore_exceptions_s : public detail::exception_policy_s { };
 
@@ -236,7 +236,7 @@ callb except(message_t message) { throw T{message.data()}; }
         _adjust)
 
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 struct uint_ptr_proxy_t
 {
@@ -264,7 +264,7 @@ protected:
     CONST_GETTER_FML((), (int & ), _get, (*_get_ptr();));
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("exception policies")
 {

@@ -9,7 +9,7 @@ tmp<name T = byte_t> typ(alloc_traits_gt) = ENV_STD::allocator_traits<allocator_
 
 typ(alloc_traits_t) = alloc_traits_gt<byte_t>;
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name TAlloc, name TVal> typ(rebound_allocator_gt) = name ENV_STD::allocator_traits<TAlloc>::tmp rebind_alloc<TVal>;
 
@@ -18,6 +18,6 @@ ENV_TEST_CASE("rebound allocator")
     REQUIRE_EQT(ENV_STD::allocator<int>, rebound_allocator_gt<ENV_STD::allocator<double>, int>);
 }
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 #endif // ENV_BASE_ALLOCATOR_HPP

@@ -2,6 +2,9 @@
 #define ENV_STRUCTURE_HPP
 
 
+#include "env_directives.hpp"
+
+
 #include "env_tokens.hpp"
 
 #include "env_arch.hpp"
@@ -22,7 +25,6 @@
 #include "env_messages.hpp"
 
 
-#include "env_directives.hpp"
 #include "env_namespacing.hpp"
 
 #include "env_bench.hpp"

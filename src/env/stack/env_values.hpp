@@ -38,7 +38,7 @@ FLOATING_L(hp_val, hpv, hpf_t);
 
 // traits
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name T>
 strct val_gs
@@ -80,7 +80,7 @@ tmp<name T> let_cmp is_precise_g{val_gs<T>::is_precise};
 
 tmp<name T> let_cmp bit_depth_g{val_gs<T>::bit_depth};
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 tmp<name T> typ(val_gs) = detail::val_gs<val_r<T>>;
 

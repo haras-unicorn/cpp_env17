@@ -50,7 +50,7 @@ ENV_TEST_CASE("expression conversion")
 #define COND_TMP_TERNARY(...) COND_TMP((name T1, name T2, name T3), __VA_ARGS__)
 #define COND_TMP_VARIADIC(...) COND_TMP((name... TVar), __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 COND_TMP_UNARY
 (ENV_STD::is_same_v < T, void >)
@@ -84,7 +84,7 @@ COND_TMP_VARIADIC
 (ENV_STD::disjunction_v < ENV_STD::negation < ENV_STD::is_same < TVar, void >>...>)
 cmp_fn void_variadic() noex { ret false; }
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("require template")
 {
@@ -124,7 +124,7 @@ ENV_TEST_CASE("require template")
 #define EXPR_TMP_TERNARY(...) EXPR_TMP((name T1, name T2, name T3), __VA_ARGS__)
 #define EXPR_TMP_VARIADIC(...) EXPR_TMP((name... TVar), __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 EXPR_TMP_UNARY(ENV::declval<T>() + ENV::declval<T>())
 cmp_fn test_addable_unary(int) noex { ret true; }
@@ -152,7 +152,7 @@ tmp<name...> cmp_fn test_addable_variadic(...) noex { ret false; }
 
 #endif // ENV_CPP >= 17
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("expr template")
 {
@@ -196,7 +196,7 @@ ENV_TEST_CASE("expr template")
 #define TYPE_TMP_TERNARY(...) TYPE_TMP((name T1, name T2, name T3), __VA_ARGS__)
 #define TYPE_TMP_VARIADIC(...) TYPE_TMP((name... TVar), __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 EXPR_TMP_UNARY(declval<T>() - declval<T>())
 strct enable_minus_gt { };
@@ -221,7 +221,7 @@ cmp_fn test_subtractable_variadic(int) noex { ret true; }
 
 tmp<name...> [[maybe_unused]] cmp_fn_p test_subtractable_variadic(...) noex { ret false; }
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("expr template")
 {

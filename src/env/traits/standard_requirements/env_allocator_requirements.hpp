@@ -5,7 +5,7 @@
 // this one gets its own file because of the sheer amount of requirements needed to satisfy it.
 // notes: https://en.cppreference.com/w/cpp/named_req/Allocator
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 // supporting "fancy" pointers ->pointers that are not raw pointers (like memory mapped files)
 // use std::pointer_traits to use them
@@ -101,7 +101,7 @@ public:
     sass(ENV_STD::is_same_v<name rebound_traits_gt<alloc_t>::tmp rebind_alloc<value_t>, alloc_t>);
 };
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
 // for all of the operations there are numerous other requirements that need to be satisfied.
@@ -193,14 +193,14 @@ COND_CHECK_UNARY
 
 #endif // ENV_CPP>= 17
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 // notes: https://en.cppreference.com/w/cpp/container/vector
 typ(test_allocator_t) = ENV_STD::vector<int>::allocator_type;
 typ(test_alloc_traits_t) = ENV_STD::allocator_traits<test_allocator_t>;
 typ(test_alloc_ptr_t) = ENV_STD::allocator_traits<ENV_STD::vector<int>::allocator_type>::pointer;
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("allocator")
 {

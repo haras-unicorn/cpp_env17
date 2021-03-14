@@ -45,7 +45,7 @@
         (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 EXPR_CHECK_UNARY(test_addable_unary, declvalr<T>() + declvalr<T>());
 
@@ -59,7 +59,7 @@ EXPR_CHECK_VARIADIC(test_addable_variadic, sum_res(declvalr<TVar>()...));
 
 #endif // ENV_CPP >= 17
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("expr check")
 {
@@ -123,7 +123,7 @@ ENV_TEST_CASE("expr check")
         (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 cls expr_check_class_t
 {
@@ -141,7 +141,7 @@ public:
 #endif // ENV_CPP >= 17
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("expr check class")
 {
@@ -215,7 +215,7 @@ ENV_TEST_CASE("expr check class")
         (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 COND_CHECK_UNARY(test_const_unary, ENV_STD::is_const_v < T >);
 
@@ -226,7 +226,7 @@ COND_CHECK_TERNARY(test_const_ternary,
 
 COND_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v < ENV_STD::is_const < TVar >...>);
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("cond check")
 {
@@ -288,7 +288,7 @@ ENV_TEST_CASE("cond check")
         (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 cls cond_check_class_t
 {
@@ -303,7 +303,7 @@ public:
     COND_CLASS_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v < ENV_STD::is_const < TVar >...>);
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("cond check class")
 {
@@ -373,7 +373,7 @@ ENV_TEST_CASE("cond check class")
         (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 TYPE_CHECK_UNARY(test_minus_unary, enable_minus_gt<T>);
 
@@ -383,7 +383,7 @@ TYPE_CHECK_TERNARY(test_minus_ternary, enable_minus_gt<T1>, enable_minus_gt<T2>,
 
 TYPE_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt<TVar>...);
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("type check")
 {
@@ -445,7 +445,7 @@ ENV_TEST_CASE("type check")
         (name... TVar), (ENV::variadic_vt<TVar...>), \
         __VA_ARGS__)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 cls type_check_class_t
 {
@@ -459,7 +459,7 @@ public:
     TYPE_CLASS_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt<TVar>...);
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("type check class")
 {

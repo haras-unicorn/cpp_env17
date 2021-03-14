@@ -2,7 +2,7 @@
 #define ENV_TIE_HPP
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name... TElements>
 strct tie_vt : public ENV_STD::tuple<TElements...>
@@ -42,7 +42,7 @@ tmp<name T> cmp_fn tie_forward(T& arg) noex -> T& { ret arg; }
 
 tmp<name... TVariables> cmp_fn tie_forward(tie_vt<TVariables...>&& tie) noex -> tie_vt<TVariables...>& { ret tie; }
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_TMP_VARIADIC
 (

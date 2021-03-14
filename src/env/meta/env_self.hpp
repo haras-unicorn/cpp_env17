@@ -99,7 +99,7 @@ ENV_TEST_CASE("no inheritor type")
 
 #define DECL_INHERITOR DECL_INHERITOR_TYPE((TInheritor))
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 tmp<inheritor_name>
 strct with_inheritor
@@ -114,7 +114,7 @@ strct with_inheritor
     }
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("inheritor type")
 {
@@ -144,7 +144,7 @@ ENV_TEST_CASE("inheritor type")
 
 #define DECL_SELF_NO_INHERITOR(_name) DECL_SELF_INHERITOR(_name, (ENV::no_inheritor_s))
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 tmp<inheritor_name>
 strct with_self_t
@@ -180,7 +180,7 @@ strct with_self_no_inheritor_t
     }
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("self")
 {
@@ -273,7 +273,7 @@ ENV_TEST_CASE("bases")
     friend BASE_NAME(_name)
 
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 tmp<name TInheritor = no_inheritor_s>
 cls crtp_t
@@ -288,7 +288,7 @@ protected:
     cmp_fn _get_label() const noex -> const char* { ret "base"; }
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("self getters")
 {

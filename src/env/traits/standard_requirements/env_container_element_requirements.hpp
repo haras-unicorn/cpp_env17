@@ -4,7 +4,7 @@
 
 // it is useful to define these here.
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 typ(container_key_t) = char;
 typ(container_value_t) = int;
@@ -23,12 +23,12 @@ typ(test_map_t) = ENV_STD::map<container_key_t, container_value_t>;
 // notes: https://en.cppreference.com/w/cpp/container/unordered_map
 typ(test_unordered_map_t) = ENV_STD::unordered_map<container_key_t, container_value_t>;
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 
 // useful to get the container allocator
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 ALIAS_DETECTOR(allocator_type);
 
@@ -45,7 +45,7 @@ tmp<name TContainer, name TValue>
 typ(rebound_container_alloc_gt) =
 name ENV_STD::allocator_traits<container_alloc_gt<TContainer>>::tmp rebind_alloc<TValue>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 
 // these take a container and an element

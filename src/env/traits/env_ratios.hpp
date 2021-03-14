@@ -2,11 +2,11 @@
 #define ENV_RATIOS_HPP
 
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 typ(std_ratio_num_t) = decl(ENV_STD::ratio<1, 1>::num);
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 tmp<uintmax_t Nominator, uintmax_t Denominator = 1>
 typ(nratio_nns) = ENV_STD::ratio<Nominator, Denominator>;

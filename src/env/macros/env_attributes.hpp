@@ -44,11 +44,11 @@ ENV_TEST_CASE("attributes")
     } constexpr PACK(_name) {}
 #endif // ENV_CPP >= 17
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 TAG(tag_test);
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("tag")
 {
@@ -62,11 +62,11 @@ ENV_TEST_CASE("tag")
     using CAT(_name, _underlying_t) [[TYPE_ATTRIBUTES]] = __VA_ARGS__; \
     enum [[TYPE_ATTRIBUTES]] CAT(_name, _t) : CAT(_name, _underlying_t) {}
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 UNIQUE(unique_test, int);
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("unique")
 {
@@ -91,11 +91,11 @@ ENV_TEST_CASE("unique")
     constexpr PACK(_name) {}
 #endif // ENV_CPP >= 17
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 UTAG(unique_tag_test, int);
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("unique")
 {

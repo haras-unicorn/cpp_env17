@@ -8,7 +8,7 @@ EXPR_CHECK_UNARY(is_zero_constructible, T(0));
 
 EXPR_CHECK_UNARY(is_nullptr_constructible, T(nullptr));
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 strct trivial_equatable_t
 {
@@ -17,7 +17,7 @@ strct trivial_equatable_t
     cmp_fn op!=(trivial_equatable_t other) const noex { ret i != other.i; }
 };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 TEST_CASE("nil checks")
 {

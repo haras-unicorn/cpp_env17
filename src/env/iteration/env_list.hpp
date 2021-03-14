@@ -79,7 +79,7 @@ ENV_TEST_CASE("sized list")
 
 // TODO: make this better
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name TCommon, name... TElements>
 typ(container_common_vt) =
@@ -90,7 +90,7 @@ common_vt<
                 TCommon>,
         TElements...>;
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 COND_TMP((name TCommon = void_t, name... TElements), (sizeof...(TElements) != empty))
 fun inl lst(TElements&& ...elements) -> list_gt<detail::container_common_vt<TCommon, TElements...>>

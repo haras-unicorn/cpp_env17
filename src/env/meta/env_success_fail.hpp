@@ -66,7 +66,7 @@ ENV_TEST_CASE("check success/fail")
 
 // Explanation: https://stackoverflow.com/questions/66261570/c-sfinae-not-failing
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name... T>
 strct make_success_vt : value_gnt<success_t, success_t{true}> { };
@@ -74,7 +74,7 @@ strct make_success_vt : value_gnt<success_t, success_t{true}> { };
 tmp<name... T>
 strct make_fail_vt : value_gnt<fail_t, fail_t{false}> { };
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 tmp<name... T> typ(success_vt) = name detail::make_success_vt<T...>::value_type;
 

@@ -31,7 +31,7 @@
 #define SDATA_DETECTOR(_name) EXPR_CHECK_UNARY(CAT(has_, _name), T::_name)
 #define ALIAS_DETECTOR(_name) TYPE_CHECK_UNARY(CAT(has_, _name), name T::_name)
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 DATA_DETECTOR(test_data);
 FUNCTION_DETECTOR(test_function);
@@ -42,7 +42,7 @@ ALIAS_DETECTOR(test_alias);
 
 strct with_test_sdata_t { [[maybe_unused]] let_cmp_p static test_sdata{.0}; };
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 TEST_CASE("members")
 {

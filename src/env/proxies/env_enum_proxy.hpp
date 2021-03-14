@@ -4,7 +4,7 @@
 
 // enum concept
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 typ(enum_underlying_t) = int;
 
@@ -12,7 +12,7 @@ enm enum_t : enum_underlying_t { A, B, C };
 
 tmp<name T> cmp_fn underlying_test(enum_c <T> _enum) noex -> ENV_STD::underlying_type_t<T> { ret _enum; }
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("enum concept")
 {
@@ -25,7 +25,7 @@ ENV_TEST_CASE("enum concept")
 
 // proxy class
 
-ENV_NAMESPACE_DETAIL_BEGIN
+ENV_DETAIL_BEGIN
 
 tmp<name TEnum>
 cls enum_proxy_gt
@@ -61,16 +61,16 @@ public:
     con op underlying_t() const noex { ret get_underlying(); };
 };
 
-ENV_NAMESPACE_DETAIL_END
+ENV_DETAIL_END
 
 tmp<name T> typ(enum_proxy_gt) = detail::enum_proxy_gt<enum_c < T>>;
 
 
-ENV_NAMESPACE_TEST_BEGIN
+ENV_TEST_BEGIN
 
 typ(enum_proxy_t) = enum_proxy_gt<enum_t>;
 
-ENV_NAMESPACE_TEST_END
+ENV_TEST_END
 
 ENV_TEST_CASE("proxy class")
 {
