@@ -7,13 +7,13 @@
 COND_CHECK_UNARY
 (
         is_std_numeric_type,
-        !ENV_STD::is_const_v<T>&& !ENV_STD::is_volatile_v<T>&&
-        ENV_STD::is_object_v<T>&&
+        !ENV_STD::is_const_v<T> && !ENV_STD::is_volatile_v<T> &&
+        ENV_STD::is_object_v<T> &&
 
-        is_std_default_constructible_g<T>&&
+        is_std_default_constructible_g<T> &&
 
-        is_std_copy_constructible_g<T>&&
-        is_std_copy_assignable_g<T>&&
+        is_std_copy_constructible_g<T> &&
+        is_std_copy_assignable_g<T> &&
 
         is_std_destructible_g<T>
 );

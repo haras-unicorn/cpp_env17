@@ -13,12 +13,12 @@ ENV_NAMESPACE_DETAIL_BEGIN
 COND_CHECK_UNARY
 (
         is_std_allocator_ptr,
-        is_std_nullable_pointer_g<T>&&
-        is_std_legacy_random_access_iterator_g<T>&&
-        is_std_legacy_contiguous_iterator_g<T>&&
+        is_std_nullable_pointer_g<T> &&
+        is_std_legacy_random_access_iterator_g<T> &&
+        is_std_legacy_contiguous_iterator_g<T> &&
 
         /* this has some more restrictions */
-        (ENV_STD::is_class_v<T>? has_arrow_operator_g<T>: ENV_STD::is_pointer_v<T>)
+        (ENV_STD::is_class_v<T> ? has_arrow_operator_g<T>: ENV_STD::is_pointer_v<T>)
 );
 
 // using a custom struct because we want to make sure that TAlloc is not templated with it already
@@ -88,14 +88,14 @@ public:
     sass(ENV_STD::is_convertible_v<void_ptr_t, c_void_ptr_t>);
     sass(ENV_STD::is_same_v<c_void_ptr_t, name rebound_traits_gt<alloc_t>::const_void_pointer>);
 
-    sass(!ENV_STD::is_const_v<value_t>&& !ENV_STD::is_volatile_v<value_t>);
+    sass(!ENV_STD::is_const_v<value_t> && !ENV_STD::is_volatile_v<value_t>);
     sass(ENV_STD::is_object_v<value_t>);
 
     // can represent the size of the largest object
-    sass(ENV_STD::is_unsigned_v<size_t>&& !ENV_STD::is_floating_point_v<size_t>); // unsigned integer
+    sass(ENV_STD::is_unsigned_v<size_t> && !ENV_STD::is_floating_point_v<size_t>); // unsigned integer
 
     // can represent the difference of any two pointers
-    sass(ENV_STD::is_signed_v<difference_t>&& !ENV_STD::is_floating_point_v<difference_t>); // signed integer
+    sass(ENV_STD::is_signed_v<difference_t> && !ENV_STD::is_floating_point_v<difference_t>); // signed integer
 
     // interestingly it is only optional if the allocator takes more or less than one template type parameters
     sass(ENV_STD::is_same_v<name rebound_traits_gt<alloc_t>::tmp rebind_alloc<value_t>, alloc_t>);
@@ -111,15 +111,21 @@ EXPR_CHECK_UNARY
         TYPE_EXPR(detail::allocator_traits_gt<T>),
 
         /* may throw */
-        detail::allocator_traits_gt<T>::allocate(
-                declvall<T>(),
-                declval<name detail::allocator_traits_gt<T>::size_t>()),
+        nonce
+        (
+                detail::allocator_traits_gt<T>::allocate(
+                        declvall<T>(),
+                        declval<name detail::allocator_traits_gt<T>::size_t>())
+        ),
 
         /* this one is to aid locality */
-        detail::allocator_traits_gt<T>::allocate(
-                declvall<T>(),
-                declval<name detail::allocator_traits_gt<T>::size_t>(),
-                declval<name detail::allocator_traits_gt<T>::c_void_ptr_t>()),
+        nonce
+        (
+                detail::allocator_traits_gt<T>::allocate(
+                        declvall<T>(),
+                        declval<name detail::allocator_traits_gt<T>::size_t>(),
+                        declval<name detail::allocator_traits_gt<T>::c_void_ptr_t>())
+        ),
 
         /* given pointer is gotten from allocate and is valid */
         detail::allocator_traits_gt<T>::deallocate(
@@ -165,22 +171,22 @@ EXPR_CHECK_UNARY
 COND_CHECK_UNARY
 (
         is_std_complete_allocator,
-        is_std_allocator_g<T>&&
+        is_std_allocator_g<T> &&
 
-        is_complete_g<name detail::allocator_traits_gt<T>::alloc_t>&&
+        is_complete_g<name detail::allocator_traits_gt<T>::alloc_t> &&
 
         /* value_type could be void, so it doesn't need to be complete */
 
-        is_complete_g<name detail::allocator_traits_gt<T>::ptr_t>&&
-        is_complete_g<name detail::allocator_traits_gt<T>::c_ptr_t>&&
-        is_complete_g<name detail::allocator_traits_gt<T>::void_ptr_t>&&
-        is_complete_g<name detail::allocator_traits_gt<T>::c_void_ptr_t>&&
-        is_complete_g<name detail::allocator_traits_gt<T>::difference_t>&&
-        is_complete_g<name detail::allocator_traits_gt<T>::size_t>&&
+        is_complete_g<name detail::allocator_traits_gt<T>::ptr_t> &&
+        is_complete_g<name detail::allocator_traits_gt<T>::c_ptr_t> &&
+        is_complete_g<name detail::allocator_traits_gt<T>::void_ptr_t> &&
+        is_complete_g<name detail::allocator_traits_gt<T>::c_void_ptr_t> &&
+        is_complete_g<name detail::allocator_traits_gt<T>::difference_t> &&
+        is_complete_g<name detail::allocator_traits_gt<T>::size_t> &&
 
-        is_complete_g<name detail::allocator_traits_gt<T>::prop_on_copy_t>&&
-        is_complete_g<name detail::allocator_traits_gt<T>::prop_on_move_t>&&
-        is_complete_g<name detail::allocator_traits_gt<T>::prop_on_swap_t>&&
+        is_complete_g<name detail::allocator_traits_gt<T>::prop_on_copy_t> &&
+        is_complete_g<name detail::allocator_traits_gt<T>::prop_on_move_t> &&
+        is_complete_g<name detail::allocator_traits_gt<T>::prop_on_swap_t> &&
 
         is_complete_g<name detail::allocator_traits_gt<T>::always_equal_t>
 );

@@ -318,7 +318,7 @@ COND_CHECK_UNARY
 COND_CHECK_UNARY
 (
         is_std_equatable_container,
-        ENV_STD::is_convertible_v<decl(declval<T>() == declval<T>()), bool>&&
+        ENV_STD::is_convertible_v<decl(declval<T>() == declval<T>()), bool> &&
         ENV_STD::is_convertible_v<decl(declval<T>() != declval<T>()), bool>
 );
 

@@ -24,10 +24,10 @@ public:
             is_same,
             (name TOther),
             (TOther),
-            ENV_STD::is_same_v<name iterator_traits_gt::value_t, name TOther::value_t>&&
-            ENV_STD::is_same_v<name iterator_traits_gt::difference_t, name TOther::difference_t>&&
-            ENV_STD::is_same_v<name iterator_traits_gt::reference_t, name TOther::reference_t>&&
-            ENV_STD::is_same_v<name iterator_traits_gt::pointer_t, name TOther::pointer_t>&&
+            ENV_STD::is_same_v<name iterator_traits_gt::value_t, name TOther::value_t> &&
+            ENV_STD::is_same_v<name iterator_traits_gt::difference_t, name TOther::difference_t> &&
+            ENV_STD::is_same_v<name iterator_traits_gt::reference_t, name TOther::reference_t> &&
+            ENV_STD::is_same_v<name iterator_traits_gt::pointer_t, name TOther::pointer_t> &&
             ENV_STD::is_same_v<name iterator_traits_gt::category_t, name TOther::category_t>
     );
 };
@@ -36,16 +36,16 @@ public:
 COND_CHECK_UNARY
 (
         is_std_legacy_iterator_lifetime,
-        is_std_copy_constructible_g<T>&&
-        is_std_copy_assignable_g<T>&&
-        is_std_destructible_g<T>&&
+        is_std_copy_constructible_g<T> &&
+        is_std_copy_assignable_g<T> &&
+        is_std_destructible_g<T> &&
         is_std_swappable_g<T>
 );
 
 COND_CHECK_UNARY
 (
         is_std_base_legacy_iterator,
-        is_std_legacy_iterator_lifetime_g<T>&&
+        is_std_legacy_iterator_lifetime_g<T> &&
         TYPE_COND(iterator_traits_gt<T>)
 );
 
@@ -71,7 +71,7 @@ ENV_NAMESPACE_TEST_END
 COND_CHECK_UNARY
 (
         is_std_legacy_iterator,
-        detail::is_std_base_legacy_iterator_g<T>&&
+        detail::is_std_base_legacy_iterator_g<T> &&
 
         /* these have way more preconditions like being a valid iterator which are not possible to check. */
 
@@ -99,7 +99,7 @@ ENV_TEST_CASE("legacy iterator")
 COND_CHECK_UNARY
 (
         is_std_legacy_output_iterator,
-        detail::is_std_base_legacy_iterator_g<T>&&
+        detail::is_std_base_legacy_iterator_g<T> &&
         (ENV_STD::is_pointer_v<T>|| ENV_STD::is_class_v<T>)&&
 
         /* the standard requires that there be any assignment operator with a dereference */
@@ -110,7 +110,7 @@ COND_CHECK_UNARY
 
         /* this has more preconditions that are impossible to check. */
         /* surprisingly, there are different requirements for these. */
-        ENV_STD::is_same_v<decl(++declvall<T>()), T&>&&
+        ENV_STD::is_same_v<decl(++declvall<T>()), T&> &&
         ENV_STD::is_convertible_v<decl(declvall<T>()++), const T&>
 
         /* the last expression is a combination of dereferencing, incrementing, and assignment */
@@ -132,22 +132,22 @@ ENV_TEST_CASE("output iterator")
 COND_CHECK_UNARY
 (
         is_std_legacy_input_iterator,
-        detail::is_std_base_legacy_iterator_g<T>&&
+        detail::is_std_base_legacy_iterator_g<T> &&
 
         /* this has more preconditions that are impossible to check. */
-        is_std_equality_comparable_g<T>&&
-        ENV_STD::is_convertible_v<decl(declval<const T>() != declval<const T>()), bool>&&
+        is_std_equality_comparable_g<T> &&
+        ENV_STD::is_convertible_v<decl(declval<const T>() != declval<const T>()), bool> &&
 
-        ENV_STD::is_same_v<decl(*declval<const T>()), name detail::iterator_traits_gt<T>::reference_t>&&
+        ENV_STD::is_same_v<decl(*declval<const T>()), name detail::iterator_traits_gt<T>::reference_t> &&
         ENV_STD::is_convertible_v<
         name detail::iterator_traits_gt<T>::reference_t,
-        name detail::iterator_traits_gt<T>::value_t>&&
+        name detail::iterator_traits_gt<T>::value_t> &&
         implies(ENV_STD::is_class_v<T>, has_arrow_operator_g<T>) &&
 
         /* this has more preconditions that are impossible to check. */
         /* surprisingly, there are different requirements for these. */
-        ENV_STD::is_same_v<decl(++declvall<T>()), T&>&&
-        ENV_STD::is_convertible_v<decl(*declvall<T>()++), name detail::iterator_traits_gt<T>::value_t>&&
+        ENV_STD::is_same_v<decl(++declvall<T>()), T&> &&
+        ENV_STD::is_convertible_v<decl(*declvall<T>()++), name detail::iterator_traits_gt<T>::value_t> &&
 
         EXPR_COND((void)*declval<const T>(), (void)++declvall<T>(), (void)declvall<T>()++)
 );
@@ -167,8 +167,8 @@ ENV_TEST_CASE("input iterator")
 COND_CHECK_UNARY
 (
         is_std_legacy_forward_iterator,
-        is_std_legacy_input_iterator_g<T>&&
-        is_std_default_constructible_g<T>&&
+        is_std_legacy_input_iterator_g<T> &&
+        is_std_default_constructible_g<T> &&
 
         /* there is a multipass guarantee requirement that is a bit complex and impossible to check */
 
@@ -190,7 +190,7 @@ COND_CHECK_UNARY
          *  the value initialized-iterators (since C++14)." */
 
         /* I checked that these are compatible with the input and output iterator requirements */
-        ENV_STD::is_same_v<decl(declvall<T>()++), T>&&
+        ENV_STD::is_same_v<decl(declvall<T>()++), T> &&
         ENV_STD::is_same_v<decl(*declvall<T>()++), name detail::iterator_traits_gt<T>::reference_t>
 );
 
@@ -209,14 +209,14 @@ ENV_TEST_CASE("forward iterator")
 COND_CHECK_UNARY
 (
         is_std_legacy_bidirectional_iterator,
-        is_std_legacy_forward_iterator_g<T>&&
+        is_std_legacy_forward_iterator_g<T> &&
 
         /* decrementing past the end or before begin is undefined behaviour */
 
         /* this has a lot more requirements that are impossible to check */
-        ENV_STD::is_same_v<decl(--declvall<T>()), T&>&&
+        ENV_STD::is_same_v<decl(--declvall<T>()), T&> &&
 
-        ENV_STD::is_convertible_v<decl(declvall<T>()--), const T&>&&
+        ENV_STD::is_convertible_v<decl(declvall<T>()--), const T&> &&
         ENV_STD::is_same_v<decl(*declvall<T>()--), name detail::iterator_traits_gt<T>::reference_t>
 );
 
@@ -236,7 +236,7 @@ ENV_TEST_CASE("bidirectional iterator")
 COND_CHECK_UNARY
 (
         is_std_legacy_random_access_iterator,
-        is_std_legacy_bidirectional_iterator_g<T>&&
+        is_std_legacy_bidirectional_iterator_g<T> &&
 
         /* any kind of going past the end or before begin is undefined behaviour */
 
@@ -276,9 +276,9 @@ COND_CHECK_UNARY
         &&
 
             /* other than having to be a total order, these have a few more requirements */
-        ENV_STD::is_convertible_v<decl(declval<const T>()<declval<const T>()), bool>&&
-        ENV_STD::is_convertible_v<decl(declval<const T>()>declval<const T>()), bool>&&
-        ENV_STD::is_convertible_v<decl(declval<const T>()<= declval<const T>()), bool>&&
+        ENV_STD::is_convertible_v<decl(declval<const T>()<declval<const T>()), bool> &&
+        ENV_STD::is_convertible_v<decl(declval<const T>()>declval<const T>()), bool> &&
+        ENV_STD::is_convertible_v<decl(declval<const T>()<= declval<const T>()), bool> &&
         ENV_STD::is_convertible_v<decl(declval<const T>()>= declval<const T>()), bool>
 );
 
@@ -300,7 +300,7 @@ ENV_TEST_CASE("random access iterator")
 COND_CHECK_UNARY
 (
         is_std_legacy_contiguous_iterator,
-        is_std_legacy_random_access_iterator_g<T>&&
+        is_std_legacy_random_access_iterator_g<T> &&
 
         /* it says in the standard that int should be any integral and that the actual result should be equal,
          * but I think this is good enough for a compile time check */
