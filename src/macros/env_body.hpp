@@ -1,10 +1,11 @@
 #ifndef ENV_BODY_HPP
 #define ENV_BODY_HPP
 
+
 // structs
 
-#define ACCESS_BEGIN(_access) PACK(_access) : SEMI
-#define ACCESS_END(_access) PACK(_access) : SEMI
+#define ACCESS_BEGIN(_access) SEMI; PACK(_access) : SEMI
+#define ACCESS_END(_access) SEMI; PACK(_access) : SEMI
 
 ENV_TEST_CASE("struct macros")
 {
@@ -12,12 +13,13 @@ ENV_TEST_CASE("struct macros")
     {
         strct test
         {
-        ACCESS_BEGIN(private);
-        ACCESS_END(public);
+            ACCESS_BEGIN(private);
+            ACCESS_END(public);
             SEMI;
         };
     }
 }
+
 
 // application formula body
 
@@ -42,5 +44,6 @@ ENV_TEST_CASE("application formula body")
     REQUIRES(test::return_1_formula() == 1);
     REQUIRES(test::return_1_body() == 1);
 }
+
 
 #endif // ENV_BODY_HPP

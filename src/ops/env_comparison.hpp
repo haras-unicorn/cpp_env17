@@ -1,6 +1,7 @@
 #ifndef ENV_COMPARISON_HPP
 #define ENV_COMPARISON_HPP
 
+
 // names and getter calls
 
 #define IS_VALID_NAME is_valid
@@ -20,6 +21,7 @@
 #define LESS_NAME less
 #define CHECK_LESS(_type, _lhs, _rhs) (_lhs.LESS_NAME(_rhs))
 #define CHECK_TEMPLATE_LESS(_type, _lhs, _rhs) (_lhs.LESS_NAME(_rhs))
+
 
 // non tmp modular
 
@@ -80,6 +82,7 @@
 
 #define DECLARE_HASH_FUNCTION(_type, _pre, _post) \
     RETURN_ATTRIBUTES _pre inl ENV::hash_t HASH_NAME() const _post
+
 
 // possibly tmp modular
 
@@ -382,6 +385,7 @@
 
 ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
 
+
 // non tmp compound
 
 // validity
@@ -431,6 +435,7 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
 #define NOEX_HASH NOEX_HASH_ON((_this_t))
 #define SUPER_HASH SUPER_HASH_ON((_this_t))
 #define SUB_HASH SUB_HASH_ON((_this_t))
+
 
 // possibly tmp compound
 
@@ -559,39 +564,44 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
 #define SUPER_TMP_COMPARISON SUPER_TMP_COMPARISON_ON((_this_t))
 #define SUB_TMP_COMPARISON SUB_TMP_COMPARISON_ON((_this_t))
 
+
 // compatibility
 
-#define ENABLE_IF_HASH_EQ_COMPAT(_condition) COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, _condition)
-#define ENABLE_IF_EQUALITY_COMPAT(_condition) COND_CLASS_CHECK_UNARY(is_equality_compatible_with, _condition)
-#define ENABLE_IF_COMPARISON_COMPAT(_condition) COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, _condition)
+#define ENABLE_IF_HASH_EQ_COMPAT(...) COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, __VA_ARGS__)
+#define ENABLE_IF_EQUALITY_COMPAT(...) COND_CLASS_CHECK_UNARY(is_equality_compatible_with, __VA_ARGS__)
+#define ENABLE_IF_COMPARISON_COMPAT(...) COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, __VA_ARGS__)
 
 #define ELABORATE_ENABLE_IF_COMPAT(_hash_condition, _equality_condition, _comparison_condition) \
     ENABLE_IF_HASH_EQ_COMPAT(_hash_condition);                                                  \
     ENABLE_IF_EQUALITY_COMPAT(_equality_condition);                                             \
     ENABLE_IF_COMPARISON_COMPAT(_comparison_condition)
 
-#define ENABLE_IF_COMPAT(_condition) ELABORATE_ENABLE_IF_COMPAT(_condition, _condition, _condition)
+#define ENABLE_IF_COMPAT(...) ELABORATE_ENABLE_IF_COMPAT((__VA_ARGS__), (__VA_ARGS__), (__VA_ARGS__))
 
-#define SFINAE_HASH_EQ_COMPAT(_expression) EXPR_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, _expression)
-#define SFINAE_EQUALITY_COMPAT(_expression) EXPR_CLASS_CHECK_UNARY(is_equality_compatible_with, _expression)
-#define SFINAE_COMPARISON_COMPAT(_expression) EXPR_CLASS_CHECK_UNARY(is_comparison_compatible_with, _expression)
+#define SFINAE_HASH_EQ_COMPAT(...) EXPR_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, __VA_ARGS__)
+#define SFINAE_EQUALITY_COMPAT(...) EXPR_CLASS_CHECK_UNARY(is_equality_compatible_with, __VA_ARGS__)
+#define SFINAE_COMPARISON_COMPAT(...) EXPR_CLASS_CHECK_UNARY(is_comparison_compatible_with, __VA_ARGS__)
 
 #define ELABORATE_SFINAE_COMPAT(_hash_expression, _equality_expression, _comparison_expression) \
     SFINAE_HASH_EQ_COMPAT(_hash_expression);                                                    \
     SFINAE_EQUALITY_COMPAT(_equality_expression);                                               \
     SFINAE_COMPARISON_COMPAT(_comparison_expression)
 
-#define SFINAE_COMPAT(_expression) ELABORATE_SFINAE_COMPAT(_expression, _expression, _expression)
+#define SFINAE_COMPAT(...) ELABORATE_SFINAE_COMPAT((__VA_ARGS__), (__VA_ARGS__), (__VA_ARGS__))
 
 ENV_CLANG_SUPPRESS_POP
 
+
 // traits
 
-COND_CHECK_BINARY(are_hash_eq_compatible, (TLhs::tmp is_hash_eq_compatible_with_g<TRhs>));
+COND_CHECK_BINARY(are_hash_eq_compatible, (TLhs::tmp is_hash_eq_compatible_with_g < TRhs >));
 
-COND_CHECK_BINARY(are_equality_compatible, (TLhs::tmp is_equality_compatible_with_g<TRhs>));
+COND_CHECK_BINARY(are_equality_compatible, (TLhs::tmp is_equality_compatible_with_g < TRhs >));
 
-COND_CHECK_BINARY(are_comparison_compatible, (TLhs::tmp is_comparison_compatible_with_g<TRhs>));
+COND_CHECK_BINARY(are_comparison_compatible, (TLhs::tmp is_comparison_compatible_with_g < TRhs >));
+
+
+// tests
 
 ENV_NAMESPACE_TEST_BEGIN
 
@@ -600,7 +610,7 @@ cls comparable_t
     DECL_THIS(comparable_t);
     DECL((int), value);
 
-    con cmp comparable_t(_value_t value) noex : _value{value} {}
+    con cmp comparable_t(_value_t value) noex: _value{value} { }
 
     MEM_CMP_GETTER(value);
 
@@ -647,23 +657,26 @@ ENV_TEST_CASE("comparison")
     }
 }
 
+
+// tmp tests
+
 ENV_NAMESPACE_TEST_BEGIN
 
 tmp<name TValue>
-    cls tmp_comparable_gt
+cls tmp_comparable_gt
 {
     DECL_THIS(tmp_comparable_gt);
     DECL((TValue), value);
 
-    con cmp tmp_comparable_gt(TValue value) noex : _value{value} {}
+    con cmp tmp_comparable_gt(TValue value) noex: _value{value} { }
 
     MEM_CMP_REF_GETTER(value);
 
-    ENABLE_IF_COMPAT((is_specialization_g<T, tmp_comparable_gt>));
-    CMP_VALIDITY { ret get_value() >= _value_t{0}; };
-    CMP_TMP_HASH { ret static_cast<ENV::hash_t>(get_value()); };
-    CMP_TMP_EQUALITY { ret get_value() == static_cast<_value_t>(rhs.get_value()); };
-    CMP_TMP_COMPARISON { ret get_value() < static_cast<_value_t>(rhs.get_value()); };
+    ENABLE_IF_COMPAT(is_specialization_g < T, tmp_comparable_gt >);
+    CMP_VALIDITY { ret get_value() >= _value_t{0}; }
+    CMP_TMP_HASH { ret static_cast<ENV::hash_t>(get_value()); }
+    CMP_TMP_EQUALITY { ret get_value() == static_cast<_value_t>(rhs.get_value()); }
+    CMP_TMP_COMPARISON { ret get_value() < static_cast<_value_t>(rhs.get_value()); }
 };
 
 ENV_NAMESPACE_TEST_END
@@ -702,5 +715,6 @@ ENV_TEST_CASE("template comparison")
         REQUIRE(comparable_float >= comparable_float);
     }
 }
+
 
 #endif // ENV_COMPARISON_HPP

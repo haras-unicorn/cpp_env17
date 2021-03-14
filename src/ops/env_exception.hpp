@@ -1,6 +1,7 @@
 #ifndef ENV_EXCEPTION_HPP
 #define ENV_EXCEPTION_HPP
 
+
 // debug/production
 
 #ifdef NDEBUG
@@ -13,6 +14,12 @@ cmp_obj flag_t is_debug{DEBUG_FLAG};
 
 cmp_obj flag_t is_production{!is_debug};
 
+ENV_TEST_CASE("debug / production")
+{
+    REQUIRES(is_debug != is_production);
+}
+
+
 // literals
 
 WHOLE_L(error_code, err, int);
@@ -21,41 +28,42 @@ TEXT_L(message, msg, const char *, l_t);
 
 TEXT_L(description, dsc, const char *, l_t);
 
+
 // policies
 
 ENV_NAMESPACE_DETAIL_BEGIN
 
-strct exception_policy_s{};
+strct exception_policy_s { };
 
 ENV_NAMESPACE_DETAIL_END
 
-strct ignore_exceptions_s : public detail::exception_policy_s{};
+strct ignore_exceptions_s : public detail::exception_policy_s { };
 
-strct exit_on_exception_s : public detail::exception_policy_s{};
+strct exit_on_exception_s : public detail::exception_policy_s { };
 
-strct throw_on_exception_s : public detail::exception_policy_s{};
+strct throw_on_exception_s : public detail::exception_policy_s { };
 
-strct check_exceptions_s : public detail::exception_policy_s{};
+strct check_exceptions_s : public detail::exception_policy_s { };
 
-strct adjust_on_exception_s : public detail::exception_policy_s{};
+strct adjust_on_exception_s : public detail::exception_policy_s { };
 
-cmp_obj ignore_exceptions_s ignore_ex{};
+cmp_obj ignore_exceptions_s ignore_ex{ };
 
-cmp_obj throw_on_exception_s throw_ex{};
+cmp_obj throw_on_exception_s throw_ex{ };
 
-cmp_obj exit_on_exception_s exit_ex{};
+cmp_obj exit_on_exception_s exit_ex{ };
 
-cmp_obj check_exceptions_s check_ex{};
+cmp_obj check_exceptions_s check_ex{ };
 
-cmp_obj adjust_on_exception_s adjust_ex{};
+cmp_obj adjust_on_exception_s adjust_ex{ };
 
 // policy concepts
 
-COND_CHECK_UNARY(is_exception_policy, (ENV_STD::is_base_of_v<detail::exception_policy_s, T>));
+COND_CHECK_UNARY(is_exception_policy, (ENV_STD::is_base_of_v < detail::exception_policy_s, T >));
 
 COND_CONCEPT(exception_policy, (is_exception_policy_g<C>));
 
-COND_CHECK_UNARY(is_unignorable_policy, (is_exception_policy_g<T> && !ENV_STD::is_same_v<T, ignore_exceptions_s>));
+COND_CHECK_UNARY(is_unignorable_policy, (is_exception_policy_g<T> && !ENV_STD::is_same_v < T, ignore_exceptions_s >));
 
 COND_CONCEPT(unignorable_policy, (is_unignorable_policy_g<C>));
 
@@ -63,11 +71,12 @@ COND_CONCEPT(unignorable_policy, (is_unignorable_policy_g<C>));
 
 typ(d_exception_policy_s) = ENV_STD::conditional_t<is_debug, throw_on_exception_s, ignore_exceptions_s>;
 
-cmp_obj d_exception_policy_s d_exception_policy{};
+cmp_obj d_exception_policy_s d_exception_policy{ };
 
 typ(d_unignorable_policy_s) = ENV_STD::conditional_t<is_debug, throw_on_exception_s, adjust_on_exception_s>;
 
-cmp_obj d_unignorable_policy_s d_unignorable_policy{};
+cmp_obj d_unignorable_policy_s d_unignorable_policy{ };
+
 
 // status
 
@@ -100,6 +109,7 @@ struct invalid_argument_t : public ENV_STD::logic_error
     using logic_error::logic_error;
 };
 
+
 // handling
 
 ENV_CLANG_SUPPRESS_PUSH("ConstantConditionsOC")
@@ -120,8 +130,9 @@ callb exit(message_t message)
 ENV_CLANG_SUPPRESS_POP
 ENV_CLANG_SUPPRESS_POP
 
-COND_TMP_UNARY((ENV_STD::is_base_of_v<ENV_STD::exception, T>))
+COND_TMP_UNARY((ENV_STD::is_base_of_v < ENV_STD::exception, T >))
 callb except(message_t message) { throw T{message.data()}; }
+
 
 // TODO: tests for unignorable stuff
 
@@ -158,6 +169,7 @@ callb except(message_t message) { throw T{message.data()}; }
 
 #define is_noex_pol IS_NO_THROW_EXCEPTION_POLICY
 #define noex_pol NOEX_IF_NO_THROW_EXCEPTION_POLICY
+
 
 // when
 
@@ -205,8 +217,8 @@ callb except(message_t message) { throw T{message.data()}; }
                   CMP_ON((SHOULD_ADJUST_ON_EXCEPTION), SPREAD(_adjust););                      \
               });)
 
-#define WHEN_ARG_SIMPLE(                                               \
-    _argument_check, _argument_exception, _argument_message,           \
+#define WHEN_ARG_SIMPLE(\
+    _argument_check, _argument_exception, _argument_message, \
     _return, _adjust)                                                  \
     WHEN_ARG_ELABORATE(                                                \
         _argument_check,                                               \
@@ -223,14 +235,15 @@ callb except(message_t message) { throw T{message.data()}; }
         _return,                                    \
         _adjust)
 
+
 ENV_NAMESPACE_TEST_BEGIN
 
 struct uint_ptr_proxy_t
 {
     DECL_THIS(uint_ptr_proxy_t);
-    DEF((int *), ptr, (nil));
+    DEF((int * ), ptr, (nil));
 
-    con uint_ptr_proxy_t(_ptr_t ptr) : _ptr{ptr} {}
+    con uint_ptr_proxy_t(_ptr_t ptr) : _ptr{ptr} { }
 
     DEFAULT_LIFE(uint_ptr_proxy_t, CMP);
 
@@ -239,7 +252,7 @@ struct uint_ptr_proxy_t
     CONST_GETTER_FML((), (auto), get, (_get();));
 
     tmp<exc_name>
-        callb inl multiply_positive(int to_add, exc_arg) noex_pol
+    callb inl multiply_positive(int to_add, exc_arg) noex_pol
     {
         WHEN_STATE((_get_ptr() == nullptr), (/* should ret */ ret;));
         WHEN_ARG((to_add < 0), (/* should ret: */ ret;), (/* should adjust: */ to_add = 0;));
@@ -248,7 +261,7 @@ struct uint_ptr_proxy_t
     }
 
 protected:
-    CONST_GETTER_FML((), (int &), _get, (*_get_ptr();));
+    CONST_GETTER_FML((), (int & ), _get, (*_get_ptr();));
 };
 
 ENV_NAMESPACE_TEST_END
@@ -257,7 +270,7 @@ ENV_TEST_CASE("exception policies")
 {
     SUBCASE("invalid state")
     {
-        test::uint_ptr_proxy_t proxy{};
+        test::uint_ptr_proxy_t proxy{ };
 
         SUBCASE("throw")
         {
@@ -313,5 +326,6 @@ ENV_TEST_CASE("exception policies")
         }
     }
 }
+
 
 #endif // ENV_EXCEPTION_HPP

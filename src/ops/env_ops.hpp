@@ -3,11 +3,11 @@
 
 ENV_TEST_SUITE_BEGIN("operations");
 
+#include "env_getters.hpp"
+#include "env_lifetime.hpp"
 #include "env_comparison.hpp"
 #include "env_exception.hpp"
-#include "env_getters.hpp"
 #include "env_id.hpp"
-#include "env_lifetime.hpp"
 
 ENV_TEST_SUITE_END();
 

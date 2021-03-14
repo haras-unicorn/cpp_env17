@@ -2,7 +2,6 @@
 #define ENV_SELF_HPP
 
 
-
 // this type
 
 #define DECL_THIS(_name)                                              \
@@ -20,7 +19,7 @@ ENV_TEST_CASE("this type")
 {
     strct test_t
     {
-        PACK(DECL_THIS(test_t));
+        DECL_THIS(test_t);
 
         fun inl op()() const noex
         {
@@ -28,29 +27,29 @@ ENV_TEST_CASE("this type")
             REQUIRE_EQT(_this_ct, const test_t);
             REQUIRE_EQT(_c_this_ptr_t, const test_t *);
         }
-    }
-    test{};
+    } test{ };
 
     test();
 }
+
 
 // no inheritor
 
 strct no_inheritor_s
 {
 public:
-    COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, (ENV::first_nv<false, T>));
+    COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, (ENV::first_nv < false, T >));
 
-    COND_CLASS_CHECK_UNARY(is_equality_compatible_with, (ENV::first_nv<false, T>));
+    COND_CLASS_CHECK_UNARY(is_equality_compatible_with, (ENV::first_nv < false, T >));
 
-    COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, (ENV::first_nv<false, T>));
+    COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, (ENV::first_nv < false, T >));
 };
 
 tmp<name TInheritor>
-    let_cmp is_inheritor_g{!ENV_STD::is_same_v<TInheritor, no_inheritor_s>};
+let_cmp is_inheritor_g{!ENV_STD::is_same_v<TInheritor, no_inheritor_s>};
 
 tmp<name TThis, name TInheritor>
-    typ_a(self_ggt, maybe_unused) = ENV_STD::conditional_t<is_inheritor_g<TInheritor>, TInheritor, TThis>;
+typ_a(self_ggt, maybe_unused) = ENV_STD::conditional_t<is_inheritor_g<TInheritor>, TInheritor, TThis>;
 
 ENV_TEST_CASE("no inheritor type")
 {
@@ -82,6 +81,7 @@ ENV_TEST_CASE("no inheritor type")
     }
 }
 
+
 // inheritor type
 
 #define inheritor_name name TInheritor = ENV::no_inheritor_s
@@ -102,7 +102,7 @@ ENV_TEST_CASE("no inheritor type")
 ENV_NAMESPACE_TEST_BEGIN
 
 tmp<inheritor_name>
-    strct with_inheritor
+strct with_inheritor
 {
     DECL_INHERITOR;
 
@@ -118,8 +118,9 @@ ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("inheritor type")
 {
-    test::with_inheritor<int>{}.test();
+    test::with_inheritor<int>{ }.test();
 }
+
 
 // self
 
@@ -146,7 +147,7 @@ ENV_TEST_CASE("inheritor type")
 ENV_NAMESPACE_TEST_BEGIN
 
 tmp<inheritor_name>
-    strct with_self_t
+strct with_self_t
 {
     DECL_SELF(with_self_t);
 
@@ -160,7 +161,8 @@ tmp<inheritor_name>
         }
     }
 
-    tmp<name> friend struct with_self_t;
+    tmp<name> friend
+    struct with_self_t;
 };
 
 strct with_self_no_inheritor_t
@@ -182,11 +184,12 @@ ENV_NAMESPACE_TEST_END
 
 ENV_TEST_CASE("self")
 {
-    test::with_self_t<>{}.test();
+    test::with_self_t<>{ }.test();
 
     // static not allowed in local struct
-    test::with_self_no_inheritor_t{}.test();
+    test::with_self_no_inheritor_t{ }.test();
 }
+
 
 // bases
 
@@ -225,7 +228,7 @@ ENV_TEST_CASE("self")
 
 ENV_TEST_CASE("bases")
 {
-    strct base_t{};
+    strct base_t { };
     strct derived_t : public base_t
     {
         DECL_BASE(my, (base_t));
@@ -236,11 +239,11 @@ ENV_TEST_CASE("bases")
             REQUIRE_EQT(_my_base_ct, const base_t);
             REQUIRE_EQT(_c_my_base_ptr_t, const base_t *);
         }
-    }
-    derived{};
+    } derived{ };
 
     derived.test();
 }
+
 
 // self getters
 
@@ -269,10 +272,11 @@ ENV_TEST_CASE("bases")
     DECL_BASE(_name, _type);    \
     friend BASE_NAME(_name)
 
+
 ENV_NAMESPACE_TEST_BEGIN
 
 tmp<name TInheritor = no_inheritor_s>
-    cls crtp_t
+cls crtp_t
 {
 private:
     CRTP(crtp_t);
@@ -281,7 +285,7 @@ public:
     cmp_fn get_label() const noex { ret _self()->_get_label(); }
 
 protected:
-    cmp_fn _get_label() const noex->const char * { ret "base"; }
+    cmp_fn _get_label() const noex -> const char* { ret "base"; }
 };
 
 ENV_NAMESPACE_TEST_END
@@ -296,13 +300,13 @@ ENV_TEST_CASE("self getters")
     protected:
         ENV_CLANG_SUPPRESS_PUSH("HidingNonVirtualFunction")
 
-        cmp_fn _get_label() const noex->const char * { ret "derived"; }
+        cmp_fn _get_label() const noex -> const char* { ret "derived"; }
 
         ENV_CLANG_SUPPRESS_POP
     };
 
-    subclass_t sub{};
-    test::crtp_t<> base{};
+    subclass_t sub{ };
+    test::crtp_t<> base{ };
 
     // sub.get_as_crtp_base returns the base but it has the inheritor in the tmp, so
     // it returns itself in _self() and that results in unwanted behaviour for this test.
@@ -310,5 +314,6 @@ ENV_TEST_CASE("self getters")
     REQUIRE_EQ(base.get_label(), "base");
     REQUIRE_EQ(sub.get_label(), "derived");
 }
+
 
 #endif // ENV_SELF_HPP

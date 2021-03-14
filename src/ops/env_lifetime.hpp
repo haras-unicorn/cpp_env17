@@ -1,6 +1,7 @@
 #ifndef ENV_LIFETIME_HPP
 #define ENV_LIFETIME_HPP
 
+
 // names
 
 // modular definitions
@@ -34,6 +35,7 @@
     {                                          \
         this->_destruct();                     \
     }
+
 
 // modular lifetime
 
@@ -80,9 +82,8 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
     (_name, DEF_DEFAULT_CONSTRUCT_MANUAL(_construct, _copy, _move))
 
 #define DECL_COPY_MOVE_CONSTRUCTORS(_name, _pre, _post_copy, _post_move)          \
-    RETURN_ATTRIBUTES _pre _name(OBJECT_ATTRIBUTES const _name &other) _post_copy \
-        RETURN_ATTRIBUTES _pre                                                    \
-        _name(OBJECT_ATTRIBUTES _name &&other) _post_move /* NOLINT(performance-noex-move-constructor) */
+    RETURN_ATTRIBUTES _pre _name([[maybe_unused]] const _name &other) _post_copy  \
+        RETURN_ATTRIBUTES _pre _name([[maybe_unused]] _name &&other) _post_move /* NOLINT(performance-noex-move-constructor) */
 
 #define DECL_DELETED_COPY_MOVE_CONSTRUCTORS(_name) \
     DECL_COPY_MOVE_CONSTRUCTORS(_name, , DELETE_METHOD, DELETE_METHOD)
@@ -115,8 +116,8 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
     (_name, DEF_COPY_MANUAL(_construct, _copy, _move), DEF_MOVE_MANUAL(_construct, _copy, _move))
 
 #define DECL_ASSIGNMENT_OPERATORS(_name, _pre, _post_copy, _post_move)                  \
-    RETURN_ATTRIBUTES _pre _name &op = (OBJECT_ATTRIBUTES const _name &other)_post_copy \
-        RETURN_ATTRIBUTES _pre _name &op = (OBJECT_ATTRIBUTES _name && other) _post_move /* NOLINT(performance-noex-move-constructor) */
+    RETURN_ATTRIBUTES _pre _name &op = ([[maybe_unused]] const _name &other)_post_copy \
+        RETURN_ATTRIBUTES _pre _name &op = ([[maybe_unused]] _name && other) _post_move /* NOLINT(performance-noex-move-constructor) */
 
 #define DECL_DELETED_ASSIGNMENT_OPERATORS(_name) \
     DECL_ASSIGNMENT_OPERATORS(_name, , DELETE_METHOD, DELETE_METHOD)
@@ -183,6 +184,7 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
 
 ENV_CLANG_SUPPRESS_POP
 
+
 // manual methods
 
 #define DECL_LIFETIME_FUN(_name, _arguments, _pre, _post) \
@@ -206,6 +208,7 @@ ENV_CLANG_SUPPRESS_POP
     DECL_COPY(_pre, _post)
 
 #define DECL_DESTRUCT(_pre, _post) DECL_LIFETIME_FUN(_destruct, (), _pre, _post)
+
 
 // lifetime
 
@@ -241,12 +244,12 @@ ENV_TEST_CASE("default lifetime")
             DEFAULT_LIFE(test, NO_ATTRIBUTE);
         };
 
-        REQUIRE(ENV_STD::is_default_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-        REQUIRE(ENV_STD::is_move_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_assignable_v<test>);
-        REQUIRE(ENV_STD::is_move_assignable_v<test>);
-        REQUIRE(ENV_STD::is_destructible_v<test>);
+        REQUIRE(ENV_STD::is_default_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+        REQUIRE(ENV_STD::is_move_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_assignable_v < test >);
+        REQUIRE(ENV_STD::is_move_assignable_v < test >);
+        REQUIRE(ENV_STD::is_destructible_v < test >);
     }
 
     SUBCASE("no construct")
@@ -258,18 +261,19 @@ ENV_TEST_CASE("default lifetime")
             DEFAULT_NOCON_LIFE(test, NOEX);
         };
 
-        REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-        REQUIRE(ENV_STD::is_move_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_assignable_v<test>);
-        REQUIRE(ENV_STD::is_move_assignable_v<test>);
-        REQUIRE(ENV_STD::is_destructible_v<test>);
+        REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+        REQUIRE(ENV_STD::is_move_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_assignable_v < test >);
+        REQUIRE(ENV_STD::is_move_assignable_v < test >);
+        REQUIRE(ENV_STD::is_destructible_v < test >);
     }
 }
 
+
 // auto
 
-#define ELABORATE_AUTO_LIFE(                                                                               \
+#define ELABORATE_AUTO_LIFE(\
     _name, _constructor_attribute, _assignment_attribute, _destructor_attribute, _construct, _copy, _move) \
     ACCESS_BEGIN(public);                                                                                  \
     DEF_AUTO_DEFAULT_CONSTRUCTOR(_name, _constructor_attribute, _construct, _copy, _move)                  \
@@ -278,7 +282,7 @@ ENV_TEST_CASE("default lifetime")
     DEF_AUTO_DESTRUCTOR(_name, _destructor_attribute, _construct, _copy, _move)                            \
     SEMI
 
-#define ELABORATE_AUTO_NOCON_LIFE(                                                             \
+#define ELABORATE_AUTO_NOCON_LIFE(\
     _name, _constructor_attribute, _assignment_attribute, _destructor_attribute, _copy, _move) \
     ACCESS_BEGIN(public);                                                                      \
     DEF_AUTO_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, (), _copy, _move)           \
@@ -300,26 +304,25 @@ ENV_TEST_CASE("auto lifetime")
         {
             DECL((const char *), member);
 
-            AUTO_LIFE(
-                test, CMP,
-                (
-                    : _member{"default"}),
-                (
-                    : _member{"copied"}),
-                (
-                    : _member{"moved"}));
+            AUTO_LIFE
+            (
+                    test, CMP,
+                    (: _member{ "default" }),
+                    (: _member{ "copied" }),
+                    (: _member{ "moved" })
+            );
 
             MEM_GETTER(member);
         };
 
-        REQUIRE(ENV_STD::is_default_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-        REQUIRE(ENV_STD::is_move_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_assignable_v<test>);
-        REQUIRE(ENV_STD::is_move_assignable_v<test>);
-        REQUIRE(ENV_STD::is_destructible_v<test>);
+        REQUIRE(ENV_STD::is_default_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+        REQUIRE(ENV_STD::is_move_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_assignable_v < test >);
+        REQUIRE(ENV_STD::is_move_assignable_v < test >);
+        REQUIRE(ENV_STD::is_destructible_v < test >);
 
-        test a{};
+        test a{ };
         REQUIRE_EQ(a.get_member(), "default");
         test b{a};
         REQUIRE_EQ(b.get_member(), "copied");
@@ -333,24 +336,24 @@ ENV_TEST_CASE("auto lifetime")
         {
             DECL((const char *), member);
 
-            cmp_con test(_member_t _member) : _member{ENV_STD::move(_member)} {}
+            cmp_con test(_member_t _member) : _member{ENV_STD::move(_member)} { }
 
-            AUTO_NOCON_LIFE(
-                test, CMP,
-                (
-                    : _member{"copied"}),
-                (
-                    : _member{"moved"}));
+            AUTO_NOCON_LIFE
+            (
+                    test, CMP,
+                    (: _member{ "copied" }),
+                    (: _member{ "moved" })
+            );
 
             MEM_GETTER(member);
         };
 
-        REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-        REQUIRE(ENV_STD::is_move_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_assignable_v<test>);
-        REQUIRE(ENV_STD::is_move_assignable_v<test>);
-        REQUIRE(ENV_STD::is_destructible_v<test>);
+        REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+        REQUIRE(ENV_STD::is_move_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_assignable_v < test >);
+        REQUIRE(ENV_STD::is_move_assignable_v < test >);
+        REQUIRE(ENV_STD::is_destructible_v < test >);
 
         test a{"constructed"};
         REQUIRE_EQ(a.get_member(), "constructed");
@@ -361,9 +364,10 @@ ENV_TEST_CASE("auto lifetime")
     }
 }
 
+
 // manual
 
-#define ELABORATE_MANUAL_LIFE(                                                                             \
+#define ELABORATE_MANUAL_LIFE(\
     _name, _constructor_attribute, _assignment_attribute, _destructor_attribute, _construct, _copy, _move) \
     ACCESS_BEGIN(public);                                                                                  \
     DEF_MANUAL_DEFAULT_CONSTRUCTOR(_name, _constructor_attribute, _construct, _copy, _move)                \
@@ -372,7 +376,7 @@ ENV_TEST_CASE("auto lifetime")
     DEF_MANUAL_DESTRUCTOR(_name, _destructor_attribute, _construct, _copy, _move)                          \
     SEMI
 
-#define ELABORATE_MANUAL_NOCON_LIFE(                                                                       \
+#define ELABORATE_MANUAL_NOCON_LIFE(\
     _name, _constructor_attribute, _assignment_attribute, _destructor_attribute, _construct, _copy, _move) \
     ACCESS_BEGIN(public);                                                                                  \
     DEF_MANUAL_COPY_MOVE_CONSTRUCTORS(_name, _constructor_attribute, _construct, _copy, _move)             \
@@ -415,14 +419,14 @@ ENV_TEST_CASE("manual lifetime")
             DECL_DESTRUCT(, noex) { _member = "destructed"; }
         };
 
-        REQUIRE(ENV_STD::is_default_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-        REQUIRE(ENV_STD::is_move_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_assignable_v<test>);
-        REQUIRE(ENV_STD::is_move_assignable_v<test>);
-        REQUIRE(ENV_STD::is_destructible_v<test>);
+        REQUIRE(ENV_STD::is_default_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+        REQUIRE(ENV_STD::is_move_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_assignable_v < test >);
+        REQUIRE(ENV_STD::is_move_assignable_v < test >);
+        REQUIRE(ENV_STD::is_destructible_v < test >);
 
-        test a{};
+        test a{ };
         REQUIRE_EQ(a.get_member(), "constructed");
         test b{a};
         REQUIRE_EQ(b.get_member(), "copied");
@@ -439,7 +443,7 @@ ENV_TEST_CASE("manual lifetime")
             DECL_THIS(test);
             DECL((const char *), member);
 
-            cmp_con test(_member_t _member) : _member{ENV_STD::move(_member)} {}
+            cmp_con test(_member_t _member) : _member{ENV_STD::move(_member)} { }
 
             SIMPLE_MANUAL_NOCON_LIFE(test, NOEX);
 
@@ -455,12 +459,12 @@ ENV_TEST_CASE("manual lifetime")
             DECL_DESTRUCT(, noex) { _member = "destructed"; }
         };
 
-        REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-        REQUIRE(ENV_STD::is_move_constructible_v<test>);
-        REQUIRE(ENV_STD::is_copy_assignable_v<test>);
-        REQUIRE(ENV_STD::is_move_assignable_v<test>);
-        REQUIRE(ENV_STD::is_destructible_v<test>);
+        REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+        REQUIRE(ENV_STD::is_move_constructible_v < test >);
+        REQUIRE(ENV_STD::is_copy_assignable_v < test >);
+        REQUIRE(ENV_STD::is_move_assignable_v < test >);
+        REQUIRE(ENV_STD::is_destructible_v < test >);
 
         test a{"constructed"};
         REQUIRE_EQ(a.get_member(), "constructed");
@@ -471,6 +475,7 @@ ENV_TEST_CASE("manual lifetime")
         REQUIRE_EQ(b.get_member(), "nil");
     }
 }
+
 
 // const lifetime
 
@@ -495,13 +500,14 @@ ENV_TEST_CASE("const default lifetime")
         DEFAULT_CONST_LIFE(test, SUPER);
     };
 
-    REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-    REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-    REQUIRE(ENV_STD::is_move_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_move_assignable_v<test>);
-    REQUIRE(ENV_STD::is_destructible_v<test>);
+    REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+    REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+    REQUIRE(ENV_STD::is_move_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_move_assignable_v < test >);
+    REQUIRE(ENV_STD::is_destructible_v < test >);
 }
+
 
 // auto
 
@@ -521,26 +527,25 @@ ENV_TEST_CASE("const auto lifetime")
     {
         DECL((const char *), member);
 
-        cmp_con test(_member_t _member) : _member{ENV_STD::move(_member)} {}
+        cmp_con test(_member_t _member) : _member{ENV_STD::move(_member)} { }
 
-        AUTO_CONST_LIFE(
-            test, CMP,
-            (
-                : _member{"default"}),
-            (
-                : _member{"copied"}),
-            (
-                : _member{"moved"}));
+        AUTO_CONST_LIFE
+        (
+                test, CMP,
+                (: _member{ "default" }),
+                (: _member{ "copied" }),
+                (: _member{ "moved" })
+        );
 
         MEM_GETTER(member);
     };
 
-    REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-    REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-    REQUIRE(ENV_STD::is_move_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_move_assignable_v<test>);
-    REQUIRE(ENV_STD::is_destructible_v<test>);
+    REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+    REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+    REQUIRE(ENV_STD::is_move_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_move_assignable_v < test >);
+    REQUIRE(ENV_STD::is_destructible_v < test >);
 
     test a{"constructed"};
     REQUIRE_EQ(a.get_member(), "constructed");
@@ -549,6 +554,7 @@ ENV_TEST_CASE("const auto lifetime")
     test c{ENV_STD::move(b)};
     REQUIRE_EQ(c.get_member(), "moved");
 }
+
 
 // manual
 
@@ -572,7 +578,7 @@ ENV_TEST_CASE("const manual lifetime")
         DECL_THIS(test);
         DECL((const char *), member);
 
-        cmp_con test(_member_t _member) : _member{ENV_STD::move(_member)} {}
+        cmp_con test(_member_t _member) : _member{ENV_STD::move(_member)} { }
 
         SIMPLE_MANUAL_CONST_LIFE(test, NOEX);
 
@@ -588,12 +594,12 @@ ENV_TEST_CASE("const manual lifetime")
         DECL_DESTRUCT(, noex) { _member = "destructed"; }
     };
 
-    REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-    REQUIRE(ENV_STD::is_copy_constructible_v<test>);
-    REQUIRE(ENV_STD::is_move_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_move_assignable_v<test>);
-    REQUIRE(ENV_STD::is_destructible_v<test>);
+    REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+    REQUIRE(ENV_STD::is_copy_constructible_v < test >);
+    REQUIRE(ENV_STD::is_move_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_move_assignable_v < test >);
+    REQUIRE(ENV_STD::is_destructible_v < test >);
 
     test a{"constructed"};
     REQUIRE_EQ(a.get_member(), "constructed");
@@ -603,6 +609,7 @@ ENV_TEST_CASE("const manual lifetime")
     REQUIRE_EQ(c.get_member(), "copied");
     REQUIRE_EQ(b.get_member(), "nil");
 }
+
 
 // singleton lifetime
 
@@ -634,15 +641,16 @@ ENV_TEST_CASE("default singleton lifetime")
         MEM_GETTER(member);
     };
 
-    REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_move_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_move_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_destructible_v<test>);
+    REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_move_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_move_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_destructible_v < test >);
 
     REQUIRE_EQ(test::instance().get_member(), "default");
 }
+
 
 // auto
 
@@ -665,23 +673,23 @@ ENV_TEST_CASE("singleton auto lifetime")
         DECL_THIS(test);
         DECL((const char *), member);
 
-        AUTO_SINGLE_LIFE(test, CMP, (
-                                        : _member{"default"}));
+        AUTO_SINGLE_LIFE(test, CMP, (: _member{ "default" }));
 
         SINGLETON_GETTER();
 
         MEM_GETTER(member);
     };
 
-    REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_move_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_move_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_destructible_v<test>);
+    REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_move_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_move_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_destructible_v < test >);
 
     REQUIRE_EQ(test::instance().get_member(), "default");
 }
+
 
 // manual
 
@@ -719,15 +727,16 @@ ENV_TEST_CASE("singleton manual lifetime")
         DECL_DESTRUCT(, noex) { _member = "destructed"; }
     };
 
-    REQUIRE(!ENV_STD::is_default_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_move_constructible_v<test>);
-    REQUIRE(!ENV_STD::is_copy_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_move_assignable_v<test>);
-    REQUIRE(!ENV_STD::is_destructible_v<test>);
+    REQUIRE(!ENV_STD::is_default_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_move_constructible_v < test >);
+    REQUIRE(!ENV_STD::is_copy_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_move_assignable_v < test >);
+    REQUIRE(!ENV_STD::is_destructible_v < test >);
 
     REQUIRE_EQ(test::instance().get_member(), "constructed");
 }
+
 
 // subclass test
 
@@ -751,15 +760,14 @@ ENV_TEST_CASE("subclass lifetime")
     {
         DECL_THIS(subclass_t);
 
-        MANUAL_LIFE(
-            subclass_t,
-            SUB,
-            (
-                : poly_base_t{}),
-            (
-                : poly_base_t{other}),
-            (
-                : poly_base_t{ENV_STD::move(other)}));
+        MANUAL_LIFE
+        (
+                subclass_t,
+                SUB,
+                (: poly_base_t{ }),
+                (: poly_base_t{ other }),
+                (: poly_base_t{ ENV_STD::move(other) })
+        );
 
     protected:
         DECL_CONSTRUCT(, noex) { this->_get_poly_data() = "subclass"; }
@@ -771,7 +779,7 @@ ENV_TEST_CASE("subclass lifetime")
         DECL_DESTRUCT(, noex) { this->_get_poly_data() = "destructed"; }
     };
 
-    subclass_t sub_constructed{};
+    subclass_t sub_constructed{ };
     REQUIRE_EQ(sub_constructed.get_poly_data(), "subclass");
     subclass_t sub_copied = sub_constructed;
     REQUIRE_EQ(sub_copied.get_poly_data(), "copied");
@@ -779,5 +787,6 @@ ENV_TEST_CASE("subclass lifetime")
     REQUIRE_EQ(sub_moved.get_poly_data(), "copied");
     REQUIRE_EQ(sub_constructed.get_poly_data(), "nil");
 }
+
 
 #endif // ENV_LIFETIME_HPP
