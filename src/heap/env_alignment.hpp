@@ -122,7 +122,7 @@ ENV_TEST_CASE("aligned")
 ENV_NAMESPACE_BENCH_BEGIN
 
 
-ENV_BENCH(aligned_storage_heap_push_back)
+ENV_BENCH(aligned_storage_heap)
 {
     ENV_BLOOP
     {
@@ -143,10 +143,10 @@ ENV_BENCH(aligned_storage_heap_push_back)
     }
 }
 
-ENV_TIME(aligned_storage_heap_push_back, ->Range(1<<20, 1<<30))
+ENV_TIME(aligned_storage_heap, ->Range(1<<20, 1<<30))
 
 
-ENV_BENCH(aligned_int_heap_push_back)
+ENV_BENCH(aligned_int_heap)
 {
     ENV_BLOOP
     {
@@ -167,7 +167,7 @@ ENV_BENCH(aligned_int_heap_push_back)
     }
 }
 
-ENV_TIME(aligned_int_heap_push_back, ->Range(1<<20, 1<<30))
+ENV_TIME(aligned_int_heap, ->Range(1<<20, 1<<30))
 
 
 ENV_NAMESPACE_BENCH_END
