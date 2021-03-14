@@ -61,7 +61,8 @@ ENV_TEST_CASE("identifiable")
     con op ENV::id_t() const noex { ret this->id(); }                                   \
                                                                                         \
     INTER(CMP_, _tmp, HASH) { SPREAD(_hash); }                                          \
-    INTER(CMP_, _tmp, EQUALITY) { SPREAD(_equals); }
+    INTER(CMP_, _tmp, EQUALITY) { SPREAD(_equals); }                                    \
+    SEMI
 
 #define DEF_ELABORATE_ID(_get_id, _hash, _equals) DEF_ELABORATE_ID_OPT(_get_id, SKIP, _hash, _equals)
 #define DEF_ELABORATE_TMP_ID(_get_id, _hash, _equals) DEF_ELABORATE_ID_OPT(_get_id, TMP_, _hash, _equals)
@@ -83,9 +84,9 @@ private:
     DECL_THIS(id_struct_t);
 
 public:
-    ENABLE_IF_COMPAT((is_imp_convertible_g < T, id_struct_t >));
+    COND_COMPAT(is_imp_convertible_g < T, id_struct_t >);
 
-    DEF_TMP_ID
+    DEF_TMP_ID;
 };
 
 ENV_NAMESPACE_TEST_END

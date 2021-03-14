@@ -103,6 +103,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
                 PRIVATE
                 -Wall -Wextra -Wpedantic -Werror
                 -ftrack-macro-expansion=0 # so messages are printed nicely
+                -Wno-multichar # detect endianness
         )
     endfunction()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL Clang)

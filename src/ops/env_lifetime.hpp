@@ -432,8 +432,10 @@ ENV_TEST_CASE("manual lifetime")
         REQUIRE_EQ(b.get_member(), "copied");
         test c{ENV_STD::move(b)};
         REQUIRE_EQ(c.get_member(), "moved");
+#if !defined(NDEBUG) // GCC definitely optimizes this away
         b.~test();
         REQUIRE_EQ(b.get_member(), "destructed");
+#endif // !defined(NDEBUG)
     }
 
     SUBCASE("no construct")

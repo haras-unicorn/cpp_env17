@@ -1,78 +1,80 @@
 #ifndef ENV_ALIGNMENT_HPP
 #define ENV_ALIGNMENT_HPP
 
+
 // align_t
 
 WHOLE_UL(align, align, ENV_STD::size_t);
 
+tmp<name T> cmp_obj align_t align_of_g{alignof(T)};
+
+
 // max align
 
-strct alignas(next_pow2(alignof(ENV_STD::max_align_t))) max_align_t
+strct max_align_t
 {
-    byte_t data[next_pow2(alignof(ENV_STD::max_align_t))];
+    alignas(next_pow2(align_of_g<ENV_STD::max_align_t>)) byte_t data[next_pow2(align_of_g<ENV_STD::max_align_t>)];
 };
 
-let_cmp max_align{align_t{alignof(max_align_t)}};
+let_cmp max_align{align_of_g<max_align_t>};
 
 ENV_TEST_CASE("alignment")
 {
     REQUIRES(is_pow2(max_align));
 }
 
+
 // aligned
 
-template <size_t size, size_t align>
-class alignas(align) my_aligned_storage
+tmp<size_t size = single, align_t align = max_align>
+cls aligned_nnt
 {
-    std::byte val[size]{std::byte{0}};
+private:
+    alignas(align) ENV_STD::byte val[size]{ENV_STD::byte{0}};
+
 
 public:
-    constexpr inline my_aligned_storage() noexcept = default;
+    imp cmp inl aligned_nnt() noex = default;
 
-    template <typename T>
-    typename std::enable_if_t<
-        sizeof(T) == size &&
-            alignof(T) == align &&
-            std::is_trivially_copyable_v<T>,
-        my_aligned_storage &> inline
-    operator=(const T &other) noexcept
+    COND_TMP_UNARY
+    (
+            size_of_g < T > == size && align_of_g<T> == align &&
+            ENV_STD::is_trivially_copyable_v < T >
+    )
+    inl aligned_nnt(const T& other) noex
     {
-        std::memcpy(val, &other, size);
-        return *this;
-    }
-
-    template <
-        typename T,
-        std::enable_if_t<
-            sizeof(T) == size &&
-                alignof(T) == align &&
-                std::is_trivially_copyable_v<T>,
-            int> = 0>
-    inline my_aligned_storage(const T &other) noexcept
-    {
+        copy(&other, val, size);
         *this = other;
     }
 
-    template <
-        typename T,
-        std::enable_if_t<
-            sizeof(T) == size &&
-                alignof(T) == align &&
-                std::is_trivially_constructible_v<T> &&
-                std::is_trivially_copyable_v<T>,
-            int> = 0>
-    explicit inline operator T() const noexcept
+
+    COND_TMP_UNARY
+    (
+            size_of_g < T > == size && align_of_g < T > == align &&
+            ENV_STD::is_trivially_copyable_v < T >
+    )
+    callb inl op=(const T& other) noex
     {
-        T dst;
-        std::memcpy(&dst, val, size);
-        return dst;
+        copy(&other, val, size);
+        return *this;
+    }
+
+
+    COND_TMP_UNARY
+    (
+            size_of_g < T > == size && align_of_g < T > == align &&
+            ENV_STD::is_trivially_constructible_v < T > && ENV_STD::is_trivially_copyable_v < T >
+    )
+    con inl op T() const noex
+    {
+        T res;
+        copy(val, &res, size);
+        return res;
     }
 };
 
-tmp<size_t Size = single, align_t Align = max_align>
-    typ(aligned_nnt) = ENV_STD::aligned_storage_t<Size, Align>;
-
 tmp<align_t Align = max_align>
-    typ(aligned_nt) = ENV_STD::aligned_storage_t<single, Align>;
+typ(aligned_nt) = aligned_nnt<single, Align>;
+
 
 #endif // ENV_ALIGNMENT_HPP

@@ -3,10 +3,10 @@
 
 ENV_TEST_SUITE_BEGIN("heap");
 
-#include "env_alignment.hpp"
-#include "env_endian.hpp"
 #include "env_ptr.hpp"
 #include "env_transport.hpp"
+#include "env_alignment.hpp"
+#include "env_endian.hpp"
 
 #include "env_base_allocator.hpp"
 #include "env_base_deleter.hpp"

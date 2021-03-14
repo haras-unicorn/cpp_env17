@@ -14,6 +14,13 @@ ELABORATE_EXPR_CHECK
         SKIP_EXPR
 );
 
+ELABORATE_COND_CONCEPT
+(
+        specialization,
+        (tmp<name...> class Of),
+        (is_specialization_g<C, Of>)
+);
+
 ENV_TEST_CASE("specialization traits")
 {
     REQUIRES(is_specialization_g<variadic_vt<int>, variadic_vt>);
@@ -102,8 +109,8 @@ EXPR_CHECK
 
 ELABORATE_COND_CONCEPT
 (
-        imp_convertible_to_tmp,
-        (tmp<class...> class To),
+        imp_convertible_tmp,
+        (tmp<name...> class To),
         (is_imp_convertible_tmp_g<C, To>)
 );
 
@@ -111,7 +118,8 @@ ENV_TEST_CASE("template conversion traits")
 {
     strct tmp_derived_t : public variadic_vt<int> { };
     strct tmp_explicit_t
-    { explicit op variadic_vt<int>()
+    {
+        explicit op variadic_vt<int>()
         {
             ret { };
         }

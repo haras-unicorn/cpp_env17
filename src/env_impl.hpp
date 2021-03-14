@@ -15,9 +15,9 @@ ENV_TEST_SUITE_BEGIN("env");
 #include "stack/env_stack.hpp"
 #include "ops/env_ops.hpp"
 
-// #include "heap/env_heap.hpp"
-// #include "proxies/env_proxies.hpp"
-// #include "iteration/env_iteration.hpp"
+ #include "heap/env_heap.hpp"
+ #include "proxies/env_proxies.hpp"
+ #include "iteration/env_iteration.hpp"
 
 ENV_TEST_SUITE_END();
 

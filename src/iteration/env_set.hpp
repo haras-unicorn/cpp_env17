@@ -35,12 +35,15 @@ tmp<name TElements>
 
 ENV_TEST_CASE("sized set")
 {
+    // implementation-defined
     let _empty = sset<int>();
+    nonce(_empty);
     // some optimization?
-    REQUIRE_EQ(_empty.bucket_count(), 8);
+    // REQUIRE_EQ(_empty.bucket_count(), 8);
 
     let _single = sset<int>(9_s);
-    REQUIRE_EQ(_single.bucket_count(), 16);
+    nonce(_single);
+    // REQUIRE_EQ(_single.bucket_count(), 16);
 }
 
 // set

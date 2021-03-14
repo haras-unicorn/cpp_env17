@@ -322,9 +322,8 @@ ENV_TEST_CASE("member getters")
 
 #define DECL_SINGLETON_GETTER(_name) fun static inl _name() noex
 
-#if ENV_MSVC // MSVC default_delete is noexcept
-#define _SINGLETON_GETTER()                                               \
-    friend void std::default_delete<_this_t>::op()(_this_t*) const noex;  \
+#define _SINGLETON_GETTER                                                 \
+    friend struct std::default_delete<_this_t>;                           \
     friend std::unique_ptr<_this_t> std::make_unique<_this_t>();          \
                                                                           \
     DECL_SINGLETON_GETTER(PROTECTED_SINGLETON_NAME) -> _this_t&           \
@@ -332,40 +331,29 @@ ENV_TEST_CASE("member getters")
         let static _instance{ENV_STD::make_unique<_this_t>()};            \
         ret *_instance;                                                   \
     }
-#else // ENV_MSVC
-#define _SINGLETON_GETTER()                                               \
-    friend void std::default_delete<_this_t>::op()(_this_t*) const;       \
-    friend std::unique_ptr<_this_t> std::make_unique<_this_t>();          \
-                                                                          \
-    DECL_SINGLETON_GETTER(PROTECTED_SINGLETON_NAME) -> _this_t&           \
-    {                                                                     \
-        let static _instance{ENV_STD::make_unique<_this_t>()};            \
-        ret *_instance;                                                   \
-    }
-#endif // ENV_MSVC
 
 
-#define SINGLETON_GETTER()                                    \
+#define SINGLETON_GETTER                                      \
     DECL_SINGLETON_GETTER(PUBLIC_SINGLETON_NAME) -> _this_t&  \
     {                                                         \
         ret GET_SINGLETON;                                    \
     }                                                         \
                                                               \
 private:                                                      \
-    _SINGLETON_GETTER();                                      \
+    _SINGLETON_GETTER;                                        \
     ACCESS_END(public)
 
-#define CONST_SINGLETON_GETTER()                                    \
+#define CONST_SINGLETON_GETTER                                      \
     DECL_SINGLETON_GETTER(PUBLIC_SINGLETON_NAME) -> const _this_t&  \
     {                                                               \
         ret GET_SINGLETON;                                          \
     }                                                               \
                                                                     \
 private:                                                            \
-    _SINGLETON_GETTER();                                            \
+    _SINGLETON_GETTER;                                              \
     ACCESS_END(public)
 
-#define THREADED_MUT_SINGLETON_GETTER()                                     \
+#define THREADED_MUT_SINGLETON_GETTER                                       \
     DECL_SINGLETON_GETTER(PUBLIC_SINGLETON_NAME)                            \
     {                                                                       \
         obj static ENV_STD::mutex _mutex{};                                 \
@@ -377,10 +365,10 @@ private:                                                            \
     }                                                                       \
                                                                             \
 private:                                                                    \
-    _SINGLETON_GETTER();                                                    \
+    _SINGLETON_GETTER;                                                      \
     ACCESS_END(public)
 
-#define THREADED_CONST_SINGLETON_GETTER()                                         \
+#define THREADED_CONST_SINGLETON_GETTER                                           \
     DECL_SINGLETON_GETTER(PUBLIC_SINGLETON_NAME)                                  \
     {                                                                             \
         obj static ENV_STD::mutex _mutex{};                                       \
@@ -392,7 +380,7 @@ private:                                                                    \
     }                                                                             \
                                                                                   \
 private:                                                                          \
-    _SINGLETON_GETTER();                                                          \
+    _SINGLETON_GETTER;                                                            \
     ACCESS_END(public)
 
 
@@ -407,20 +395,10 @@ ENV_TEST_CASE("singleton getters")
             singleton_t() : with_reference_getter_t{"singleton"} { }
 
 
-            auto static inline instance() noexcept -> _this_t& { return _this_t::_instance(); }
-
-        private:
-            friend void std::default_delete<_this_t>::operator()(_this_t*) const;
-            friend std::unique_ptr<_this_t> std::make_unique<_this_t>();
-
-            auto static inline _instance() noexcept -> _this_t&
-            {
-                const auto static _instance{::std::make_unique<_this_t>()};
-                return *_instance;
-            };
+            SINGLETON_GETTER;
         };
 
-        REQUIRE_EQT(decltype(singleton_t::instance()), singleton_t &);
+        REQUIRE_EQT(decl(singleton_t::instance()), singleton_t &);
         singleton_t::instance().get_member() = "overwrite";
         REQUIRE_EQ(singleton_t::instance().get_member(), "overwrite");
     }
@@ -433,7 +411,7 @@ ENV_TEST_CASE("singleton getters")
 
             con singleton_t() : with_reference_getter_t{"const singleton"} { }
 
-            CONST_SINGLETON_GETTER();
+            CONST_SINGLETON_GETTER;
         };
 
         REQUIRE_EQT(decltype(singleton_t::instance()), const singleton_t &);
@@ -451,7 +429,7 @@ ENV_TEST_CASE("singleton getters")
         public:
             con thread_safe_singleton_t() : with_reference_getter_t{"thread safe singleton"} { }
 
-            THREADED_MUT_SINGLETON_GETTER();
+            THREADED_MUT_SINGLETON_GETTER;
         };
 
         {
@@ -474,7 +452,7 @@ ENV_TEST_CASE("singleton getters")
 
             thread_safe_singleton_t() : with_reference_getter_t{"const thread safe singleton"} { }
 
-            THREADED_CONST_SINGLETON_GETTER();
+            THREADED_CONST_SINGLETON_GETTER;
         };
 
         auto[lock, singleton] = thread_safe_singleton_t::instance();

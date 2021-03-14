@@ -31,9 +31,7 @@ ENV_TEST_CASE("expression conversion")
     strct
     {
         cmp_fn exp() const noex -> first_gvt<bool, EXPR_TYPE(true)> { ret EXPR_COND(true); }
-
         cmp_fn type() const noex -> first_gvt<bool, EXPR_TYPE(TYPE_EXPR(bool))> { ret TYPE_COND(bool); }
-
         cmp_fn flag() const noex -> first_gvt<bool, COND_TYPE(true) > { ret EXPR_COND(COND_EXPR(true)); }
     } cmp test{ };
 
