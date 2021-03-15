@@ -2,7 +2,6 @@
 #define ENV_CHECK_HPP
 
 
-
 // expr
 
 #define EXPR_CHECK_OPT(_name, _tmp, _application, _extract, _extract_application, _type, _static)         \
@@ -293,14 +292,17 @@ ENV_TEST_BEGIN
 cls cond_check_class_t
 {
 public:
-    COND_CLASS_CHECK_UNARY(test_const_unary, ENV_STD::is_const_v < T >);
+    COND_CLASS_CHECK_UNARY
+    (test_const_unary, ENV_STD::is_const_v < T >);
 
-    COND_CLASS_CHECK_BINARY(test_const_binary, ENV_STD::is_const_v < TLhs > && ENV_STD::is_const_v < TRhs >);
+    COND_CLASS_CHECK_BINARY
+    (test_const_binary, ENV_STD::is_const_v < TLhs > && ENV_STD::is_const_v < TRhs >);
 
-    COND_CLASS_CHECK_TERNARY(test_const_ternary,
-                             ENV_STD::is_const_v < T1 > && ENV_STD::is_const_v < T2 > && ENV_STD::is_const_v < T3 >);
+    COND_CLASS_CHECK_TERNARY
+    (test_const_ternary, ENV_STD::is_const_v < T1 > && ENV_STD::is_const_v < T2 > && ENV_STD::is_const_v < T3 >);
 
-    COND_CLASS_CHECK_VARIADIC(test_const_variadic, ENV_STD::conjunction_v < ENV_STD::is_const < TVar >...>);
+    COND_CLASS_CHECK_VARIADIC
+    (test_const_variadic, ENV_STD::conjunction_v < ENV_STD::is_const < TVar >...>);
 };
 
 ENV_TEST_END
@@ -375,13 +377,13 @@ ENV_TEST_CASE("cond check class")
 
 ENV_TEST_BEGIN
 
-TYPE_CHECK_UNARY(test_minus_unary, enable_minus_gt<T>);
+TYPE_CHECK_UNARY(test_minus_unary, enable_minus_gt < T >);
 
-TYPE_CHECK_BINARY(test_minus_binary, enable_minus_gt<TLhs>, enable_minus_gt<TRhs>);
+TYPE_CHECK_BINARY(test_minus_binary, enable_minus_gt < TLhs >, enable_minus_gt < TRhs >);
 
-TYPE_CHECK_TERNARY(test_minus_ternary, enable_minus_gt<T1>, enable_minus_gt<T2>, enable_minus_gt<T3>);
+TYPE_CHECK_TERNARY(test_minus_ternary, enable_minus_gt < T1 >, enable_minus_gt < T2 >, enable_minus_gt < T3 >);
 
-TYPE_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt<TVar>...);
+TYPE_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt < TVar >...);
 
 ENV_TEST_END
 
@@ -390,13 +392,13 @@ ENV_TEST_CASE("type check")
     SUBCASE("unary")
     {
         REQUIRES(test::test_minus_unary_g<const int>);
-        REQUIRES_FALSE(test::test_minus_unary_g<void>);
+        REQUIRES_FALSE(test::test_minus_unary_g < void >);
     }
 
     SUBCASE("binary")
     {
         REQUIRES(test::test_minus_binary_g<const int, const int>);
-        REQUIRES_FALSE(test::test_minus_binary_g<int, void>);
+        REQUIRES_FALSE(test::test_minus_binary_g < int, void >);
     }
 
     SUBCASE("ternary")
@@ -407,8 +409,8 @@ ENV_TEST_CASE("type check")
 
     SUBCASE("variadic")
     {
-        REQUIRES(test::test_minus_variadic_g<variadic_vt<const int, const int, const int, const int>>);
-        REQUIRES_FALSE(test::test_minus_variadic_g<variadic_vt<int, void, const int>>);
+        REQUIRES(test::test_minus_variadic_g < variadic_vt<const int, const int, const int, const int>>);
+        REQUIRES_FALSE(test::test_minus_variadic_g < variadic_vt<int, void, const int>>);
     }
 }
 
@@ -450,13 +452,14 @@ ENV_TEST_BEGIN
 cls type_check_class_t
 {
 public:
-    PACK(TYPE_CLASS_CHECK_UNARY(test_minus_unary, enable_minus_gt<T>));
+    PACK(TYPE_CLASS_CHECK_UNARY(test_minus_unary, enable_minus_gt < T > ));
 
-    TYPE_CLASS_CHECK_BINARY(test_minus_binary, enable_minus_gt<TLhs>, enable_minus_gt<TRhs>);
+    TYPE_CLASS_CHECK_BINARY(test_minus_binary, enable_minus_gt < TLhs >, enable_minus_gt < TRhs >);
 
-    TYPE_CLASS_CHECK_TERNARY(test_minus_ternary, enable_minus_gt<T1>, enable_minus_gt<T2>, enable_minus_gt<T3>);
+    TYPE_CLASS_CHECK_TERNARY(test_minus_ternary, enable_minus_gt < T1 >, enable_minus_gt < T2 >,
+                             enable_minus_gt < T3 >);
 
-    TYPE_CLASS_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt<TVar>...);
+    TYPE_CLASS_CHECK_VARIADIC(test_minus_variadic, enable_minus_gt < TVar >...);
 };
 
 ENV_TEST_END

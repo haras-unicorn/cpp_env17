@@ -206,21 +206,21 @@ ENV_DETAIL_BEGIN
 COND_TMP((name TElements, name... TArgs, ENV_STD::size_t... Indices),
          (ENV_STD::is_constructible_v<TElements, const TArgs& ...>))
 cmp_fn tpl(ENV_STD::index_sequence<Indices...>, const TArgs& ...args)
-noex(noex(TElements{args...})) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
+noexpr(TElements{args...}) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
 {
     ret {ENV::first_gvt<TElements, decltype(Indices)>{args...} ...};
 }
 
 COND_TMP((name TElements, ENV_STD::size_t... Indices), (ENV_STD::is_copy_constructible_v < TElements > ))
 cmp_fn tpl(ENV_STD::index_sequence<Indices...>, const TElements& to_copy)
-noex(noex(TElements{to_copy})) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
+noexpr(TElements{to_copy}) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
 {
     ret {ENV::first_gvt<TElements, decltype(Indices)>{to_copy}...};
 }
 
 COND_TMP((name TElements, ENV_STD::size_t... Indices), (ENV_STD::is_default_constructible_v < TElements > ))
 cmp_fn tpl(ENV_STD::index_sequence<Indices...>)
-noex(noex(TElements{ })) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
+noexpr(TElements{ }) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
 {
     ret {ENV::first_gvt<TElements, decltype(Indices)>{ }...};
 }
@@ -229,19 +229,19 @@ ENV_DETAIL_END
 
 COND_TMP((size_t Size, name TElements, name... TArgs),
          (ENV_STD::is_constructible_v<TElements, TArgs...> && Size != empty))
-cmp_fn tpl(TArgs&& ...args) noex(noex(TElements{TElements{args...}}))
+cmp_fn tpl(TArgs&& ...args) noexpr(TElements{TElements{args...}})
 {
     ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{ }, ENV_STD::forward<TArgs>(args)...);
 }
 
 COND_TMP((size_t Size, name TElements), (ENV_STD::is_copy_constructible_v < TElements > && Size != empty))
-cmp_fn tpl(const TElements& to_copy) noex(noex(TElements{to_copy}))
+cmp_fn tpl(const TElements& to_copy) noexpr(TElements{to_copy})
 {
     ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{ }, to_copy);
 }
 
 COND_TMP((size_t Size, name TElements), (ENV_STD::is_default_constructible_v < TElements > && Size != empty))
-cmp_fn tpl() noex(noex(TElements{TElements{ }}))
+cmp_fn tpl() noexpr(TElements{TElements{ }})
 {
     ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{ });
 }

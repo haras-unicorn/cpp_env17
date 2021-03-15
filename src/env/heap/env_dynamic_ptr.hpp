@@ -4,212 +4,283 @@
 
 ENV_DETAIL_BEGIN
 
-tmp<name TAlloc, name = success_t>
-strct dynamic_data_gt
+EXPR_CHECK_UNARY
+(
+        is_dynamic_data,
+
+        nonce(T{ }),
+        nonce(T{declvall<const T>()}),
+        nonce(T{declvalr<T>()}),
+        declvalr<T>().~T()
+);
+
+#ifdef ENV_STANDARD_REQUIREMENTS
+
+COND_CHECK_UNARY(is_dynamic_alloc, is_std_allocator_g < T >);
+
+#else
+
+COND_CHECK_UNARY(is_dynamic_alloc, true);
+
+#endif
+
+
+tmp<name TData, name TAlloc, name = success_t>
+strct dynamic_data_ggt
 {
+    typ(data_t) = TData;
+
+    NIL((data_t), data);
+    MEM_GETTER(data);
+
+
 protected:
     typ(alloc_t) = TAlloc;
     typ(traits_t) = ENV_STD::allocator_traits<alloc_t>;
+
+    typ(ptr_t) = name traits_t::pointer;
+    typ(c_ptr_t) = name traits_t::const_pointer;
+    typ(void_ptr_t) = name traits_t::void_pointer;
+    typ(c_void_ptr_t) = name traits_t::const_void_pointer;
+
+    typ(alloc_size_t) = name traits_t::size_type;
 
     NIL((TAlloc), alloc);
 
-public:
-    typ(ptr_t) = void*;
 
-    NIL((ptr_t), data);
-    CMP_GETTER_FML((tmp < name T >), (T * ), data, (rcast<T*>(_get_data())));
+    imp cmp inl dynamic_data_ggt() noex = default;
+
+    AUTO_NOCON_LIFE
+    (
+            dynamic_data_ggt, NO_ATTRIBUTE,
+            (:
+                    _alloc{ traits_t::select_on_container_copy_construction(other._get_alloc()) },
+                    _data{ other._get_data() }
+            ),
+            (:
+                    _alloc{ ENV_STD::move(other._get_alloc()) },
+                    _data{ ENV_STD::move(other._get_data()) }
+            )
+    );
 };
 
-tmp<name TAlloc>
-strct dynamic_data_gt<TAlloc, ENV::require_nt<ENV_STD::is_empty_v<TAlloc> && !ENV_STD::is_final_v<TAlloc>>>
-        : protected TAlloc
+tmp<name TData, name TAlloc>
+strct dynamic_data_ggt<
+        TData, TAlloc,
+        ENV::require_nt<ENV_STD::is_empty_v<TAlloc> && !ENV_STD::is_final_v<TAlloc>>> :
+        protected TAlloc
 {
+    typ(data_t) = TData;
+
+    NIL((data_t), data);
+    MEM_GETTER(data);
+
+
 protected:
     typ(alloc_t) = TAlloc;
     typ(traits_t) = ENV_STD::allocator_traits<alloc_t>;
 
+    typ(ptr_t) = name traits_t::pointer;
+    typ(c_ptr_t) = name traits_t::const_pointer;
+    typ(void_ptr_t) = name traits_t::void_pointer;
+    typ(c_void_ptr_t) = name traits_t::const_void_pointer;
+
+    typ(alloc_size_t) = name traits_t::size_type;
+
     GETTER(_get_alloc, (*this));
 
-public:
-    typ(ptr_t) = void*;
 
-    NIL((ptr_t), data);
-    CMP_GETTER_FML((tmp < name T >), (T * ), data, (rcast<T*>(_get_data())));
+    imp cmp inl dynamic_data_ggt() noex = default;
+
+    AUTO_NOCON_LIFE
+    (
+            dynamic_data_ggt, NO_ATTRIBUTE,
+            (:
+                    alloc_t{ traits_t::select_on_container_copy_construction(other._get_alloc()) },
+                    _data{ other._get_data() }
+            ),
+            (:
+                    alloc_t{ ENV_STD::move(other._get_alloc()) },
+                    _data{ ENV_STD::move(other._get_data()) }
+            )
+    );
 };
 
 ENV_DETAIL_END
 
-/* TAlloc must be an allocator that meets the standard requirements of an allocator! */
-
-COND_TMP((name TAlloc), ENV_STD::is_trivial_v < name TAlloc::value_type >)
-strct dynamic_ptr_gt : public detail::dynamic_data_gt<TAlloc>
+// Data has to have constructors, assignments, swap and destructor
+// Allocator has to satisfy Allocator named requirements.
+// Allocator named requirements: https://en.cppreference.com/w/cpp/named_req/Allocator
+COND_TMP((name TData, name TAlloc), detail::is_dynamic_data_g<TData> && detail::is_dynamic_alloc_g<TAlloc>)
+strct dynamic_ggt final : public detail::dynamic_data_ggt<TData, TAlloc>
 {
 private:
-    DECL_BASE(data, (detail::dynamic_data_gt<TAlloc>));
+    DECL_BASE(data, (detail::dynamic_data_ggt<TData, TAlloc>));
 
-    DECL_THIS(dynamic_ptr_gt);
+    DECL_THIS(dynamic_ggt);
 
     using name _data_base_t::alloc_t;
     using name _data_base_t::traits_t;
 
-public:
     using name _data_base_t::ptr_t;
+    using name _data_base_t::c_ptr_t;
+    using name _data_base_t::void_ptr_t;
+    using name _data_base_t::c_void_ptr_t;
+
+public:
+    using name _data_base_t::data_t;
 
 
-    cmp_obj bool static prop_on_copy = traits_t::propagate_on_container_copy_assignment::value;
+#if ENV_CPP >= 17
+    nonced cmp_obj_p bool static alloc_always_equal{traits_t::propagate_on_container_copy_assignment::value};
+#endif // ENV_CPP >= 17
 
-    cmp_obj bool static prop_on_move = traits_t::propagate_on_container_move_assignment::value;
+    nonced cmp_obj_p bool static alloc_prop_on_copy{traits_t::propagate_on_container_copy_assignment::value};
 
-    cmp_obj bool static prop_on_swap = traits_t::propagate_on_container_swap::value;
+    nonced cmp_obj_p bool static alloc_prop_on_move{traits_t::propagate_on_container_move_assignment::value};
+
+    nonced cmp_obj_p bool static alloc_prop_on_swap{traits_t::propagate_on_container_swap::value};
 
 
-    cmp_obj bool static is_alloc_noex = noex(traits_t::allocate(
-            declvall<alloc_t>(), declvalr<size_t>()));
+    imp cmp inl dynamic_ggt() noex = default;
+
+    DEFAULT_CONST_LIFE(dynamic_ggt, NO_ATTRIBUTE);
+
+
+    enm copy_strategy_t { copy, realloc_copy };
+
+    cmp inl copy_strategy_t copy(const dynamic_ggt& other) noex
+    {
+#if ENV_CPP >= 17
+        if_cmp (alloc_always_equal) ret copy_strategy_t::copy;
+#endif // ENV_CPP >= 17
+
+        let allocs_equal = this->_get_alloc() == other._get_alloc();
+
+        if_cmp (alloc_prop_on_copy) this->_get_alloc() = other._get_alloc();
+
+        ret allocs_equal ? copy_strategy_t::copy : copy_strategy_t::realloc_copy;
+    }
+
+
+    enm move_strategy_t { move, move_elements };
+
+    cmp inl move_strategy_t move(dynamic_ggt&& other) noex
+    {
+#if ENV_CPP >= 17
+        if_cmp (alloc_always_equal) ret copy_strategy_t::move;
+#endif // ENV_CPP >= 17
+        if_cmp (alloc_prop_on_move)
+        {
+            this->_get_alloc() = ENV_STD::move(other._get_alloc());
+            ret move_strategy_t::move;
+        }
+
+        let allocs_equal = this->_get_alloc() == other._get_alloc();
+        ret allocs_equal ? move_strategy_t::move : move_strategy_t::move_elements;
+    }
+
+
+    enm swap_strategy_t { swap, undefined };
+
+    cmp inl swap_strategy_t swap(dynamic_ggt& other) noex
+    {
+#if ENV_CPP >= 17
+        if_cmp (alloc_always_equal) ret copy_strategy_t::swap;
+#endif // ENV_CPP >= 17
+        if_cmp (alloc_prop_on_swap)
+        {
+            ENV_STD::swap(this->_get_alloc(), other._get_alloc());
+            ret swap_strategy_t::swap;
+        }
+
+        let allocs_equal = this->_get_alloc() == other._get_alloc();
+        ret allocs_equal ? swap_strategy_t::swap : swap_strategy_t::undefined;
+    }
+
+
+    CMP_GETTER(max, traits_t::max_size(this->_get_alloc()));
+
+
+    cmp_obj bool static is_alloc_noex{
+            noex(traits_t::allocate(declvall<alloc_t>(), declvalr<size_t>()))};
+
+    fun inl alloc(size_t size = single) noex(is_alloc_noex)
+    {
+        ret traits_t::allocate(this->_get_alloc(), size);
+    }
+
+    cmp_obj bool static is_alloc_at_noex{
+            noex(traits_t::allocate(declvall<alloc_t>(), declval<c_void_ptr_t>(), declvalr<size_t>()))};
+
+    fun inl alloc(c_void_ptr_t at, size_t size = single) noex(is_alloc_at_noex)
+    {
+        ret traits_t::allocate(this->_get_alloc(), size, at);
+    }
+
+    cmp_obj bool static is_free_noex{
+            noex(traits_t::deallocate(declvall<alloc_t>(), declvalr<ptr_t>(), declvalr<size_t>()))};
+
+    callb inl free(ptr_t at, size_t size = single) noex(is_free_noex)
+    {
+        traits_t::deallocate(this->_get_alloc(), at, size);
+    }
+
 
     tmp<name T, name... TArgs>
-    cmp_obj bool static is_place_noex_v = noex(traits_t::construct(
-            declvall<alloc_t>(), declvalr<T*>(), declval<TArgs>()...));
+    cmp_obj bool static is_place_noex_v{
+            noex(traits_t::construct(declvall<alloc_t>(), declvalr<T>(), declval<TArgs>()...))};
 
-    tmp<name T>
-    cmp_obj bool static is_rem_noex_g = noex(traits_t::destroy(
-            declvall<alloc_t>(), declvalr<T*>()));
-
-    cmp_obj bool static is_free_noex = noex(traits_t::deallocate(
-            declvall<alloc_t>(), declvalr<name traits_t::pointer>(), declvalr<size_t>()));
-
-
-    con cmp inl dynamic_ptr_gt() noex = default;
-
-    DEFAULT_CONST_LIFE(dynamic_ptr_gt, CMP);
-
-    cmp_fn copy_from(const dynamic_ptr_gt& other, size_t size)
-    {
-#if ENV_CPP >= 17
-        if_cmp (traits_t::is_always_equal::value)
-        {
-            copy(other._get_data(), this->_get_data(), size);
-            ret;
-        }
-#endif // ENV_CPP >= 17
-        if (this->_get_alloc() == other._get_alloc())
-        {
-            copy(other._get_data(), this->_get_data(), size);
-            if_cmp (prop_on_copy) this->_get_alloc() = other._get_alloc();
-            ret;
-        }
-        else
-        {
-            free(size);
-            this->_get_data() = traits_t::allocate(other._get_alloc(), size);
-            copy(other._get_data(), this->_get_data(), size);
-            if_cmp (prop_on_copy) this->_get_alloc() = other._get_alloc();
-            ret;
-        }
-    }
-
-    cmp_fn move_from(dynamic_ptr_gt&& other, size_t size)
-    {
-#if ENV_CPP >= 17
-        if_cmp (traits_t::is_always_equal::value)
-        {
-            free(size);
-            this->_get_data() = ENV_STD::move(other._get_data());
-            ret;
-        }
-#endif // ENV_CPP >= 17
-        if_cmp (prop_on_move)
-        {
-            free(size);
-            this->_get_alloc() = ENV_STD::move(other._get_alloc());
-            this->_get_data() = ENV_STD::move(other._get_data());
-            ret;
-        }
-
-        if (this->_get_alloc() == other._get_alloc())
-        {
-            free(size);
-            this->_get_data() = ENV_STD::move(other._get_data());
-            ret;
-        }
-
-        copy(other._get_data(), this->_get_data(), size);
-        ret;
-    }
-
-
-    callb inl alloc(size_t size = single) noex(is_alloc_noex)
-    {
-        this->_get_data() = traits_t::allocate(this->_get_alloc(), size);
-    }
-
-
-    COND_TMP((name T, name... TVar), ENV_STD::is_trivial_v < T > && ENV_STD::is_constructible_v < T, TVar...>)
-    callb inl place(TVar&& ...args) noex(is_place_noex_v<T, TVar...>)
-    {
-        traits_t::construct(this->_get_alloc(), rcast<T*>(this->_get_data()), ENV_STD::forward<TVar>(args)...);
-    }
-
-    COND_TMP((name T, name... TVar), ENV_STD::is_trivial_v < T > && ENV_STD::is_constructible_v < T, TVar...>)
-    callb inl place(T* at, TVar&& ...args) noex(is_place_noex_v<T, TVar...>)
+    tmp<name T, name... TVar>
+    callb inl place(T at, TVar&& ...args) noex(is_place_noex_v<T, TVar...>)
     {
         traits_t::construct(this->_get_alloc(), at, ENV_STD::forward<TVar>(args)...);
     }
 
-    COND_TMP((name T, name TOff, name... TVar), ENV_STD::is_trivial_v <T>&& ENV_STD::is_constructible_v<T,
-            TVar...>)
-    callb inl place(unsigned_c <TOff> offset, TVar&& ...args) noex(is_place_noex_v<T, TVar...>)
+    tmp<name T>
+    cmp_obj bool static is_rem_noex_g{
+            noex(traits_t::destroy(declvall<alloc_t>(), declvalr<T>()))};
+
+    tmp<name T>
+    callb inl rem(T at) noex(is_rem_noex_g<T>)
     {
-        traits_t::construct(this->_get_alloc(), rcast<T*>(this->_get_data()) + offset, ENV_STD::forward<TVar>(args)...);
+        traits_t::destroy(this->_get_alloc(), at);
     }
 
 
-    COND_TMP_UNARY(ENV_STD::is_trivial_v < T >)
-    callb inl rem() noex(is_rem_noex_g<T>)
-    {
-        traits_t::destroy(this->_get_alloc(), rcast<T*>(this->_get_data()));
-    }
+private:
+    cmp_obj static bool _is_dynamic{true};
 
-    COND_TMP_UNARY(ENV_STD::is_trivial_v < T >)
-    callb inl rem(T* at) noex(is_rem_noex_g<T>)
-    {
-        traits_t::destroy(this->_get_allocator(), at);
-    }
+public:
+    ELABORATE_COND_COMPAT
+    (
+            (T::_is_dynamic && is_hashable_g < name T::data_t >),
+            (T::_is_dynamic && are_equatable_g < name T::data_t, data_t >),
+            (T::_is_dynamic && are_comparable_g < name T::data_t, data_t >)
+    );
 
-    COND_TMP((name T, name TOff), ENV_STD::is_trivial_v < T >)
-    callb inl rem(unsigned_c <TOff> offset) noex(is_rem_noex_g<T>)
-    {
-        traits_t::destroy(this->_get_alloc(), rcast<T*>(this->_get_data()) + offset);
-    }
-
-
-    callb inl free(size_t size = single) noex(is_free_noex)
-    {
-        traits_t::deallocate(this->_get_alloc(), rcast<name traits_t::pointer>(this->_get_data()), size);
-        this->_get_data() = nil;
-    }
-
-
-    COND_COMPAT((is_imp_convertible_tmp_g < T, dynamic_ptr_gt > && are_equatable_g < name T::ptr_t, ptr_t >));
-
-    CMP_VALIDITY { ret this->_get_data() != nil; };
-    CMP_TMP_HASH { ret hash(this->_get_data()); };
-    CMP_TMP_EQUALITY { ret this->_get_data() == rhs._get_data(); };
+    CMP_VALIDITY { ret this->_get_data() != nil; }
+    CMP_TMP_HASH { ret hash(this->_get_data()); }
+    CMP_TMP_EQUALITY { ret this->_get_data() == rhs._get_data(); }
+    CMP_TMP_COMPARISON { ret this->_get_data() < rhs._get_data(); }
 };
+
 
 ENV_STD_BEGIN
 
-tmp<name TAlloc>
-strct hash<ENV::dynamic_ptr_gt<TAlloc>>
+tmp<name TData, name TAlloc>
+strct hash<ENV::dynamic_ggt<TData, TAlloc>>
 {
-    cmp_fn op()(const ENV::dynamic_ptr_gt<TAlloc>& subject) const noex
-    {
-        ret subject.hash();
-    }
+    cmp_fn op()(const ENV::dynamic_ggt<TData, TAlloc>& subject) const noex { ret subject.hash(); }
 };
 
 ENV_STD_END
 
-typ(dynamic_t) = dynamic_ptr_gt<allocator_gt < byte_t>>;
+
+tmp<name TElement, name TAlloc = allocator_gt <TElement>>
+typ(dynamic_gt) = dynamic_ggt<TElement*, name ENV_STD::allocator_traits<TAlloc>::tmp rebind_alloc<TElement>>;
+
+typ(dynamic_t) = dynamic_gt<byte_t>;
 
 
 TEST_CASE("dynamic")
@@ -218,32 +289,49 @@ TEST_CASE("dynamic")
 
     SUBCASE("pair")
     {
-        obj dynamic_ptr_gt<allocator_gt < ENV_STD::pair<int, int>> > a;
-        a.alloc(2);
-        a.place<ENV_STD::pair<int, int>>(1, 2);
-        a.place<ENV_STD::pair<int, int>>(1u, 2, 3);
+        obj dynamic_gt<ENV_STD::pair<int, int>> dynamic;
+        dynamic.get_data() = dynamic.alloc(dual);
+        dynamic.place(dynamic.get_data(), 1, 2);
+        dynamic.place(dynamic.get_data() + 1, 2, 3);
 
-        REQUIRE_EQ(a.get_data < ENV_STD::pair < int, int >> ()[0], ENV_STD::pair{1, 2});
-        REQUIRE_EQ(a.get_data < ENV_STD::pair < int, int >> ()[1], ENV_STD::pair{2, 3});
+        REQUIRE_EQ(dynamic.get_data()[0], ENV_STD::pair{1, 2});
+        REQUIRE_EQ(dynamic.get_data()[1], ENV_STD::pair{2, 3});
 
-        a.rem<ENV_STD::pair<int, int>>();
-        a.rem<ENV_STD::pair<int, int>>(1u);
-        a.free(2);
+        dynamic.rem(dynamic.get_data() + 1);
+        dynamic.rem(dynamic.get_data());
+        dynamic.free(dynamic.get_data(), dual);
     }
 
     SUBCASE("byte")
     {
-        obj dynamic_t a;
-        a.alloc(2);
-        a.place<byte_t>(0u, scast<byte_t>(0));
-        a.place<byte_t>(1u, scast<byte_t>(1));
+        obj dynamic_t dynamic;
+        dynamic.get_data() = dynamic.alloc(dual);
+        dynamic.place(dynamic.get_data(), scast<byte_t>(0));
+        dynamic.place(dynamic.get_data() + 1, scast<byte_t>(1));
 
-        REQUIRE_EQ(a.get_data<byte_t>()[0], byte_t{0});
-        REQUIRE_EQ(a.get_data<byte_t>()[1], byte_t{1});
+        REQUIRE_EQ(dynamic.get_data()[0], byte_t{0});
+        REQUIRE_EQ(dynamic.get_data()[1], byte_t{1});
 
-        a.rem<byte_t>(1u);
-        a.rem<byte_t>(1u);
-        a.free(2);
+        dynamic.rem(dynamic.get_data() + 1);
+        dynamic.rem(dynamic.get_data());
+        dynamic.free(dynamic.get_data(), dual);
+    }
+
+    SUBCASE("int range")
+    {
+        strct int_range_t { int* begin; int* end; };
+
+        obj dynamic_ggt<int_range_t, ENV::allocator_gt<int>> dynamic;
+        dynamic.get_data().begin = dynamic.alloc(11_s);
+        dynamic.get_data().end = &dynamic.get_data().begin[10];
+        for (auto i = dynamic.get_data().begin ; i != dynamic.get_data().end ; i++) dynamic.place(i, 0);
+
+        ENV_STD::fill(dynamic.get_data().begin, dynamic.get_data().end, 1);
+        let are_ones = ENV_STD::all_of(dynamic.get_data().begin, dynamic.get_data().end, [](auto i) { ret i == 1; });
+        REQUIRE(are_ones);
+
+        for (auto i = dynamic.get_data().begin ; i != dynamic.get_data().end ; i++) dynamic.rem(i);
+        dynamic.free(dynamic.get_data().begin, 11_s);
     }
 }
 

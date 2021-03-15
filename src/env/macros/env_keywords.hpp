@@ -14,9 +14,17 @@
 #define sass_msg static_assert
 #endif // ENV_CPP >= 17
 
+#if ENV_CPP >= 17
+#define nonced [[maybe_unused]]
+#else
+#define nonced
+#endif
+#define nonce static_cast<void>
+
 #define cmp constexpr
 #define inl inline
 #define noex noexcept
+#define noexpr(...) noex(noex(nonce(__VA_ARGS__)))
 #if ENV_CPP >= 17
 #define if_cmp if cmp
 #else // ENV_CPP >= 17
@@ -36,7 +44,6 @@
 #define rcast reinterpret_cast
 #define ccast const_cast
 #define dcast dynamic_cast
-#define nonce static_cast<void>
 
 ENV_TEST_BEGIN
 
@@ -51,7 +58,7 @@ ENV_TEST_CASE("keyword keywords")
 {
     struct [[TYPE_ATTRIBUTES]] test
     {
-        NO_RETURN_ATTRIBUTES inl void op()(int b = 1) noex
+        [[NO_RETURN_ATTRIBUTES]] inl void op()(int b = 1) noex
         {
             [[OBJECT_ATTRIBUTES]] cmp decl(1) a{ };
             nonce(a);
@@ -73,7 +80,7 @@ ENV_TEST_CASE("keyword keywords")
     class [[TYPE_ATTRIBUTES]] derived_t : public base_t
     {
     } derived{ };
-    [[OBJECT_ATTRIBUTES]] const auto _dcast = dcast<base_t&>(derived);
+    nonced const auto _dcast = dcast<base_t&>(derived);
     nonce(_dcast);
 
     sass(true);
@@ -177,9 +184,9 @@ ENV_TEST_CASE("object keywords")
 #else // ENV_CPP >= 14
 #define callb_p
 #endif // ENV_CPP >= 14
-#define callb NO_RETURN_ATTRIBUTES callb_p
+#define callb [[NO_RETURN_ATTRIBUTES]] callb_p
 #define cmp_callb_p callb_p inl cmp
-#define cmp_callb NO_RETURN_ATTRIBUTES cmp_callb_p
+#define cmp_callb [[NO_RETURN_ATTRIBUTES]] cmp_callb_p
 
 ENV_TEST_CASE("function keywords")
 {
@@ -199,7 +206,9 @@ ENV_TEST_CASE("function keywords")
     };
 
     nonce(my_struct{ }.fi());
+    nonce(my_struct::fc());
     nonce(my_struct::cbc());
+    my_struct::cb();
 }
 
 

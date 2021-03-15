@@ -7,7 +7,7 @@
 #if ENV_CPP >= 17
 #define TYPE_ATTRIBUTES
 #define OBJECT_ATTRIBUTES
-#define RETURN_ATTRIBUTES
+#define RETURN_ATTRIBUTES nodiscard
 #define NO_RETURN_ATTRIBUTES
 #else // ENV_CPP >= 17
 #define TYPE_ATTRIBUTES
@@ -25,7 +25,7 @@ ENV_TEST_CASE("attributes")
     {
         [[RETURN_ATTRIBUTES]] int f() { return 0; }
 
-        NO_RETURN_ATTRIBUTES void g() { }
+        [[NO_RETURN_ATTRIBUTES]] void g() { }
     };
 }
 

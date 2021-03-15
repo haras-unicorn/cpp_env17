@@ -49,7 +49,7 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
 #define WRAP_LIFETIME_ATTRIBUTE(_attribute, _name) DECL_##_attribute##_##_name
 
 #define DECL_DEFAULT_CONSTRUCTOR(_name, _pre, _post) \
-    RETURN_ATTRIBUTES _pre _name() _post
+    [[RETURN_ATTRIBUTES]] _pre _name() _post
 
 #define DECL_DELETED_DEFAULT_CONSTRUCTOR(_name) \
     DECL_DEFAULT_CONSTRUCTOR(_name, , DELETE_METHOD)
@@ -82,8 +82,8 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
     (_name, DEF_DEFAULT_CONSTRUCT_MANUAL(_construct, _copy, _move))
 
 #define DECL_COPY_MOVE_CONSTRUCTORS(_name, _pre, _post_copy, _post_move)          \
-    RETURN_ATTRIBUTES _pre _name([[maybe_unused]] const _name &other) _post_copy  \
-        RETURN_ATTRIBUTES _pre _name([[maybe_unused]] _name &&other) _post_move /* NOLINT(performance-noex-move-constructor) */
+    [[RETURN_ATTRIBUTES]] _pre _name(nonced const _name &other) _post_copy  \
+        [[RETURN_ATTRIBUTES]] _pre _name(nonced _name &&other) _post_move /* NOLINT(performance-noex-move-constructor) */
 
 #define DECL_DELETED_COPY_MOVE_CONSTRUCTORS(_name) \
     DECL_COPY_MOVE_CONSTRUCTORS(_name, , DELETE_METHOD, DELETE_METHOD)
@@ -116,8 +116,8 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
     (_name, DEF_COPY_MANUAL(_construct, _copy, _move), DEF_MOVE_MANUAL(_construct, _copy, _move))
 
 #define DECL_ASSIGNMENT_OPERATORS(_name, _pre, _post_copy, _post_move)                  \
-    RETURN_ATTRIBUTES _pre _name &op = ([[maybe_unused]] const _name &other)_post_copy \
-        RETURN_ATTRIBUTES _pre _name &op = ([[maybe_unused]] _name && other) _post_move /* NOLINT(performance-noex-move-constructor) */
+    [[RETURN_ATTRIBUTES]] _pre _name &op = (nonced const _name &other)_post_copy \
+        [[RETURN_ATTRIBUTES]] _pre _name &op = (nonced _name && other) _post_move /* NOLINT(performance-noex-move-constructor) */
 
 #define DECL_DELETED_ASSIGNMENT_OPERATORS(_name) \
     DECL_ASSIGNMENT_OPERATORS(_name, , DELETE_METHOD, DELETE_METHOD)
@@ -150,7 +150,7 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
     (_name, DEF_OPERATOR_COPY_MOVE(_construct, _copy, _move), DEF_OPERATOR_MOVE(_construct, _copy, _move))
 
 #define DECL_DESTRUCTOR(_name, _pre, _post) \
-    NO_RETURN_ATTRIBUTES _pre ~_name() _post
+    [[NO_RETURN_ATTRIBUTES]] _pre ~_name() _post
 
 #define DECL_DELETED_DESTRUCTOR(_name) \
     DECL_DESTRUCTOR(_name, , DELETE_METHOD)
@@ -188,14 +188,14 @@ ENV_CLANG_SUPPRESS_POP
 // manual methods
 
 #define DECL_LIFETIME_FUN(_name, _arguments, _pre, _post) \
-    NO_RETURN_ATTRIBUTES _pre inl void _name _arguments _post
+    [[NO_RETURN_ATTRIBUTES]] _pre inl void _name _arguments _post
 
 #define DECL_CONSTRUCT(_pre, _post) DECL_LIFETIME_FUN(_construct, (), _pre, _post)
 
 #define DECL_NIL(_pre, _post) DECL_LIFETIME_FUN(_nil, (), _pre, _post)
 
-#define DECL_COPY(_pre, _post) DECL_LIFETIME_FUN(_copy_move, ([[maybe_unused]] const _this_t &other), _pre, _post)
-#define DECL_MOVE(_pre, _post) DECL_LIFETIME_FUN(_copy_move, ([[maybe_unused]] _this_t && other), _pre, _post)
+#define DECL_COPY(_pre, _post) DECL_LIFETIME_FUN(_copy_move, (nonced const _this_t &other), _pre, _post)
+#define DECL_MOVE(_pre, _post) DECL_LIFETIME_FUN(_copy_move, (nonced _this_t && other), _pre, _post)
 
 #define DEF_MOVE(_pre, _post)    \
     DECL_MOVE(_pre, _post)       \

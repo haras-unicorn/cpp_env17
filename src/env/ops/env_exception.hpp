@@ -80,7 +80,7 @@ cmp_obj d_unignorable_policy_s d_unignorable_policy{ };
 
 // status
 
-struct OBJECT_ATTRIBUTES exception_status_s
+struct [[OBJECT_ATTRIBUTES]] exception_status_s
 {
     let_cmp static state_message{"Invalid state."_msg};
     let_cmp static state_code{10_err};
@@ -147,11 +147,11 @@ callb except(message_t message) { throw T{message.data()}; }
 #define EXCEPTION_POLICY_ARGUMENT_NAME exc_pol
 
 #define EXCEPTION_POLICY_RUNTIME_ARGUMENT                                                            \
-    [[maybe_unused]] exception_policy_c<EXCEPTION_POLICY_TYPE_NAME> EXCEPTION_POLICY_ARGUMENT_NAME = \
+    nonced exception_policy_c<EXCEPTION_POLICY_TYPE_NAME> EXCEPTION_POLICY_ARGUMENT_NAME = \
         EXCEPTION_POLICY_TYPE_NAME {}
 
 #define UNIGNORABLE_POLICY_RUNTIME_ARGUMENT                                                            \
-    [[maybe_unused]] unignorable_policy_c<EXCEPTION_POLICY_TYPE_NAME> EXCEPTION_POLICY_ARGUMENT_NAME = \
+    nonced unignorable_policy_c<EXCEPTION_POLICY_TYPE_NAME> EXCEPTION_POLICY_ARGUMENT_NAME = \
         EXCEPTION_POLICY_TYPE_NAME {}
 
 // shorthands

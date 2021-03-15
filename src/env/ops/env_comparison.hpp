@@ -28,70 +28,70 @@
 // validity
 
 #define DEFINE_NULLPTR_EQ_OPERATOR(_type, _pre, _post)                    \
-    RETURN_ATTRIBUTES _pre inl ENV::flag_t op == (ENV::nil_t) const _post \
+    [[RETURN_ATTRIBUTES]] _pre inl ENV::flag_t op == (ENV::nil_t) const _post \
     {                                                                     \
         ret !CHECK_IS_VALID(_type, (*this));                              \
     }
 
 #define DEFINE_NULLPTR_NE_OPERATOR(_type, _pre, _post)                    \
-    RETURN_ATTRIBUTES _pre inl ENV::flag_t op != (ENV::nil_t) const _post \
+    [[RETURN_ATTRIBUTES]] _pre inl ENV::flag_t op != (ENV::nil_t) const _post \
     {                                                                     \
         ret CHECK_IS_VALID(_type, (*this));                               \
     }
 
 #define DEFINE_IS_INVALID(_type, _pre, _post)                       \
-    RETURN_ATTRIBUTES _pre inl ENV::flag_t is_invalid() const _post \
+    [[RETURN_ATTRIBUTES]] _pre inl ENV::flag_t is_invalid() const _post \
     {                                                               \
         ret !CHECK_IS_VALID(_type, (*this));                        \
     }
 
 #define DEFINE_BOOL_OPERATOR(_type, _pre, _post)                     \
-    RETURN_ATTRIBUTES _pre inl explicit op ENV::flag_t() const _post \
+    [[RETURN_ATTRIBUTES]] _pre inl explicit op ENV::flag_t() const _post \
     {                                                                \
         ret CHECK_IS_VALID(_type, (*this));                          \
     }
 
 #define DEFINE_STATIC_IS_VALID(_type, _pre, _post)                                                   \
-    RETURN_ATTRIBUTES _pre static inl ENV::flag_t IS_VALID_NAME(const SPREAD(_type) & subject) _post \
+    [[RETURN_ATTRIBUTES]] _pre static inl ENV::flag_t IS_VALID_NAME(const SPREAD(_type) & subject) _post \
     {                                                                                                \
         ret CHECK_IS_VALID(_type, subject);                                                          \
     }
 
 #define DECLARE_IS_VALID_FUNCTION(_type, _pre, _post) \
-    RETURN_ATTRIBUTES _pre inl ENV::flag_t IS_VALID_NAME() const _post
+    [[RETURN_ATTRIBUTES]] _pre inl ENV::flag_t IS_VALID_NAME() const _post
 
 // hash
 
 #define DEFINE_CALCULATE_HASH(_type, _pre, _post)                       \
-    RETURN_ATTRIBUTES _pre inl ENV::hash_t calculate_hash() const _post \
+    [[RETURN_ATTRIBUTES]] _pre inl ENV::hash_t calculate_hash() const _post \
     {                                                                   \
         ret GET_HASH(_type, (*this));                                   \
     }
 
 #define DEFINE_HASH_OPERATOR(_type, _pre, _post)                     \
-    RETURN_ATTRIBUTES _pre inl explicit op ENV::hash_t() const _post \
+    [[RETURN_ATTRIBUTES]] _pre inl explicit op ENV::hash_t() const _post \
     {                                                                \
         ret GET_HASH(_type, (*this));                                \
     }
 
 #define DEFINE_STATIC_HASH(_type, _pre, _post)                                                   \
-    RETURN_ATTRIBUTES _pre static inl ENV::hash_t HASH_NAME(const SPREAD(_type) & subject) _post \
+    [[RETURN_ATTRIBUTES]] _pre static inl ENV::hash_t HASH_NAME(const SPREAD(_type) & subject) _post \
     {                                                                                            \
         ret GET_HASH(_type, subject);                                                            \
     }
 
 #define DECLARE_HASH_FUNCTION(_type, _pre, _post) \
-    RETURN_ATTRIBUTES _pre inl ENV::hash_t HASH_NAME() const _post
+    [[RETURN_ATTRIBUTES]] _pre inl ENV::hash_t HASH_NAME() const _post
 
 
 // possibly tmp modular
 
 #define DECLARE_BINARY_CHECK(_name, _type, _pre, _post) \
-    RETURN_ATTRIBUTES _pre inl ENV::flag_t              \
+    [[RETURN_ATTRIBUTES]] _pre inl ENV::flag_t              \
     _name(const SPREAD(_type) & rhs) const _post
 
 #define DECLARE_STATIC_BINARY_CHECK(_name, _type_lhs, _type_rhs, _pre, _post) \
-    RETURN_ATTRIBUTES _pre static inl ENV::flag_t                             \
+    [[RETURN_ATTRIBUTES]] _pre static inl ENV::flag_t                             \
     _name(const SPREAD(_type_lhs) & lhs, const SPREAD(_type_rhs) & rhs) _post
 
 #define DECLARE_NO_TEMPLATE_BINARY_CHECK(_name, _type, _pre, _post) \
@@ -381,6 +381,7 @@
 #define DECLARE_TEMPLATE_LESS_FUNCTION(_type, _pre, _post) \
     DECLARE_COMPARISON_TEMPLATE_BINARY_CHECK(LESS_NAME, _type, _pre, _post)
 
+
 // This is too much to test and most of the untested stuff is just boilerplate anyway.
 
 ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
@@ -567,38 +568,70 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
 
 // compatibility
 
-#define COND_HASH_EQ_COMPAT(...) COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, __VA_ARGS__)
-#define COND_EQUALITY_COMPAT(...) COND_CLASS_CHECK_UNARY(is_equality_compatible_with, __VA_ARGS__)
-#define COND_COMPARISON_COMPAT(...) COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, __VA_ARGS__)
+#define COND_HASH_EQ_COMPAT(...)                                         \
+        COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_hash_eq_compatible_with_gs
+
+#define COND_EQUALITY_COMPAT(...)                                         \
+        COND_CLASS_CHECK_UNARY(is_equality_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_equality_compatible_with_gs
+
+#define COND_COMPARISON_COMPAT(...)                                         \
+        COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_comparison_compatible_with_gs
 
 #define ELABORATE_COND_COMPAT(_hash_condition, _equality_condition, _comparison_condition) \
-    COND_HASH_EQ_COMPAT(_hash_condition);                                                  \
-    COND_EQUALITY_COMPAT(_equality_condition);                                             \
-    COND_COMPARISON_COMPAT(_comparison_condition)
+        COND_HASH_EQ_COMPAT(_hash_condition);                                              \
+        COND_EQUALITY_COMPAT(_equality_condition);                                         \
+        COND_COMPARISON_COMPAT(_comparison_condition)
 
 #define COND_COMPAT(...) ELABORATE_COND_COMPAT(PACK(__VA_ARGS__), PACK(__VA_ARGS__), PACK(__VA_ARGS__))
 
-#define EXPR_HASH_EQ_COMPAT(...) EXPR_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, __VA_ARGS__)
-#define EXPR_EQUALITY_COMPAT(...) EXPR_CLASS_CHECK_UNARY(is_equality_compatible_with, __VA_ARGS__)
-#define EXPR_COMPARISON_COMPAT(...) EXPR_CLASS_CHECK_UNARY(is_comparison_compatible_with, __VA_ARGS__)
+
+#define EXPR_HASH_EQ_COMPAT(...)                                         \
+        EXPR_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_hash_eq_compatible_with_gs
+
+#define EXPR_EQUALITY_COMPAT(...)                                         \
+        EXPR_CLASS_CHECK_UNARY(is_equality_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_equality_compatible_with_gs
+
+#define EXPR_COMPARISON_COMPAT(...)                                         \
+        EXPR_CLASS_CHECK_UNARY(is_comparison_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_comparison_compatible_with_gs
 
 #define ELABORATE_EXPR_COMPAT(_hash_expression, _equality_expression, _comparison_expression) \
-    EXPR_HASH_EQ_COMPAT(_hash_expression);                                                    \
-    EXPR_EQUALITY_COMPAT(_equality_expression);                                               \
-    EXPR_COMPARISON_COMPAT(_comparison_expression)
+        EXPR_HASH_EQ_COMPAT(_hash_expression);                                                \
+        EXPR_EQUALITY_COMPAT(_equality_expression);                                           \
+        EXPR_COMPARISON_COMPAT(_comparison_expression)
 
 #define EXPR_COMPAT(...) ELABORATE_EXPR_COMPAT(PACK(__VA_ARGS__), PACK(__VA_ARGS__), PACK(__VA_ARGS__))
 
-#define TYPE_HASH_EQ_COMPAT(...) TYPE_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, __VA_ARGS__)
-#define TYPE_EQUALITY_COMPAT(...) TYPE_CLASS_CHECK_UNARY(is_equality_compatible_with, __VA_ARGS__)
-#define TYPE_COMPARISON_COMPAT(...) TYPE_CLASS_CHECK_UNARY(is_comparison_compatible_with, __VA_ARGS__)
+
+#define TYPE_HASH_EQ_COMPAT(...)                                         \
+        TYPE_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_hash_eq_compatible_with_gs
+
+#define TYPE_EQUALITY_COMPAT(...)                                         \
+        TYPE_CLASS_CHECK_UNARY(is_equality_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_equality_compatible_with_gs
+
+#define TYPE_COMPARISON_COMPAT(...)                                         \
+        TYPE_CLASS_CHECK_UNARY(is_comparison_compatible_with, __VA_ARGS__); \
+        tmp<name, name> friend struct is_comparison_compatible_with_gs
 
 #define ELABORATE_TYPE_COMPAT(_hash_type, _equality_type, _comparison_type) \
-    TYPE_HASH_EQ_COMPAT(_hash_type);                                                  \
-    TYPE_EQUALITY_COMPAT(_equality_type);                                             \
-    TYPE_COMPARISON_COMPAT(_comparison_type)
+        TYPE_HASH_EQ_COMPAT(_hash_type);                                    \
+        TYPE_EQUALITY_COMPAT(_equality_type);                               \
+        TYPE_COMPARISON_COMPAT(_comparison_type)
 
 #define TYPE_COMPAT(...) ELABORATE_TYPE_COMPAT(PACK(__VA_ARGS__), PACK(__VA_ARGS__), PACK(__VA_ARGS__))
+
+
+#define COMPAT(_name)                                                    \
+        nonced cmp_obj_p bool static _name{true};              \
+        COND_COMPAT(T::_name)
+
 
 ENV_CLANG_SUPPRESS_POP
 
@@ -675,7 +708,7 @@ ENV_TEST_CASE("comparison")
 
 ENV_TEST_BEGIN
 
-tmp<name TValue>
+COND_TMP((name TValue), ENV_STD::is_integral_v < TValue >)
 cls tmp_comparable_gt
 {
     DECL_THIS(tmp_comparable_gt);
@@ -685,10 +718,10 @@ cls tmp_comparable_gt
 
     MEM_CMP_REF_GETTER(value);
 
-    // this way because GCC seems to be picky about this guy
-    TYPE_COMPAT(imp_convertible_tmp_r < T, tmp_comparable_gt >);
+
+    COMPAT(is_tmp_comparable);
     CMP_VALIDITY { ret get_value() >= _value_t{0}; }
-    CMP_TMP_HASH { ret static_cast<ENV::hash_t>(get_value()); }
+    CMP_TMP_HASH { ret scast<hash_t>(get_value()); } // hash not constexpr
     CMP_TMP_EQUALITY { ret get_value() == static_cast<_value_t>(rhs.get_value()); }
     CMP_TMP_COMPARISON { ret get_value() < static_cast<_value_t>(rhs.get_value()); }
 };
@@ -697,36 +730,36 @@ ENV_TEST_END
 
 ENV_TEST_CASE("template comparison")
 {
-    cmp test::tmp_comparable_gt<float> comparable_float{30};
-    cmp test::tmp_comparable_gt<double> comparable_double{20};
+    cmp test::tmp_comparable_gt<int> comparable_int{30};
+    cmp test::tmp_comparable_gt<char> comparable_char{20};
 
     SUBCASE("validity")
     {
-        REQUIRES(static_cast<bool>(comparable_float));
-        REQUIRES(comparable_float.is_valid());
-        let null_result = comparable_float != nil;
+        REQUIRES(static_cast<bool>(comparable_int));
+        REQUIRES(comparable_int.is_valid());
+        let null_result = comparable_int != nil;
         REQUIRES(null_result);
     }
 
     SUBCASE("hash")
     {
-        REQUIRES_FALSE(comparable_float.hash_is_equal_to(comparable_double));
-        REQUIRES(comparable_float.hash() != comparable_double.hash());
-        REQUIRES(comparable_float.hash() == comparable_float.hash());
+        REQUIRES_FALSE(comparable_int.hash_is_equal_to(comparable_char));
+        REQUIRES(comparable_int.hash() != comparable_char.hash());
+        REQUIRES(comparable_int.hash() == comparable_int.hash());
     }
 
     SUBCASE("equality")
     {
-        REQUIRES(comparable_float == comparable_float);
-        REQUIRES(comparable_float != comparable_double);
+        REQUIRES(comparable_int == comparable_int);
+        REQUIRES(comparable_int != comparable_char);
     }
 
     SUBCASE("comparison")
     {
-        REQUIRES(comparable_float > comparable_double);
-        REQUIRES(comparable_double < comparable_float);
-        REQUIRES(comparable_double.is_less_than_or_equal_to(comparable_float));
-        REQUIRES(comparable_float >= comparable_float);
+        REQUIRES(comparable_int > comparable_char);
+        REQUIRES(comparable_char < comparable_int);
+        REQUIRES(comparable_char.is_less_than_or_equal_to(comparable_int));
+        REQUIRES(comparable_int >= comparable_int);
     }
 }
 

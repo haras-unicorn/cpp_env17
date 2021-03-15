@@ -41,15 +41,15 @@ ENV_CLANG_SUPPRESS_PUSH("-Wfour-char-constants")
 cmp_fn endianness() noex
 {
     // converts chars to uint32_t on current platform
-    [[maybe_unused]] cmp uint32_t _native{'ABCD'};
+    nonced cmp uint32_t _native{'ABCD'};
     nonce(_native);
 
     // 41 42 43 44 = 'ABCD' hex ASCII code
-    [[maybe_unused]] cmp uint32_t _little{0x41424344u};
+    nonced cmp uint32_t _little{0x41424344u};
     nonce(_little);
 
     // 44 43 42 41 = 'DCBA' hex ASCII code
-    [[maybe_unused]] cmp uint32_t _big{0x44434241u};
+    nonced cmp uint32_t _big{0x44434241u};
     nonce(_big);
 
     ret (_native == _little) ? endianness_t::little :

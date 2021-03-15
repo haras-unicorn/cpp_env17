@@ -74,7 +74,7 @@ public:
 
 
 protected:
-    RETURN_ATTRIBUTES inl const void* _get_target() const noex
+    [[RETURN_ATTRIBUTES]] inl const void* _get_target() const noex
     { ret this->_Target(this->_Target_type()); }
 */
 };

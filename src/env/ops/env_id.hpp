@@ -23,7 +23,7 @@ EXPR_CHECK_UNARY(is_identifiable, (declvalr<T>().id()));
 
 COND_CONCEPT(identifiable, (is_identifiable_g<C>));
 
-tmp<name T> cmp_fn id(identifiable_c<T>&& subject) noex(noex(subject.id())) -> id_t { ret subject.id(); }
+tmp<name T> cmp_fn id(identifiable_c<T>&& subject) noexpr(subject.id()) -> id_t { ret subject.id(); }
 
 ENV_TEST_CASE("identifiable")
 {

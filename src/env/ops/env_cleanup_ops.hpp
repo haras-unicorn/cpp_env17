@@ -659,6 +659,8 @@
 
 #undef TYPE_COMPAT
 
+#undef COMPAT
+
 // exception
 
 // debug

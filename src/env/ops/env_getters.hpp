@@ -16,11 +16,11 @@
 
 // getter impls
 
-#define SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, _pre, _post, _body)                                  \
-    SPREAD(_tmp)                                                                                         \
-    RETURN_ATTRIBUTES _pre inl SPREAD(_type) _name() _post noex /* NOLINT(readability-const-ret-type) */ \
-    {                                                                                                    \
-        SPREAD(_body)                                                                                    \
+#define SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, _pre, _post, _body)                                      \
+    SPREAD(_tmp)                                                                                             \
+    [[RETURN_ATTRIBUTES]] _pre inl SPREAD(_type) _name() _post noex /* NOLINT(readability-const-ret-type) */ \
+    {                                                                                                        \
+        SPREAD(_body)                                                                                        \
     }
 
 #define GETTER_BODY_IMPL(_tmp, _type, _name, _pre_const, _body)                             \
@@ -137,7 +137,7 @@
 #define DEF_DEDUCED_MEM(_name, _init) \
     DECL_MEM(_name) { SPREAD(_init) }
 #define DEF_NIL_MEM(_type, _name) \
-    DECL_MEM(_name) { ENV::nil }
+    DECL_MEM(_name) = ENV::nil
 
 #define DECL(_type, _name)      \
     ACCESS_BEGIN(protected);    \

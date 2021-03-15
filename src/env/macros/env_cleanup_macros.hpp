@@ -36,7 +36,8 @@
 #undef ccast
 #undef dcast
 #undef rcast
-#undef unused
+#undef nonce
+#undef nonced
 
 // types
 

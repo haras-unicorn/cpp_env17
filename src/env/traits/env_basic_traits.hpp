@@ -140,18 +140,18 @@ ENV_TEST_CASE("template conversion traits")
 EXPR_CHECK_UNARY
 (
         is_equatable,
-        declvalr<T>() == declvalr<T>(),
-        declvalr<T>() != declvalr<T>()
+        nonce(declvalr<T>() == declvalr<T>()),
+        nonce(declvalr<T>() != declvalr<T>())
 );
 
 EXPR_CHECK_BINARY
 (
         are_equatable,
-        declvalr<TLhs>() == declvalr<TRhs>(),
-        declvalr<TLhs>() != declvalr<TRhs>(),
+        nonce(declvalr<TLhs>() == declvalr<TRhs>()),
+        nonce(declvalr<TLhs>() != declvalr<TRhs>()),
 
-        declvalr<TRhs>() == declvalr<TLhs>(),
-        declvalr<TRhs>() != declvalr<TLhs>()
+        nonce(declvalr<TRhs>() == declvalr<TLhs>()),
+        nonce(declvalr<TRhs>() != declvalr<TLhs>())
 );
 
 COND_CONCEPT(equatable, (is_equatable_g<C>));
@@ -159,24 +159,24 @@ COND_CONCEPT(equatable, (is_equatable_g<C>));
 EXPR_CHECK_UNARY
 (
         is_comparable,
-        declvalr<T>() < declvalr<T>(),
-        declvalr<T>() > declvalr<T>(),
-        declvalr<T>() <= declvalr<T>(),
-        declvalr<T>() >= declvalr<T>()
+        nonce(declvalr<T>() < declvalr<T>()),
+        nonce(declvalr<T>() > declvalr<T>()),
+        nonce(declvalr<T>() <= declvalr<T>()),
+        nonce(declvalr<T>() >= declvalr<T>())
 );
 
 EXPR_CHECK_BINARY
 (
         are_comparable,
-        declvalr<TLhs>() < declvalr<TRhs>(),
-        declvalr<TLhs>() > declvalr<TRhs>(),
-        declvalr<TLhs>() <= declvalr<TRhs>(),
-        declvalr<TLhs>() >= declvalr<TRhs>(),
+        nonce(declvalr<TLhs>() < declvalr<TRhs>()),
+        nonce(declvalr<TLhs>() > declvalr<TRhs>()),
+        nonce(declvalr<TLhs>() <= declvalr<TRhs>()),
+        nonce(declvalr<TLhs>() >= declvalr<TRhs>()),
 
-        declvalr<TRhs>() < declvalr<TLhs>(),
-        declvalr<TRhs>() > declvalr<TLhs>(),
-        declvalr<TRhs>() <= declvalr<TLhs>(),
-        declvalr<TRhs>() >= declvalr<TLhs>()
+        nonce(declvalr<TRhs>() < declvalr<TLhs>()),
+        nonce(declvalr<TRhs>() > declvalr<TLhs>()),
+        nonce(declvalr<TRhs>() <= declvalr<TLhs>()),
+        nonce(declvalr<TRhs>() >= declvalr<TLhs>())
 );
 
 COND_CONCEPT(comparable, (is_comparable_g<C>));
