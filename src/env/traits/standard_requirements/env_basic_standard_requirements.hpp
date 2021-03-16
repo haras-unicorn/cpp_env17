@@ -49,8 +49,9 @@ ENV_TEST_CASE("move assignable")
 // this also has requirement of "All resources owned by u are reclaimed, no exceptions are thrown.",
 // but there is no way to check for that.
 // I could check for noexcept, but that doesn't really mean the function doesn't throw.
-// MSVC permits destructor on void...
-EXPR_CHECK_UNARY(is_std_destructible, COND_EXPR(!ENV_STD::is_same_v<T, void>), declval<T>().~T());
+// Destructor on void is permitted in MSVC? *sigh*
+
+COND_CHECK_UNARY(is_std_destructible, ENV_STD::is_destructible_v<T>);
 
 ENV_TEST_CASE("destructible")
 {

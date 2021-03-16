@@ -17,14 +17,14 @@ ENV_TEST_CASE("template skips")
 
 // conversions
 
-#define EXPR_TYPE(...) decl(nonce(__VA_ARGS__), ENV::success, success_t{})
-#define EXPR_COND(...) decl(nonce(__VA_ARGS__), ENV::success, true){true}
+#define EXPR_TYPE(...) decl(__VA_ARGS__, ENV::success, success_t{})
+#define EXPR_COND(...) ENV::is_success_g<ENV::success_vt<decl(__VA_ARGS__)>>
 
 #define TYPE_EXPR(...) ENV::success_v<__VA_ARGS__>
 #define TYPE_COND(...) ENV::true_v<__VA_ARGS__>
 
-#define COND_EXPR(...) (name ENV::require_ngs<__VA_ARGS__, ENV::success_t>::type{})
-#define COND_TYPE(...) name ENV::require_ngs<__VA_ARGS__, ENV::success_t>::type
+#define COND_EXPR(...) (name ENV::require_ns<__VA_ARGS__>::type{})
+#define COND_TYPE(...) name ENV::require_ns<__VA_ARGS__>::type
 
 #define INSTANT(...) ENV::success_vt<__VA_ARGS__>
 

@@ -92,15 +92,15 @@ ENV_DETAIL_END
 
 tmp<name... T> typ(success_vt) = name detail::make_success_vt<T...>::value_type;
 
-tmp<name... T> let_cmp success_v = detail::make_success_vt<T...>::value;
+tmp<name... T> cmp_obj success_t success_v = detail::make_success_vt<T...>::value;
 
-tmp<name... T> let_cmp true_v = detail::make_true_vt<T...>::value;
+tmp<name... T> cmp_obj bool true_v = detail::make_true_vt<T...>::value;
 
 tmp<name... T> typ(fail_vt) = name detail::make_fail_vt<T...>::value_type;
 
-tmp<name... T> let_cmp fail_v = detail::make_fail_vt<T...>::value;
+tmp<name... T> cmp_obj fail_t fail_v = detail::make_fail_vt<T...>::value;
 
-tmp<name... T> let_cmp false_v = detail::make_false_vt<T...>::value;
+tmp<name... T> cmp_obj bool false_v = detail::make_false_vt<T...>::value;
 
 tmp<name TRes, name... T> typ(make_vt) = name detail::make_vt<TRes, T...>::type;
 

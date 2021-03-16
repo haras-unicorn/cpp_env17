@@ -34,7 +34,7 @@ ENV_TEST_CASE("index")
     index
             (
                     lst(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-                    [](nonced auto index, nonced auto current) { REQUIRE_EQ(index + 1, current); }
+                    [](auto index, auto current) { REQUIRE_EQ(index + 1, current); }
             );
 }
 

@@ -10,7 +10,7 @@
 // we try to instantiate ENV_STD::hash with it, so we have to check that first.
 // I don't know if this is UB, though. It seems a bit sketchy.
 
-EXPR_CHECK_UNARY(is_std_hashable, declval<T&>(), ENV_STD::hash < T > { }(declvalr<T>()));
+EXPR_CHECK_UNARY(is_std_hashable, nonce(declval<T&>(), ENV_STD::hash < T > { }(declvalr<T>())));
 
 COND_CONCEPT(std_hashable, is_std_hashable_g<C>);
 

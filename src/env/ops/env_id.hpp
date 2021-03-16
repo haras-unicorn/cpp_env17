@@ -19,7 +19,7 @@ ENV_TEST_CASE("id")
 
 // identifiable
 
-EXPR_CHECK_UNARY(is_identifiable, (declvalr<T>().id()));
+EXPR_CHECK_UNARY(is_identifiable, (nonce(declvalr<T>().id())));
 
 COND_CONCEPT(identifiable, (is_identifiable_g<C>));
 
