@@ -5,8 +5,8 @@
 // skips
 
 #define SKIP_COND true
-#define SKIP_EXPR ENV::success
-#define SKIP_TYPE ENV::success_t
+#define SKIP_EXPR ENV::requirement
+#define SKIP_TYPE ENV::requirement_t
 
 ENV_TEST_CASE("template skips")
 {
@@ -17,16 +17,20 @@ ENV_TEST_CASE("template skips")
 
 // conversions
 
-#define EXPR_TYPE(...) decl(__VA_ARGS__, ENV::success, success_t{})
-#define EXPR_COND(...) ENV::is_success_g<ENV::success_vt<decl(__VA_ARGS__)>>
+// Please, if you touch these macros, leave a commit message or check that all compilers are passing.
+// A lot of stuff depends on these macros and compilers vary a lot on this.
+// These current macros are passing on GCC, Clang and MSVC
 
-#define TYPE_EXPR(...) ENV::success_v<__VA_ARGS__>
+#define EXPR_TYPE(...) decl(__VA_ARGS__, ENV::requirement, requirement_t{})
+#define EXPR_COND(...) ENV::is_requirement_g<ENV::requirement_vt<decl(__VA_ARGS__)>>
+
+#define TYPE_EXPR(...) ENV::requirement_v<__VA_ARGS__>
 #define TYPE_COND(...) ENV::true_v<__VA_ARGS__>
 
 #define COND_EXPR(...) (name ENV::require_ns<__VA_ARGS__>::type{})
 #define COND_TYPE(...) name ENV::require_ns<__VA_ARGS__>::type
 
-#define INSTANT(...) ENV::success_vt<__VA_ARGS__>
+#define INSTANT(...) ENV::requirement_vt<__VA_ARGS__>
 
 ENV_TEST_CASE("expression conversion")
 {
@@ -40,7 +44,7 @@ ENV_TEST_CASE("expression conversion")
     REQUIRES(test.exp() == true);
     REQUIRES(test.type() == true);
     REQUIRES(test.flag() == true);
-    REQUIRE_EQT(INSTANT(int, float, void), success_t);
+    REQUIRE_EQT(INSTANT(int, float, void), requirement_t);
 }
 
 

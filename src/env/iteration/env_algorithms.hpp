@@ -2,6 +2,8 @@
 #define ENV_ALGORITHMS_HPP
 
 
+// each
+
 EXPR_TMP_BINARY(declvalr<TRhs>()(declvall < iterator_element_gt < TLhs >> ()))
 callb inl each(TLhs begin, TLhs end, TRhs call)
 {
