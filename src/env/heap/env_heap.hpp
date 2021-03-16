@@ -15,7 +15,7 @@ ENV_TEST_SUITE_BEGIN("heap");
 #include "env_base_allocator.hpp"
 #include "env_base_deleter.hpp"
 
-#include "env_dynamic.hpp"
+//#include "env_dynamic.hpp"
 #include "env_poly_ptr.hpp"
 //#include "env_fixed_ptr.hpp"
 //#include "env_variable_ptr.hpp"
