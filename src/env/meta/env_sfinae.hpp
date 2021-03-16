@@ -105,7 +105,7 @@ tmp<bool Condition, deduc Result = success>
 strct require_nns;
 
 tmp<deduc Result>
-strct require_nns<true, Result> : value_nt<Result> { };
+strct require_nns<true, Result> : public value_nt<Result> { };
 
 tmp<deduc Result>
 strct require_nns<false, Result> { };
@@ -118,8 +118,8 @@ let_cmp require_n{require_nn<Condition, success>};
 
 ENV_TEST_CASE("require")
 {
-    REQUIRE_EQ(require_nn < true, 1 >, 1);
-    REQUIRE_EQ(require_n < true >, success);
+    REQUIRES(require_nn<true, 1> == 1);
+    REQUIRES(require_n<true> == success);
 }
 
 #endif // ENV_CPP >= 17

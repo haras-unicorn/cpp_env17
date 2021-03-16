@@ -17,13 +17,13 @@ ENV_TEST_CASE("template skips")
 
 // conversions
 
-#define EXPR_TYPE(...) decl(nonce(__VA_ARGS__), ENV::success, ENV::declval<success_t>())
+#define EXPR_TYPE(...) decl(nonce(__VA_ARGS__), ENV::success, success_t{})
 #define EXPR_COND(...) decl(nonce(__VA_ARGS__), ENV::success, true){true}
 
 #define TYPE_EXPR(...) ENV::success_v<__VA_ARGS__>
 #define TYPE_COND(...) ENV::true_v<__VA_ARGS__>
 
-#define COND_EXPR(...) ENV::require_nns<__VA_ARGS__, ENV::success>::value
+#define COND_EXPR(...) ENV::require_nns<__VA_ARGS__, ENV::success_t{}>::value
 #define COND_TYPE(...) name ENV::require_ngs<__VA_ARGS__, ENV::success_t>::type
 
 #define INSTANT(...) ENV::success_vt<__VA_ARGS__>
@@ -34,7 +34,7 @@ ENV_TEST_CASE("expression conversion")
     {
         cmp_fn exp() const noex -> first_gvt<bool, EXPR_TYPE(true)> { ret EXPR_COND(true); }
         cmp_fn type() const noex -> first_gvt<bool, EXPR_TYPE(TYPE_EXPR(bool))> { ret TYPE_COND(bool); }
-        cmp_fn flag() const noex -> first_gvt<bool, COND_TYPE(true) > { ret EXPR_COND(COND_EXPR(true)); }
+        cmp_fn flag() const noex -> first_gvt<bool, COND_TYPE(true)> { ret EXPR_COND(COND_EXPR(true)); }
     } cmp test{ };
 
     REQUIRES(test.exp() == true);

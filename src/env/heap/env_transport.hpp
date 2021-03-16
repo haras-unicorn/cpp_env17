@@ -6,24 +6,30 @@ ENV_DETAIL_BEGIN
 
 COND_CHECK_BINARY
 (
-        are_fast_copy_eligible,
+        are_bulk_copy_eligible,
         (ENV_STD::is_trivially_copyable_v < unqualified_gt < subject_gt < TRhs>>>) &&
+        (ENV_STD::is_same_v<unqualified_gt<subject_gt<TLhs>>, unqualified_gt<subject_gt<TRhs>>>)
         (ENV_STD::is_pointer_v<TLhs> && ENV_STD::is_pointer_v<TRhs>)
 );
 
 ENV_DETAIL_END
 
 
+// TODO: fix formatting
+
 // copy
 
-COND_TMP_BINARY(ENV::is_writeable_to_g<const ENV::subject_gt <TLhs>&, TRhs>)
-callb inl copy(iterator_c <TLhs> from_begin, TLhs from_end, iterator_c <TRhs> to_begin)
-noexpr(*to_begin = copy(*from_begin))
+COND_TMP((exc_name, name TFrom, name TTo), ENV::is_writeable_to_g<const ENV::subject_gt <TFrom>&, TTo>)
+callb inl copy(iterator_c <TFrom> from_begin, TFrom from_end, iterator_c <TTo> to_begin, exc_arg)
+noex(noex(*to_begin = copy(*from_begin)) && noex_pol)
 {
-    typ(value_t) = unqualified_gt <subject_gt<TRhs>>;
+    WHEN_ARG((from_begin == nil || from_end == nil || to_begin == nil), (ret;), (ret;));
 
-    if_cmp (detail::are_fast_copy_eligible_g < TLhs, TRhs >)
-        ENV_STD::memcpy(to_begin, from_begin, ENV_STD::distance(from_begin, from_end) * sizeof(value_t));
+    typ(value_t) = unqualified_gt <subject_gt<TTo>>;
+
+    if_cmp (detail::are_bulk_copy_eligible_g < TFrom, TTo >) ENV_STD::memcpy(
+                to_begin, from_begin,
+                ENV_STD::distance(from_begin, from_end) * sizeof(value_t));
     else
         while (from_begin != from_end) *to_begin++ = copy(*from_begin++);
 }
@@ -32,21 +38,24 @@ ENV_TEST_CASE("copy")
 {
     const int a{1};
     int b{2};
-    copy(&a, &a + 1, &b);
+    copy(&a, &a + 1, &b, ignore_ex);
     REQUIRE_EQ(b, 1);
 }
 
 
 // overlapping copy
 
-COND_TMP_BINARY(ENV::is_writeable_to_g<const ENV::subject_gt <TLhs>&, TRhs>)
-callb inl ocopy(iterator_c <TLhs> from_begin, TLhs from_end, iterator_c <TRhs> to_begin)
-noexpr(*to_begin = copy(*from_begin))
+COND_TMP((exc_name, name TFrom, name TTo), ENV::is_writeable_to_g<const ENV::subject_gt <TFrom>&, TTo>)
+callb inl ocopy(iterator_c <TFrom> from_begin, TFrom from_end, iterator_c <TTo> to_begin, exc_arg)
+noex(noex(*to_begin = copy(*from_begin)) && noex_pol)
 {
-    typ(value_t) = unqualified_gt <subject_gt<TRhs>>;
+    WHEN_ARG((from_begin == nil || from_end == nil || to_begin == nil), (ret;), (ret;));
 
-    if_cmp (detail::are_fast_copy_eligible_g < TLhs, TRhs >)
-        ENV_STD::memmove(to_begin, from_begin, ENV_STD::distance(from_begin, from_end) * sizeof(value_t));
+    typ(value_t) = unqualified_gt <subject_gt<TTo>>;
+
+    if_cmp (detail::are_bulk_copy_eligible_g < TFrom, TTo >) ENV_STD::memmove(
+                to_begin, from_begin,
+                ENV_STD::distance(from_begin, from_end) * sizeof(value_t));
     else
         while (from_begin != from_end) *to_begin++ = copy(*from_begin++);
 }
@@ -61,12 +70,13 @@ ENV_TEST_CASE("overlapping copy")
 
 // uninitialized copy
 
-// T3 should be an allocator
-COND_TMP_TERNARY(ENV::is_placeable_on_g<const ENV::subject_gt <T1>&, T2>)
-callb inl ucopy(iterator_c <T1> from_begin, T1 from_end, iterator_c <T2> to_begin, T3& alloc)
-noexpr(ENV_STD::allocator_traits<T3>::construct(alloc, to_begin, *from_begin))
+COND_TMP((exc_name, name TFrom, name TTo, name TAlloc), ENV::is_placeable_on_g<const ENV::subject_gt <TFrom>&, TTo>)
+callb inl ucopy(iterator_c <TFrom> from_begin, TFrom from_end, iterator_c <TTo> to_begin, TAlloc& alloc, exc_arg)
+noex(noex(ENV_STD::allocator_traits<TAlloc>::construct(alloc, to_begin, copy(*from_begin))) && noex_pol)
 {
-    while (from_begin != from_end) ENV_STD::allocator_traits<T3>::construct(alloc, to_begin++, copy(*from_begin++));
+    WHEN_ARG((from_begin == nil || from_end == nil || to_begin == nil), (ret;), (ret;));
+
+    while (from_begin != from_end) ENV_STD::allocator_traits<TAlloc>::construct(alloc, to_begin++, copy(*from_begin++));
 }
 
 ENV_TEST_CASE("uninitialized copy")
@@ -78,11 +88,12 @@ ENV_TEST_CASE("uninitialized copy")
     let cmp amount = 10_s;
 
     alloc_t alloc{ };
-    const value_t source[amount]{1};
+    value_t source[amount]{ };
     let source_end = source + amount;
     let dest_begin = traits_t::allocate(alloc, amount);
     let dest_end = dest_begin + amount;
 
+    ENV_STD::fill(source, source_end, 1);
     ucopy(source, source_end, dest_begin, alloc);
 
     REQUIRE(ENV_STD::all_of(dest_begin, dest_end, [](auto i) { return i == 1; }));
@@ -94,14 +105,17 @@ ENV_TEST_CASE("uninitialized copy")
 
 // move
 
-COND_TMP_BINARY(ENV::is_writeable_to_g<const ENV::subject_gt <TLhs>&, TRhs>)
-callb inl move(iterator_c <TLhs> from_begin, TLhs from_end, iterator_c <TRhs> to_begin)
-noexpr(*to_begin = move(*from_begin))
+COND_TMP((exc_name, name TFrom, name TTo), ENV::is_writeable_to_g<const ENV::subject_gt <TFrom>&, TTo>)
+callb inl move(iterator_c <TFrom> from_begin, TFrom from_end, iterator_c <TTo> to_begin, exc_arg)
+noex(noex(*to_begin = move(*from_begin)) && noex_pol)
 {
-    typ(value_t) = unqualified_gt <subject_gt<TRhs>>;
+    WHEN_ARG((from_begin == nil || from_end == nil || to_begin == nil), (ret;), (ret;));
 
-    if_cmp (detail::are_fast_copy_eligible_g < TLhs, TRhs >)
-        ENV_STD::memcpy(to_begin, from_begin, ENV_STD::distance(from_begin, from_end) * sizeof(value_t));
+    typ(value_t) = unqualified_gt <subject_gt<TTo>>;
+
+    if_cmp (detail::are_bulk_copy_eligible_g < TFrom, TTo >) ENV_STD::memcpy(
+                to_begin, from_begin,
+                ENV_STD::distance(from_begin, from_end) * sizeof(value_t));
     else
         while (from_begin != from_end) *to_begin++ = move(*from_begin++);
 }
@@ -110,21 +124,24 @@ ENV_TEST_CASE("move")
 {
     const int a{1};
     int b{2};
-    move(&a, &a + 1, &b);
+    move(&a, &a + 1, &b, ignore_ex);
     REQUIRE_EQ(b, 1);
 }
 
 
 // overlapping move
 
-COND_TMP_BINARY(ENV::is_writeable_to_g<const ENV::subject_gt <TLhs>&, TRhs>)
-callb inl omove(iterator_c <TLhs> from_begin, TLhs from_end, iterator_c <TRhs> to_begin)
-noexpr(*to_begin = move(*from_begin))
+COND_TMP((exc_name, name TFrom, name TTo), ENV::is_writeable_to_g<const ENV::subject_gt <TFrom>&, TTo>)
+callb inl omove(iterator_c <TFrom> from_begin, TFrom from_end, iterator_c <TTo> to_begin, exc_arg)
+noex(noex(*to_begin = move(*from_begin)) && noex_pol)
 {
-    typ(value_t) = unqualified_gt <subject_gt<TRhs>>;
+    WHEN_ARG((from_begin == nil || from_end == nil || to_begin == nil), (ret;), (ret;));
 
-    if_cmp (detail::are_fast_copy_eligible_g < TLhs, TRhs >)
-        ENV_STD::memmove(to_begin, from_begin, ENV_STD::distance(from_begin, from_end) * sizeof(value_t));
+    typ(value_t) = unqualified_gt <subject_gt<TTo>>;
+
+    if_cmp (detail::are_bulk_copy_eligible_g < TFrom, TTo >) ENV_STD::memmove(
+                to_begin, from_begin,
+                ENV_STD::distance(from_begin, from_end) * sizeof(value_t));
     else
         while (from_begin != from_end) *to_begin++ = move(*from_begin++);
 }
@@ -139,12 +156,13 @@ ENV_TEST_CASE("overlapping move")
 
 // uninitialized move
 
-// T3 should be an allocator
-COND_TMP_TERNARY(ENV::is_placeable_on_g<const ENV::subject_gt <T1>&, T2>)
-callb inl umove(iterator_c <T1> from_begin, T1 from_end, iterator_c <T2> to_begin, T3& alloc)
-noexpr(ENV_STD::allocator_traits<T3>::construct(alloc, to_begin, *from_begin))
+COND_TMP((exc_name, name TFrom, name TTo, name TAlloc), ENV::is_placeable_on_g<const ENV::subject_gt <TFrom>&, TTo>)
+callb inl umove(iterator_c <TFrom> from_begin, TFrom from_end, iterator_c <TTo> to_begin, TAlloc& alloc, exc_arg)
+noex(noex(ENV_STD::allocator_traits<TAlloc>::construct(alloc, to_begin, move(*from_begin))) && noex_pol)
 {
-    while (from_begin != from_end) ENV_STD::allocator_traits<T3>::construct(alloc, to_begin++, move(*from_begin++));
+    WHEN_ARG((from_begin == nil || from_end == nil || to_begin == nil), (ret;), (ret;));
+
+    while (from_begin != from_end) ENV_STD::allocator_traits<TAlloc>::construct(alloc, to_begin++, move(*from_begin++));
 }
 
 ENV_TEST_CASE("uninitialized move")
@@ -156,11 +174,12 @@ ENV_TEST_CASE("uninitialized move")
     let cmp amount = 10_s;
 
     alloc_t alloc{ };
-    const value_t source[amount]{1};
+    value_t source[amount]{ };
     let source_end = source + amount;
     let dest_begin = traits_t::allocate(alloc, amount);
     let dest_end = dest_begin + amount;
 
+    ENV_STD::fill(source, source_end, 1);
     umove(source, source_end, dest_begin, alloc);
 
     REQUIRE(ENV_STD::all_of(dest_begin, dest_end, [](auto i) { return i == 1; }));
@@ -172,8 +191,13 @@ ENV_TEST_CASE("uninitialized move")
 
 // swap
 
-EXPR_TMP_BINARY(ENV_STD::swap(declvall < subject_gt < TLhs >> (), declvall < subject_gt < TRhs >> ()))
+EXPR_TMP
+(
+        (exc_name, name TLhs, name TRhs),
+        ENV_STD::swap(declvall < subject_gt < TLhs >> (), declvall < subject_gt < TRhs >> ())
+)
 callb inl swap(iterator_c <TLhs> lhs_begin, TLhs lhs_end, iterator_c <TRhs> rhs_begin)
+noex(noex(ENV_STD::swap(*lhs_begin, *rhs_begin)) && noex_pol)
 {
     while (lhs_begin != lhs_end) ENV_STD::swap(*lhs_begin++, *rhs_begin++);
 }
@@ -184,22 +208,6 @@ ENV_TEST_CASE("swap")
     int b{2};
     swap(&a, &a + 1, &b);
     REQUIRE_EQ(b, 1);
-}
-
-
-// overlapping swap
-
-EXPR_TMP_BINARY(ENV_STD::swap(declvall < subject_gt < TLhs >> (), declvall < subject_gt < TRhs >> ()))
-callb inl oswap(iterator_c <TLhs> lhs_begin, TLhs lhs_end, iterator_c <TRhs> rhs_begin)
-{
-    ret swap(lhs_begin, lhs_end, rhs_begin);
-}
-
-ENV_TEST_CASE("overlapping swap")
-{
-    int a[]{1, 2, 3};
-    oswap(&a[0], &a[2], &a[1]);
-    REQUIRE_EQ(a[1], 1);
 }
 
 

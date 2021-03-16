@@ -46,7 +46,7 @@ ENV_TEST_CASE("require concept")
     typ(CAT(_name, _c)) = QC;                                                        \
                                                                                      \
     tmp<name C SPREAD(_tmp)>                                                         \
-    typ(CAT(_name, _r)) = decl(__VA_ARGS__, ENV::success, TYPE_EXPR(C))
+    typ(CAT(_name, _r)) = decl(__VA_ARGS__, ENV::success, declval<C>())
 
 #define ELABORATE_EXPR_CONCEPT(_name, _tmp, ...) EXPR_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
 
@@ -81,7 +81,7 @@ ENV_TEST_CASE("sfinae concept")
     typ(CAT(_name, _c)) = QC;                                                        \
                                                                                      \
     tmp<name C SPREAD(_tmp)>                                                         \
-    typ(CAT(_name, _r)) = name ENV::variadic_vt<__VA_ARGS__, C>::last_t
+    typ(CAT(_name, _r)) = ENV::make_vt<C, __VA_ARGS__>
 
 #define ELABORATE_TYPE_CONCEPT(_name, _tmp, ...) TYPE_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
 

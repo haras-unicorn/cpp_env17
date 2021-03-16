@@ -85,6 +85,9 @@ strct make_fail_vt : value_gnt<fail_t, fail_t{false}> { };
 tmp<name... T>
 strct make_false_vt : value_gnt<bool, false> { };
 
+tmp<name TRes, name... T>
+strct make_vt : type_gt<TRes> { };
+
 ENV_DETAIL_END
 
 tmp<name... T> typ(success_vt) = name detail::make_success_vt<T...>::value_type;
@@ -99,6 +102,8 @@ tmp<name... T> let_cmp fail_v = detail::make_fail_vt<T...>::value;
 
 tmp<name... T> let_cmp false_v = detail::make_false_vt<T...>::value;
 
+tmp<name TRes, name... T> typ(make_vt) = name detail::make_vt<TRes, T...>::type;
+
 ENV_TEST_CASE("make success/fail")
 {
     SUBCASE("success")
@@ -112,6 +117,10 @@ ENV_TEST_CASE("make success/fail")
         REQUIRE_EQT(fail_vt<int, float, double>, fail_t);
         REQUIRES(fail_v<int, float, double> == fail);
         REQUIRES_FALSE(false_v<int, float, double>);
+    }
+    SUBCASE("make")
+    {
+        REQUIRE_EQT(make_vt<int, float, double, fail_t>, int);
     }
 }
 
