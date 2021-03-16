@@ -6,7 +6,7 @@ ENV_DETAIL_BEGIN
 
 // declaration
 
-tmp<name TCallable, name TInheritor = no_inheritor_s, name = success_t>
+tmp<name TCallable, name TInheritor = no_inheritor_s, name = requirement_t>
 strct callable_gs
 {
     cmp_obj static bool is_callable{false};
@@ -44,7 +44,7 @@ public:
     cmp_obj static bool is_noex{false};
     cmp_obj static bool is_member{false};
 
-    tmp<name = success_t> cmp_obj static bool is_supported{!_self_t::is_noex && !_self_t::is_member};
+    tmp<name = requirement_t> cmp_obj static bool is_supported{!_self_t::is_noex && !_self_t::is_member};
 };
 
 tmp<name TReturn, name TInheritor>
@@ -232,7 +232,7 @@ strct callable_gs<
 
     cmp_obj static bool is_member{false};
 
-    tmp<name = success_t> cmp_obj static bool is_supported{false};
+    tmp<name = requirement_t> cmp_obj static bool is_supported{false};
 };
 
 
@@ -325,7 +325,7 @@ strct templated_callable_t
 {
     const ENV_STD::function<void()> lambda{[] { }};
     const ENV_STD::function<void()>* lambda_ptr{&lambda};
-    tmp<name = success_t> callb op()() { }
+    tmp<name = requirement_t> callb op()() { }
 };
 
 ENV_TEST_END

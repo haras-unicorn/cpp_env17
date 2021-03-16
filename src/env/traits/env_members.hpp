@@ -44,6 +44,7 @@ TEST_CASE("members")
 // member access
 
 OPERATOR_DETECTOR(arrow_operator, operator->, void* operator->(););
+OPERATOR_DETECTOR(indirection_operator, operator*, int& operator*(););
 OPERATOR_DETECTOR(subscript_operator, operator[], int& operator[](int););
 
 // call

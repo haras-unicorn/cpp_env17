@@ -1,5 +1,5 @@
-#ifndef ENV_DYNAMIC_PTR_HPP
-#define ENV_DYNAMIC_PTR_HPP
+#ifndef ENV_DYNAMIC_HPP
+#define ENV_DYNAMIC_HPP
 
 
 ENV_DETAIL_BEGIN
@@ -25,7 +25,7 @@ COND_CHECK_UNARY(is_dynamic_alloc, true);
 #endif
 
 
-tmp<name TData, name TAlloc, name = success_t>
+tmp<name TData, name TAlloc, name = requirement_t>
 strct dynamic_data_ggt
 {
     typ(data_t) = TData;
@@ -53,14 +53,8 @@ protected:
     AUTO_NOCON_LIFE
     (
             dynamic_data_ggt, NO_ATTRIBUTE,
-            (:
-                    _alloc{ traits_t::select_on_container_copy_construction(other._get_alloc()) },
-                    _data{ other._get_data() }
-            ),
-            (:
-                    _alloc{ ENV_STD::move(other._get_alloc()) },
-                    _data{ ENV_STD::move(other._get_data()) }
-            )
+            (: _alloc{ traits_t::select_on_container_copy_construction(other._get_alloc()) }, _data{ }),
+            (: _alloc{ ENV_STD::move(other._get_alloc()) }, _data{ })
     );
 };
 
@@ -95,14 +89,8 @@ protected:
     AUTO_NOCON_LIFE
     (
             dynamic_data_ggt, NO_ATTRIBUTE,
-            (:
-                    alloc_t{ traits_t::select_on_container_copy_construction(other._get_alloc()) },
-                    _data{ other._get_data() }
-            ),
-            (:
-                    alloc_t{ ENV_STD::move(other._get_alloc()) },
-                    _data{ ENV_STD::move(other._get_data()) }
-            )
+            (: alloc_t{ traits_t::select_on_container_copy_construction(other._get_alloc()) }, _data{ }),
+            (: alloc_t{ ENV_STD::move(other._get_alloc()) }, _data{ })
     );
 };
 
@@ -131,6 +119,7 @@ public:
     using name _data_base_t::data_t;
 
 
+private:
 #if ENV_CPP >= 17
     nonced cmp_obj_p bool static alloc_always_equal{traits_t::propagate_on_container_copy_assignment::value};
 #endif // ENV_CPP >= 17
@@ -142,14 +131,17 @@ public:
     nonced cmp_obj_p bool static alloc_prop_on_swap{traits_t::propagate_on_container_swap::value};
 
 
+public:
     imp cmp inl dynamic_ggt() noex = default;
 
     DEFAULT_CONST_LIFE(dynamic_ggt, NO_ATTRIBUTE);
 
 
+    nonced cmp_obj_p bool static always_copies{alloc_always_equal};
+
     enm copy_strategy_t { copy, realloc_copy };
 
-    cmp inl copy_strategy_t copy(const dynamic_ggt& other) noex
+    cmp_fn copy_strategy(nonced const dynamic_ggt& other) noex
     {
 #if ENV_CPP >= 17
         if_cmp (alloc_always_equal) ret copy_strategy_t::copy;
@@ -157,21 +149,25 @@ public:
 
         let allocs_equal = this->_get_alloc() == other._get_alloc();
 
+        // TODO: test if this should check for eq first
         if_cmp (alloc_prop_on_copy) this->_get_alloc() = other._get_alloc();
 
         ret allocs_equal ? copy_strategy_t::copy : copy_strategy_t::realloc_copy;
     }
 
 
+    nonced cmp_obj_p bool static always_moves{alloc_always_equal || alloc_prop_on_move};
+
     enm move_strategy_t { move, move_elements };
 
-    cmp inl move_strategy_t move(dynamic_ggt&& other) noex
+    cmp_fn move_strategy(nonced dynamic_ggt&& other) noex
     {
 #if ENV_CPP >= 17
         if_cmp (alloc_always_equal) ret copy_strategy_t::move;
 #endif // ENV_CPP >= 17
         if_cmp (alloc_prop_on_move)
         {
+            // TODO: test if this should check for eq first
             this->_get_alloc() = ENV_STD::move(other._get_alloc());
             ret move_strategy_t::move;
         }
@@ -181,9 +177,11 @@ public:
     }
 
 
+    nonced cmp_obj_p bool static always_swaps{alloc_always_equal || alloc_prop_on_swap};
+
     enm swap_strategy_t { swap, undefined };
 
-    cmp inl swap_strategy_t swap(dynamic_ggt& other) noex
+    cmp_fn swap_strategy(nonced dynamic_ggt& other) noex
     {
 #if ENV_CPP >= 17
         if_cmp (alloc_always_equal) ret copy_strategy_t::swap;
@@ -283,6 +281,238 @@ typ(dynamic_gt) = dynamic_ggt<TElement*, name ENV_STD::allocator_traits<TAlloc>:
 typ(dynamic_t) = dynamic_gt<byte_t>;
 
 
+ENV_TEST_BEGIN
+
+tmp<name TVal>
+strct vector_gt
+{
+    DECL_THIS(vector_gt);
+
+
+    typ(dynamic_t) = dynamic_ggt<range_gt < TVal>, allocator_gt<int>>;
+    NIL((dynamic_t), dynamic);
+
+
+    CMP_GETTER(begin, _get_begin());
+    CMP_GETTER(end, _get_end());
+    CMP_GETTER(size, _get_flex().size());
+    CMP_GETTER(capacity, _get_flex().capacity());
+
+
+    con cmp inl vector_gt() noex = default;
+
+    con inl vector_gt(size_t size) :
+            _dynamic{ }
+    {
+        if (is_invalid(size)) ret;
+        _alloc(size);
+    }
+
+    con inl vector_gt(const vector_gt& other) :
+            _dynamic{other._get_dynamic()}
+    {
+        if (_did_propagate_invalidation(other)) ret;
+        _alloc(other.size());
+        _copy(other);
+    }
+
+    con inl vector_gt(vector_gt&& other) noex:
+            _dynamic{other._get_dynamic()}
+    {
+        if (_did_propagate_invalidation(other)) ret;
+        _move(other);
+    }
+
+    fun operator=(const vector_gt& other)
+    {
+        if (_did_propagate_invalidation(other)) ret;
+        _copy(other, _get_dynamic().copy_strategy(other._get_dynamic()));
+    }
+
+    fun operator=(vector_gt&& other)
+    {
+        if (_did_propagate_invalidation(other)) ret;
+        _move(ENV_STD::move(other), _get_dynamic().move_strategy(other._get_dynamic()));
+    }
+
+    fun swap(vector_gt& other)
+    {
+        _swap(other, _get_dynamic().swap_strategy(other._get_dynamic()));
+    }
+
+
+    COMPAT(is_vector);
+    CMP_VALIDITY { ret _get_dynamic() != nil; }
+    CMP_HASH { ret hash(_get_dynamic()); }
+    CMP_EQUALITY { ret _get_dynamic() == rhs._get_dynamic(); }
+    CMP_COMPARISON { ret _get_dynamic() < rhs._get_dynamic(); }
+
+
+protected:
+    GETTER(_get_flex, _get_dynamic().get_data());
+    GETTER(_get_begin, _get_flex().get_begin());
+    GETTER(_get_end, _get_flex().get_end());
+    GETTER(_get_last, _get_flex().get_last());
+
+
+    fun inl _copy(const vector_gt& other, nonced name dynamic_t::copy_strategy_t strategy)
+    {
+        if_cmp(dynamic_t::always_copies) _copy(other);
+        else
+        {
+            if (strategy == dynamic_t::copy_strategy_t::copy) _copy(other);
+            else _copy_reallocate(other);
+        }
+    }
+
+    fun inl _move(vector_gt&& other, nonced name dynamic_t::move_strategy_t strategy)
+    {
+        if_cmp(dynamic_t::always_moves) _move(other);
+        else
+        {
+            if (strategy == dynamic_t::move_strategy_t::move) _move(other);
+            else _move_elements(other);
+        }
+    }
+
+    fun inl _swap(vector_gt& other, nonced name dynamic_t::swap_strategy_t strategy)
+    {
+        if_cmp(dynamic_t::always_swaps) _swap(other);
+        else
+        {
+            if (strategy == dynamic_t::swap_strategy_t::swap) _swap(other);
+            // otherwise undefined by the standard, so I figured this would be ok.
+            else _swap_elements(other);
+        }
+    }
+
+
+    fun inl _copy(const vector_gt& other) noex(ENV_STD::is_nothrow_copy_assignable_v<TVal>)
+    {
+        copy(other._get_begin(), _get_begin(), ENV_STD::min(size(), other.size()));
+    }
+
+    fun inl _copy_reallocate(const vector_gt& other)
+    {
+        _realloc(other._get_value(), other.size());
+        _copy(other);
+    }
+
+    fun inl _move(const vector_gt& other) noex
+    {
+        if (is_valid(*this)) _free();
+
+        _get_begin() = other._get_begin();
+        _get_end() = other._get_end();
+
+        other._nil();
+    }
+
+    fun inl _move_elements(const vector_gt& other) noex(ENV_STD::is_nothrow_move_assignable_v<TVal>)
+    {
+        move(other._get_begin(), _get_begin(), ENV_STD::min(size(), other.size()));
+        other._free();
+    }
+
+    fun inl _swap(vector_gt& other) noex
+    {
+        ENV_STD::swap(_get_flex(), other._get_flex());
+    }
+
+    fun inl _swap_elements(vector_gt& other) noex
+    {
+        swap(other._get_begin(), _get_begin(), ENV_STD::min(size(), other.size()));
+    }
+
+
+    cmp_fn static _is_valid(const vector_gt& vec) noex
+    {
+        ret is_valid(vec._get_begin());
+    }
+
+    fun inl _did_propagate_invalidation(const vector_gt& other)
+    {
+        if (is_invalid(other))
+        {
+            if (is_valid(*this))
+            {
+                _free();
+                _invalidate();
+            }
+            ret true;
+        }
+
+        ret false;
+    }
+
+    cmp_fn _invalidate() noex
+    {
+        _get_begin() = nil;
+        _get_end() = nil;
+        _get_last() = nil;
+    }
+
+
+    fun inl _resize(dynamic_t& with, size_t size)
+    {
+        if (size < capacity())
+        {
+            _get_end() = _get_begin() + size;
+            ret;
+        }
+
+        let _new_begin = with.alloc(size_t{size + 1});
+        let _new_end = _new_begin + size;
+        let _new_last = _new_begin + size;
+
+        move(_get_begin(), _new_begin, size);
+        _free();
+
+    }
+
+    fun inl _resize(size_t size)
+    {
+        _reset(_get_dynamic(), size);
+    }
+
+
+    fun inl _reset(dynamic_t& with, size_t size)
+    {
+        _free();
+        _alloc(with, size);
+    }
+
+    fun inl _reset(size_t size)
+    {
+        _reset(_get_dynamic(), size);
+    }
+
+
+    fun inl _alloc(dynamic_t& with, size_t size)
+    {
+        _get_begin() = with.alloc(size_t{size + 1});
+        _get_end() = _get_begin();
+        _get_last() = _get_begin() + size;
+    }
+
+    fun inl _alloc(size_t size)
+    {
+        _alloc(_get_dynamic(), size);
+    }
+
+    fun inl _free(dynamic_t& with)
+    {
+        with.free(_get_begin(), size());
+    }
+
+    fun inl _free()
+    {
+        _free(_get_dynamic());
+    }
+};
+
+ENV_TEST_END
+
 TEST_CASE("dynamic")
 {
     REQUIRE_EQ(ENV_STD::is_trivial_v < allocator_t >, ENV_STD::is_trivial_v < dynamic_t >);
@@ -317,23 +547,28 @@ TEST_CASE("dynamic")
         dynamic.free(dynamic.get_data(), dual);
     }
 
+
     SUBCASE("int range")
     {
-        strct int_range_t { int* begin; int* end; };
+        obj dynamic_ggt<range_gt < int>, ENV::allocator_gt<int>>
+        dynamic;
+        dynamic.get_data().get_begin() = dynamic.alloc(11_s);
+        dynamic.get_data().get_end() = &dynamic.get_data().get_begin()[10];
+        for (auto i = dynamic.get_data().begin() ; i != dynamic.get_data().end() ; i++) dynamic.place(i, 0);
 
-        obj dynamic_ggt<int_range_t, ENV::allocator_gt<int>> dynamic;
-        dynamic.get_data().begin = dynamic.alloc(11_s);
-        dynamic.get_data().end = &dynamic.get_data().begin[10];
-        for (auto i = dynamic.get_data().begin ; i != dynamic.get_data().end ; i++) dynamic.place(i, 0);
-
-        ENV_STD::fill(dynamic.get_data().begin, dynamic.get_data().end, 1);
-        let are_ones = ENV_STD::all_of(dynamic.get_data().begin, dynamic.get_data().end, [](auto i) { ret i == 1; });
+        ENV_STD::fill(dynamic.get_data().begin(), dynamic.get_data().end(), 1);
+        let are_ones = ENV_STD::all_of(
+                dynamic.get_data().begin(), dynamic.get_data().end(), [](auto i) { ret i == 1; });
         REQUIRE(are_ones);
 
-        for (auto i = dynamic.get_data().begin ; i != dynamic.get_data().end ; i++) dynamic.rem(i);
-        dynamic.free(dynamic.get_data().begin, 11_s);
+        for (auto i = dynamic.get_data().begin() ; i != dynamic.get_data().end() ; i++) dynamic.rem(i);
+        dynamic.free(dynamic.get_data().get_begin(), 11_s);
+    }
+
+    SUBCASE("int vector")
+    {
     }
 }
 
 
-#endif // ENV_DYNAMIC_PTR_HPP
+#endif // ENV_DYNAMIC_HPP

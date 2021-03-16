@@ -1,6 +1,7 @@
 #ifndef ENV_SUCCESS_FAIL_HPP
 #define ENV_SUCCESS_FAIL_HPP
 
+
 // tags
 
 enm success_t : bool { }
@@ -8,6 +9,9 @@ cmp_obj_p success{true};
 
 enm fail_t : bool { }
 cmp_obj_p fail{false};
+
+typ(requirement_t) = success_t;
+
 
 // check
 
@@ -62,6 +66,7 @@ ENV_TEST_CASE("check success/fail")
     }
 }
 
+
 // make
 
 // Explanation: https://stackoverflow.com/questions/66261570/c-sfinae-not-failing
@@ -72,7 +77,13 @@ tmp<name... T>
 strct make_success_vt : value_gnt<success_t, success_t{true}> { };
 
 tmp<name... T>
+strct make_true_vt : value_gnt<bool, true> { };
+
+tmp<name... T>
 strct make_fail_vt : value_gnt<fail_t, fail_t{false}> { };
+
+tmp<name... T>
+strct make_false_vt : value_gnt<bool, false> { };
 
 ENV_DETAIL_END
 
@@ -80,9 +91,13 @@ tmp<name... T> typ(success_vt) = name detail::make_success_vt<T...>::value_type;
 
 tmp<name... T> let_cmp success_v = detail::make_success_vt<T...>::value;
 
+tmp<name... T> let_cmp true_v = detail::make_true_vt<T...>::value;
+
 tmp<name... T> typ(fail_vt) = name detail::make_fail_vt<T...>::value_type;
 
 tmp<name... T> let_cmp fail_v = detail::make_fail_vt<T...>::value;
+
+tmp<name... T> let_cmp false_v = detail::make_false_vt<T...>::value;
 
 ENV_TEST_CASE("make success/fail")
 {
@@ -90,12 +105,15 @@ ENV_TEST_CASE("make success/fail")
     {
         REQUIRE_EQT(success_vt<int, float, double>, success_t);
         REQUIRES(success_v<int, float, double> == success);
+        REQUIRES(true_v<int, float, double>);
     }
     SUBCASE("fail")
     {
         REQUIRE_EQT(fail_vt<int, float, double>, fail_t);
         REQUIRES(fail_v<int, float, double> == fail);
+        REQUIRES_FALSE(false_v<int, float, double>);
     }
 }
+
 
 #endif // ENV_SUCCESS_FAIL_HPP

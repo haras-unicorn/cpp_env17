@@ -27,22 +27,6 @@ typ(atom_id_t) = ENV_STD::atomic<detail::_id_t>;
 
 tmp<name T> typ(hash_gt) = ENV_STD::hash<T>;
 
-// std hashable
-
-// has_hash is weird like this because the STL tries to get a reference to void if
-// we try to instantiate ENV_STD::hash with it, so we have to check that first.
-// I don't know if this is UB, though. It seems a bit sketchy.
-
-EXPR_CHECK_UNARY(is_std_hashable, (COND_EXPR(!ENV_STD::is_same_v < T, void > ), hash_gt<T>{ }(declvalr<T>())));
-
-COND_CONCEPT(std_hashable, (is_std_hashable_g<C>));
-
-ENV_TEST_CASE("std hashable")
-{
-    REQUIRES(is_std_hashable_g<int>);
-    REQUIRES_FALSE(is_std_hashable_g<void>);
-}
-
 
 // hash
 
@@ -54,33 +38,14 @@ noexpr(ENV_STD::hash < ENV::unqualified_gt < T >> { }(subject)) -> hash_t
     ret _hasher(subject);
 }
 
+COND_TMP_UNARY(ENV::has_hash_g < T > && !ENV::is_std_hashable_g < ENV::remove_qualifiers_gt < T >>)
+cmp_fn hash(const T& subject) noexpr(subject.hash()) -> hash_t { ret subject.hash(); }
+
 ENV_TEST_CASE("hash std hashable")
 {
     REQUIRE_EQ(hash(1), hash(1));
     REQUIRE_NE(hash(1), hash(2));
 }
-
-
-// hash member
-
-EXPR_CHECK_UNARY(has_hash, (declval<T>().hash()));
-
-COND_TMP_UNARY(ENV::has_hash_g < T > && !ENV::is_std_hashable_g < ENV::remove_qualifiers_gt < T >>)
-cmp_fn hash(const T& subject) noexpr(subject.hash()) -> hash_t { ret subject.hash(); }
-
-
-// hashable
-
-EXPR_CHECK_UNARY(is_hashable, (has_hash_g<T> || is_std_hashable_g<T>));
-
-COND_CONCEPT(hashable, (is_hashable_g<C>));
-
-
-// key
-
-COND_CHECK_UNARY(is_key, (is_hashable_g<T> && is_equatable_g < T > ));
-
-COND_CONCEPT(key, (is_key_g<C>));
 
 
 // combine
@@ -91,7 +56,7 @@ COND_CONCEPT(key, (is_key_g<C>));
 // Here's the gist - this is good enough for combining hashes - just call this as much as you have to and you're good.
 
 tmp<name TFirst, name TSecond>
-cmp_fn hash(const hashable_c<TFirst>& _first, const hashable_c<TSecond>& _second)
+cmp_fn hash(const hashable_c <TFirst>& _first, const hashable_c <TSecond>& _second)
 noexpr(nonce(hash(_first)), nonce(hash(_second))) -> hash_t
 {
     let seed = hash(_first);
@@ -113,7 +78,7 @@ ENV_TEST_CASE("combine")
 strct hasher_t
 {
     tmp<name T>
-    cmp_fn op()(const hashable_c<T>& subject) const noexpr(hash(subject)) -> hash_t { ret hash(subject); }
+    cmp_fn op()(const hashable_c <T>& subject) const noexpr(hash(subject)) -> hash_t { ret hash(subject); }
 }
 inl cmp hasher{ };
 

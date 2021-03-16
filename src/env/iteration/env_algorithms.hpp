@@ -1,6 +1,7 @@
 #ifndef ENV_ALGORITHMS_HPP
 #define ENV_ALGORITHMS_HPP
 
+
 EXPR_TMP_BINARY(declvalr<TRhs>()(declvall < iterator_element_gt < TLhs >> ()))
 callb inl each(TLhs begin, TLhs end, TRhs call)
 {
@@ -12,6 +13,7 @@ callb inl each(TLhs&& iterable, TRhs call)
 {
     ret ENV::each(iterable.begin(), iterable.end(), call);
 }
+
 
 // index
 
@@ -32,30 +34,29 @@ ENV_TEST_CASE("index")
     index
             (
                     lst(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-                    [current = 0_i](auto index, auto) mutable
-                    {
-                        nonce(index);
-                        REQUIRE_EQ(current++, index);
-                    }
+                    [](nonced auto index, nonced auto current) { REQUIRE_EQ(index + 1, current); }
             );
 }
 
+
 // place
 
-COND_TMP((name TElements, name... TArgs), ENV_STD::is_constructible_v < TElements, TArgs...>)
+COND_TMP
+((name TElements, name... TArgs), ENV_STD::is_constructible_v < TElements, TArgs...>)
 callb inl place(list_gt <TElements>& list, TArgs&& ...args)
 {
     ret list.emplace_back(ENV_STD::forward<TArgs>(args)...);
 }
 
-COND_TMP((name TElements, name... TArgs), ENV_STD::is_constructible_v < TElements, TArgs...>)
+COND_TMP
+((name TElements, name... TArgs), ENV_STD::is_constructible_v < TElements, TArgs...>)
 callb inl place(set_gt <TElements>& set, TArgs&& ...args)
 {
     ret set.emplace(ENV_STD::forward<TArgs>(args)...);
 }
 
-COND_TMP((name TKey, name TElements, name... TArgs),
-         ENV_STD::is_constructible_v < ENV::tuple_vt < TKey, TElements >, TArgs...>)
+COND_TMP
+((name TKey, name TElements, name... TArgs), ENV_STD::is_constructible_v < ENV::tuple_vt < TKey, TElements >, TArgs...>)
 callb inl place(map_ggt <TKey, TElements>& map, TArgs&& ...args)
 {
     ret map.emplace(ENV_STD::forward<TArgs>(args)...);
@@ -85,6 +86,7 @@ ENV_TEST_CASE("place")
     }
 }
 
+
 // trans
 
 // TODO: arrays
@@ -106,17 +108,25 @@ fun inl trans(T2&& iterable, T3 call)
     ret ENV::trans<T1>(iterable.begin(), iterable.end(), call);
 }
 
-EXPR_TMP_BINARY(place(
-        declvall < ENV::list_gt < ENV::iterator_element_gt < TLhs>>>(),
-                        declvalr<TRhs>()(declvall<ENV::iterator_element_gt<TLhs>>())))
+EXPR_TMP_BINARY
+(
+        place(
+                declvall < ENV::list_gt < ENV::unqualified_gt < ENV::subject_gt < TLhs >> >> (),
+                declvalr<TRhs>()(declvall < ENV::iterator_element_gt < TLhs >> ())
+        )
+)
 fun inl trans(TLhs begin, TLhs end, TRhs call)
 {
-    ret ENV::trans<list_gt < iterator_element_gt < TLhs>>>(begin, end, call);
+    ret ENV::trans<ENV::list_gt<ENV::unqualified_gt<ENV::subject_gt<TLhs >> >>(begin, end, call);
 }
 
-EXPR_TMP_BINARY(place(
-        declvall < ENV::unqualified_gt < TLhs >> (),
-        declvalr<TRhs>()(declvall < ENV::iterable_element_gt < TLhs >> ())))
+EXPR_TMP_BINARY
+(
+        place(
+                declvall < ENV::unqualified_gt < TLhs >> (),
+                declvalr<TRhs>()(declvall < ENV::iterable_element_gt < TLhs >> ())
+        )
+)
 fun inl trans(TLhs&& iterable, TRhs call)
 {
     ret ENV::trans<ENV::unqualified_gt<TLhs>>(iterable.begin(), iterable.end(), call);
@@ -150,6 +160,7 @@ ENV_TEST_CASE("trans")
     }
 }
 
+
 // rem
 
 EXPR_TMP_BINARY(declvalr<TRhs>()(declvalr < iterable_element_gt < TLhs >> ()))
@@ -180,6 +191,7 @@ ENV_TEST_CASE("rem")
         REQUIRE_EQ(_list.size(), 2);
     }
 }
+
 
 // all
 
@@ -222,6 +234,7 @@ TEST_CASE("all")
     REQUIRE_FALSE(res);
 }
 
+
 // any
 
 COND_TMP_BINARY(ENV_STD::is_same_v < decl(declvalr<TRhs>()(declvalr < iterator_element_gt < TLhs >> ())), bool >)
@@ -263,6 +276,7 @@ TEST_CASE("any")
     REQUIRE_FALSE(res);
 }
 
+
 // none
 
 COND_TMP_BINARY(ENV_STD::is_same_v < decl(declvalr<TRhs>()(declvalr < iterator_element_gt < TLhs >> ())), bool >)
@@ -303,5 +317,6 @@ TEST_CASE("none")
     res = none(lst(1, 2, 1), 2);
     REQUIRE_FALSE(res);
 }
+
 
 #endif // ENV_ALGORITHMS_HPP

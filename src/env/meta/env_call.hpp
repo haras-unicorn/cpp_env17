@@ -63,7 +63,7 @@ ENV_TEST_CASE("first")
 
 // apply
 
-tmp<tmp<name...> class TKind, name TArgs, name = success_t>
+tmp<tmp<name...> class TKind, name TArgs, name = requirement_t>
 strct apply_kvs : type_gt<fail_t> { };
 
 tmp<tmp<name...> class TKind, name... TArgs>
@@ -74,7 +74,7 @@ strct apply_kvs<TKind, variadic_vt < TArgs...>, success_vt <TKind<TArgs...>>> : 
 tmp<tmp<name...> class TKind, name... TArgs>
 typ(apply_kvt) = name apply_kvs<TKind, variadic_vt < TArgs...>>::type;
 
-tmp<name TFunctor, name TArgs, name = success_t>
+tmp<name TFunctor, name TArgs, name = requirement_t>
 strct apply_tvs : type_gt<fail_t> { };
 
 tmp<name TFunctor, name... TArgs>

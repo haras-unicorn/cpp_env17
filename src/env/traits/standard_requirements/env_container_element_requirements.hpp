@@ -32,7 +32,7 @@ ENV_DETAIL_BEGIN
 
 ALIAS_DETECTOR(allocator_type);
 
-tmp<name TContainer, name = success_t>
+tmp<name TContainer, name = requirement_t>
 strct container_alloc_gs : public type_gt<ENV_STD::allocator<name TContainer::value_type>>{ };
 
 tmp<name T>

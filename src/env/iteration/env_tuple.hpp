@@ -53,7 +53,7 @@ typ(poly_tuple_vt) = ENV_STD::tuple<poly_gt < TElements>...>;
 
 ENV_CLANG_SUPPRESS_PUSH("OCUnusedTemplateParameterInspection")
 
-tmp<name, name = success_t>
+tmp<name, name = requirement_t>
 strct tuple_vs;
 
 tmp<>

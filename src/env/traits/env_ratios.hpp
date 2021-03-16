@@ -34,6 +34,7 @@ ENV_TEST_CASE("ratios")
     }
 }
 
+
 COND_CHECK_UNARY(is_nratio, (T::num > 0 && T::den > 0));
 
 COND_CONCEPT(nratio, (is_nratio_g<C>));

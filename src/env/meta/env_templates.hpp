@@ -18,15 +18,15 @@ ENV_TEST_CASE("template skips")
 // conversions
 
 #define EXPR_TYPE(...) decl(nonce(__VA_ARGS__), ENV::success, ENV::declval<success_t>())
-#define EXPR_COND(...) ENV::is_success_g<ENV::success_vt<decl(nonce(__VA_ARGS__))>>
+#define EXPR_COND(...) decl(nonce(__VA_ARGS__), ENV::success, true){true}
 
-#define TYPE_EXPR(...) ENV::declval<__VA_ARGS__>()
-#define TYPE_COND(...) ENV::is_success_g<ENV::success_vt<__VA_ARGS__>>
+#define TYPE_EXPR(...) ENV::success_v<__VA_ARGS__>
+#define TYPE_COND(...) ENV::true_v<__VA_ARGS__>
 
-#define COND_EXPR(...) ENV::declval<ENV::require_nt<__VA_ARGS__>>()
+#define COND_EXPR(...) ENV::require_n<__VA_ARGS__>
 #define COND_TYPE(...) ENV::require_nt<__VA_ARGS__>
 
-#define INSTANT(...) name ENV::variadic_vt<ENV::success_t, __VA_ARGS__>::tmp at_nt<0>
+#define INSTANT(...) ENV::success_vt<__VA_ARGS__>
 
 ENV_TEST_CASE("expression conversion")
 {
