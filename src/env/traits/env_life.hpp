@@ -121,16 +121,16 @@ COND_CONCEPT_UNARY(stable, is_stable_g<T>);
 
 ENV_TEST_CASE("stable")
 {
-    REQUIRES(is_stable_g<int>);
-    REQUIRES(is_stable_g<int*>);
-    REQUIRES(is_stable_g<void (*)()>);
-    REQUIRES(is_stable_g<ENV_STD::vector < int>>);
-    REQUIRES(is_stable_g<ENV_STD::string>);
-    REQUIRES(is_stable_g<ENV_STD::function < void()>>);
-    REQUIRES_FALSE(is_stable_g<int[3]>);
-    REQUIRES_FALSE(is_stable_g<ENV_STD::unique_ptr < int>>);
-    REQUIRES_FALSE(is_stable_g<int&>);
-    REQUIRES_FALSE(is_stable_g<void()>);
+    REQUIRES(is_stable_g < int >);
+    REQUIRES(is_stable_g < int * >);
+    REQUIRES(is_stable_g < void(*)() >);
+    REQUIRES(is_stable_g < ENV_STD::vector < int >>);
+    REQUIRES(is_stable_g < ENV_STD::string >);
+    REQUIRES(is_stable_g < ENV_STD::function < void() >>);
+    REQUIRES_FALSE(is_stable_g < int[3] >);
+    REQUIRES_FALSE(is_stable_g < ENV_STD::unique_ptr < int >>);
+    REQUIRES_FALSE(is_stable_g < int &>);
+    REQUIRES_FALSE(is_stable_g < void() >);
 }
 
 

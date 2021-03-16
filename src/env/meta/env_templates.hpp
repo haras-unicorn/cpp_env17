@@ -23,8 +23,8 @@ ENV_TEST_CASE("template skips")
 #define TYPE_EXPR(...) ENV::success_v<__VA_ARGS__>
 #define TYPE_COND(...) ENV::true_v<__VA_ARGS__>
 
-#define COND_EXPR(...) ENV::require_n<__VA_ARGS__>
-#define COND_TYPE(...) ENV::require_nt<__VA_ARGS__>
+#define COND_EXPR(...) ENV::require_nns<__VA_ARGS__, ENV::success>::value
+#define COND_TYPE(...) name ENV::require_ngs<__VA_ARGS__, ENV::success_t>::type
 
 #define INSTANT(...) ENV::success_vt<__VA_ARGS__>
 

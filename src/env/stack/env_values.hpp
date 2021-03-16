@@ -2,6 +2,25 @@
 #define ENV_VALUES_HPP
 
 
+// copy/move
+
+tmp<name T> cmp_fn move(T&& t) noex -> remove_ref_gt <T>&& { ret scast<remove_ref_gt<T>&&>(t); }
+
+tmp<name T> cmp_fn copy(T& t) noex -> const T& { ret scast<const T&>(t); }
+
+ENV_TEST_CASE("copy/move")
+{
+    REQUIRE_EQT(decl(move(declvalr<int>())), int &&);
+    REQUIRE_EQT(decl(move(declvalr<const int>())), const int&&);
+    REQUIRE_EQT(decl(move(declvall<int>())), int &&);
+    REQUIRE_EQT(decl(move(declvall<const int>())), const int&&);
+
+    REQUIRE_EQT(decl(copy(declvalr<const int>())), const int&);
+    REQUIRE_EQT(decl(copy(declvall<int>())), const int &);
+    REQUIRE_EQT(decl(copy(declvall<const int>())), const int&);
+}
+
+
 // precision
 
 enm precision_t
@@ -101,11 +120,12 @@ ENV_TEST_CASE("val traits")
     REQUIRES(val_gs<hp_val_t>::is_precise);
     REQUIRES(val_gs<val_t>::bit_depth == 24);
 
-    REQUIRES(precision_g<hp_val_t> == precision_t::highly_precise);
-    REQUIRES_FALSE(is_processable_g<hp_val_t>);
-    REQUIRES(is_precise_g<hp_val_t>);
-    REQUIRES(bit_depth_g<val_t> == 24);
+    REQUIRES(precision_g < hp_val_t > == precision_t::highly_precise);
+    REQUIRES_FALSE(is_processable_g < hp_val_t >);
+    REQUIRES(is_precise_g < hp_val_t >);
+    REQUIRES(bit_depth_g < val_t > == 24);
 }
+
 
 // precision traits
 
@@ -141,5 +161,6 @@ ENV_TEST_CASE("precision traits")
     REQUIRES(is_precise_n < precision_t::highly_precise >);
     REQUIRES(bit_depth_n < precision_t::normal > == 24);
 }
+
 
 #endif // ENV_VALUES_HPP

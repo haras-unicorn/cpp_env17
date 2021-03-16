@@ -4,7 +4,12 @@
 
 // iterators
 
-COND_CHECK_UNARY(is_iterator, is_indirect_g < T > && is_advanceable_g < T > && is_stable_g < T >);
+COND_CHECK_UNARY
+(
+        is_iterator,
+        (is_stable_g < T > ) &&
+        (is_indirect_g < T > && is_advanceable_g < T > && is_equatable_g < T > )
+);
 
 COND_CONCEPT(iterator, is_iterator_g<C>);
 

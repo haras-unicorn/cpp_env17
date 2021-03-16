@@ -1,6 +1,7 @@
 #ifndef ENV_SFINAE_HPP
 #define ENV_SFINAE_HPP
 
+
 // variadic
 
 tmp<name... T>
@@ -59,12 +60,13 @@ ENV_TEST_CASE("variadic")
     REQUIRE_EQT(variadic_vt<>::at_nt<534>, fail_t);
 }
 
+
 // require
 
-tmp<name TCondition, name TResult>
+tmp<name TCondition, name TResult = success_t>
 strct require_ggs : public ENV_STD::enable_if<TCondition::value, TResult> { };
 
-tmp<name TCondition, name TResult>
+tmp<name TCondition, name TResult = success_t>
 typ(require_ggt) = ENV_STD::enable_if_t<TCondition::value, TResult>;
 
 tmp<name TCondition>
@@ -76,13 +78,13 @@ typ(require_gt) = ENV_STD::enable_if_t<TCondition::value, success_t>;
 ENV_TEST_CASE("require")
 {
     REQUIRE_EQT(require_ggs<ENV_STD::true_type, int>::type, int);
-    REQUIRE_EQT(require_ggt<ENV_STD::true_type, int>, int);
+    REQUIRE_EQT(require_ggt < ENV_STD::true_type, int >, int);
 }
 
-tmp<bool Condition, name TResult>
+tmp<bool Condition, name TResult = success_t>
 strct require_ngs : public ENV_STD::enable_if<Condition, TResult> { };
 
-tmp<bool Condition, name TResult>
+tmp<bool Condition, name TResult = success_t>
 typ(require_ngt) = ENV_STD::enable_if_t<Condition, TResult>;
 
 tmp<bool Condition>
@@ -94,12 +96,12 @@ typ(require_nt) = ENV_STD::enable_if_t<Condition, success_t>;
 ENV_TEST_CASE("require")
 {
     REQUIRE_EQT(require_ngs<true, int>::type, int);
-    REQUIRE_EQT(require_ngt<true, int>, int);
+    REQUIRE_EQT(require_ngt < true, int >, int);
 }
 
 #if ENV_CPP >= 17
 
-tmp<bool Condition, deduc Result>
+tmp<bool Condition, deduc Result = success>
 strct require_nns;
 
 tmp<deduc Result>
@@ -108,7 +110,7 @@ strct require_nns<true, Result> : value_nt<Result> { };
 tmp<deduc Result>
 strct require_nns<false, Result> { };
 
-tmp<bool Condition, deduc Result>
+tmp<bool Condition, deduc Result = success>
 let_cmp require_nn{require_nns<Condition, Result>::value};
 
 tmp<bool Condition>
@@ -121,6 +123,7 @@ ENV_TEST_CASE("require")
 }
 
 #endif // ENV_CPP >= 17
+
 
 // declval
 
@@ -159,6 +162,7 @@ ENV_TEST_CASE("declval")
     }
 }
 
+
 // consume
 
 tmp<name... T> cmp_callb hoard(T...) noex -> bool { ret true; }
@@ -179,6 +183,7 @@ ENV_TEST_CASE("consume")
     REQUIRE_EQT(decl(consume("aa", 'v')), bool);
 }
 
+
 // implies
 
 cmp_fn implies(bool if_true, bool this_is_true) { ret !if_true || this_is_true; }
@@ -190,6 +195,7 @@ ENV_TEST_CASE("implies")
     REQUIRE(implies(false, true));
     REQUIRE(implies(false, false));
 }
+
 
 // qualified
 
@@ -213,5 +219,6 @@ ENV_TEST_CASE("qualified")
     REQUIRES(is_qualified_g < int &&>);
     REQUIRES(is_qualified_g<volatile int&&>);
 }
+
 
 #endif // ENV_SFINAE_HPP
