@@ -2,17 +2,17 @@
 #define ENV_RANGE_HPP
 
 
-tmp<name TVal>
+tmp<name TIter>
 strct range_gt
 {
     DECL_THIS(range_gt);
 
 
-    NIL((TVal * ), begin);
+    NIL((TIter), begin);
     MEM_GETTER(begin);
     CMP_GETTER(begin, _get_begin());
 
-    NIL((TVal * ), end);
+    NIL((TIter), end);
     MEM_GETTER(end);
     CMP_GETTER(end, _get_end());
 

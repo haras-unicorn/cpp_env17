@@ -2,18 +2,18 @@
 #define ENV_FLEX_HPP
 
 
-tmp<name TVal>
+tmp<name TIter>
 strct flex_gt
 {
     DECL_THIS(flex_gt);
 
-    NIL((range_gt < TVal > ), range);
+    NIL((range_gt < TIter > ), range);
     GETTER(get_begin, _get_range().get_begin());
     CMP_GETTER(begin, get_begin());
     GETTER(get_end, _get_range().get_end());
     CMP_GETTER(end, get_end());
 
-    NIL((TVal * ), last);
+    NIL((TIter), last);
     MEM_GETTER(last);
     CMP_GETTER(last, get_last());
 
