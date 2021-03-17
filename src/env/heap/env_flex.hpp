@@ -2,6 +2,8 @@
 #define ENV_FLEX_HPP
 
 
+// TODO stuff
+
 tmp<name TIter>
 strct flex_gt
 {
