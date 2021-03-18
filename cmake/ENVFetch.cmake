@@ -21,8 +21,17 @@ function(env_fetch _name)
         file(WRITE "${PROJECT_SOURCE_DIR}/builds/fetch/${_name}_src/.cmake_populated.txt" YES)
     endif()
 
+
+    set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
+    set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
+    set(CMAKE_MESSAGE_LOG_LEVEL VERBOSE)
+    set(CMAKE_MESSAGE_INDENT "    ")
+
     add_subdirectory(
             "${PROJECT_SOURCE_DIR}/builds/fetch/${_name}_src"
             "${PROJECT_BINARY_DIR}/fetch/${_name}/bin"
     )
+
+    set(CMAKE_MESSAGE_LOG_LEVEL ${_previous_log_level})
+    set(CMAKE_MESSAGE_INDENT ${_previous_log_indent})
 endfunction()

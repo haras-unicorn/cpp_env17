@@ -1,6 +1,7 @@
 #ifndef ENV_CALL_HPP
 #define ENV_CALL_HPP
 
+
 // first
 
 tmp<name TResult, name... TIgnored>
@@ -61,6 +62,7 @@ ENV_TEST_CASE("first")
 #endif // ENV_CPP >= 17
 }
 
+
 // apply
 
 tmp<tmp<name...> class TKind, name TArgs, name = requirement_t>
@@ -74,12 +76,15 @@ strct apply_kvs<TKind, variadic_vt < TArgs...>, success_vt <TKind<TArgs...>>> : 
 tmp<tmp<name...> class TKind, name... TArgs>
 typ(apply_kvt) = name apply_kvs<TKind, variadic_vt < TArgs...>>::type;
 
-tmp<name TFunctor, name TArgs, name = requirement_t>
+tmp<name TFunction, name TArgs, name = requirement_t>
 strct apply_tvs : type_gt<fail_t> { };
 
-tmp<name TFunctor, name... TArgs>
-strct apply_tvs<TFunctor, variadic_vt < TArgs...>, success_vt<decltype(TFunctor{ }(declvalr<TArgs>()...))>> : type_gt<
-        decltype(TFunctor{ }(declvalr<TArgs>()...))>{
+tmp<name TFunction, name... TArgs>
+strct apply_tvs<
+        TFunction, variadic_vt < TArgs...>,
+ENV::success_vt<decltype(TFunction{ }(declvalr<TArgs>()...))>> :
+type_gt<decltype(TFunction{ }(declvalr<TArgs>()...))>
+{
 };
 
 tmp<name TFunctor, name... TArgs>
@@ -89,17 +94,18 @@ ENV_TEST_CASE("apply")
 {
     enm test : int { };
 
-    SUBCASE("type")
+    SUBCASE("functor")
     {
         REQUIRE_EQT(apply_kvt<ENV_STD::underlying_type_t, test>, int);
         REQUIRE_EQT(apply_kvt<ENV_STD::underlying_type_t, int>, fail_t);
     }
 
-    SUBCASE("functor")
+    SUBCASE("function")
     {
         REQUIRE_EQT(apply_tvt<ENV_STD::plus < int>, int, int >, int);
         REQUIRE_EQT(apply_tvt<ENV_STD::plus < int>, ENV_STD::string_view, int >, fail_t);
     }
 }
+
 
 #endif // ENV_CALL_HPP

@@ -77,7 +77,7 @@ ENV_TEST_CASE("template conversion traits")
 }
 
 
-// writeable/placeable
+// writeable/placeable/transferable
 
 COND_CHECK_BINARY(is_placeable_on, ENV_STD::is_constructible_v < subject_gt < TRhs >, TLhs >);
 
@@ -87,7 +87,18 @@ COND_CHECK_BINARY(is_writeable_to, ENV_STD::is_assignable_v < subject_gt < TRhs 
 
 COND_CONCEPT_UNARY(writeable_to, is_writeable_to_g<C, T>);
 
-ENV_TEST_CASE("writeable/placeable")
+COND_CHECK_BINARY(is_transferable_to, ENV_STD::is_assignable_v < subject_gt < TRhs > &, subject_gt < TLhs > >);
+
+COND_CONCEPT_UNARY(transferable_to, is_transferable_to_g<C, T>);
+
+EXPR_CHECK_BINARY
+(
+        are_interchangeable,
+        ENV_STD::swap(declval<subject_gt<TLhs>&>(), declval<subject_gt<TRhs>&>()),
+        ENV_STD::swap(declval<subject_gt<TRhs>&>(), declval<subject_gt<TLhs>&>())
+);
+
+ENV_TEST_CASE("writeable/placeable/transferable/interchangeable")
 {
     REQUIRES(is_placeable_on_g < int, int[]>);
     REQUIRES(is_writeable_to_g < int, int*>);
@@ -102,6 +113,39 @@ ENV_TEST_CASE("writeable/placeable")
     REQUIRES_FALSE(is_writeable_to_g < int, ENV_STD::unique_ptr<const int>>);
     REQUIRES_FALSE(is_writeable_to_g<const int, const int*>);
     REQUIRES_FALSE(is_writeable_to_g<const int, ENV_STD::unique_ptr<const int>>);
+    REQUIRES(is_transferable_to_g < int *, int[]>);
+    REQUIRES(is_transferable_to_g<const int[], int[3]>);
+    REQUIRES_FALSE(is_transferable_to_g<int[2], const int[]>);
+    REQUIRES_FALSE(is_transferable_to_g < int *, ENV_STD::unique_ptr<const int>>);
+    REQUIRES(is_transferable_to_g < int *, ENV_STD::unique_ptr < int >>);
+    REQUIRES_FALSE(is_transferable_to_g < void(*)(), void(*)() >);
+    REQUIRES_FALSE(is_transferable_to_g < int *, ENV_STD::unique_ptr<const int >>);
+    REQUIRES(are_interchangeable_g<int*, int*>);
+    REQUIRES_FALSE(are_interchangeable_g<const int*, const int*>);
+    REQUIRES_FALSE(are_interchangeable_g<const int*, int*>);
+    REQUIRES_FALSE(are_interchangeable_g<int*, const int*>);
+}
+
+
+// emplaceable
+
+ELABORATE_COND_CHECK
+(
+        is_emplaceable,
+        (name T, name TVar), (T, TVar),
+        (name T, name... TVar), (T, v<TVar...>),
+        ENV_STD::is_constructible_v < subject_gt < T >, TVar...>
+);
+
+COND_CONCEPT_UNARY(emplaceable, is_emplaceable_g<C, T>);
+
+ENV_TEST_CASE("emplaceable")
+{
+    REQUIRES(is_emplaceable_g<int*, v < int>>);
+    REQUIRES_FALSE(is_emplaceable_g<ENV_STD::pair < int, int> *, v < int > >);
+    REQUIRES(is_emplaceable_g<ENV_STD::pair < int, int> *, v < int, int > >);
+    REQUIRES(is_emplaceable_g<const ENV_STD::pair<int, int>*, v < int, int>>);
+    REQUIRES(is_emplaceable_g<ENV_STD::unique_ptr < ENV_STD::pair < int, int>>, v < int, int > >);
 }
 
 
@@ -121,16 +165,16 @@ COND_CONCEPT_UNARY(stable, is_stable_g<T>);
 
 ENV_TEST_CASE("stable")
 {
-    REQUIRES(is_stable_g < int >);
-    REQUIRES(is_stable_g < int * >);
-    REQUIRES(is_stable_g < void(*)() >);
-    REQUIRES(is_stable_g < ENV_STD::vector < int >>);
-    REQUIRES(is_stable_g < ENV_STD::string >);
-    REQUIRES(is_stable_g < ENV_STD::function < void() >>);
-    REQUIRES_FALSE(is_stable_g < int[3] >);
-    REQUIRES_FALSE(is_stable_g < ENV_STD::unique_ptr < int >>);
-    REQUIRES_FALSE(is_stable_g < int &>);
-    REQUIRES_FALSE(is_stable_g < void() >);
+    REQUIRES(is_stable_g<int>);
+    REQUIRES(is_stable_g<int*>);
+    REQUIRES(is_stable_g<void (*)()>);
+    REQUIRES(is_stable_g<ENV_STD::vector < int >>);
+    REQUIRES(is_stable_g<ENV_STD::string>);
+    REQUIRES(is_stable_g<ENV_STD::function < void() >>);
+    REQUIRES_FALSE(is_stable_g<int[3]>);
+    REQUIRES_FALSE(is_stable_g<ENV_STD::unique_ptr < int >>);
+    REQUIRES_FALSE(is_stable_g<int&>);
+    REQUIRES_FALSE(is_stable_g<void()>);
 }
 
 

@@ -10,6 +10,7 @@ strct flex_gt
     DECL_THIS(flex_gt);
 
     NIL((range_gt < TIter > ), range);
+    MEM_GETTER(range);
     GETTER(get_begin, _get_range().get_begin());
     CMP_GETTER(begin, get_begin());
     GETTER(get_end, _get_range().get_end());

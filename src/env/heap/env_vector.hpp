@@ -4,7 +4,12 @@
 
 // I started writing it to test the dynamic struct, but it seems like it turned out to be an ok vector class.
 
-tmp<name TVal, name TAlloc = allocator_gt <TVal>>
+COND_TMP
+(
+        (name TVal, name TAlloc = allocator_gt < TVal >),
+        (ENV_STD::is_default_constructible_v < TVal > ) &&
+        (detail::is_dynamic_alloc_g < TAlloc > )
+)
 strct vector_gt
 {
 private:
@@ -26,32 +31,32 @@ private:
 public:
     CMP_GETTER(begin, _get_begin());
     CMP_GETTER(end, _get_end());
+
     CMP_GETTER(size, _get_flex().size());
     CMP_GETTER(capacity, _get_flex().capacity());
 
 
     con cmp inl vector_gt() noex = default;
 
-    con inl vector_gt(size_t size) :
+    con vector_gt(size_t size) :
             _dynamic{ }
     {
         if (is_invalid(size)) ret;
         _alloc(size);
     }
 
-    con inl vector_gt(const vector_gt& other) :
+    con vector_gt(const vector_gt& other) :
             _dynamic{other._get_dynamic()}
     {
         if (_did_propagate_invalidation(other)) ret;
-        _alloc(other.size());
-        _copy(other);
+        _ucopy(other);
     }
 
-    con inl vector_gt(vector_gt&& other) noex:
+    con vector_gt(vector_gt&& other) noex:
             _dynamic{other._get_dynamic()}
     {
         if (_did_propagate_invalidation(other)) ret;
-        _move(other);
+        _move(ENV_STD::move(other));
     }
 
     fun operator=(const vector_gt& other)
@@ -80,12 +85,6 @@ public:
 
 
 protected:
-    GETTER(_get_flex, _get_dynamic().get_data());
-    GETTER(_get_begin, _get_flex().get_begin());
-    GETTER(_get_end, _get_flex().get_end());
-    GETTER(_get_last, _get_flex().get_last());
-
-
     fun inl _copy(const vector_gt& other, nonced name dynamic_t::copy_strategy_t strategy)
     {
         if_cmp(dynamic_t::always_copies) _copy(other);
@@ -101,8 +100,8 @@ protected:
         if_cmp(dynamic_t::always_moves) _move(other);
         else
         {
-            if (strategy == dynamic_t::move_strategy_t::move) _move(other);
-            else _move_elements(other);
+            if (strategy == dynamic_t::move_strategy_t::move) _move(ENV_STD::move(other));
+            else _move_elements(ENV_STD::move(other));
         }
     }
 
@@ -111,16 +110,19 @@ protected:
         if_cmp(dynamic_t::always_swaps) _swap(other);
         else
         {
-            if (strategy == dynamic_t::swap_strategy_t::swap) _swap(other);
-                // otherwise undefined by the standard, so I figured this would be ok.
-            else _swap_elements(other);
+            if (strategy == dynamic_t::swap_strategy_t::swap)
+                _swap(other);
+            else
+                throw unequal_container_allocator_swap_error_t
+                        {"Don't use vector swap with allocators that are not always equal"};
         }
     }
 
 
     fun inl _ucopy(const vector_gt& other) noex(ENV_STD::is_nothrow_copy_assignable_v<TVal>)
     {
-        ucopy(other._get_begin(), _get_begin(), ENV_STD::min(size(), other.size()));
+        _alloc(other.size());
+        ucopy(other._get_begin(), _get_begin(), size());
     }
 
     fun inl _copy(const vector_gt& other) noex(ENV_STD::is_nothrow_copy_assignable_v<TVal>)
@@ -134,7 +136,7 @@ protected:
         _copy(other);
     }
 
-    fun inl _move(const vector_gt& other) noex
+    fun inl _move(vector_gt&& other) noex
     {
         if (is_valid(*this)) _free();
 
@@ -144,13 +146,7 @@ protected:
         other._nil();
     }
 
-    fun inl _umove_elements(const vector_gt& other) noex(ENV_STD::is_nothrow_move_assignable_v<TVal>)
-    {
-        umove(other._get_begin(), _get_begin(), ENV_STD::min(size(), other.size()));
-        other._free();
-    }
-
-    fun inl _move_elements(const vector_gt& other) noex(ENV_STD::is_nothrow_move_assignable_v<TVal>)
+    fun inl _move_elements(vector_gt&& other) noex(ENV_STD::is_nothrow_move_assignable_v<TVal>)
     {
         move(other._get_begin(), _get_begin(), ENV_STD::min(size(), other.size()));
         other._free();
@@ -161,16 +157,8 @@ protected:
         ENV_STD::swap(_get_flex(), other._get_flex());
     }
 
-    fun inl _swap_elements(vector_gt& other) noex
-    {
-        swap(other._get_begin(), _get_begin(), ENV_STD::min(size(), other.size()));
-    }
 
-
-    cmp_fn static _is_valid(const vector_gt& vec) noex
-    {
-        ret is_valid(vec._get_begin());
-    }
+    fun inl static _is_valid(const vector_gt& vec) { ret is_valid(vec._get_begin()); }
 
     fun inl _did_propagate_invalidation(const vector_gt& other)
     {
@@ -181,13 +169,14 @@ protected:
                 _free();
                 _invalidate();
             }
+
             ret true;
         }
 
         ret false;
     }
 
-    cmp_fn _invalidate() noex
+    fun inl _invalidate()
     {
         _get_begin() = nil;
         _get_end() = nil;
@@ -195,38 +184,47 @@ protected:
     }
 
 
-    fun inl _resize(dynamic_t& with, size_t size)
+    fun inl _resize(dynamic_t& with, size_t to)
     {
-        if (size < capacity())
-        {
-            _get_end() = _get_begin() + size;
-            ret;
-        }
-
-        let _new_begin = with.alloc(size_t{size + 1});
-        let _new_end = _new_begin + size;
-        let _new_last = _new_begin + size;
-
-        move(_get_begin(), _new_begin, size);
-        _free();
+        if (to < size()) _diminish(to);
+        else if (to < capacity()) _grow(with, to);
+        else _expand(with, to);
     }
 
-    fun inl _resize(size_t size)
-    {
-        _reset(_get_dynamic(), size);
-    }
+    fun inl _resize(size_t to) { _resize(_get_dynamic(), to); }
 
-
-    fun inl _reset(dynamic_t& with, size_t size)
+    fun inl _reset(dynamic_t& with, size_t to)
     {
         _free();
-        _alloc(with, size);
+        _alloc(with, to);
     }
 
-    fun inl _reset(size_t size)
+    fun inl _reset(size_t to) { _reset(_get_dynamic(), to); }
+
+
+    fun inl _diminish(size_t to) { _get_end() = _get_begin() + to; }
+
+    fun inl _grow(dynamic_t& with, size_t to)
     {
-        _reset(_get_dynamic(), size);
+        _get_end() = emplace(with._get_alloc(), _get_begin(), _get_begin() + to);
     }
+
+    fun inl _grow(size_t to) { _grow(_get_dynamic(), to); }
+
+    fun inl _expand(dynamic_t& with, size_t to)
+    {
+        // TODO: pretty this
+
+        let old_begin = _get_begin();
+        let old_end = _get_end();
+
+        _alloc(with, to);
+        ucopy(with._get_alloc(), old_begin, old_end, _get_begin());
+
+        with._get_alloc().deallocate(old_begin, ENV_STD::distance(old_begin, old_end));
+    }
+
+    fun inl _expand(size_t to) { _expand(_get_dynamic(), to); }
 
 
     fun inl _alloc(dynamic_t& with, size_t size)
@@ -236,20 +234,22 @@ protected:
         _get_last() = _get_begin() + size;
     }
 
-    fun inl _alloc(size_t size)
-    {
-        _alloc(_get_dynamic(), size);
-    }
+    fun inl _alloc(size_t size) { _alloc(_get_dynamic(), size); }
 
-    fun inl _free(dynamic_t& with)
-    {
-        with.free(_get_begin(), size());
-    }
+    fun inl _free(dynamic_t& with) { with.free(_get_begin(), size()); }
 
-    fun inl _free()
-    {
-        _free(_get_dynamic());
-    }
+    fun inl _free() { _free(_get_dynamic()); }
+
+
+    GETTER(_get_alloc, _get_dynamic().get_alloc());
+
+    GETTER(_get_flex, _get_dynamic().get_data());
+
+    GETTER(_get_range, _get_flex().get_range());
+    GETTER(_get_last, _get_flex().get_last());
+
+    GETTER(_get_begin, _get_flex().get_begin());
+    GETTER(_get_end, _get_flex().get_end());
 };
 
 

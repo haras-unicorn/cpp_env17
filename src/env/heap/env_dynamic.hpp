@@ -28,12 +28,6 @@ COND_CHECK_UNARY(is_dynamic_alloc, true);
 tmp<name TData, name TAlloc, name = requirement_t>
 strct dynamic_data_ggt
 {
-    typ(data_t) = TData;
-
-    NIL((data_t), data);
-    MEM_GETTER(data);
-
-
 protected:
     typ(alloc_t) = TAlloc;
     typ(traits_t) = ENV_STD::allocator_traits<alloc_t>;
@@ -45,9 +39,17 @@ protected:
 
     typ(alloc_size_t) = name traits_t::size_type;
 
-    NIL((TAlloc), alloc);
+
+public:
+    typ(data_t) = TData;
+
+    NIL((data_t), data);
+    MEM_GETTER(data);
+
+    NIL((alloc_t), alloc);
 
 
+protected:
     imp cmp inl dynamic_data_ggt() noex = default;
 
     AUTO_NOCON_LIFE
@@ -64,11 +66,6 @@ strct dynamic_data_ggt<
         ENV::require_nt<ENV_STD::is_empty_v<TAlloc> && !ENV_STD::is_final_v<TAlloc>>> :
         protected TAlloc
 {
-    typ(data_t) = TData;
-
-    NIL((data_t), data);
-    MEM_GETTER(data);
-
 
 protected:
     typ(alloc_t) = TAlloc;
@@ -81,9 +78,17 @@ protected:
 
     typ(alloc_size_t) = name traits_t::size_type;
 
+
+public:
+    typ(data_t) = TData;
+
+    NIL((data_t), data);
+    MEM_GETTER(data);
+
     GETTER(_get_alloc, (*this));
 
 
+protected:
     imp cmp inl dynamic_data_ggt() noex = default;
 
     AUTO_NOCON_LIFE

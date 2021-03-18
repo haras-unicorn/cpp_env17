@@ -1,6 +1,7 @@
 #ifndef ENV_ARRAY_HPP
 #define ENV_ARRAY_HPP
 
+
 tmp<size_t SizeHead, size_t... SizeRest>
 strct array_vs
 {
@@ -42,5 +43,6 @@ ENV_TEST_CASE("array traits")
     REQUIRES(ENV_STD::is_same_v < array_vs<triple, dual>::array_gt<int>, int[3][2] >);
     REQUIRES(ENV_STD::is_same_v < array_vs<triple, dual>::value_gt<int>, int[2] >);
 }
+
 
 #endif // ENV_ARRAY_HPP

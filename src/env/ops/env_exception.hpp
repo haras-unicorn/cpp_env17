@@ -162,7 +162,8 @@ callb except(message_t message) { throw T{message.data()}; }
 
 // noex
 
-#define IS_NO_THROW_EXCEPTION_POLICY !ENV_STD::is_same_v<EXCEPTION_POLICY_TYPE_NAME, ENV::throw_on_exception_s>
+#define NORMALIZED_POLICY_TYPE ENV::unqualified_gt<EXCEPTION_POLICY_TYPE_NAME>
+#define IS_NO_THROW_EXCEPTION_POLICY !ENV_STD::is_same_v<NORMALIZED_POLICY_TYPE, ENV::throw_on_exception_s>
 #define NOEX_IF_NO_THROW_EXCEPTION_POLICY noex(IS_NO_THROW_EXCEPTION_POLICY)
 
 // shorthand

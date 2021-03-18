@@ -49,6 +49,12 @@ strct variadic_vt<THead, TRest...>
     let_cmp static has_n = !ENV_STD::is_same_v<at_nt<Index>, fail_t>;
 };
 
+
+// shorthand
+
+tmp<name... T> typ(v) = variadic_vt<T...>;
+
+
 ENV_TEST_CASE("variadic")
 {
     REQUIRES(variadic_vt<int, int>::rank == 2);
@@ -118,8 +124,8 @@ let_cmp require_n{require_nn<Condition, success>};
 
 ENV_TEST_CASE("require")
 {
-    REQUIRES(require_nn<true, 1> == 1);
-    REQUIRES(require_n<true> == success);
+    REQUIRES(require_nn < true, 1 > == 1);
+    REQUIRES(require_n < true > == success);
 }
 
 #endif // ENV_CPP >= 17

@@ -8,10 +8,10 @@ tmp<name TValue, name TDeleter = deleter_gt <TValue>>
 typ(poly_gt) = ENV_STD::unique_ptr<TValue, TDeleter>;
 
 tmp<name TValue>
-typ(poly_cgt) = poly_gt<add_const_gt<TValue>>;
+typ(poly_cgt) = poly_gt<add_const_gt < TValue>>;
 
 tmp<name TValue>
-typ(poly_mgt) = poly_gt<remove_const_gt<TValue>>;
+typ(poly_mgt) = poly_gt<remove_const_gt < TValue>>;
 
 COND_TMP((name T, name... TArgs), (ENV_STD::is_constructible_v<T, TArgs...>))
 fun poly(TArgs&& ...args)
