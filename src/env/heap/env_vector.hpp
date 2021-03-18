@@ -36,39 +36,36 @@ public:
     CMP_GETTER(capacity, _get_flex().capacity());
 
 
-    con cmp inl vector_gt() noex = default;
+    imp cmp inl vector_gt() noex = default;
 
-    con vector_gt(size_t size) :
-            _dynamic{ }
+    con vector_gt(size_t size) : _dynamic{ }
     {
-        if (is_invalid(size)) ret;
-        _alloc(size);
+        if (!ENV::is_invalid(size))
+            _alloc(size);
     }
 
-    con vector_gt(const vector_gt& other) :
-            _dynamic{other._get_dynamic()}
+    con vector_gt(const vector_gt& other) : _dynamic{other._get_dynamic()}
     {
-        if (_did_propagate_invalidation(other)) ret;
-        _ucopy(other);
+        if (!_did_propagate_invalidation(other))
+            _ucopy(other);
     }
 
-    con vector_gt(vector_gt&& other) noex:
-            _dynamic{other._get_dynamic()}
+    con vector_gt(vector_gt&& other) noex: _dynamic{ENV_STD::move(other._get_dynamic())}
     {
-        if (_did_propagate_invalidation(other)) ret;
-        _move(ENV_STD::move(other));
+        if (!_did_propagate_invalidation(other))
+            _move(ENV_STD::move(other));
     }
 
     fun operator=(const vector_gt& other)
     {
-        if (_did_propagate_invalidation(other)) ret;
-        _copy(other, _get_dynamic().copy_strategy(other._get_dynamic()));
+        if (!_did_propagate_invalidation(other))
+            _copy(other, _get_dynamic().copy_strategy(other._get_dynamic()));
     }
 
     fun operator=(vector_gt&& other)
     {
-        if (_did_propagate_invalidation(other)) ret;
-        _move(ENV_STD::move(other), _get_dynamic().move_strategy(other._get_dynamic()));
+        if (!_did_propagate_invalidation(other))
+            _move(ENV_STD::move(other), _get_dynamic().move_strategy(ENV_STD::move(other._get_dynamic())));
     }
 
     fun swap(vector_gt& other)
@@ -95,6 +92,11 @@ protected:
         }
     }
 
+    ENV_TEST_CASE_CLASS("vector copy")
+    {
+    }
+
+
     fun inl _move(vector_gt&& other, nonced name dynamic_t::move_strategy_t strategy)
     {
         if_cmp(dynamic_t::always_moves) _move(other);
@@ -104,6 +106,11 @@ protected:
             else _move_elements(ENV_STD::move(other));
         }
     }
+
+    ENV_TEST_CASE_CLASS("vector move")
+    {
+    }
+
 
     fun inl _swap(vector_gt& other, nonced name dynamic_t::swap_strategy_t strategy)
     {
@@ -116,6 +123,10 @@ protected:
                 throw unequal_container_allocator_swap_error_t
                         {"Don't use vector swap with allocators that are not always equal"};
         }
+    }
+
+    TEST_CASE_CLASS("vector swap")
+    {
     }
 
 

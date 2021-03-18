@@ -12,7 +12,9 @@
 #include "env_os.hpp"
 #include "env_standard.hpp"
 #include "env_pragma.hpp"
+#include "env_messages.hpp"
 #include "env_warnings.hpp"
+
 
 #undef ENV_SUPPRESS_POP
 #undef ENV_SUPPRESS_PUSH
@@ -22,7 +24,11 @@
 
 #undef ENV_SUPPRESS_PUSH
 
-#include "env_messages.hpp"
+
+ENV_MESSAGE(Env Compiler - ENV_COMPILER_NAME, ENV_COMPILER_VER)
+ENV_MESSAGE(Env Arch - ENV_ARCH_NAME)
+ENV_MESSAGE(Env OS - ENV_OS_NAME)
+ENV_MESSAGE(Env Standard - C++ ENV_CPP)
 
 
 #include "env_namespacing.hpp"

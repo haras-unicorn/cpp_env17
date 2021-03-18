@@ -31,14 +31,5 @@
 #endif // gcc
 #endif // messages
 
-// ":" after label formats it badly
-
-// GCC makes a ton of notes about these...
-
-ENV_MESSAGE(Env Compiler - ENV_COMPILER_NAME, ENV_COMPILER_VER)
-ENV_MESSAGE(Env Arch - ENV_ARCH_NAME)
-ENV_MESSAGE(Env OS - ENV_OS_NAME)
-ENV_MESSAGE(Env Standard - C++ ENV_CPP)
-
 
 #endif // ENV_MESSAGES_HPP
