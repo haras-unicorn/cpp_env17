@@ -188,6 +188,17 @@ ENV_TEST_CASE("object keywords")
 #define cmp_callb_p callb_p inl cmp
 #define cmp_callb [[NO_RETURN_ATTRIBUTES]] cmp_callb_p
 
+
+#define dest_p
+#define dest [[NO_RETURN_ATTRIBUTES]] dest_p
+#if ENV_CPP >= 20
+#define cmp_dest_p callb_p inl cmp
+#define cmp_dest [[NO_RETURN_ATTRIBUTES]] cmp_callb_p
+#else
+#define cmp_dest_p dest_p
+#define cmp_dest [[NO_RETURN_ATTRIBUTES]] cmp_dest_p
+#endif
+
 ENV_TEST_CASE("function keywords")
 {
     strct my_struct
@@ -203,6 +214,8 @@ ENV_TEST_CASE("function keywords")
 
         imp inl op char() { ret 4; }
         cmp_imp op float() { ret 4.0; }
+
+        cmp_dest ~my_struct() noex = default;
     };
 
     nonce(my_struct{ }.fi());

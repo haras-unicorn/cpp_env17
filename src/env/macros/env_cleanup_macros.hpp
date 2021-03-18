@@ -92,6 +92,11 @@
 #undef cmp_callb_p
 #undef cmp_callb
 
+#undef dest_p
+#undef dest
+#undef cmp_dest_p
+#undef cmp_dest
+
 // scope
 
 #undef UID

@@ -116,8 +116,8 @@ ENV_CLANG_SUPPRESS_PUSH("OCUnusedMacroInspection")
     (_name, DEF_COPY_MANUAL(_construct, _copy, _move), DEF_MOVE_MANUAL(_construct, _copy, _move))
 
 #define DECL_ASSIGNMENT_OPERATORS(_name, _pre, _post_copy, _post_move)                  \
-    [[RETURN_ATTRIBUTES]] _pre _name &op = (nonced const _name &other)_post_copy \
-        [[RETURN_ATTRIBUTES]] _pre _name &op = (nonced _name && other) _post_move /* NOLINT(performance-noex-move-constructor) */
+    [[NO_RETURN_ATTRIBUTES]] _pre _name &op = (nonced const _name &other)_post_copy \
+    [[NO_RETURN_ATTRIBUTES]] _pre _name &op = (nonced _name && other) _post_move /* NOLINT(performance-noex-move-constructor) */
 
 #define DECL_DELETED_ASSIGNMENT_OPERATORS(_name) \
     DECL_ASSIGNMENT_OPERATORS(_name, , DELETE_METHOD, DELETE_METHOD)

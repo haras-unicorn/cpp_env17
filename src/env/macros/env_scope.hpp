@@ -37,7 +37,7 @@ ENV_TEST_CASE("iffy")
 
 // if
 
-#define IF(_condition, _if_true, _if_false) SCOPE(if _condition { SPREAD(_if_true) } else {SPREAD(_if_false)})
+#define IF(_condition, _if_true, _if_false) IFFY(if _condition { SPREAD(_if_true) } else {SPREAD(_if_false)})
 
 ENV_TEST_CASE("if scope")
 {
@@ -78,7 +78,7 @@ ENV_TEST_CASE("constexpr if")
 
 // when
 
-#define ON(_condition, ...) SCOPE(if _condition{__VA_ARGS__})
+#define ON(_condition, ...) IFFY(if _condition{__VA_ARGS__})
 
 ENV_TEST_CASE("when")
 {
@@ -101,7 +101,7 @@ ENV_TEST_CASE("when")
 
 // tern
 
-#define TERN(_condition, _if_true, _if_false) _condition ? SPREAD(_if_true) : SPREAD(_if_false)
+#define TERN(_condition, _if_true, _if_false) (_condition ? SPREAD(_if_true) : SPREAD(_if_false))
 
 ENV_TEST_CASE("cond")
 {
@@ -110,7 +110,7 @@ ENV_TEST_CASE("cond")
 }
 
 #if ENV_CPP >= 17
-#define CMP_TERN(_condition, _if_true, _if_false) IFFY(CMP_IF(_condition, (ret _if_true;), (ret _if_false;));)
+#define CMP_TERN(_condition, _if_true, _if_false) IFFY(ret CMP_IF(_condition, (ret _if_true;), (ret _if_false;));)
 #else // ENV_CPP >= 17
 #define CMP_TERN(_condition, _if_true, _if_false) TERN(_condition, _if_true, _if_false)
 #endif // ENV_CPP >= 17

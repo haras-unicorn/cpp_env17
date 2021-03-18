@@ -19,9 +19,6 @@ ENV_MESSAGE("Globally suppressed \"-Wunknown-pragmas\" on Clang because of clang
 ENV_CLANG_SUPPRESS_PUSH("-Wduplicate-decl-specifier")
 ENV_MESSAGE("Globally suppressed \"-Wduplicate-decl-specifier\" on Clang because of doctest raising warnings.")
 
-ENV_GCC_SUPPRESS_PUSH("-Wduplicate-decl-specifier")
-ENV_MESSAGE("Globally suppressed \"-Wduplicate-decl-specifier\" on GCC because of doctest raising warnings.")
-
 ENV_GCC_SUPPRESS_PUSH("-Wmisleading-indentation")
 ENV_MESSAGE("Globally suppressed \"-Wmisleading-indentation\" on Clang because of doctest raising warnings.")
 

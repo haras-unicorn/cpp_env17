@@ -18,7 +18,7 @@ strct range_gt
     MEM_GETTER(end);
     CMP_GETTER(end, _get_end());
 
-    CMP_GETTER(size, ENV_STD::distance(_get_begin(), _get_end()));
+    CMP_GETTER(size, ENV::clamp_cast<size_t>(ENV_STD::distance(_get_begin(), _get_end())));
 
 
     DEFAULT_LIFE(range_gt, CMP);
@@ -26,20 +26,11 @@ strct range_gt
 
     COMPAT(is_range);
 
-    CMP_VALIDITY
-    {
-        ret _get_begin() != nil && _get_end() != nil;
-    }
+    CMP_VALIDITY { ret ENV::is_valid(size()); }
 
-    CMP_TMP_HASH
-    {
-        ret hash(_get_begin(), _get_end());
-    }
+    CMP_TMP_HASH { ret ENV::hash(_get_begin(), _get_end()); }
 
-    CMP_TMP_EQUALITY
-    {
-        ret _get_begin() == rhs._get_begin() && _get_end() == rhs._get_end();
-    }
+    CMP_TMP_EQUALITY { ret _get_begin() == rhs._get_begin() && _get_end() == rhs._get_end(); }
 
     CMP_TMP_COMPARISON
     {

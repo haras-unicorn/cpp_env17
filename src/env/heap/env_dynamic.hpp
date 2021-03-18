@@ -47,6 +47,7 @@ public:
     MEM_GETTER(data);
 
     NIL((alloc_t), alloc);
+    MEM_GETTER(alloc);
 
 
 protected:
@@ -64,7 +65,7 @@ tmp<name TData, name TAlloc>
 strct dynamic_data_ggt<
         TData, TAlloc,
         ENV::require_nt<ENV_STD::is_empty_v<TAlloc> && !ENV_STD::is_final_v<TAlloc>>> :
-        protected TAlloc
+        public TAlloc
 {
 
 protected:
@@ -85,10 +86,12 @@ public:
     NIL((data_t), data);
     MEM_GETTER(data);
 
+    GETTER(get_alloc, (*this));
+
+protected:
     GETTER(_get_alloc, (*this));
 
 
-protected:
     imp cmp inl dynamic_data_ggt() noex = default;
 
     AUTO_NOCON_LIFE

@@ -5,7 +5,7 @@ project(
         env
         DESCRIPTION "Environment for all of my C++ projects."
         VERSION 1.0
-        LANGUAGES CXX
+        LANGUAGES C CXX
 )
 
 set(
