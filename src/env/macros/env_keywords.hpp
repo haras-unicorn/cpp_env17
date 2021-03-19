@@ -20,6 +20,7 @@
 #define nonced
 #endif
 #define nonce static_cast<void>
+#define noop static_cast<void>(0)
 
 #define cmp constexpr
 #define inl inline
