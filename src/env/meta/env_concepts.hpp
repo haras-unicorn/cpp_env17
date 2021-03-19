@@ -5,13 +5,13 @@
 
 // cond
 
-#define COND_CONCEPT_OPT(_name, _tmp, ...)                                    \
-    COND_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),        \
-             ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>> && (__VA_ARGS__)) \
-    typ(CAT(_name, _c)) = QC;                                                 \
-                                                                              \
-    tmp<name C SPREAD(_tmp)>                                                  \
-    typ(CAT(_name, _r)) = ENV::require_ngt<__VA_ARGS__, C>
+#define COND_CONCEPT_OPT(_name, _tmp, ...)                                        \
+        COND_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),        \
+                 ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>> && (__VA_ARGS__)) \
+        typ(CAT(_name, _c)) = QC;                                                 \
+                                                                                  \
+        tmp<name C SPREAD(_tmp)>                                                  \
+        typ(CAT(_name, _r)) = ENV::require_ngt<(__VA_ARGS__), C>
 
 #define ELABORATE_COND_CONCEPT(_name, _tmp, ...) COND_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
 
@@ -40,13 +40,13 @@ ENV_TEST_CASE("require concept")
 
 // expr
 
-#define EXPR_CONCEPT_OPT(_name, _tmp, ...)                                           \
-    EXPR_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),               \
-             COND_EXPR(ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>>), __VA_ARGS__) \
-    typ(CAT(_name, _c)) = QC;                                                        \
-                                                                                     \
-    tmp<name C SPREAD(_tmp)>                                                         \
-    typ(CAT(_name, _r)) = decl(__VA_ARGS__, ENV::success, declval<C>())
+#define EXPR_CONCEPT_OPT(_name, _tmp, ...)                                               \
+        EXPR_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),               \
+                 COND_EXPR(ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>>), __VA_ARGS__) \
+        typ(CAT(_name, _c)) = QC;                                                        \
+                                                                                         \
+        tmp<name C SPREAD(_tmp)>                                                         \
+        typ(CAT(_name, _r)) = ENV::make_vt<C, decl(__VA_ARGS__)>
 
 #define ELABORATE_EXPR_CONCEPT(_name, _tmp, ...) EXPR_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
 
@@ -75,13 +75,13 @@ ENV_TEST_CASE("sfinae concept")
 
 // type
 
-#define TYPE_CONCEPT_OPT(_name, _tmp, ...)                                           \
-    TYPE_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),               \
-             COND_TYPE(ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>>), __VA_ARGS__) \
-    typ(CAT(_name, _c)) = QC;                                                        \
-                                                                                     \
-    tmp<name C SPREAD(_tmp)>                                                         \
-    typ(CAT(_name, _r)) = ENV::make_vt<C, __VA_ARGS__>
+#define TYPE_CONCEPT_OPT(_name, _tmp, ...)                                               \
+        TYPE_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),               \
+                 COND_TYPE(ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>>), __VA_ARGS__) \
+        typ(CAT(_name, _c)) = QC;                                                        \
+                                                                                         \
+        tmp<name C SPREAD(_tmp)>                                                         \
+        typ(CAT(_name, _r)) = ENV::make_vt<C, __VA_ARGS__>
 
 #define ELABORATE_TYPE_CONCEPT(_name, _tmp, ...) TYPE_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
 

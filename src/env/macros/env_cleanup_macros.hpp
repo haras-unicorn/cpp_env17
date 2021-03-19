@@ -112,23 +112,20 @@
 #undef EXC_IFFY_IMPL
 #undef EXC_IFFY
 
-#undef EXC_IF
-#undef IF
 
-#undef EXC_CMP_IF
+#undef IF
 #undef CMP_IF
 
-#undef EXC_ON
 #undef ON
-
-#undef EXC_CMP_ON
 #undef CMP_ON
+
 
 #undef EXC_TERN
 #undef TERN
 
 #undef EXC_CMP_TERN
 #undef CMP_TERN
+
 
 #undef EXC_ELVIS
 #undef ELVIS

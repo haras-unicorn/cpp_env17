@@ -15,7 +15,10 @@
     typ(CAT(_name, _gt)) = name CAT(_name, _gs)<SPREAD(_application)>::type;                              \
                                                                                                           \
     tmp<SPREAD(_tmp)>                                                                                     \
-    cmp_obj bool _static CAT(_name, _g) { CAT(_name, _gs)<SPREAD(_application)>::value }
+    cmp_obj bool _static CAT(_name, _g) { CAT(_name, _gs)<SPREAD(_application)>::value };                 \
+                                                                                                          \
+    tmp<SPREAD(_tmp)>                                                                                     \
+    typ(CAT(_name, _r)) = ENV::require_nt<CAT(_name, _g)<SPREAD(_application)>>
 
 #define ELABORATE_EXPR_CHECK(_name, _tmp, _application, _extract, _extract_application, ...) \
     EXPR_CHECK_OPT(                                                                          \

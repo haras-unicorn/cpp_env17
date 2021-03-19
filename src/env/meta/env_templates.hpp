@@ -21,14 +21,14 @@ ENV_TEST_CASE("template skips")
 // A lot of stuff depends on these macros and compilers vary a lot on this.
 // These current macros are passing on GCC, Clang and MSVC
 
-#define EXPR_TYPE(...) decl(__VA_ARGS__, ENV::requirement, requirement_t{})
-#define EXPR_COND(...) ENV::is_requirement_g<ENV::requirement_vt<decl(__VA_ARGS__)>>
+#define EXPR_TYPE(...) ENV::requirement_vt<decl(__VA_ARGS__)>
+#define EXPR_COND(...) (ENV::true_v<decl(__VA_ARGS__)>)
 
-#define TYPE_EXPR(...) ENV::requirement_v<__VA_ARGS__>
-#define TYPE_COND(...) ENV::true_v<__VA_ARGS__>
+#define TYPE_EXPR(...) (ENV::requirement_v<__VA_ARGS__>)
+#define TYPE_COND(...) (ENV::true_v<__VA_ARGS__>)
 
-#define COND_EXPR(...) (name ENV::require_ns<__VA_ARGS__>::type{})
-#define COND_TYPE(...) name ENV::require_ns<__VA_ARGS__>::type
+#define COND_EXPR(...) (ENV::require_n<__VA_ARGS__>)
+#define COND_TYPE(...) ENV::require_nt<__VA_ARGS__>
 
 #define INSTANT(...) ENV::requirement_vt<__VA_ARGS__>
 
@@ -50,7 +50,7 @@ ENV_TEST_CASE("expression conversion")
 
 // cond
 
-#define COND_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) COND_TYPE(__VA_ARGS__) = ENV::success>
+#define COND_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) COND_TYPE(__VA_ARGS__) = ENV::requirement>
 #define COND_TMP(_tmp, ...) COND_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
 #define COND_TMP_UNARY(...) COND_TMP((name T), __VA_ARGS__)
 #define COND_TMP_BINARY(...) COND_TMP((name TLhs, name TRhs), __VA_ARGS__)
@@ -125,7 +125,7 @@ ENV_TEST_CASE("require template")
 
 // expr
 
-#define EXPR_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) EXPR_TYPE(__VA_ARGS__) = ENV::success>
+#define EXPR_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) EXPR_TYPE(__VA_ARGS__) = ENV::requirement>
 #define EXPR_TMP(_tmp, ...) EXPR_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
 #define EXPR_TMP_UNARY(...) EXPR_TMP((name T), __VA_ARGS__)
 #define EXPR_TMP_BINARY(...) EXPR_TMP((name TLhs, name TRhs), __VA_ARGS__)
@@ -198,7 +198,7 @@ ENV_TEST_CASE("expr template")
 
 // type
 
-#define TYPE_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) INSTANT(__VA_ARGS__) = ENV::success>
+#define TYPE_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) INSTANT(__VA_ARGS__) = ENV::requirement>
 #define TYPE_TMP(_tmp, ...) TYPE_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
 #define TYPE_TMP_UNARY(...) TYPE_TMP((name T), __VA_ARGS__)
 #define TYPE_TMP_BINARY(...) TYPE_TMP((name TLhs, name TRhs), __VA_ARGS__)

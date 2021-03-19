@@ -20,7 +20,7 @@
 #define nonced
 #endif
 #define nonce static_cast<void>
-#define noop static_cast<void>(0)
+#define noop nonce(0)
 
 #define cmp constexpr
 #define inl inline
@@ -64,7 +64,7 @@ ENV_TEST_CASE("keyword keywords")
             [[OBJECT_ATTRIBUTES]] cmp decl(1) a{ };
             nonce(a);
 
-            nonce(b);
+            nonce(noop, b);
             if_cmp(true) ret;
         }
     };

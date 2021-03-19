@@ -210,6 +210,7 @@ function(env_add_test _name _src)
     env_target_set_ipo(${_name})
 
     env_target_warn(${_name})
+    env_target_optimize(${_name})
 
     add_test(NAME env_${_name} COMMAND env_${_name})
 endfunction()

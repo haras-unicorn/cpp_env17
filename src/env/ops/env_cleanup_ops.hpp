@@ -684,12 +684,12 @@
 // shorthands
 
 #undef exc_name
+#undef unignore_name
 #undef exc_arg
-#undef unignore
 
 // noex
 
-#undef NORMALIZED_POLICY_TYPE
+#undef UNQUALIFIED_POLICY_TYPE
 #undef IS_NO_THROW_EXCEPTION_POLICY
 #undef NOEX_IF_NO_THROW_EXCEPTION_POLICY
 
