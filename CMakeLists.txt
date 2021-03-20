@@ -1,6 +1,7 @@
 include_guard()
 
 cmake_minimum_required(VERSION 3.17...3.20)
+
 project(
         env
         DESCRIPTION "Environment for all of my C++ projects."

@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="pack" pattern="file:CMakeLists.txt||file:conanfile.txt||file:CMakePresets.json||file[cpp_env17]:cmake//*||file[cpp_env17]:conan//*" />
+</component>

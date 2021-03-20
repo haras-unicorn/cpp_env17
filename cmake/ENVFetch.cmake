@@ -7,9 +7,9 @@ function(env_fetch _name)
     env_prefix(${_name} env _name)
     env_suffix(${_name} fetch _name)
 
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/builds/fetch/${_name}_src/.cmake_populated.txt")
+    if (NOT EXISTS "${PROJECT_SOURCE_DIR}/builds/fetch/${_name}_src/.cmake_populated.txt")
         env_log("Fetching \"${_name}\" into \"${PROJECT_SOURCE_DIR}/builds/fetch/${_name}_src\".")
-        FetchContent_Populate(
+        fetchcontent_populate(
                 ${_name}
                 QUIET
                 ${ARGN}
@@ -19,13 +19,13 @@ function(env_fetch _name)
         )
 
         file(WRITE "${PROJECT_SOURCE_DIR}/builds/fetch/${_name}_src/.cmake_populated.txt" YES)
-    endif()
+    endif ()
 
 
     set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
     set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
     set(CMAKE_MESSAGE_LOG_LEVEL VERBOSE)
-    set(CMAKE_MESSAGE_INDENT "    ")
+    set(CMAKE_MESSAGE_INDENT "${_previous_log_indent}    ")
 
     add_subdirectory(
             "${PROJECT_SOURCE_DIR}/builds/fetch/${_name}_src"

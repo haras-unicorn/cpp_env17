@@ -75,6 +75,8 @@ public:
     CMP_COMPARISON { ret _get_dynamic() < rhs._get_dynamic(); }
 
 
+    // lifetime
+
 protected:
     callb inl _copy(const vector_gt& other, nonced name dynamic_t::copy_strategy_t strategy)
     {
@@ -88,7 +90,7 @@ protected:
 
     callb inl _move(vector_gt&& other, nonced name dynamic_t::move_strategy_t strategy)
     {
-        if_cmp(dynamic_t::always_moves) _move(other);
+        if_cmp(dynamic_t::always_moves) _move(ENV_STD::move(other));
         else
         {
             if (strategy == dynamic_t::move_strategy_t::move) _move(ENV_STD::move(other));
@@ -145,7 +147,7 @@ protected:
     {
         ret to <= size() ? (_get_end() = _get_begin() + to) :
             to <= capacity() ? (_get_end() = emplace(_get_dynamic(), _get_begin(), _get_begin() + to)) :
-            _expand(_get_dynamic(), to);
+            _expand(to);
     }
 
     callb inl _expand(size_t to)
@@ -190,6 +192,9 @@ protected:
     callb inl _invalidate() { _get_begin() = _get_end() = _get_last() = nil; }
 
 
+    // getters
+
+protected:
     GETTER(_get_alloc, _get_dynamic().get_alloc());
 
     GETTER(_get_flex, _get_dynamic().get_data());
@@ -207,12 +212,23 @@ ENV_TEST_CASE("vector")
     SUBCASE("nil")
     {
         vector_gt<int> def{ };
+        REQUIRE(is_invalid(def));
+
         mut copied{def};
+        REQUIRE(is_invalid(copied));
         mut moved{ENV_STD::move(def)};
-        mut copy_assigned{copied};
-        mut move_assigned{ENV_STD::move(moved)};
-        copied.swap(copy_assigned);
-        nonce(move_assigned);
+        REQUIRE(is_invalid(moved));
+
+//        vector_gt<int> copy_assigned{ };
+//        copy_assigned = copied;
+//        REQUIRE(is_invalid(copy_assigned));
+//        vector_gt<int> move_assigned{ };
+//        move_assigned = ENV_STD::move(moved);
+//        REQUIRE(is_invalid(move_assigned));
+//
+//        copied.swap(copy_assigned);
+//        let check_invalid = is_invalid(copied) && is_invalid(copy_assigned);
+//        REQUIRE(check_invalid);
     }
 }
 

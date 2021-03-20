@@ -157,7 +157,6 @@ public:
 
         let allocs_equal = this->_get_alloc() == other._get_alloc();
 
-        // TODO: test if this should check for eq first
         if_cmp (alloc_prop_on_copy) this->_get_alloc() = other._get_alloc();
 
         ret allocs_equal ? copy_strategy_t::copy : copy_strategy_t::realloc_copy;
@@ -175,7 +174,6 @@ public:
 #endif // ENV_CPP >= 17
         if_cmp (alloc_prop_on_move)
         {
-            // TODO: test if this should check for eq first
             this->_get_alloc() = ENV_STD::move(other._get_alloc());
             ret move_strategy_t::move;
         }

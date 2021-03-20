@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="cpp" pattern="file[cpp_env17]:include//*||file[cpp_env17]:src//*" />
+</component>

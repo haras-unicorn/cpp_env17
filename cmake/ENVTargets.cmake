@@ -1,5 +1,6 @@
 include(ENVLog)
 include(ENVName)
+include(ENVCompiler)
 
 
 # add code
@@ -78,8 +79,7 @@ endfunction()
 # warnings
 
 env_log("Compiler ID is: \"${CMAKE_CXX_COMPILER_ID}\".")
-if (MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
-    env_log("Detected MSVC compiler.")
+if (ENV_MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
         env_log("Adding warnings to \"${_name}\".")
@@ -87,13 +87,13 @@ if (MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
         target_compile_options(
                 ${_name}
                 PRIVATE
-                /W4 /WX
+                /Wall /WX
+                /analyze
                 /permissive- # standards compliance
                 /Zc:__cplusplus # otherwise we can't detect the C++ standard
         )
     endfunction()
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-    env_log("Detected GCC compiler.")
+elseif (ENV_GCC)
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
         env_log("Adding warnings to \"${_name}\".")
@@ -102,12 +102,12 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
                 ${_name}
                 PRIVATE
                 -Wall -Wextra -Wpedantic -Werror
+                -fanalyzer
                 -ftrack-macro-expansion=0 # so messages are printed nicely
                 -Wno-multichar # detect endianness
         )
     endfunction()
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
-    env_log("Detected Clang compiler.")
+elseif (ENV_CLANG)
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
         env_log("Adding warnings to \"${_name}\".")
@@ -115,53 +115,98 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
         target_compile_options(
                 ${_name}
                 PRIVATE
+                --analyze
                 -Wall -Wextra -Wpedantic -Werror
         )
     endfunction()
 else ()
-    env_log("Unknown compiler.")
     function(env_target_warn _name)
-        env_prefix(${_name} env _name)
-        env_log("Adding warnings to \"${_name}\".")
     endfunction()
 endif ()
 
 
-# optimizations
+# optimizations/sanitization
 
 if (CMAKE_BUILD_TYPE STREQUAL Release)
-    if (MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
+    if (ENV_MSVC)
         function(env_target_optimize _name)
             env_prefix(${_name} env _name)
             env_log("Adding optimizations to \"${_name}\".")
 
-            target_compile_options(${_name} PRIVATE /O2)
+            target_compile_options(
+                    ${_name}
+                    PRIVATE
+                    /O2
+            )
         endfunction()
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+    elseif (ENV_GCC)
         function(env_target_optimize _name)
             env_prefix(${_name} env _name)
             env_log("Adding optimizations to \"${_name}\".")
 
-            target_compile_options(${_name} PRIVATE -O3)
+            target_compile_options(
+                    ${_name}
+                    PRIVATE
+                    -O3
+            )
         endfunction()
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+    elseif (ENV_CLANG)
         function(env_target_optimize _name)
             env_prefix(${_name} env _name)
             env_log("Adding optimizations to \"${_name}\".")
 
-            target_compile_options(${_name} PRIVATE -O3)
+            target_compile_options(
+                    ${_name}
+                    PRIVATE
+                    -O3
+            )
         endfunction()
     else ()
         function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding optimizations to \"${_name}\".")
         endfunction()
     endif ()
 else ()
-    function(env_target_optimize _name)
-        env_prefix(${_name} env _name)
-        env_log("Adding optimizations to \"${_name}\".")
-    endfunction()
+    if (ENV_MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding sanitization to \"${_name}\".")
+
+            target_compile_options(
+                    ${_name}
+                    PRIVATE
+                    /ZI # debug info
+                    /fsanitize=address
+            )
+        endfunction()
+    elseif (ENV_GCC)
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding sanitization to \"${_name}\".")
+
+            target_compile_options(
+                    ${_name}
+                    PRIVATE
+                    -Og
+                    -ggdb
+                    -fsanitize=address,leak,undefined
+            )
+        endfunction()
+    elseif (ENV_CLANG)
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding sanitization to \"${_name}\".")
+
+            target_compile_options(
+                    ${_name}
+                    PRIVATE
+                    -glldb
+                    -fsanitize=address,undefined,dataflow,cfi,safe-stack
+            )
+        endfunction()
+    else ()
+        function(env_target_optimize _name)
+        endfunction()
+    endif ()
 endif ()
 
 

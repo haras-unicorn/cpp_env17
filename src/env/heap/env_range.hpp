@@ -4,22 +4,31 @@
 
 // TODO stuff
 
-tmp<name TIter>
+COND_TMP((name TIter), ENV::is_iterator_g < TIter >)
 strct range_gt
 {
     DECL_THIS(range_gt);
 
 
-    NIL((TIter), begin);
+    typ(iter_t) = TIter;
+
+    typ(begin_t) = iter_t;
+    typ(end_t) = iter_t;
+
+
+    NIL((begin_t), begin);
     MEM_GETTER(begin);
     CMP_GETTER(begin, _get_begin());
 
-    NIL((TIter), end);
+    NIL((end_t), end);
     MEM_GETTER(end);
     CMP_GETTER(end, _get_end());
 
     CMP_GETTER(size, ENV::clamp_cast<size_t>(ENV_STD::distance(_get_begin(), _get_end())));
 
+
+    con cmp inl range_gt(begin_t begin, end_t end) noex:
+            _begin{begin}, _end{end} { }
 
     DEFAULT_LIFE(range_gt, CMP);
 
@@ -41,6 +50,12 @@ strct range_gt
 
 ENV_TEST_CASE("range")
 {
+    SUBCASE("construct")
+    {
+        int a[]{1, 2, 3};
+        range_gt<int*> r{&a[0], &a[2]};
+        nonce(r);
+    }
 }
 
 
