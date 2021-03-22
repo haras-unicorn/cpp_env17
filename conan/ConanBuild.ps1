@@ -1,0 +1,6 @@
+conan build . -bf="./builds/release"
+conan build . -bf="./builds/debug"
+conan build . -bf="./builds/coverage"
+conan build . -bf="./builds/gcc"
+conan build . -bf="./builds/clang-cl"
+conan build . -bf="./builds/msvc"

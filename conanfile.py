@@ -1,4 +1,4 @@
-from conans import ConanFile
+from conans import ConanFile, CMake
 
 
 class Env(ConanFile):
@@ -11,4 +11,6 @@ class Env(ConanFile):
     license = "MIT"
 
     def build(self):
-        pass
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()

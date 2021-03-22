@@ -22,9 +22,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char** argv)
 #include "env_cleanup.hpp"
 
 
-TEST_CASE("user macros && unused include")
+TEST_CASE ("user macros && unused include")
 {
-    REQUIRE(::env::test::unused_include_workaround);
+    static_cast<void>(::env::test::unused_include_workaround);
 }
 
 

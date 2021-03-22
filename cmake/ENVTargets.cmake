@@ -200,7 +200,7 @@ else ()
                     ${_name}
                     PRIVATE
                     -glldb
-                    -fsanitize=address,undefined,dataflow,cfi,safe-stack
+                    -fsanitize=address,undefined
             )
         endfunction()
     else ()

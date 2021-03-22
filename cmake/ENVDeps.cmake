@@ -1,8 +1,10 @@
 include(ENVTargets)
 include(ENVFetch)
-conan_basic_setup(TARGETS)
 
 env_log("-!- Adding dependencies... -!-")
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
 include(ENVStd)
 include(ENVTest)

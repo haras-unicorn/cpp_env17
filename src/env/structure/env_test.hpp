@@ -16,11 +16,7 @@
 #define DOCTEST_CONFIG_VOID_CAST_EXPRESSIONS
 #define DOCTEST_CONFIG_INCLUDE_TYPE_TRAITS
 
-ENV_CLANG_SUPPRESS_PUSH("cplusplus.NewDeleteLeaks")
-
 #include <doctest/doctest.h>
-
-ENV_CLANG_SUPPRESS_POP
 
 #endif // !defined(DOCTEST_LIBRARY_INCLUDED)
 
