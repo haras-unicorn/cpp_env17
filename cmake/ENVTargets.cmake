@@ -78,8 +78,22 @@ endfunction()
 
 # warnings
 
-env_log("Compiler ID is: \"${CMAKE_CXX_COMPILER_ID}\".")
-if (ENV_MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
+if (ENV_CLANG_CL)
+    function(env_target_warn _name)
+        env_prefix(${_name} env _name)
+        env_log("Adding warnings to \"${_name}\".")
+
+        target_compile_options(
+                ${_name}
+                PRIVATE
+                /W4 /WX
+                # TODO: fix ClangCL complains
+                # /analyze
+                /permissive- # standards compliance
+                /Zc:__cplusplus # otherwise we can't detect the C++ standard
+        )
+    endfunction()
+elseif (ENV_MSVC)
     function(env_target_warn _name)
         env_prefix(${_name} env _name)
         env_log("Adding warnings to \"${_name}\".")
@@ -127,8 +141,19 @@ endif ()
 
 # optimizations/sanitization
 
-if (CMAKE_BUILD_TYPE STREQUAL Release)
-    if (ENV_MSVC)
+if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
+    if (ENV_CLANG_CL)
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding optimizations to \"${_name}\".")
+
+            target_compile_options(
+                    ${_name}
+                    PRIVATE
+                    /O2
+            )
+        endfunction()
+    elseif (ENV_MSVC)
         function(env_target_optimize _name)
             env_prefix(${_name} env _name)
             env_log("Adding optimizations to \"${_name}\".")
@@ -166,7 +191,20 @@ if (CMAKE_BUILD_TYPE STREQUAL Release)
         endfunction()
     endif ()
 else ()
-    if (ENV_MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
+    if (ENV_CLANG_CL)
+        function(env_target_optimize _name)
+            env_prefix(${_name} env _name)
+            env_log("Adding sanitization to \"${_name}\".")
+
+            target_compile_options(
+                    ${_name}
+                    PRIVATE
+                    # TODO: fix ClangCL complains
+                    # /ZI # debug info
+                    # /fsanitize=address
+            )
+        endfunction()
+    elseif (ENV_MSVC)
         function(env_target_optimize _name)
             env_prefix(${_name} env _name)
             env_log("Adding sanitization to \"${_name}\".")
@@ -175,8 +213,7 @@ else ()
                     ${_name}
                     PRIVATE
                     /ZI # debug info
-                    # TODO: fix ClangCL complains
-                    # /fsanitize=address
+                    /fsanitize=address
             )
         endfunction()
     elseif (ENV_GCC)
