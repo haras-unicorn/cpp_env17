@@ -87,7 +87,7 @@ if (ENV_MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't wo
         target_compile_options(
                 ${_name}
                 PRIVATE
-                /Wall /WX
+                /W4 /WX
                 /analyze
                 /permissive- # standards compliance
                 /Zc:__cplusplus # otherwise we can't detect the C++ standard
@@ -175,7 +175,8 @@ else ()
                     ${_name}
                     PRIVATE
                     /ZI # debug info
-                    /fsanitize=address
+                    # TODO: fix ClangCL complains
+                    # /fsanitize=address
             )
         endfunction()
     elseif (ENV_GCC)

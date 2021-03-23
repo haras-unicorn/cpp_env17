@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake
+import os
 
 
 class Env(ConanFile):
@@ -11,6 +12,12 @@ class Env(ConanFile):
     license = "MIT"
 
     def build(self):
-        cmake = CMake(self)
+        if os.getenv("clang-cl"):
+            cmake = CMake(self,
+                          generator="Visual Studio 16 2019",
+                          toolset="ClangCL")
+        else:
+            cmake = CMake(self, generator="Ninja")
+
         cmake.configure()
         cmake.build()
