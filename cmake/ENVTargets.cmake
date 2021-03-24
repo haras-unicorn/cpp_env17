@@ -1,251 +1,11 @@
 include(ENVLog)
 include(ENVName)
 include(ENVCompiler)
-
-
-# add code
-
-function(env_target_link _name)
-    env_prefix(${_name} env _name)
-    env_log("Linking \"${_name}\" with \"${ARGN}\".")
-
-    target_link_libraries(${_name} ${ARGN})
-endfunction()
-
-function(env_target_include _name)
-    env_prefix(${_name} env _name)
-    env_log("Into \"${_name}\" including \"${ARGN}\".")
-
-    target_include_directories(${_name} ${ARGN})
-endfunction()
-
-function(env_target_sources _name)
-    env_prefix(${_name} env _name)
-    env_log("Sourcing \"${_name}\" with \"${ARGN}\".")
-
-    target_sources(${_name} ${ARGN})
-endfunction()
-
-
-# properties
-
-function(env_target_set _name)
-    env_prefix(${_name} env _name)
-    env_log("On \"${_name}\" setting \"${ARGN}\".")
-
-    set_target_properties(${_name} PROPERTIES ${ARGN})
-endfunction()
-
-include(CheckIPOSupported)
-check_ipo_supported(RESULT env_ipo_supported)
-if (env_ipo_supported)
-    env_log("IPO is supported.")
-
-    function(env_target_set_ipo _name)
-        env_target_set(${_name} INTERPROCEDURAL_OPTIMIZATION ON)
-    endfunction()
-else ()
-    env_log("IPO is not supported.")
-
-    function(env_target_set_ipo _name)
-    endfunction()
-endif ()
-
-
-# compilation
-
-function(env_target_precompile _name)
-    env_prefix(${_name} env _name)
-    env_log("Precompiling \"${_name}\" with \"${ARGN}\".")
-
-    target_precompile_headers(${_name} ${ARGN})
-endfunction()
-
-function(env_target_compile _name)
-    env_prefix(${_name} env _name)
-    env_log("Compiling \"${_name}\" with \"${ARGN}\".")
-
-    target_compile_features(${_name} ${ARGN})
-endfunction()
-
-function(env_target_definitions _name)
-    env_prefix(${_name} env _name)
-    env_log("Compiling \"${_name}\" with \"${ARGN}\".")
-
-    target_compile_definitions(${_name} ${ARGN})
-endfunction()
-
-
-# warnings
-
-if (ENV_CLANG_CL)
-    function(env_target_warn _name)
-        env_prefix(${_name} env _name)
-        env_log("Adding warnings to \"${_name}\".")
-
-        target_compile_options(
-                ${_name}
-                PRIVATE
-                /W4 /WX
-                # TODO: fix ClangCL complains
-                # /analyze
-                /permissive- # standards compliance
-                /Zc:__cplusplus # otherwise we can't detect the C++ standard
-        )
-    endfunction()
-elseif (ENV_MSVC)
-    function(env_target_warn _name)
-        env_prefix(${_name} env _name)
-        env_log("Adding warnings to \"${_name}\".")
-
-        target_compile_options(
-                ${_name}
-                PRIVATE
-                /W4 /WX
-                /analyze
-                /permissive- # standards compliance
-                /Zc:__cplusplus # otherwise we can't detect the C++ standard
-        )
-    endfunction()
-elseif (ENV_GCC)
-    function(env_target_warn _name)
-        env_prefix(${_name} env _name)
-        env_log("Adding warnings to \"${_name}\".")
-
-        target_compile_options(
-                ${_name}
-                PRIVATE
-                -Wall -Wextra -Wpedantic -Werror
-                -fanalyzer
-                -ftrack-macro-expansion=0 # so messages are printed nicely
-                -Wno-multichar # detect endianness
-        )
-    endfunction()
-elseif (ENV_CLANG)
-    function(env_target_warn _name)
-        env_prefix(${_name} env _name)
-        env_log("Adding warnings to \"${_name}\".")
-
-        target_compile_options(
-                ${_name}
-                PRIVATE
-                --analyze
-                -Wall -Wextra -Wpedantic -Werror
-        )
-    endfunction()
-else ()
-    function(env_target_warn _name)
-    endfunction()
-endif ()
-
-
-# optimizations/sanitization
-
-if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
-    if (ENV_CLANG_CL)
-        function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding optimizations to \"${_name}\".")
-
-            target_compile_options(
-                    ${_name}
-                    PRIVATE
-                    /O2
-            )
-        endfunction()
-    elseif (ENV_MSVC)
-        function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding optimizations to \"${_name}\".")
-
-            target_compile_options(
-                    ${_name}
-                    PRIVATE
-                    /O2
-            )
-        endfunction()
-    elseif (ENV_GCC)
-        function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding optimizations to \"${_name}\".")
-
-            target_compile_options(
-                    ${_name}
-                    PRIVATE
-                    -O3
-            )
-        endfunction()
-    elseif (ENV_CLANG)
-        function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding optimizations to \"${_name}\".")
-
-            target_compile_options(
-                    ${_name}
-                    PRIVATE
-                    -O3
-            )
-        endfunction()
-    else ()
-        function(env_target_optimize _name)
-        endfunction()
-    endif ()
-else ()
-    if (ENV_CLANG_CL)
-        function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding sanitization to \"${_name}\".")
-
-            target_compile_options(
-                    ${_name}
-                    PRIVATE
-                    # TODO: fix ClangCL complains
-                    # /ZI # debug info
-                    # /fsanitize=address
-            )
-        endfunction()
-    elseif (ENV_MSVC)
-        function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding sanitization to \"${_name}\".")
-
-            target_compile_options(
-                    ${_name}
-                    PRIVATE
-                    /ZI # debug info
-                    /fsanitize=address
-            )
-        endfunction()
-    elseif (ENV_GCC)
-        function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding sanitization to \"${_name}\".")
-
-            target_compile_options(
-                    ${_name}
-                    PRIVATE
-                    -Og
-                    -ggdb
-                    -fsanitize=address,leak,undefined
-            )
-        endfunction()
-    elseif (ENV_CLANG)
-        function(env_target_optimize _name)
-            env_prefix(${_name} env _name)
-            env_log("Adding sanitization to \"${_name}\".")
-
-            target_compile_options(
-                    ${_name}
-                    PRIVATE
-                    -glldb
-                    -fsanitize=address,undefined
-            )
-        endfunction()
-    else ()
-        function(env_target_optimize _name)
-        endfunction()
-    endif ()
-endif ()
+include(ENVSources)
+include(ENVProperties)
+include(ENVCompilation)
+include(ENVWarnings)
+include(ENVOptimization)
 
 
 # atomic targets
@@ -289,11 +49,11 @@ function(env_add_test _name _src)
     env_target_link(${_name} PRIVATE ${ARGN} PRIVATE env_default_dep)
 
     env_target_set(${_name} CXX_EXTENSIONS OFF)
-    env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
-    env_target_set_ipo(${_name})
+#    env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
+#    env_target_set_ipo(${_name})
 
-    env_target_warn(${_name})
-    env_target_optimize(${_name})
+#    env_target_warn(${_name})
+#    env_target_optimize(${_name})
 
     add_test(NAME env_${_name} COMMAND env_${_name})
 endfunction()
@@ -306,11 +66,11 @@ function(env_add_bench _name _src)
     env_target_link(${_name} PRIVATE ${ARGN} PRIVATE env_default_dep)
 
     env_target_set(${_name} CXX_EXTENSIONS OFF)
-    env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
-    env_target_set_ipo(${_name})
+#    env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
+#    env_target_set_ipo(${_name})
 
-    env_target_warn(${_name})
-    env_target_optimize(${_name})
+#    env_target_warn(${_name})
+#    env_target_optimize(${_name})
 endfunction()
 
 function(env_add_export _name)

@@ -11,15 +11,15 @@ ENV_CLANG_MESSAGE(Globally suppressed "-W#pragma-messages".)
 #endif // messages
 
 ENV_CLANG_SUPPRESS_PUSH("-Wunknown-pragmas") // clang-tidy
-ENV_CLANG_MESSAGE(Globally suppressed "-Wunknown-pragmas" because of Clang raising warnings.)
+ENV_CLANG_MESSAGE(Globally suppressed "-Wunknown-pragmas"(Clang).)
 
 
 // doctest
 ENV_CLANG_SUPPRESS_PUSH("-Wduplicate-decl-specifier")
-ENV_CLANG_MESSAGE(Globally suppressed "-Wduplicate-decl-specifier" because of doctest raising warnings.)
+ENV_CLANG_MESSAGE(Globally suppressed "-Wduplicate-decl-specifier"(doctest).)
 
 ENV_GCC_SUPPRESS_PUSH("-Wmisleading-indentation")
-ENV_GCC_MESSAGE(Globally suppressed "-Wmisleading-indentation" because of doctest raising warnings.)
+ENV_GCC_MESSAGE(Globally suppressed "-Wmisleading-indentation"(doctest).)
 
 
 #elif !defined(ENV_SUPPRESS_PUSH) && defined(ENV_SUPPRESS_POP)
