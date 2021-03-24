@@ -6,7 +6,8 @@
 
 ENV_DETAIL_BEGIN
 
-COND_CHECK_UNARY(is_zero_constructible, ENV_STD::is_integral_v < T > || ENV_STD::is_floating_point_v < T >);
+COND_CHECK_UNARY(is_zero_constructible, ENV_STD::is_integral_v < T > ||
+                                        ENV_STD::is_floating_point_v < T >);
 
 EXPR_CHECK_UNARY(is_nullptr_constructible, T(nullptr));
 
@@ -27,9 +28,12 @@ TEST_CASE("nil checks")
     REQUIRES_FALSE(detail::is_nullptr_constructible_g<int>);
     REQUIRES(detail::is_zero_constructible_g<int>);
 
-    REQUIRES_FALSE(detail::is_nullptr_constructible_g<test::default_constructible_t>);
-    REQUIRES_FALSE(detail::is_zero_constructible_g<test::default_constructible_t>);
-    REQUIRES(ENV_STD::is_default_constructible_v < test::default_constructible_t >);
+    REQUIRES_FALSE(
+            detail::is_nullptr_constructible_g<test::default_constructible_t>);
+    REQUIRES_FALSE(
+            detail::is_zero_constructible_g<test::default_constructible_t>);
+    REQUIRES(ENV_STD::is_default_constructible_v <
+             test::default_constructible_t >);
 }
 
 
@@ -133,7 +137,8 @@ ENV_DETAIL_BEGIN
 COND_CHECK_UNARY
 (
         is_strictly_validatable,
-        (ENV_STD::is_same_v < decl(ENV_STD::forward<T>(declvalr<T>()).is_valid()), bool >)
+        (ENV_STD::is_same_v <
+         decl(ENV_STD::forward<T>(declvalr<T>()).is_valid()), bool >)
 );
 
 ENV_DETAIL_END
@@ -169,13 +174,13 @@ ENV_TEST_END
 
 ENV_TEST_CASE("nil validatable")
 {
-    REQUIRES(is_validatable_g<int>);
-    REQUIRES(is_validatable_g<nullptr_t>);
-    REQUIRES(is_validatable_g<int*>);
-    REQUIRES(is_validatable_g<test::strictly_validatable_t>);
+    REQUIRES(is_validatable_g < int >);
+    REQUIRES(is_validatable_g < nullptr_t >);
+    REQUIRES(is_validatable_g < int * >);
+    REQUIRES(is_validatable_g < test::strictly_validatable_t >);
     REQUIRES(is_validatable_g<const test::strictly_validatable_t&>);
-    REQUIRES_FALSE(is_validatable_g<test::non_validatable_t>);
-    REQUIRES_FALSE(is_validatable_g<test::non_nillable_t>);
+    REQUIRES_FALSE(is_validatable_g < test::non_validatable_t >);
+    REQUIRES_FALSE(is_validatable_g < test::non_nillable_t >);
 }
 
 
@@ -273,16 +278,28 @@ ENV_TEST_CASE("nil equatable")
 // validity
 
 COND_TMP_UNARY(detail::is_strictly_validatable_g<T>)
-cmp_fn op==(T&& lhs, nonced nil_t rhs) noex { ret !ENV_STD::forward<T>(lhs).is_valid(); }
+cmp_fn op==(T&& lhs, nonced nil_t rhs) noex
+{
+    ret !ENV_STD::forward<T>(lhs).is_valid();
+}
 
 COND_TMP_UNARY(detail::is_strictly_validatable_g<T>)
-cmp_fn op==(nonced nil_t lhs, T&& rhs) noex { ret !ENV_STD::forward<T>(rhs).is_valid(); }
+cmp_fn op==(nonced nil_t lhs, T&& rhs) noex
+{
+    ret !ENV_STD::forward<T>(rhs).is_valid();
+}
 
 COND_TMP_UNARY(detail::is_strictly_validatable_g<T>)
-cmp_fn op!=(T&& lhs, nonced nil_t rhs) noex { ret ENV_STD::forward<T>(lhs).is_valid(); }
+cmp_fn op!=(T&& lhs, nonced nil_t rhs) noex
+{
+    ret ENV_STD::forward<T>(lhs).is_valid();
+}
 
 COND_TMP_UNARY(detail::is_strictly_validatable_g<T>)
-cmp_fn op!=(nonced nil_t lhs, T&& rhs) noex { ret ENV_STD::forward<T>(rhs).is_valid(); }
+cmp_fn op!=(nonced nil_t lhs, T&& rhs) noex
+{
+    ret ENV_STD::forward<T>(rhs).is_valid();
+}
 
 ENV_TEST_CASE("nil validity")
 {
@@ -335,15 +352,22 @@ ENV_TEST_CASE("nil validity")
 // is_(valid/invalid)
 
 tmp<name T>
-cmp_fn is_valid(validatable_c<T>&& to_check) noex { ret ENV_STD::forward<T>(to_check) != nil; }
+cmp_fn is_valid(validatable_c<T>&& to_check) noex
+{
+    ret ENV_STD::forward<T>(to_check) != nil;
+}
 
 tmp<name T>
-cmp_fn is_invalid(validatable_c<T>&& to_check) noex { ret ENV_STD::forward<T>(to_check) == nil; }
+cmp_fn is_invalid(validatable_c<T>&& to_check) noex
+{
+    ret ENV_STD::forward<T>(to_check) == nil;
+}
 
 ENV_TEST_CASE("is_(valid/invalid)")
 {
     cmp int i = 1;
     const int* ptr = &i;
+    nonce(ptr);
     cmp int* null_ptr{nullptr};
     cmp test::default_equatable_t equatable_nil(nil), equatable{1};
     cmp test::strictly_validatable_t valid{1}, invalid(nil);

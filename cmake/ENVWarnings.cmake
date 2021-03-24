@@ -7,8 +7,8 @@ if (ENV_CLANG_CL)
                 ${_name}
                 PRIVATE
                 /W4 /WX
-                # TODO: fix ClangCL complains
-                # /analyze
+                # used separately and would probably take a long time
+                # --analyze
                 /permissive- # standards compliance
                 /Zc:__cplusplus # otherwise we can't detect the C++ standard
         )
@@ -36,7 +36,8 @@ elseif (ENV_GCC)
                 ${_name}
                 PRIVATE
                 -Wall -Wextra -Wpedantic -Werror
-                -fanalyzer
+                # takes too long - run when library is done?
+                # -fanalyzer
                 -ftrack-macro-expansion=0 # so messages are printed nicely
                 -Wno-multichar # detect endianness
         )
@@ -49,7 +50,8 @@ elseif (ENV_CLANG)
         target_compile_options(
                 ${_name}
                 PRIVATE
-                --analyze
+                # used separately and would probably take a long time
+                # --analyze
                 -Wall -Wextra -Wpedantic -Werror
         )
     endfunction()
