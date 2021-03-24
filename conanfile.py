@@ -11,6 +11,9 @@ class Env(ConanFile):
     generators = "cmake"
     license = "MIT"
 
+    def configure(self):
+        pass
+
     def build(self):
         if os.getenv("clang-cl"):
             cmake = CMake(self,

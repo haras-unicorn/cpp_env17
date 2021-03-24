@@ -49,11 +49,12 @@ function(env_add_test _name _src)
     env_target_link(${_name} PRIVATE ${ARGN} PRIVATE env_default_dep)
 
     env_target_set(${_name} CXX_EXTENSIONS OFF)
-#    env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
-#    env_target_set_ipo(${_name})
+    env_target_link_options(${_name} "-v")
+    #    env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
+    #    env_target_set_ipo(${_name})
 
-#    env_target_warn(${_name})
-#    env_target_optimize(${_name})
+    #    env_target_warn(${_name})
+    #    env_target_optimize(${_name})
 
     add_test(NAME env_${_name} COMMAND env_${_name})
 endfunction()
@@ -66,11 +67,12 @@ function(env_add_bench _name _src)
     env_target_link(${_name} PRIVATE ${ARGN} PRIVATE env_default_dep)
 
     env_target_set(${_name} CXX_EXTENSIONS OFF)
-#    env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
-#    env_target_set_ipo(${_name})
+    env_target_link_options(${_name} "-v")
+    #    env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
+    #    env_target_set_ipo(${_name})
 
-#    env_target_warn(${_name})
-#    env_target_optimize(${_name})
+    #    env_target_warn(${_name})
+    #    env_target_optimize(${_name})
 endfunction()
 
 function(env_add_export _name)

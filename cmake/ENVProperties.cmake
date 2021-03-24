@@ -19,3 +19,10 @@ else ()
     function(env_target_set_ipo _name)
     endfunction()
 endif ()
+
+function(env_target_link_options _name)
+    env_prefix(${_name} env _name)
+    env_log("On \"${_name}\" adding link options \"${ARGN}\".")
+
+    target_link_options(${_name} PRIVATE ${ARGN})
+endfunction()
