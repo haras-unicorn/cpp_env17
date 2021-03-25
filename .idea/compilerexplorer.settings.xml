@@ -7,6 +7,20 @@
         <entry>
           <key>
             <LocalCompilerPath>
+              <option name="path" value="C:\tools\msys64\mingw64\bin\clang++.exe" />
+            </LocalCompilerPath>
+          </key>
+          <value>
+            <LocalCompilerSettings>
+              <option name="name" value="Clang" />
+              <option name="version" value="11.0.0" />
+              <option name="target" value="x86_64" />
+            </LocalCompilerSettings>
+          </value>
+        </entry>
+        <entry>
+          <key>
+            <LocalCompilerPath>
               <option name="path" value="C:\tools\msys64\mingw64\bin\g++.exe" />
             </LocalCompilerPath>
           </key>

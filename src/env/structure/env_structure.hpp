@@ -35,7 +35,6 @@ ENV_MESSAGE(Env Standard - C++ ENV_CPP)
 
 #include "env_bench.hpp"
 #include "env_mock.hpp"
-#include "env_perf.hpp"
 #include "env_test.hpp"
 
 #include "env_features.hpp"

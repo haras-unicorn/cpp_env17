@@ -2,6 +2,41 @@
 #define ENV_VECTOR_HPP
 
 
+ENV_TEST_BEGIN
+
+strct alloc_getter_t
+{
+    tmp<name TVec>
+    cmp_fn static get(const TVec& vec) noex
+    {
+        ret vec._get_alloc();
+    }
+};
+
+tmp<name TVec>
+cmp_fn get_alloc(const TVec& vec) noex
+{
+    ret alloc_getter_t::get(vec);
+}
+
+strct flex_getter_t
+{
+    tmp<name TVec>
+    cmp_fn static get(const TVec& vec) noex
+    {
+        ret vec._get_flex();
+    }
+};
+
+tmp<name TVec>
+cmp_fn get_flex(const TVec& vec) noex
+{
+    ret flex_getter_t::get(vec);
+}
+
+ENV_TEST_END
+
+
 // I started writing it to test the dynamic struct, but it seems like it turned out to be an ok vector class.
 
 COND_TMP
@@ -39,33 +74,78 @@ public:
 
     imp cmp inl vector_gt() noex = default;
 
-    con vector_gt(size_t size) : _dynamic{ } { _construct(size); }
-
-    con vector_gt(const vector_gt& other) : _dynamic{other._get_dynamic()}
+    con vector_gt(size_t size) :
+            _dynamic{ }
     {
-        _alloc(other.size()), _ucopy(other);
+        _construct(size);
     }
 
-    con vector_gt(vector_gt&& other) noex: _dynamic{ENV_STD::move(other._get_dynamic())}
+    con vector_gt(const vector_gt& other) :
+            _dynamic{other._get_dynamic()}
+    {
+        _alloc(other.size());
+        _ucopy(other);
+    }
+
+    con vector_gt(vector_gt&& other) noex:
+            _dynamic{ENV_STD::move(other._get_dynamic())}
     {
         _move(ENV_STD::move(other));
     }
 
-    fun operator=(const vector_gt& other)
+    asgn vector_gt& op=(const vector_gt& other)
     {
-        if (_did_invalidate(other)) ret;
-        _copy(other, _get_dynamic().copy_strategy(other._get_dynamic()));
+        if (_was_invalidated_by(other))
+        {
+            _get_dynamic().copy(other._get_dynamic());
+            ret *this;
+        }
+
+        if_cmp (dynamic_t::always_copies)
+        {
+            _get_dynamic().copy(other._get_dynamic());
+            _copy(other);
+        }
+        else
+        {
+            if (!_get_dynamic().alloc_equal_to(other._get_dynamic()))
+            {
+                _realloc_copy(other);
+            }
+            else
+            {
+                _get_dynamic().copy(other._get_dynamic());
+                _copy(other);
+            }
+        }
+
+        ret *this;
     }
 
-    fun operator=(vector_gt&& other)
+    asgn vector_gt& op=(vector_gt&& other)
     {
-        if (_did_invalidate(other)) ret;
-        _move(ENV_STD::move(other), _get_dynamic().move_strategy(ENV_STD::move(other._get_dynamic())));
+        if (_was_invalidated_by(other))
+        {
+            _get_dynamic().move(ENV_STD::move(other._get_dynamic()));
+            ret *this;
+        }
+
+        _move(ENV_STD::move(other),
+              _get_dynamic().move_strategy(
+                      ENV_STD::move(other._get_dynamic())));
+
+        ret *this;
     }
 
-    fun swap(vector_gt& other) { _swap(other, _get_dynamic().swap_strategy(other._get_dynamic())); }
+    fun swap(vector_gt& other)
+    {
+        _swap(other, _get_dynamic().swap_strategy(other._get_dynamic()));
+    }
 
-    dest ~vector_gt() { _free(); }
+    dest ~vector_gt()
+    {
+        _free();
+    }
 
 
     COMPAT(is_vector);
@@ -78,27 +158,37 @@ public:
     // lifetime
 
 protected:
-    callb inl _copy(const vector_gt& other, nonced name dynamic_t::copy_strategy_t strategy)
+    callb inl _copy(
+            const vector_gt& other,
+            nonced name dynamic_t::copy_strategy_t strategy)
     {
         if_cmp(dynamic_t::always_copies) _copy(other);
         else
         {
-            if (strategy == dynamic_t::copy_strategy_t::copy) _copy(other);
-            else _realloc_copy(other);
+            if (strategy == dynamic_t::copy_strategy_t::copy)
+                _copy(other);
+            else
+                _realloc_copy(other);
         }
     }
 
-    callb inl _move(vector_gt&& other, nonced name dynamic_t::move_strategy_t strategy)
+    callb inl _move(
+            vector_gt&& other,
+            nonced name dynamic_t::move_strategy_t strategy)
     {
         if_cmp(dynamic_t::always_moves) _move(ENV_STD::move(other));
         else
         {
-            if (strategy == dynamic_t::move_strategy_t::move) _move(ENV_STD::move(other));
-            else _move_elements(ENV_STD::move(other));
+            if (strategy == dynamic_t::move_strategy_t::move)
+                _move(ENV_STD::move(other));
+            else
+                _move_elements(ENV_STD::move(other));
         }
     }
 
-    callb inl _swap(vector_gt& other, nonced name dynamic_t::swap_strategy_t strategy)
+    callb inl _swap(
+            vector_gt& other,
+            nonced name dynamic_t::swap_strategy_t strategy)
     {
         if_cmp(dynamic_t::always_swaps) _swap(other);
         else
@@ -107,89 +197,143 @@ protected:
                 _swap(other);
             else
                 throw unequal_container_allocator_swap_error_t
-                        {"Don't use vector swap with allocators that are not always equal"};
+                        {
+                                "Don't use vector swap with allocators "
+                                "that are not always equal"
+                        };
         }
     }
 
 
-    callb inl _ucopy(const vector_gt& other) noex(ENV_STD::is_nothrow_copy_assignable_v<TVal>)
+    callb inl _ucopy(const vector_gt& other)
+    noex(ENV_STD::is_nothrow_copy_assignable_v<TVal>)
     {
-        ret ucopy(_get_alloc(), other._get_begin(), other._get_end(), _get_begin());
+        ret ucopy(_get_alloc(),
+                  other._get_begin(), other._get_end(),
+                  _get_begin());
     }
 
-    callb inl _copy(const vector_gt& other) noex(ENV_STD::is_nothrow_copy_assignable_v<TVal>)
+    callb inl _copy(const vector_gt& other)
+    noex(ENV_STD::is_nothrow_copy_assignable_v<TVal>)
     {
-        ret _resize(other.size()), copy(other._get_begin(), other._get_end(), _get_begin());
+        _resize(other.size());
+        ret copy(other._get_begin(), other._get_end(), _get_begin());
     }
 
     callb inl _realloc_copy(const vector_gt& other)
     {
-        ret _realloc(other._get_dynamic(), other.size()), _ucopy(other);
+        _free();
+        _get_dynamic().copy(other._get_dynamic());
+        _alloc(other.size());
+        ret _ucopy(other);
     }
 
     callb inl _move(vector_gt&& other) noex
     {
-        ret (_get_flex() = ENV_STD::move(other._get_flex())), _get_end();
+        _get_flex() = ENV_STD::move(other._get_flex());
+        ret _get_end();
     }
 
-    callb inl _move_elements(vector_gt&& other) noex(ENV_STD::is_nothrow_move_assignable_v<TVal>)
+    callb inl _move_elements(vector_gt&& other)
+    noex(ENV_STD::is_nothrow_move_assignable_v<TVal>)
     {
-        ret _resize(other.size()), move(other._get_begin(), other._get_end(), _get_begin());
+        _resize(other.size());
+        ret move(other._get_begin(), other._get_end(), _get_begin());
     }
 
     callb inl _swap(vector_gt& other) noex
     {
-        ret ENV_STD::swap(_get_flex(), other._get_flex()), _get_end();
+        ENV_STD::swap(_get_flex(), other._get_flex());
+        ret _get_end();
     }
 
 
     callb inl _resize(size_t to)
     {
-        ret to <= size() ? (_get_end() = _get_begin() + to) :
-            to <= capacity() ? (_get_end() = emplace(_get_dynamic(), _get_begin(), _get_begin() + to)) :
-            _expand(to);
+        if (to <= size())
+        {
+            _get_end() = _get_begin() + to;
+            ret _get_end();
+        }
+        if (to <= capacity())
+        {
+            _get_end() = emplace(_get_alloc(), _get_end(), _get_begin() + to);
+            ret _get_end();
+        }
+        ret _expand(to);
     }
 
     callb inl _expand(size_t to)
     {
-        obj const range_t old_range{_get_begin(), _get_end()};
-
+        let _old{_get_flex()};
         _alloc(to);
 
-        _get_end() = ucopy(_get_alloc(), old_range.get_begin(), old_range.get_end(), _get_begin());
-        _get_dynamic().free(old_range.get_begin(), old_range.size());
+        _get_end() = ucopy(
+                _get_alloc(),
+                _old.get_begin(), _old.get_end(),
+                _get_begin());
+        _get_dynamic().free(_old.get_begin(), _old.capacity());
 
-        ret _get_end() = emplace(_get_alloc(), _get_end(), _get_end() + (to - old_range.size()));
+        _get_end() = emplace(_get_alloc(), _get_end(), _get_begin() + to);
+        ret _get_end();
     }
 
-    callb inl _realloc(dynamic_t& with, size_t to) { ret _free(), _alloc(with, to); }
 
-
-    fun inl _did_invalidate(const vector_gt& other) { ret ENV::is_invalid(other) ? (_close(), true) : false; }
-
-    callb inl _close() { _free(), _invalidate(); }
-
-
-    callb inl _construct(dynamic_t& with, size_t size)
+    fun inl _was_invalidated_by(const vector_gt& other)
     {
-        _get_begin() = with.alloc(size_t{size});
-        ret _get_last() = _get_end() = emplace(with.get_alloc(), _get_begin(), _get_begin() + size);
+        if (ENV::is_invalid(other))
+        {
+            _close();
+            ret true;
+        }
+
+        ret false;
     }
 
-    callb inl _construct(size_t size) { ret _construct(_get_dynamic(), size); }
-
-    callb inl _alloc(dynamic_t& with, size_t size)
+    callb inl _close()
     {
-        ret _get_last() = size + (_get_end() = _get_begin() = with.alloc(size_t{size}));
+        _free();
+        _invalidate();
     }
 
-    callb inl _alloc(size_t size) { ret _alloc(_get_dynamic(), size); }
 
-    callb inl _free(dynamic_t& with) { with.free(_get_begin(), size()); }
+    callb inl _construct(size_t _size)
+    {
+        let _cap = _capacity(_size);
 
-    callb inl _free() { _free(_get_dynamic()); }
+        _get_begin() = _get_dynamic().alloc(_cap);
+        _get_end() = emplace(_get_alloc(), _get_begin(), _get_begin() + _size);
+        _get_last() = _get_begin() + _cap;
 
-    callb inl _invalidate() { _get_begin() = _get_end() = _get_last() = nil; }
+        ret _get_end();
+    }
+
+    callb inl _alloc(size_t size)
+    {
+        let _cap = _capacity(size);
+
+        _get_begin() = _get_dynamic().alloc(_cap);
+        _get_end() = _get_begin();
+        _get_last() = _get_begin() + _cap;
+
+        ret _get_last();
+    }
+
+    callb inl _free()
+    {
+        _get_dynamic().free(_get_begin(), capacity());
+    }
+
+    callb inl _invalidate()
+    {
+        _get_begin() = _get_end() = _get_last() = nil;
+    }
+
+
+    cmp_fn static _capacity(size_t _size) noex -> size_t
+    {
+        ret scast<size_t>(next_pow2(_size));
+    }
 
 
     // getters
@@ -202,33 +346,98 @@ protected:
     GETTER(_get_range, _get_flex().get_range());
     GETTER(_get_last, _get_flex().get_last());
 
-    GETTER(_get_begin, _get_flex().get_begin());
-    GETTER(_get_end, _get_flex().get_end());
+    GETTER(_get_begin, _get_range().get_begin());
+    GETTER(_get_end, _get_range().get_end());
+
+
+    friend struct test::alloc_getter_t;
+    friend struct test::flex_getter_t;
 };
+
 
 
 ENV_TEST_CASE("vector")
 {
     SUBCASE("nil")
     {
-        vector_gt<int> def{ };
+        typ(_val_t) = int;
+        typ(_alloc_t) = test::id_allocator_gt<_val_t>;
+
+        vector_gt<_val_t, _alloc_t> def{ };
         REQUIRE(is_invalid(def));
 
         mut copied{def};
         REQUIRE(is_invalid(copied));
+        REQUIRE_EQ(test::get_alloc(def), test::get_alloc(copied));
+        REQUIRE_EQ(id(test::get_alloc(def)), id(test::get_alloc(copied)));
+
         mut moved{ENV_STD::move(def)};
         REQUIRE(is_invalid(moved));
+        REQUIRE_EQ(test::get_alloc(def), test::get_alloc(moved));
+        REQUIRE_EQ(id(test::get_alloc(def)), id(test::get_alloc(moved)));
 
-//        vector_gt<int> copy_assigned{ };
-//        copy_assigned = copied;
-//        REQUIRE(is_invalid(copy_assigned));
-//        vector_gt<int> move_assigned{ };
+        vector_gt<_val_t, _alloc_t> move_assigned{ };
+        move_assigned = ENV_STD::move(moved);
+        REQUIRE(is_invalid(move_assigned));
+        REQUIRE_NE(test::get_alloc(moved), test::get_alloc(move_assigned));
+        REQUIRE_NE(id(test::get_alloc(moved)),
+                   id(test::get_alloc(move_assigned)));
+
+        REQUIRE_THROWS(copied.swap(move_assigned));
+        let check_invalid = is_invalid(copied) && is_invalid(move_assigned);
+        REQUIRE(check_invalid);
+        REQUIRE_NE(test::get_alloc(move_assigned), test::get_alloc(copied));
+        REQUIRE_NE(id(test::get_alloc(move_assigned)),
+                   id(test::get_alloc(copied)));
+
+        vector_gt<_val_t, _alloc_t> copy_assigned{ };
+        copy_assigned = copied;
+        REQUIRE(is_invalid(copy_assigned));
+        REQUIRE_EQ(test::get_alloc(copied), test::get_alloc(copy_assigned));
+        REQUIRE_EQ(id(test::get_alloc(copied)),
+                   id(test::get_alloc(copy_assigned)));
+    }
+
+    SUBCASE("non nil")
+    {
+        typ(_val_t) = int;
+        typ(_alloc_t) = test::id_allocator_gt<_val_t>;
+
+        vector_gt<_val_t, _alloc_t> ten{10_s};
+        REQUIRE_EQ(ten.size(), 10_s);
+        REQUIRE_EQ(ten.capacity(), 16_s);
+        REQUIRE(is_valid(ten));
+
+//        mut copied{ten};
+//        REQUIRE(is_invalid(copied));
+//        REQUIRE_EQ(test::get_alloc(ten), test::get_alloc(copied));
+//        REQUIRE_EQ(id(test::get_alloc(ten)), id(test::get_alloc(copied)));
+//
+//        mut moved{ENV_STD::move(ten)};
+//        REQUIRE(is_invalid(moved));
+//        REQUIRE_EQ(test::get_alloc(ten), test::get_alloc(moved));
+//        REQUIRE_EQ(id(test::get_alloc(ten)), id(test::get_alloc(moved)));
+//
+//        vector_gt<_val_t, _alloc_t> move_assigned{ };
 //        move_assigned = ENV_STD::move(moved);
 //        REQUIRE(is_invalid(move_assigned));
+//        REQUIRE_NE(test::get_alloc(moved), test::get_alloc(move_assigned));
+//        REQUIRE_NE(id(test::get_alloc(moved)),
+//                   id(test::get_alloc(move_assigned)));
 //
-//        copied.swap(copy_assigned);
-//        let check_invalid = is_invalid(copied) && is_invalid(copy_assigned);
+//        REQUIRE_THROWS(copied.swap(move_assigned));
+//        let check_invalid = is_invalid(copied) && is_invalid(move_assigned);
 //        REQUIRE(check_invalid);
+//        REQUIRE_NE(test::get_alloc(move_assigned), test::get_alloc(copied));
+//        REQUIRE_NE(id(test::get_alloc(move_assigned)),
+//                   id(test::get_alloc(copied)));
+//
+//        vector_gt<_val_t, _alloc_t> copy_assigned{ };
+//        copy_assigned = copied;
+//        REQUIRE(is_invalid(copy_assigned));
+//        REQUIRE_EQ(test::get_alloc(copied), test::get_alloc(copy_assigned));
+//        REQUIRE_EQ(id(test::get_alloc(copied)),
+//                   id(test::get_alloc(copy_assigned)));
     }
 }
 

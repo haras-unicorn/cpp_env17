@@ -9,13 +9,14 @@ strct tie_vt : public ENV_STD::tuple<TElements...>
 {
 private:
     typ(_tie_t) = tie_vt<TElements...>;
-    typ(_tuple_base_t) = ENV_STD::tuple<TElements...>;
+    DECL_BASE(tuple, (ENV_STD::tuple<TElements...>));
 
     typ(_first_t) = name variadic_vt<TElements...>::tmp at_nt<0>;
 
     cmp_obj static rank_t _rank = rank_of_v<TElements...>;
 
-    cmp_obj static flag_t _is_array = ENV_STD::conjunction_v<ENV_STD::is_same<_first_t, TElements>...>;
+    cmp_obj static flag_t _is_array = ENV_STD::conjunction_v<
+            ENV_STD::is_same<_first_t, TElements>...>;
 
 public:
     using _tuple_base_t::tuple;
@@ -23,7 +24,8 @@ public:
 
     DEFAULT_NOCON_LIFE(tie_vt, CMP);
 
-    COND_TMP_UNARY(((ENV_STD::is_assignable_v<_first_t, const T&>) && (_is_array)))
+    COND_TMP_UNARY(
+            ((ENV_STD::is_assignable_v<_first_t, const T&>) && (_is_array)))
     callb inl op=(const array_ngt<scast<size_t>(_rank), T>& array) noex
     {
         _copy_array(array, ENV_STD::make_index_sequence<_rank>{ });
@@ -32,15 +34,18 @@ public:
 
 private:
     tmp<name T, ENV_STD::size_t... Indices>
-    callb inl _copy_array(const array_ngt<scast<size_t>(_rank), T>& array, ENV_STD::index_sequence<Indices...>) noex
+    callb inl _copy_array(
+            const array_ngt<scast<size_t>(_rank), T>& array,
+            ENV_STD::index_sequence<Indices...>) noex
     {
-        ((ENV_STD::get<Indices>(*this) = array[Indices]), ...);
+        ((ENV_STD::get<Indices>(*this->_as_tuple_base()) = array[Indices]), ...);
     }
 };
 
 tmp<name T> cmp_fn tie_forward(T& arg) noex -> T& { ret arg; }
 
-tmp<name... TVariables> cmp_fn tie_forward(tie_vt<TVariables...>&& tie) noex -> tie_vt<TVariables...>& { ret tie; }
+tmp<name... TVariables> cmp_fn tie_forward(
+        tie_vt<TVariables...>&& tie) noex -> tie_vt<TVariables...>& { ret tie; }
 
 ENV_DETAIL_END
 

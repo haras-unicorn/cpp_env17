@@ -99,6 +99,9 @@
 #undef cmp_dest_p
 #undef cmp_dest
 
+#undef asgn_p
+#undef asgn
+
 // scope
 
 #undef UID

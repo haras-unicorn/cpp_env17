@@ -1,4 +1,0 @@
-#ifndef ENV_VARIABLE_HPP
-#define ENV_VARIABLE_HPP
-
-#endif // ENV_VARIABLE_HPP

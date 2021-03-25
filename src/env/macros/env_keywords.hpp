@@ -200,6 +200,9 @@ ENV_TEST_CASE("object keywords")
 #define cmp_dest [[NO_RETURN_ATTRIBUTES]] cmp_dest_p
 #endif
 
+#define asgn_p
+#define asgn [[NO_RETURN_ATTRIBUTES]] asgn_p
+
 ENV_TEST_CASE("function keywords")
 {
     strct my_struct
@@ -216,6 +219,7 @@ ENV_TEST_CASE("function keywords")
         imp inl op char() { ret 4; }
         cmp_imp op float() { ret 4.0; }
 
+        asgn my_struct& op=(const my_struct&) noex = default;
         cmp_dest ~my_struct() noex = default;
     };
 

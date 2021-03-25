@@ -69,7 +69,9 @@ strct tuple_vs<variadic_vt<>>
 tmp<name THead, name... TRest>
 strct tuple_vs<
         variadic_vt < THead, TRest...>,
-success_vt<COND_TYPE(!ENV_STD::conjunction_v < ENV_STD::is_same < THead, TRest >...> && sizeof...(TRest) != 1)>>
+success_vt<
+        COND_TYPE(!ENV_STD::conjunction_v < ENV_STD::is_same < THead,
+                  TRest >...> && sizeof...(TRest) != 1)>>
 {
 tmp<
         tmp<name, name> class TPair,
@@ -91,7 +93,9 @@ typ(result_ffft) = TPair<TFirst, TSecond>;
 tmp<name THead, name... TRest>
 strct tuple_vs<
         variadic_vt < THead, TRest...>,
-success_vt<COND_TYPE(ENV_STD::conjunction_v < ENV_STD::is_same < THead, TRest >...> && sizeof...(TRest) != 1)>>
+success_vt<
+        COND_TYPE(ENV_STD::conjunction_v < ENV_STD::is_same < THead,
+                  TRest >...> && sizeof...(TRest) != 1)>>
 {
 tmp<
         tmp<name, name> class TPair,
@@ -138,28 +142,34 @@ tmp result_ffft<detail::pair_ggt, detail::array_ngt, detail::tuple_vt>;
 tmp<name... TElements>
 typ(view_tuple_vt) =
 name detail::tuple_vs<variadic_vt < TElements...>>::
-tmp result_ffft<detail::view_pair_ggt, detail::view_array_ngt, detail::view_tuple_vt>;
+tmp result_ffft<
+        detail::view_pair_ggt, detail::view_array_ngt, detail::view_tuple_vt>;
 
 tmp<name... TElements>
 typ(poly_tuple_vt) =
 name detail::tuple_vs<variadic_vt < TElements...>>::
-tmp result_ffft<detail::poly_pair_ggt, detail::poly_array_ngt, detail::poly_tuple_vt>;
+tmp result_ffft<
+        detail::poly_pair_ggt, detail::poly_array_ngt, detail::poly_tuple_vt>;
 
 ENV_TEST_CASE("variadic tuple")
 {
     REQUIRE_EQT(tuple_vt<int, float>, detail::pair_ggt < int, float >);
     REQUIRE_EQT(tuple_vt<int, int, int>, detail::array_ngt < triple, int >);
-    REQUIRE_EQT(tuple_vt<int, float, int>, detail::tuple_vt < int, float, int >);
+    REQUIRE_EQT(tuple_vt<int, float, int>, detail::tuple_vt < int, float,
+                int >);
 }
 
 tmp<name... TElements>
-cmp_fn tpl(TElements&& ...elements) noex -> ENV::tuple_vt<ENV::remove_ref_gt<TElements>...>
+cmp_fn tpl(TElements&& ...elements) noex -> ENV::tuple_vt<
+        ENV::remove_ref_gt<TElements>...>
 {
     ret {ENV_STD::forward<TElements>(elements)...};
 }
 
 ENV_TEST_CASE("variadic tuple construction")
 {
+    ENV_STD::array<int, 3> a{ };
+    nonce(a);
     let _empty = tpl();
     nonce(_empty);
     let _pair = tpl(1, 2.0);
@@ -206,21 +216,26 @@ ENV_DETAIL_BEGIN
 COND_TMP((name TElements, name... TArgs, ENV_STD::size_t... Indices),
          (ENV_STD::is_constructible_v<TElements, const TArgs& ...>))
 cmp_fn tpl(ENV_STD::index_sequence<Indices...>, const TArgs& ...args)
-noexpr(TElements{args...}) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
+noexpr(TElements{args...}) -> ENV::tuple_ngt<
+        scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
 {
     ret {ENV::first_gvt<TElements, decltype(Indices)>{args...} ...};
 }
 
-COND_TMP((name TElements, ENV_STD::size_t... Indices), (ENV_STD::is_copy_constructible_v < TElements > ))
+COND_TMP((name TElements, ENV_STD::size_t... Indices),
+         (ENV_STD::is_copy_constructible_v < TElements > ))
 cmp_fn tpl(ENV_STD::index_sequence<Indices...>, const TElements& to_copy)
-noexpr(TElements{to_copy}) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
+noexpr(TElements{to_copy}) -> ENV::tuple_ngt<
+        scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
 {
     ret {ENV::first_gvt<TElements, decltype(Indices)>{to_copy}...};
 }
 
-COND_TMP((name TElements, ENV_STD::size_t... Indices), (ENV_STD::is_default_constructible_v < TElements > ))
+COND_TMP((name TElements, ENV_STD::size_t... Indices),
+         (ENV_STD::is_default_constructible_v < TElements > ))
 cmp_fn tpl(ENV_STD::index_sequence<Indices...>)
-noexpr(TElements{ }) -> ENV::tuple_ngt<scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
+noexpr(TElements{ }) -> ENV::tuple_ngt<
+        scast<size_t>(ENV::rank_of_a<Indices...>), TElements>
 {
     ret {ENV::first_gvt<TElements, decltype(Indices)>{ }...};
 }
@@ -231,16 +246,19 @@ COND_TMP((size_t Size, name TElements, name... TArgs),
          (ENV_STD::is_constructible_v<TElements, TArgs...> && Size != empty))
 cmp_fn tpl(TArgs&& ...args) noexpr(TElements{TElements{args...}})
 {
-    ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{ }, ENV_STD::forward<TArgs>(args)...);
+    ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{ },
+                               ENV_STD::forward<TArgs>(args)...);
 }
 
-COND_TMP((size_t Size, name TElements), (ENV_STD::is_copy_constructible_v < TElements > && Size != empty))
+COND_TMP((size_t Size, name TElements),
+         (ENV_STD::is_copy_constructible_v < TElements > && Size != empty))
 cmp_fn tpl(const TElements& to_copy) noexpr(TElements{to_copy})
 {
     ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{ }, to_copy);
 }
 
-COND_TMP((size_t Size, name TElements), (ENV_STD::is_default_constructible_v < TElements > && Size != empty))
+COND_TMP((size_t Size, name TElements),
+         (ENV_STD::is_default_constructible_v < TElements > && Size != empty))
 cmp_fn tpl() noexpr(TElements{TElements{ }})
 {
     ret detail::tpl<TElements>(ENV_STD::make_index_sequence<Size>{ });
@@ -262,7 +280,8 @@ ENV_TEST_CASE("sized tuple construction")
 
     REQUIRE_EQT(decltype(_empty), const detail::array_ngt<empty, nil_t>);
     REQUIRE_EQT(decltype(_pair_copied), const detail::pair_ggt<int, int>);
-    REQUIRE_EQT(decltype(_array_forwarded), const detail::array_ngt<10_s, detail::pair_ggt<int, int>>);
+    REQUIRE_EQT(decltype(_array_forwarded),
+                const detail::array_ngt<10_s, detail::pair_ggt<int, int>>);
     REQUIRE_EQT(decltype(_array_default), const detail::array_ngt<10_s, int>);
 }
 
@@ -277,8 +296,11 @@ strct hash<ENV::detail::pair_ggt<TFirst, TSecond>>
     typ(subject_t) = ENV::detail::pair_ggt<TFirst, TSecond>;
 
     ON_COND
-    (ENV::is_hashable_g < typename subject_t::first_type > && ENV::is_hashable_g < typename subject_t::second_type >)
-    cmp_fn op()(const ENV::detail::pair_ggt<TFirst, TSecond>& pair) const noex -> size_t
+    (ENV::is_hashable_g<typename subject_t::first_type> &&
+             ENV::is_hashable_g < typename subject_t::second_type >)
+    cmp_fn op()(
+            const ENV::detail::pair_ggt<
+                    TFirst, TSecond>& pair) const noex -> size_t
     {
         return ENV::hash(ENV_STD::get<0>(pair), ENV_STD::get<1>(pair));
     }
