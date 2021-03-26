@@ -10,7 +10,8 @@
 COND_TMP_BINARY
 (
         (sizeof(TLhs) == sizeof(TRhs)) &&
-        (ENV_STD::is_trivially_copyable_v < TRhs > ) && (ENV_STD::is_trivially_copyable_v < TLhs > ) &&
+        (ENV_STD::is_trivially_copyable_v < TRhs > ) &&
+        (ENV_STD::is_trivially_copyable_v < TLhs > ) &&
         (ENV_STD::is_trivially_constructible_v < TLhs > )
 )
 fun inl bit_cast(const TRhs& from) noexcept -> TLhs
@@ -30,7 +31,8 @@ ENV_TEST_CASE("bit cast")
 
 // underlying cast
 
-tmp<name T> cmp_fn underlying_cast(enum_c <T> _enum) noex -> ENV_STD::underlying_type_t<T>
+tmp<name T> cmp_fn underlying_cast(enum_c <T> _enum) noex ->
+ENV_STD::underlying_type_t<T>
 {
     ret scast<ENV_STD::underlying_type_t<T>>(_enum);
 }
@@ -47,42 +49,67 @@ ENV_TEST_CASE("underlying cast")
 // clamp cast
 
 tmp<res_name, name T>
-cmp_fn clamp_cast(arithmetic_c <T> from) noex -> deduc_res(T)
+cmp_fn clamp_cast(arithmetic_c <T> _from) noex -> deduc_res(T)
 {
-    let cmp max = ENV_STD::numeric_limits<T>::max();
-    let cmp min = ENV_STD::numeric_limits<T>::min();
+    typ(_to_t) = res_t(T);
+    typ(_from_t) = T;
+    typ(_max_t) = long double;
 
-    let cmp res_max = scast<T>(ENV_STD::numeric_limits<TRes>::max());
-    let cmp res_min = scast<T>(ENV_STD::numeric_limits<TRes>::min());
+    let cmp _max_from = scast<_max_t>(ENV_STD::numeric_limits<_from_t>::max());
+    let cmp _min_from = scast<_max_t>(ENV_STD::numeric_limits<_from_t>::min());
+
+    let cmp _max_to = scast<_max_t>(ENV_STD::numeric_limits<_to_t>::max());
+    let cmp _min_to = scast<_max_t>(ENV_STD::numeric_limits<_to_t>::min());
+
+    let cmp _max = scast<_from_t>(ENV_STD::numeric_limits<_to_t>::max());
+    let cmp _min = scast<_from_t>(ENV_STD::numeric_limits<_to_t>::min());
 
 
-    if_cmp(ENV_STD::is_enum_v<T>) ret clamp_cast < res_t(T) > (underlying_cast(from));
-
-    else if_cmp(ENV_STD::is_same_v<TRes, T> || ENV_STD::is_same_v<TRes, nores_t>) ret from;
-
-    else if_cmp(ENV_STD::is_same_v<TRes, bool>) ret !!from;
-
-    else if_cmp(is_unsigned_g<T>)
+    if_cmp(ENV_STD::is_same_v<_to_t, _from_t>)
     {
-        if_cmp (res_max >= max) ret scast<TRes>(from);
-        else ret scast<TRes>((from > res_max) ? res_max : from);
+        ret _from;
     }
-    else if_cmp(is_unsigned_g<TRes>)
+    else if_cmp(ENV_STD::is_same_v<_to_t, bool>)
     {
-        if_cmp (res_max >= max) ret scast<TRes>((from > 0) ? from : 0);
-        else ret scast<TRes>((from > res_max) ? res_max : (from < 0) ? 0 : from);
+        ret !!_from;
+    }
+    else if_cmp(ENV_STD::is_enum_v<_from_t>)
+    {
+        ret clamp_cast < _to_t > (underlying_cast(_from));
+    }
+    else if_cmp(ENV_STD::is_enum_v<_to_t>)
+    {
+        typ(_clamped_t) = ENV_STD::underlying_type_t<_to_t>;
+        let _clamped = ENV::clamp_cast<_clamped_t>(_from);
+
+        ret scast<_to_t>(_clamped);
     }
     else
     {
-        if_cmp (res_max >= max)
+        if_cmp (_max_to >= _max_from)
         {
-            if_cmp (res_min <= min) ret scast<TRes>(from);
-            else ret scast<TRes>((from < res_min) ? res_min : from);
+            if_cmp (_min_to <= _min_from)
+            {
+                ret scast<_to_t>(_from);
+            }
+            else
+            {
+                ret scast<_to_t>((_from < _min) ? _min : _from);
+            }
         }
         else
         {
-            if_cmp (res_min <= min) ret scast<TRes>((from > res_max) ? res_max : from);
-            else ret scast<TRes>((from > res_max) ? res_max : (from < res_min) ? res_min : from);
+            if_cmp (_min_to <= _min_from)
+            {
+                ret scast<_to_t>((_from > _max) ? _max : _from);
+            }
+            else
+            {
+                ret scast<_to_t>(
+                        (_from > _max) ? _max :
+                        (_from < _min) ? _min :
+                        _from);
+            }
         }
     }
 }
@@ -111,11 +138,15 @@ TEST_CASE("clamp_cast")
         }
         SUBCASE("signed -> unsigned")
         {
+            REQUIRES(clamp_cast<uint8_t>(int8_t{1}) == 1);
+            REQUIRES(clamp_cast<uint8_t>(int16_t{1}) == 1);
             REQUIRES(clamp_cast<uint8_t>(int8_t{-1}) == 0);
             REQUIRES(clamp_cast<uint8_t>(int16_t{-1}) == 0);
         }
         SUBCASE("signed -> signed")
         {
+            REQUIRES(clamp_cast<int8_t>(int8_t{1}) == 1);
+            REQUIRES(clamp_cast<int8_t>(int16_t{1}) == 1);
             REQUIRES(clamp_cast<int8_t>(int8_t{-1}) == -1);
             REQUIRES(clamp_cast<int8_t>(int16_t{-1}) == -1);
         }
@@ -139,6 +170,23 @@ TEST_CASE("clamp_cast")
         {
             REQUIRES(clamp_cast<int8_t>(int16_t{i16min}) == i8min);
         }
+    }
+
+    SUBCASE("enum")
+    {
+        enm my_size_t : ENV_STD::size_t { };
+        REQUIRES(clamp_cast<my_size_t>(2) == my_size_t{2});
+        REQUIRES(clamp_cast<my_size_t>(-2) == my_size_t{0});
+        REQUIRES(clamp_cast<int>(my_size_t{2}) == 2);
+        REQUIRES(clamp_cast<int>(my_size_t{0}) == 0);
+    }
+
+    SUBCASE("bool")
+    {
+        REQUIRES(clamp_cast<bool>(10) == true);
+        REQUIRES(clamp_cast<bool>(0) == false);
+        REQUIRES(clamp_cast<int>(true) == 1);
+        REQUIRES(clamp_cast<int>(false) == 0);
     }
 }
 

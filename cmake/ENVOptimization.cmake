@@ -94,8 +94,9 @@ else ()
             target_compile_options(
                     ${_name}
                     PRIVATE
-                    -glldb
-                    -fsanitize=address,undefined
+                    -ggdb
+                    # TODO fix
+                    # -fsanitize=address,undefined
             )
         endfunction()
     else ()

@@ -70,11 +70,20 @@ cmp_obj adjust_ex_t adjust_ex{ };
 
 // policy concepts
 
-COND_CHECK_UNARY(is_exception_policy, (ENV_STD::is_base_of_v < detail::exception_policy_s, T >));
+COND_CHECK_UNARY
+(
+        is_exception_policy,
+        (ENV_STD::is_base_of_v < detail::exception_policy_s, T >)
+);
 
 COND_CONCEPT(exception_policy, (is_exception_policy_g<C>));
 
-COND_CHECK_UNARY(is_unignorable_policy, (is_exception_policy_g<T> && !ENV_STD::is_same_v < T, ignore_exceptions_s >));
+COND_CHECK_UNARY
+(
+        is_unignorable_policy,
+        (is_exception_policy_g<T>) &&
+        (!ENV_STD::is_same_v < T, ignore_exceptions_s >)
+);
 
 COND_CONCEPT(unignorable_policy, (is_unignorable_policy_g<C>));
 
@@ -96,18 +105,26 @@ ENV_TEST_CASE("exception policies")
 
 // default policies
 
-typ(d_exception_policy_s) = ENV_STD::conditional_t<is_debug, throw_on_exception_s, ignore_exceptions_s>;
+typ(d_exception_policy_s) =
+ENV_STD::conditional_t<
+        is_debug, throw_on_exception_s,
+        ignore_exceptions_s>;
 
 cmp_obj d_exception_policy_s d_exception_policy{ };
 
-typ(d_unignorable_policy_s) = ENV_STD::conditional_t<is_debug, throw_on_exception_s, adjust_on_exception_s>;
+typ(d_unignorable_policy_s) =
+ENV_STD::conditional_t<
+        is_debug, throw_on_exception_s,
+        adjust_on_exception_s>;
 
 cmp_obj d_unignorable_policy_s d_unignorable_policy{ };
 
 ENV_TEST_CASE("default exception policies")
 {
-    REQUIRES(is_exception_policy_g < unqualified_gt<decl(d_exception_policy)>>);
-    REQUIRES(is_unignorable_policy_g < unqualified_gt<decl(d_unignorable_policy)>>);
+    REQUIRES(is_exception_policy_g <
+             unqualified_gt<decl(d_exception_policy)>>);
+    REQUIRES(is_unignorable_policy_g <
+             unqualified_gt<decl(d_unignorable_policy)>>);
 }
 
 
@@ -127,13 +144,19 @@ struct [[OBJECT_ATTRIBUTES]] exception_status_s
 
 ENV_TEST_CASE("exception status")
 {
-    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::state_message)>, message_t);
-    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::argument_message)>, message_t);
-    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::default_message)>, message_t);
+    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::state_message)>,
+                message_t);
+    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::argument_message)>,
+                message_t);
+    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::default_message)>,
+                message_t);
 
-    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::state_code)>, error_code_t);
-    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::argument_code)>, error_code_t);
-    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::default_code)>, error_code_t);
+    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::state_code)>,
+                error_code_t);
+    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::argument_code)>,
+                error_code_t);
+    REQUIRE_EQT(unqualified_gt<decltype(exception_status_s::default_code)>,
+                error_code_t);
 }
 
 // exceptions
@@ -181,16 +204,19 @@ callb except(message_t message) { throw T{message.data()}; }
 
 #define EXCEPTION_POLICY_TEMPLATE_ARGUMENT                                                     \
         name EXCEPTION_POLICY_TYPE_NAME = ENV::d_exception_policy_s,                           \
-        ENV::is_exception_policy_r<EXCEPTION_POLICY_TYPE_NAME> = ENV::requirement
+        ENV::is_exception_policy_r<EXCEPTION_POLICY_TYPE_NAME> =                               \
+        ENV::requirement
 
 #define UNIGNORABLE_POLICY_TEMPLATE_ARGUMENT                                                   \
         name EXCEPTION_POLICY_TYPE_NAME = ENV::d_unignorable_policy_s,                         \
-        ENV::is_unignorable_policy_r<EXCEPTION_POLICY_TYPE_NAME> = ENV::requirement
+        ENV::is_unignorable_policy_r<EXCEPTION_POLICY_TYPE_NAME> =                             \
+        ENV::requirement
 
 #define EXCEPTION_POLICY_ARGUMENT_NAME exc_pol
 
 #define EXCEPTION_POLICY_RUNTIME_ARGUMENT                                                      \
-        nonced EXCEPTION_POLICY_TYPE_NAME EXCEPTION_POLICY_ARGUMENT_NAME = EXCEPTION_POLICY_TYPE_NAME{}
+        nonced EXCEPTION_POLICY_TYPE_NAME EXCEPTION_POLICY_ARGUMENT_NAME =                     \
+        EXCEPTION_POLICY_TYPE_NAME{}
 
 // shorthands
 
@@ -200,9 +226,16 @@ callb except(message_t message) { throw T{message.data()}; }
 
 // noex
 
-#define UNQUALIFIED_POLICY_TYPE ENV::unqualified_gt<EXCEPTION_POLICY_TYPE_NAME>
-#define IS_NO_THROW_EXCEPTION_POLICY !ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::throw_on_exception_s>
-#define NOEX_IF_NO_THROW_EXCEPTION_POLICY noex(IS_NO_THROW_EXCEPTION_POLICY)
+#define UNQUALIFIED_POLICY_TYPE \
+        ENV::unqualified_gt<EXCEPTION_POLICY_TYPE_NAME>
+
+#define IS_NO_THROW_EXCEPTION_POLICY \
+        !ENV_STD::is_same_v<         \
+                UNQUALIFIED_POLICY_TYPE, \
+                ENV::throw_on_exception_s>
+
+#define NOEX_IF_NO_THROW_EXCEPTION_POLICY \
+        noex(IS_NO_THROW_EXCEPTION_POLICY)
 
 // shorthand
 
@@ -212,11 +245,20 @@ callb except(message_t message) { throw T{message.data()}; }
 
 // when
 
-#define SHOULD_IGNORE_EXCEPTION ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::ignore_exceptions_s>
-#define SHOULD_EXIT_ON_EXCEPTION ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::exit_on_exception_s>
-#define SHOULD_THROW_ON_EXCEPTION ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::throw_on_exception_s>
-#define SHOULD_CHECK_EXCEPTIONS ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::check_exceptions_s>
-#define SHOULD_ADJUST_ON_EXCEPTION ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::adjust_on_exception_s>
+#define SHOULD_IGNORE_EXCEPTION \
+        ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::ignore_exceptions_s>
+
+#define SHOULD_EXIT_ON_EXCEPTION \
+        ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::exit_on_exception_s>
+
+#define SHOULD_THROW_ON_EXCEPTION \
+        ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::throw_on_exception_s>
+
+#define SHOULD_CHECK_EXCEPTIONS \
+        ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::check_exceptions_s>
+
+#define SHOULD_ADJUST_ON_EXCEPTION \
+        ENV_STD::is_same_v<UNQUALIFIED_POLICY_TYPE, ENV::adjust_on_exception_s>
 
 // state
 
@@ -284,7 +326,8 @@ struct uint_ptr_proxy_t
     callb inl multiply_positive(int to_add, exc_arg) noex_pol
     {
         WHEN_STATE((_get_ptr() == nullptr), (/* should ret */ ret;));
-        WHEN_ARG((to_add < 0), (/* should ret: */ ret;), (/* should adjust: */ to_add = 0;));
+        WHEN_ARG((to_add < 0), (/* should ret: */ ret;),
+                 (/* should adjust: */ to_add = 0;));
 
         _get() *= to_add;
     }

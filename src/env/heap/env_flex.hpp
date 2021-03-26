@@ -31,7 +31,13 @@ strct flex_gt
     CMP_GETTER(last, get_last());
 
     CMP_GETTER(size, _get_range().size());
-    CMP_GETTER(capacity, ENV::clamp_cast<size_t>(ENV_STD::distance(get_begin(), get_last())));
+
+    CMP_GETTER
+    (
+            capacity,
+            ENV::clamp_cast<size_t>(
+                    ENV_STD::distance(get_begin(), get_last()))
+    );
 
 
     con cmp inl flex_gt(range_t range, last_t last) noex:
@@ -44,10 +50,26 @@ strct flex_gt
 
 
     COMPAT(is_flex);
-    CMP_VALIDITY { ret ENV::is_valid(_get_range()); }
-    CMP_TMP_HASH { ret ENV::hash(_get_range(), _get_last()); }
-    CMP_TMP_EQUALITY { ret _get_range() == rhs._get_range() && _get_last() == rhs._get_last(); }
-    CMP_TMP_COMPARISON { ret _get_range() < rhs._get_range(); }
+
+    CMP_VALIDITY
+    {
+        ret ENV::is_valid(_get_range());
+    }
+
+    CMP_TMP_HASH
+    {
+        ret ENV::hash(_get_range(), _get_last());
+    }
+
+    CMP_TMP_EQUALITY
+    {
+        ret _get_range() == rhs._get_range() && _get_last() == rhs._get_last();
+    }
+
+    CMP_TMP_COMPARISON
+    {
+        ret _get_range() < rhs._get_range();
+    }
 };
 
 ENV_TEST_CASE("flex")
@@ -56,10 +78,19 @@ ENV_TEST_CASE("flex")
     {
         int a[]{1, 2, 3};
         range_gt<int*> r{&a[0], &a[1]};
+        REQUIRE_EQ(r.size(), 1);
 
         flex_gt<int*> f_r{r, &a[2]};
+        REQUIRE_EQ(f_r.size(), 1);
+        REQUIRE_EQ(f_r.capacity(), 2);
         nonce(f_r);
         flex_gt<int*> f{&a[0], &a[1], &a[2]};
+        REQUIRE_EQ(f.size(), 1);
+        REQUIRE_EQ(f.capacity(), 2);
+        ENV_STD::fill(f.begin(), f.end(), 1);
+        REQUIRE(ENV_STD::all_of(
+                f.begin(), f.end(),
+                [](auto i) { return i == 1; }));
         nonce(f);
     }
 }

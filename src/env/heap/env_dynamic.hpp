@@ -150,18 +150,24 @@ private:
 public:
     nonced cmp_obj_p bool static always_copies{alloc_always_equal};
 
-    enm copy_strategy_t { copy, realloc_copy };
+    enm copy_strategy_t { copy };
 
-    cmp_fn copy_strategy(nonced const dynamic_ggt& other) noex
+    EXPR_TMP_UNARY(declvalr<T>()())
+    cmp_fn copy_strategy(nonced const dynamic_ggt& other, T free) noex
     {
-        if_cmp (alloc_always_equal) ret copy_strategy_t::copy;
+        if_cmp (alloc_always_equal)
+        {
+            ret copy_strategy_t::copy;
+        }
+        else
+        {
+            let allocs_equal = alloc_equal_to(other);
+            if (!allocs_equal) free();
 
-        let allocs_equal = alloc_equal_to(other);
+            if_cmp (alloc_prop_on_copy) this->_get_alloc() = other._get_alloc();
 
-        if_cmp (alloc_prop_on_copy) this->_get_alloc() = other._get_alloc();
-
-        ret allocs_equal ? copy_strategy_t::copy
-                         : copy_strategy_t::realloc_copy;
+            ret copy_strategy_t::copy;
+        }
     }
 
     cmp_fn copy(nonced const dynamic_ggt& other) noex
@@ -253,11 +259,7 @@ public:
         ret traits_t::allocate(this->_get_alloc(), size, at);
     }
 
-    cmp_obj bool static is_free_noex{
-            noex(traits_t::deallocate(
-                    declvall<alloc_t>(),
-                    declvalr<ptr_t>(),
-                    declvalr<size_t>()))};
+    cmp_obj bool static is_free_noex{true};
 
     callb inl free(ptr_t at, size_t size = single) noex(is_free_noex)
     {
@@ -448,13 +450,13 @@ TEST_CASE("dynamic")
         id_dynamic_t copy;
 
         REQUIRE_EQ(copy.get_alloc(), copy.get_alloc());
-        let copy_strategy_same = copy.copy_strategy(copy);
+        let copy_strategy_same = copy.copy_strategy(copy, [] { });
 
         REQUIRE_NE(def.get_alloc(), copy.get_alloc());
-        let copy_strategy_diff = copy.copy_strategy(def);
+        let copy_strategy_diff = copy.copy_strategy(def, [] { });
 
         REQUIRE_EQ(copy_strategy_same, copy_strategy_t::copy);
-        REQUIRE_EQ(copy_strategy_diff, copy_strategy_t::realloc_copy);
+        REQUIRE_EQ(copy_strategy_diff, copy_strategy_t::copy);
     }
 }
 
