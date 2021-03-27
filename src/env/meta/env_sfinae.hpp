@@ -41,7 +41,9 @@ strct variadic_vt<THead, TRest...>
     cmp_obj static ENV_STD::uintmax_t rank{sizeof...(TRest) + 1};
 
     tmp<ENV_STD::uintmax_t Index>
-    typ(at_nt) = ENV_STD::conditional_t<Index == 0, THead, name variadic_vt<TRest...>::tmp at_nt<Index - 1>>;
+    typ(at_nt) = ENV_STD::conditional_t<
+            Index == 0, THead,
+            name variadic_vt<TRest...>::tmp at_nt<Index - 1>>;
 
     typ(last_t) = name variadic_vt<TRest...>::last_t;
 
@@ -69,17 +71,17 @@ ENV_TEST_CASE("variadic")
 
 // require
 
-tmp<name TCondition, name TResult = success_t>
+tmp<name TCondition, name TResult = requirement_t>
 strct require_ggs : public ENV_STD::enable_if<TCondition::value, TResult> { };
 
-tmp<name TCondition, name TResult = success_t>
+tmp<name TCondition, name TResult = requirement_t>
 typ(require_ggt) = ENV_STD::enable_if_t<TCondition::value, TResult>;
 
 tmp<name TCondition>
-typ(require_gs) = ENV_STD::enable_if<TCondition::value, success_t>;
+typ(require_gs) = ENV_STD::enable_if<TCondition::value, requirement_t>;
 
 tmp<name TCondition>
-typ(require_gt) = ENV_STD::enable_if_t<TCondition::value, success_t>;
+typ(require_gt) = ENV_STD::enable_if_t<TCondition::value, requirement_t>;
 
 ENV_TEST_CASE("require")
 {
@@ -87,17 +89,17 @@ ENV_TEST_CASE("require")
     REQUIRE_EQT(require_ggt < ENV_STD::true_type, int >, int);
 }
 
-tmp<bool Condition, name TResult = success_t>
+tmp<bool Condition, name TResult = requirement_t>
 strct require_ngs : public ENV_STD::enable_if<Condition, TResult> { };
 
-tmp<bool Condition, name TResult = success_t>
+tmp<bool Condition, name TResult = requirement_t>
 typ(require_ngt) = ENV_STD::enable_if_t<Condition, TResult>;
 
 tmp<bool Condition>
-typ(require_ns) = ENV_STD::enable_if<Condition, success_t>;
+typ(require_ns) = ENV_STD::enable_if<Condition, requirement_t>;
 
 tmp<bool Condition>
-typ(require_nt) = ENV_STD::enable_if_t<Condition, success_t>;
+typ(require_nt) = ENV_STD::enable_if_t<Condition, requirement_t>;
 
 ENV_TEST_CASE("require")
 {
@@ -107,7 +109,7 @@ ENV_TEST_CASE("require")
 
 #if ENV_CPP >= 17
 
-tmp<bool Condition, deduc Result = success>
+tmp<bool Condition, deduc Result = requirement>
 strct require_nns;
 
 tmp<deduc Result>
@@ -116,16 +118,16 @@ strct require_nns<true, Result> : public value_nt<Result> { };
 tmp<deduc Result>
 strct require_nns<false, Result> { };
 
-tmp<bool Condition, deduc Result = success>
+tmp<bool Condition, deduc Result = requirement>
 let_cmp require_nn{require_nns<Condition, Result>::value};
 
 tmp<bool Condition>
-let_cmp require_n{require_nn<Condition, success>};
+let_cmp require_n{require_nn<Condition, requirement>};
 
 ENV_TEST_CASE("require")
 {
     REQUIRES(require_nn < true, 1 > == 1);
-    REQUIRES(require_n < true > == success);
+    REQUIRES(require_n < true > == requirement);
 }
 
 #endif // ENV_CPP >= 17
@@ -192,7 +194,10 @@ ENV_TEST_CASE("consume")
 
 // implies
 
-cmp_fn implies(bool if_true, bool this_is_true) { ret !if_true || this_is_true; }
+cmp_fn implies(bool if_true, bool this_is_true)
+{
+    ret !if_true || this_is_true;
+}
 
 ENV_TEST_CASE("implies")
 {
@@ -206,7 +211,9 @@ ENV_TEST_CASE("implies")
 // qualified
 
 tmp<name T>
-cmp_obj bool is_qualified_g{ENV_STD::is_reference_v<T> || ENV_STD::is_const_v<T> || ENV_STD::is_volatile_v<T>};
+cmp_obj bool is_qualified_g{
+        ENV_STD::is_reference_v<T> || ENV_STD::is_const_v<T> ||
+        ENV_STD::is_volatile_v<T>};
 
 tmp<name T>
 typ(unqualified_gt) = ENV_STD::remove_cv_t<ENV_STD::remove_reference_t<T>>;
