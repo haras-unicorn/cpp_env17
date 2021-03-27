@@ -16,7 +16,6 @@ ENV_TEST_SUITE_BEGIN("stack");
 #include "env_div.hpp"
 #include "env_pow2.hpp"
 
-#include "env_atomic.hpp"
 #include "env_pause.hpp"
 #include "env_spintex.hpp"
 

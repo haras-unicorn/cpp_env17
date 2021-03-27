@@ -7,8 +7,8 @@
 COND_CHECK_UNARY
 (
         is_number_literal,
-        ENV_STD::is_same_v < T, unsigned long long int > ||
-                                ENV_STD::is_same_v < T, long double >
+        (ENV_STD::is_same_v < T, unsigned long long int >) ||
+        (ENV_STD::is_same_v < T, long double >)
 );
 
 COND_CONCEPT(number_literal, (is_number_literal_g<C>));
@@ -16,9 +16,14 @@ COND_CONCEPT(number_literal, (is_number_literal_g<C>));
 COND_TMP((res_name, name T), (is_number_literal_g<T>))
 cmp_fn parse_literal(T literal) noex -> deduc_res(T)
 {
-    if_cmp(ENV_STD::is_enum_v<TRes>) ret scast<TRes>(ENV::parse_literal<ENV_STD::underlying_type_t<TRes>>(literal));
-    else
+    if_cmp(is_arithmetic_g<TRes> || ENV_STD::is_same_v<TRes, nores_t>)
+    {
         ret clamp_cast<TRes>(literal);
+    }
+    else
+    {
+        ret res_cast(literal);
+    }
 }
 
 
@@ -44,13 +49,7 @@ COND_CONCEPT(char_literal, (detail::is_char_literal_g<C>));
 COND_TMP((res_name, name T), (is_char_literal_g<T>))
 cmp_fn parse_literal(T literal) noex -> deduc_res(T)
 {
-    if_cmp(ENV_STD::is_same_v<TRes, T> || ENV_STD::is_same_v<TRes, nores_t>) ret literal;
-    else if_cmp(ENV_STD::is_enum_v<TRes>) ret scast<TRes>(parse_literal<ENV_STD::underlying_type_t<TRes>>(literal));
-    else
-    {
-        let cmp max = ENV_STD::numeric_limits<TRes>::max();
-        ret scast<TRes>(literal > max ? max : literal);
-    }
+    ret clamp_cast<TRes>(literal);
 }
 
 
@@ -73,8 +72,13 @@ COND_CHECK_UNARY(is_label_literal, (detail::is_label_literal_g<T>));
 
 COND_CONCEPT(label_literal, (detail::is_label_literal_g<C>));
 
-COND_TMP((res_name, name T), (is_label_literal_g<T> && ENV_STD::is_constructible_v < TRes, T, ENV_STD::size_t >))
-cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex -> deduc_res(T) { ret res_con(literal, size); }
+COND_TMP((res_name, name T),
+         (is_label_literal_g<T> &&
+          ENV_STD::is_constructible_v < TRes, T, ENV_STD::size_t >))
+cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex -> deduc_res(T)
+{
+    ret res_con(literal, size);
+}
 
 
 // declarations
@@ -225,7 +229,10 @@ let_cmp zero{0_n}, one{1_n}, two{2_n}, three{3_n};
 
 WHOLE_L(whole, w, intmax_t);
 
-let_cmp negative_zero{-0_w}, negative_one{-1_w}, negative_two{-2_w}, negative_three{-3_w};
+let_cmp negative_zero{-0_w},
+        negative_one{-1_w},
+        negative_two{-2_w},
+        negative_three{-3_w};
 
 FLOATING_L(rational, r, long double);
 
@@ -251,6 +258,27 @@ let_cmp
         active{truthy}, inactive{falsy};
 
 WHOLE_L(byte, b, ENV_STD::byte);
+
+
+// atomic
+
+WHOLE_L(atomic_flag, af, ENV_STD::atomic_flag);
+
+// on most architectures 16 bit atomics are lock free
+WHOLE_L(atomic_natural, an, ENV_STD::atomic < uint16_t >);
+
+// on most architectures 16 bit atomics are lock free
+WHOLE_L(atomic_whole, aw, ENV_STD::atomic < int16_t >);
+
+
+ENV_TEST_CASE("atomic literal")
+{
+    REQUIRES_FALSE(is_arithmetic_g<atomic_flag_t>);
+    obj bool res = (1_af).test_and_set();
+    REQUIRE(res);
+    res = (0_af).test_and_set();
+    REQUIRE_FALSE(res);
+}
 
 
 #endif // ENV_LITERALS_HPP
