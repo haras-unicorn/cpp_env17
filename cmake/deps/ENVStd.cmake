@@ -1,5 +1,4 @@
 env_add_dep(std)
-
 env_target_precompile(
         std_dep
         INTERFACE
@@ -36,6 +35,7 @@ env_target_precompile(
 
         <thread>
         <mutex>
+        <shared_mutex>
         <atomic>
         <chrono>
 
