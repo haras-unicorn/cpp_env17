@@ -8,6 +8,7 @@
 #include "env_tokens.hpp"
 
 #include "env_arch.hpp"
+#include "env_intrinsic.hpp"
 #include "env_compiler.hpp"
 #include "env_os.hpp"
 #include "env_standard.hpp"
@@ -33,7 +34,6 @@ ENV_MESSAGE(Env Standard - C++ ENV_CPP)
 
 #include "env_namespacing.hpp"
 
-#include "env_intrinsic.hpp"
 #include "env_bench.hpp"
 #include "env_mock.hpp"
 #include "env_test.hpp"
