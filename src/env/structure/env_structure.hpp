@@ -33,6 +33,7 @@ ENV_MESSAGE(Env Standard - C++ ENV_CPP)
 
 #include "env_namespacing.hpp"
 
+#include "env_intrinsic.hpp"
 #include "env_bench.hpp"
 #include "env_mock.hpp"
 #include "env_test.hpp"

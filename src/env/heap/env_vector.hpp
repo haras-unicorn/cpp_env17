@@ -135,7 +135,7 @@ public:
             _expand(size_t{size() + 1});
         }
 
-        _get_dynamic().construct(_get_end(), ENV_STD::forward<TVar>(args)...);
+        _get_dynamic().place(_get_end(), ENV_STD::forward<TVar>(args)...);
         _get_end()++;
     }
 

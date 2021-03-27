@@ -103,6 +103,7 @@ ENV_END
 #undef ENV_X64
 #undef ENV_X86
 #undef ENV_ARM
+#undef ENV_ARM64
 
 // os
 

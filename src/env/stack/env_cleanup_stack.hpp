@@ -4,6 +4,7 @@
 #if ENV_UNDEF_STACK
 
 #undef WHOLE_L
+#undef ATOMIC_L
 #undef FLOATING_L
 #undef CHAR_L
 #undef TEXT_L

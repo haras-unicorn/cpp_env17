@@ -13,17 +13,23 @@ COND_CHECK_UNARY
 
 COND_CONCEPT(number_literal, (is_number_literal_g<C>));
 
-COND_TMP((res_name, name T), (is_number_literal_g<T>))
+COND_TMP
+((res_name, name T),
+ (is_number_literal_g<T> && is_arithmetic_g < TRes > ))
 cmp_fn parse_literal(T literal) noex -> deduc_res(T)
 {
-    if_cmp(is_arithmetic_g<TRes> || ENV_STD::is_same_v<TRes, nores_t>)
-    {
-        ret clamp_cast<TRes>(literal);
-    }
-    else
-    {
-        ret res_cast(literal);
-    }
+    ret clamp_cast<TRes>(literal);
+}
+
+
+// atomic
+
+COND_TMP
+((res_name, name T),
+ (is_number_literal_g<T>) && (is_atomic_g < TRes > ))
+fun inl parse_literal(T literal) noex -> deduc_res(T)
+{
+    ret TRes{clamp_cast<atomic_value_gt<TRes>>(literal)};
 }
 
 
@@ -89,6 +95,14 @@ cmp_fn parse_literal(T literal, ENV_STD::size_t size) noex -> deduc_res(T)
         {                                                                                 \
                 ret scast<CAT(_name, _t)>(ENV::parse_literal<__VA_ARGS__>(literal));      \
         }                                                                                 \
+        SEMI
+
+#define ATOMIC_L(_name, _suffix, ...)                                                      \
+        typ(CAT(_name, _t)) = __VA_ARGS__;                                                 \
+        fun inl op "" CAT(_, _suffix)(unsigned long long int literal) noex->CAT(_name, _t) \
+        {                                                                                  \
+                ret ENV::parse_literal<__VA_ARGS__>(literal);                              \
+        }                                                                                  \
         SEMI
 
 #define FLOATING_L(_name, _suffix, ...)                                              \
@@ -262,13 +276,13 @@ WHOLE_L(byte, b, ENV_STD::byte);
 
 // atomic
 
-WHOLE_L(atomic_flag, af, ENV_STD::atomic_flag);
+ATOMIC_L(atomic_flag, af, ENV_STD::atomic_flag);
 
 // on most architectures 16 bit atomics are lock free
-WHOLE_L(atomic_natural, an, ENV_STD::atomic < uint16_t >);
+ATOMIC_L(atomic_natural, an, ENV_STD::atomic < uint16_t >);
 
 // on most architectures 16 bit atomics are lock free
-WHOLE_L(atomic_whole, aw, ENV_STD::atomic < int16_t >);
+ATOMIC_L(atomic_whole, aw, ENV_STD::atomic < int16_t >);
 
 
 ENV_TEST_CASE("atomic literal")

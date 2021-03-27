@@ -42,7 +42,13 @@ protected:
 
 public:
     NIL((alloc_t), alloc);
-    MEM_GETTER(alloc);
+    GETTER(get_alloc, _get_alloc());
+
+    imp cmp inl op alloc_t() noex
+    {
+        ret _get_alloc();
+    }
+
 
     typ(data_t) = TData;
 
@@ -80,12 +86,12 @@ protected:
 
 
 public:
+    GETTER(get_alloc, _get_alloc());
+
     typ(data_t) = TData;
 
     NIL((data_t), data);
     MEM_GETTER(data);
-
-    GETTER(get_alloc, (*this));
 
 
     imp cmp inl dynamic_data_ggt() noex = default;
@@ -126,8 +132,12 @@ public:
     using name _data_base_t::alloc_t;
     using name _data_base_t::traits_t;
 
+    // just one of those MSVC things...
+#if ENV_MSVC
+    using _data_base_t::dynamic_data_ggt;
+#else // ENV_MSVC
     using name _data_base_t::dynamic_data_ggt;
-
+#endif // ENV_MSVC
 
 private:
 #if ENV_CPP >= 17
@@ -419,10 +429,10 @@ TEST_CASE("dynamic")
         id_dynamic_t def;
         id_dynamic_t move;
 
-        REQUIRE_EQ(move.get_alloc(), move.get_alloc());
+        REQUIRE_EQ(scast<id_alloc_t>(move), scast<id_alloc_t>(move));
         let move_strategy_same = move.move_strategy(ENV_STD::move(move));
 
-        REQUIRE_NE(def.get_alloc(), move.get_alloc());
+        REQUIRE_NE(scast<id_alloc_t>(def), scast<id_alloc_t>(move));
         let move_strategy_diff = move.move_strategy(ENV_STD::move(def));
 
         REQUIRE_EQ(move_strategy_same, move_strategy_t::move);
@@ -434,10 +444,10 @@ TEST_CASE("dynamic")
         id_dynamic_t def;
         id_dynamic_t swap;
 
-        REQUIRE_EQ(swap.get_alloc(), swap.get_alloc());
+        REQUIRE_EQ(scast<id_alloc_t>(swap), scast<id_alloc_t>(swap));
         let swap_strategy_same = swap.swap_strategy(swap);
 
-        REQUIRE_NE(def.get_alloc(), swap.get_alloc());
+        REQUIRE_NE(scast<id_alloc_t>(def), scast<id_alloc_t>(swap));
         let swap_strategy_diff = swap.swap_strategy(def);
 
         REQUIRE_EQ(swap_strategy_same, swap_strategy_t::swap);
@@ -449,10 +459,10 @@ TEST_CASE("dynamic")
         id_dynamic_t def;
         id_dynamic_t copy;
 
-        REQUIRE_EQ(copy.get_alloc(), copy.get_alloc());
+        REQUIRE_EQ(scast<id_alloc_t>(copy), scast<id_alloc_t>(copy));
         let copy_strategy_same = copy.copy_strategy(copy, [] { });
 
-        REQUIRE_NE(def.get_alloc(), copy.get_alloc());
+        REQUIRE_NE(scast<id_alloc_t>(def), scast<id_alloc_t>(copy));
         let copy_strategy_diff = copy.copy_strategy(def, [] { });
 
         REQUIRE_EQ(copy_strategy_same, copy_strategy_t::copy);

@@ -15,6 +15,7 @@ ENV_TEST_SUITE_BEGIN("traits");
 #include "env_elements.hpp"
 #include "env_arithmetic.hpp"
 #include "env_ratios.hpp"
+#include "env_atomic.hpp"
 
 #include "env_typeclasses.hpp"
 
