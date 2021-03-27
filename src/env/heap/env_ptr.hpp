@@ -1,6 +1,7 @@
 #ifndef ENV_PTR_HPP
 #define ENV_PTR_HPP
 
+
 // ranked
 
 tmp<rank_t Rank, name TValue>
@@ -47,6 +48,7 @@ ENV_TEST_CASE("ranked ptr")
     REQUIRE_EQ(**c, a);
 }
 
+
 // not ranked
 
 tmp<name TValue>
@@ -69,33 +71,42 @@ ENV_TEST_CASE("unranked ptr")
     REQUIRE_EQ(**c, a);
 }
 
+
 // hash
 
 ENV_STD_BEGIN
 
-// only MSVC doesn't have a specialization - not worth it
+// only MSVC doesn't have a specialization
+// https://stackoverflow.com/questions/20953390/what-is-the-fastest-hash-function-for-pointers
 
-//// https://stackoverflow.com/questions/20953390/what-is-the-fastest-hash-function-for-pointers
-//tmp<name TValue>
-//strct hash<TValue*> // NOLINT(bugprone-forward-declaration-namespace)
-//{
-//private:
-//    typ(value_t) = ENV_STD::remove_cv_t<TValue>;
-//
-//    typ(subject_t) = const value_t*;
-//
-//    cmp_fn static log2(size_t value) noex -> size_t { ret value == 1 ? 1 : (1 + log2(value / 2)); }
-//
-//    let_cmp static _shift = static_cast<size_t>(log2(1 + sizeof(value_t)));
-//
-//public:
-//    cmp_fn op()(subject_t subject) const noex
-//    {
-//        ret static_cast<size_t>(reinterpret_cast<uintptr_t>(subject)) >> _shift;
-//    }
-//};
+#if ENV_MSVC
+
+tmp<name TValue>
+strct hash<TValue*> // NOLINT(bugprone-forward-declaration-namespace)
+{
+private:
+    typ(value_t) = ENV_STD::remove_cv_t<TValue>;
+
+    typ(subject_t) = const value_t*;
+
+    cmp_fn static log2(size_t value) noex -> size_t
+    {
+        ret value == 1 ? 1 : (1 + log2(value / 2));
+    }
+
+    let_cmp static _shift = static_cast<size_t>(log2(1 + sizeof(value_t)));
+
+public:
+    cmp_fn op()(subject_t subject) const noex
+    {
+        ret static_cast<size_t>(reinterpret_cast<uintptr_t>(subject)) >> _shift;
+    }
+};
+
+#endif // ENV_MSVC
 
 ENV_STD_END
+
 
 ENV_TEST_CASE("ptr hash")
 {
@@ -104,8 +115,10 @@ ENV_TEST_CASE("ptr hash")
     obj ptr_ncgt<rank_two, int> c = &b;
     nonce(c);
 
-    REQUIRE_NE(ENV_STD::hash < ptr_cgt<int >> { }(b), ENV_STD::hash < ptr_ncgt<rank_two, int>>{ }(c));
+    REQUIRE_NE(ENV_STD::hash < ptr_cgt<int >> { }(b),
+               ENV_STD::hash < ptr_ncgt<rank_two, int>>{ }(c));
 }
+
 
 // ptr size/align
 
@@ -118,5 +131,6 @@ ENV_TEST_CASE("ptr size")
     REQUIRES(is_pow2(ptr_size));
     REQUIRES(is_pow2(ptr_align));
 }
+
 
 #endif // ENV_PTR_HPP

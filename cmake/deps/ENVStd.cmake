@@ -6,6 +6,7 @@ env_target_precompile(
         <type_traits>
 
         <memory>
+        <new>
         <cstring>
         <iterator>
 

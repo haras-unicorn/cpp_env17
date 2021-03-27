@@ -4,12 +4,14 @@
 
 ENV_TEST_SUITE_BEGIN("heap");
 
+// TODO: move relevant stuff to stack
+
 #include "env_transport.hpp"
 #include "env_endian.hpp"
 #include "env_alignment.hpp"
 #include "env_ptr.hpp"
 
-#include "env_range.hpp"
+#include "env_range.hpp" // TODO: rename to section to avoid confusion
 #include "env_flex.hpp"
 
 #include "env_base_allocator.hpp"
