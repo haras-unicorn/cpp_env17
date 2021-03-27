@@ -1,0 +1,4 @@
+#ifndef ENV_SPINTEX_HPP
+#define ENV_SPINTEX_HPP
+
+#endif // ENV_SPINTEX_HPP
