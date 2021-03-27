@@ -19,21 +19,6 @@ cmp_fn get_alloc(const TVec& vec) noex
     ret alloc_getter_t::get(vec);
 }
 
-strct flex_getter_t
-{
-    tmp<name TVec>
-    cmp_fn static get(const TVec& vec) noex
-    {
-        ret vec._get_flex();
-    }
-};
-
-tmp<name TVec>
-cmp_fn get_flex(const TVec& vec) noex
-{
-    ret flex_getter_t::get(vec);
-}
-
 ENV_TEST_END
 
 
@@ -129,12 +114,25 @@ public:
     CMP_COMPARISON { ret _get_dynamic() < rhs._get_dynamic(); }
 
 
+    fun inl reserve(size_t _capacity)
+    {
+        if (_capacity > capacity())
+        {
+            _expand(_capacity);
+        }
+    }
+
+    fun inl resize(size_t _size)
+    {
+        _resize(_size);
+    }
+
     EXPR_TMP_VARIADIC(TVal{declvalr<TVar>()...})
     fun inl emplace_back(TVar&& ... args)
     {
         if (_get_end() == _get_last())
         {
-            _expand(next_pow2(size()));
+            _expand(size_t{size() + 1});
         }
 
         _get_dynamic().construct(_get_end(), ENV_STD::forward<TVar>(args)...);
@@ -276,34 +274,38 @@ protected:
         ret _get_end();
     }
 
-    callb inl _resize(size_t to)
+    callb inl _resize(size_t _size)
     {
-        if (to <= size())
+        if (_size <= size())
         {
-            _get_end() = _get_begin() + to;
+            _get_end() = _get_begin() + _size;
             ret _get_end();
         }
-        if (to <= capacity())
+        if (_size <= capacity())
         {
-            _get_end() = emplace(_get_alloc(), _get_end(), _get_begin() + to);
+            _get_end() = emplace(
+                    _get_alloc(),
+                    _get_end(), _get_begin() + _size);
             ret _get_end();
         }
 
-        _expand(to);
-        _get_end() = emplace(_get_alloc(), _get_end(), _get_begin() + to);
+        _expand(_size);
+        _get_end() = emplace(_get_alloc(), _get_end(), _get_begin() + _size);
         ret _get_end();
     }
 
-    callb inl _expand(size_t to)
+    callb inl _expand(size_t _cap)
     {
-        let old{_get_flex()};
-        _alloc(to);
+        let _old{_get_flex()};
+
+        _cap = _capacity(_cap);
+        _alloc(_cap);
 
         _get_end() = ucopy(
                 _get_alloc(),
-                old.get_begin(), old.get_end(),
+                _old.get_begin(), _old.get_end(),
                 _get_begin());
-        _get_dynamic().free(old.get_begin(), old.capacity());
+        _get_dynamic().free(_old.get_begin(), _old.capacity());
     }
 
 
@@ -340,7 +342,7 @@ protected:
     }
 
 
-    cmp_fn static _capacity(size_t _size) noex -> size_t
+    cmp_fn static _capacity(size_t _size) noex
     {
         ret scast<size_t>(next_pow2(_size));
     }
@@ -361,7 +363,6 @@ protected:
 
 
     friend struct test::alloc_getter_t;
-    friend struct test::flex_getter_t;
 };
 
 
@@ -469,6 +470,32 @@ ENV_TEST_CASE("vector")
         REQUIRE_EQ(test::get_alloc(copied), test::get_alloc(copy_assigned));
         REQUIRE_EQ(id(test::get_alloc(copied)),
                    id(test::get_alloc(copy_assigned)));
+    }
+
+    SUBCASE("reserve/resize")
+    {
+        vector_gt<int> vec{ };
+        REQUIRE_EQ(vec.size(), 0_s);
+        REQUIRE_EQ(vec.capacity(), 0_s);
+
+        vec.reserve(10_s);
+        REQUIRE_EQ(vec.size(), 0_s);
+        REQUIRE_EQ(vec.capacity(), 16_s);
+
+        vec.resize(10_s);
+        REQUIRE_EQ(vec.size(), 10_s);
+        REQUIRE_EQ(vec.capacity(), 16_s);
+    }
+
+    SUBCASE("emplace_back")
+    {
+        vector_gt<int> vec{ };
+        vec.emplace_back(1);
+        vec.emplace_back(2);
+        vec.emplace_back(3);
+
+        REQUIRE_EQ(vec.size(), 3);
+        REQUIRE_EQ(vec.capacity(), 4);
     }
 }
 
