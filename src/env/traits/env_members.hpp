@@ -28,7 +28,8 @@ tmp<name T> typ(member_gs) = detail::member_gs<member_c<T>>;
 
 tmp<name T> typ(member_type_gt) = name detail::member_gs<member_c<T>>::type;
 
-tmp<name T> typ(member_holder_gt) = name detail::member_gs<member_c<T>>::holder_t;
+tmp<name T> typ(member_holder_gt) = name detail::member_gs<
+        member_c<T>>::holder_t;
 
 TEST_CASE("members")
 {
@@ -78,6 +79,31 @@ COND_CHECK_UNARY
         has_bitor_assign_operator_g<T> &&
         has_bitxor_assign_operator_g<T>
 );
+
+
+// base
+
+COND_CHECK_UNARY
+(
+        is_empty_base,
+        (ENV_STD::is_class_v < T > ) &&
+        (ENV_STD::is_empty_v < T > ) &&
+        (!ENV_STD::is_final_v < T > )
+);
+
+COND_CONCEPT(empty_base, is_empty_base_g<C>);
+
+ENV_TEST_CASE("empty base")
+{
+    strct empty_t { };
+    strct unitary_t { int i; };
+    strct final_empty_t final { };
+
+    REQUIRES(is_empty_base_g < empty_t >);
+    REQUIRES_FALSE(is_empty_base_g < final_empty_t >);
+    REQUIRES_FALSE(is_empty_base_g < int >);
+    REQUIRES_FALSE(is_empty_base_g < unitary_t >);
+}
 
 
 #endif // ENV_MEMBERS_HPP

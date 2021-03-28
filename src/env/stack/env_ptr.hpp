@@ -115,21 +115,8 @@ ENV_TEST_CASE("ptr hash")
     obj ptr_ncgt<rank_two, int> c = &b;
     nonce(c);
 
-    REQUIRE_NE(ENV_STD::hash < ptr_cgt<int >> { }(b),
+    REQUIRE_NE(ENV_STD::hash < ptr_cgt < int >> { }(b),
                ENV_STD::hash < ptr_ncgt<rank_two, int>>{ }(c));
-}
-
-
-// ptr size/align
-
-let_cmp ptr_size{sizeof(void*)};
-
-let_cmp ptr_align{alignof(void*)};
-
-ENV_TEST_CASE("ptr size")
-{
-    REQUIRES(is_pow2(ptr_size));
-    REQUIRES(is_pow2(ptr_align));
 }
 
 

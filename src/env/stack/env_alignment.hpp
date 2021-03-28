@@ -50,6 +50,19 @@ ENV_TEST_CASE("atomic alignment")
 }
 
 
+// ptr size/align
+
+let_cmp ptr_size{size_of_g < void * > };
+
+let_cmp ptr_align{align_of_g<void*>};
+
+ENV_TEST_CASE("ptr size")
+{
+    REQUIRES(is_pow2(ptr_size));
+    REQUIRES(is_pow2(ptr_align));
+}
+
+
 // aligned
 
 // I'm actually pleased with the performance of this thing

@@ -132,13 +132,6 @@ public:
     using name _data_base_t::alloc_t;
     using name _data_base_t::traits_t;
 
-    // just one of those MSVC things...
-#if ENV_MSVC
-    using _data_base_t::dynamic_data_ggt;
-#else // ENV_MSVC
-    using name _data_base_t::dynamic_data_ggt;
-#endif // ENV_MSVC
-
 private:
 #if ENV_CPP >= 17
     nonced cmp_obj_p bool static alloc_always_equal{
@@ -327,9 +320,10 @@ ENV_STD_BEGIN
 tmp<name TData, name TAlloc>
 strct hash<ENV::dynamic_ggt<TData, TAlloc>>
 {
-    cmp_fn op()(
-            const ENV::dynamic_ggt<
-                    TData, TAlloc>& subject) const noex { ret subject.hash(); }
+    cmp_fn op()(const ENV::dynamic_ggt<TData, TAlloc>& subject) const noex
+    {
+        ret subject.hash();
+    }
 };
 
 ENV_STD_END
@@ -337,8 +331,8 @@ ENV_STD_END
 
 tmp<name TElement, name TAlloc = allocator_gt <TElement>>
 typ(dynamic_gt) = dynamic_ggt<
-        TElement*, name ENV_STD::allocator_traits<
-                TAlloc>::tmp rebind_alloc<TElement>>;
+        TElement*,
+        name ENV_STD::allocator_traits<TAlloc>::tmp rebind_alloc<TElement>>;
 
 typ(dynamic_t) = dynamic_gt<byte_t>;
 

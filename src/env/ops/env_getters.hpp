@@ -129,15 +129,12 @@
 #define DEF_MEM_TYPE(_type, _name) typ(MEM_TYPE(_name)) = SPREAD(_type)
 #define DEF_DEDUCED_MEM_TYPE(_name, _init) typ(MEM_TYPE(_name)) = ENV::unqualified_gt<decltype(SPREAD(_init))>
 
-#define DECL_MEM(_name) \
-    MEM_TYPE(_name)     \
-    MEM_NAME(_name)
-#define DEF_MEM(_type, _name, _init) \
-    DECL_MEM(_name) { SPREAD(_init) }
-#define DEF_DEDUCED_MEM(_name, _init) \
-    DECL_MEM(_name) { SPREAD(_init) }
-#define DEF_NIL_MEM(_type, _name) \
-    DECL_MEM(_name) = ENV::nil
+#define DECL_MEM(_name) MEM_TYPE(_name) MEM_NAME(_name)
+
+#define DEF_MEM(_type, _name, _init) DECL_MEM(_name) { SPREAD(_init) }
+
+#define DEF_DEDUCED_MEM(_name, _init) DECL_MEM(_name) { SPREAD(_init) }
+#define DEF_NIL_MEM(_type, _name) DECL_MEM(_name){ENV::nil}
 
 #define DECL(_type, _name)      \
     ACCESS_BEGIN(protected);    \
@@ -271,7 +268,8 @@ cls with_reference_getter_t
 {
     DECL((const char *), member);
 
-    con cmp with_reference_getter_t(_member_t value) : _member{ENV_STD::move(value)} { }
+    con cmp with_reference_getter_t(_member_t value) : _member{
+            ENV_STD::move(value)} { }
 
     MEM_GETTER(member);
 };
@@ -280,7 +278,8 @@ cls with_value_getter_t
 {
     DECL((const char *), member);
 
-    con cmp with_value_getter_t(_member_t value) : _member{ENV_STD::move(value)} { }
+    con cmp with_value_getter_t(_member_t value) : _member{
+            ENV_STD::move(value)} { }
 
     MEM_CMP_GETTER(member);
 };
@@ -289,10 +288,13 @@ ENV_TEST_END
 
 ENV_TEST_CASE("member getters")
 {
-    REQUIRES(is_ref_g < decltype(test::with_reference_getter_t{""}.get_member()) >);
-    REQUIRES(!is_ref_g < decltype(test::with_value_getter_t{""}.get_member()) >);
+    REQUIRES(is_ref_g <
+             decltype(test::with_reference_getter_t{""}.get_member()) >);
+    REQUIRES(
+            !is_ref_g < decltype(test::with_value_getter_t{""}.get_member()) >);
 
-    REQUIRE_EQ(test::with_reference_getter_t{"my_reference"}.get_member(), "my_reference");
+    REQUIRE_EQ(test::with_reference_getter_t{"my_reference"}.get_member(),
+               "my_reference");
     REQUIRE_EQ(test::with_value_getter_t{"my_value"}.get_member(), "my_value");
 
     SUBCASE("reference separate")
@@ -301,14 +303,18 @@ ENV_TEST_CASE("member getters")
         {
             DECL((const char *), member);
 
-            con cmp with_separate_reference_getters_t(_member_t value) : _member{ENV_STD::move(value)} { }
+            con cmp with_separate_reference_getters_t(_member_t value)
+                    : _member{ENV_STD::move(value)} { }
 
             MEM_CONST_GETTER(member);
             MEM_MUT_GETTER(member);
         };
 
-        REQUIRES(is_ref_g < decltype(with_separate_reference_getters_t{""}.get_member()) >);
-        REQUIRE_EQ(with_separate_reference_getters_t{"my_reference"}.get_member(), "my_reference");
+        REQUIRES(is_ref_g < decltype(with_separate_reference_getters_t{
+                ""}.get_member()) >);
+        REQUIRE_EQ(
+                with_separate_reference_getters_t{"my_reference"}.get_member(),
+                "my_reference");
     };
 }
 
@@ -427,7 +433,8 @@ ENV_TEST_CASE("singleton getters")
             DECL_THIS(thread_safe_singleton_t);
 
         public:
-            con thread_safe_singleton_t() : with_reference_getter_t{"thread safe singleton"} { }
+            con thread_safe_singleton_t() : with_reference_getter_t{
+                    "thread safe singleton"} { }
 
             THREADED_MUT_SINGLETON_GETTER;
         };
@@ -450,7 +457,8 @@ ENV_TEST_CASE("singleton getters")
         {
             DECL_THIS(thread_safe_singleton_t);
 
-            thread_safe_singleton_t() : with_reference_getter_t{"const thread safe singleton"} { }
+            thread_safe_singleton_t() : with_reference_getter_t{
+                    "const thread safe singleton"} { }
 
             THREADED_CONST_SINGLETON_GETTER;
         };

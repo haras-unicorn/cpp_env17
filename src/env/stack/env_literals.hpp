@@ -251,7 +251,7 @@ let_cmp negative_zero{-0_w},
 FLOATING_L(rational, r, long double);
 
 #define PI 3.141592653589793238462643383279502884197169399375105820974944592307816406286_r
-#define E 2.718281828459045235360287471352662497757247093699959574966967627724076630353_r
+#define E  2.718281828459045235360287471352662497757247093699959574966967627724076630353_r
 
 let_cmp pi{PI}, e{E};
 
@@ -292,6 +292,21 @@ ENV_TEST_CASE("atomic literal")
     REQUIRE(res);
     res = (0_af).test_and_set();
     REQUIRE_FALSE(res);
+}
+
+
+// indices
+
+WHOLE_UL(index, i, ENV_STD::size_t);
+
+let_cmp first{0_i}, second{1_i}, third{2_i};
+
+ENV_TEST_CASE("indices")
+{
+    obj cmp int a[]{1, 2, 3};
+    REQUIRES(a[first] == 1);
+    REQUIRES(a[second] == 2);
+    REQUIRES(a[third] == 3);
 }
 
 

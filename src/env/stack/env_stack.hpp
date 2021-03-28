@@ -17,7 +17,10 @@ ENV_TEST_SUITE_BEGIN("stack");
 #include "env_pow2.hpp"
 
 #include "env_pause.hpp"
-#include "env_spintex.hpp"
+
+#include "env_endian.hpp"
+#include "env_alignment.hpp"
+#include "env_ptr.hpp"
 
 ENV_TEST_SUITE_END();
 

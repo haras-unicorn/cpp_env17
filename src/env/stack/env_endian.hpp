@@ -9,6 +9,7 @@ enum class endianness_t
     other = 0b00
 };
 
+
 cmp_fn is_little(endianness_t endian) noex -> bool
 {
     ret underlying_cast(endianness_t::little) & underlying_cast(endian);
@@ -18,6 +19,7 @@ cmp_fn is_big(endianness_t endian) noex -> bool
 {
     ret underlying_cast(endianness_t::big) & underlying_cast(endian);
 }
+
 
 ENV_TEST_CASE("endianness")
 {
