@@ -8,7 +8,11 @@
 
 // benchmark entry point
 
+ENV_CLANG_SUPPRESS_PUSH("-Wmicrosoft-enum-value")
+
 #include <benchmark/benchmark.h>
+
+ENV_CLANG_SUPPRESS_POP
 
 
 // perf macros
