@@ -27,7 +27,7 @@ ENV_TEST_END
 COND_TMP
 (
         (name TVal, name TAlloc = allocator_gt < TVal >),
-        (is_stable_g < TVal > && detail::is_dynamic_alloc_g < TAlloc > )
+        (is_propagated_g < TVal > && detail::is_dynamic_alloc_g < TAlloc > )
 )
 strct vector_gt
 {

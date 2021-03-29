@@ -7,7 +7,7 @@
 COND_CHECK_UNARY
 (
         is_iterator,
-        (is_stable_g < T > ) &&
+        (is_propagated_g < T > ) &&
         (is_indirect_g < T > && is_advanceable_g < T > && is_equatable_g < T > )
 );
 

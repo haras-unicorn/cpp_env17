@@ -1,0 +1,12 @@
+#ifndef ENV_CLEANUP_SIMPLE_HPP
+#define ENV_CLEANUP_SIMPLE_HPP
+
+
+#if ENV_UNDEF_SIMPLE
+
+#undef LABEL
+
+#endif // ENV_UNDEF_SIMPLE
+
+
+#endif // ENV_CLEANUP_SIMPLE_HPP

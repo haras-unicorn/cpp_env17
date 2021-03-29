@@ -2,212 +2,70 @@
 #define ENV_COMPRESSED_HPP
 
 
-ENV_DETAIL_BEGIN
-
-tmp<name TLhs, name TRhs, name = requirement_t>
-strct compressed_pair_ggt;
-
-tmp<name TLhs, name TRhs>
-strct compressed_pair_ggt<
-        TLhs, TRhs,
-        ENV::require_nt<
-                ENV::is_empty_base_g<TLhs> &&
-                ENV::is_empty_base_g<TRhs> &&
-                ENV::is_stable_g<TLhs> &&
-                ENV::is_stable_g<TRhs>>> : public TLhs
-{
-    typ(lhs_t) = TLhs;
-    typ(rhs_t) = TRhs;
-
-    DECL((rhs_t), rhs);
-
-    DEFAULT_LIFE(compressed_pair_ggt, CMP);
-
-protected:
-    GETTER_FML((), (lhs_t), _get_lhs, (*this));
-};
-
-tmp<name TLhs, name TRhs>
-strct compressed_pair_ggt<
-        TLhs, TRhs,
-        ENV::require_nt<
-                ENV::is_empty_base_g<TLhs> &&
-                !ENV::is_empty_base_g<TRhs> &&
-                ENV::is_stable_g<TLhs> &&
-                ENV::is_stable_g<TRhs>>> : private TLhs
-{
-    typ(lhs_t) = TLhs;
-    typ(rhs_t) = TRhs;
-
-    DECL((rhs_t), rhs);
-
-    DEFAULT_LIFE(compressed_pair_ggt, CMP);
-
-protected:
-    GETTER_FML((), (lhs_t), _get_lhs, (*this));
-};
-
-tmp<name TLhs, name TRhs>
-strct compressed_pair_ggt<
-        TLhs, TRhs,
-        ENV::require_nt<
-                !ENV::is_empty_base_g<TLhs> &&
-                ENV::is_empty_base_g<TRhs> &&
-                ENV::is_stable_g<TLhs> &&
-                ENV::is_stable_g<TRhs>>> : private TRhs
-{
-    typ(lhs_t) = TLhs;
-    typ(rhs_t) = TRhs;
-
-    DECL((lhs_t), lhs);
-
-    DEFAULT_LIFE(compressed_pair_ggt, CMP);
-
-protected:
-    GETTER_FML((), (rhs_t), _get_rhs, (*this));
-};
-
-tmp<name TLhs, name TRhs>
-strct compressed_pair_ggt<
-        TLhs, TRhs,
-        ENV::require_nt<
-                !ENV::is_empty_base_g<TLhs> &&
-                !ENV::is_empty_base_g<TRhs> &&
-                ENV::is_stable_g<TLhs> &&
-                ENV::is_stable_g<TRhs>>>
-{
-    typ(lhs_t) = TLhs;
-    typ(rhs_t) = TRhs;
-
-    DECL((lhs_t), lhs);
-    DECL((rhs_t), rhs);
-
-    DEFAULT_LIFE(compressed_pair_ggt, CMP);
-};
-
-ENV_DETAIL_END
-
-
-ENV_TEST_BEGIN
-
-strct empty_t { };
-
-ENV_TEST_END
-
-ENV_TEST_CASE("compressed pair")
-{
-    REQUIRES(size_of_g<detail::compressed_pair_ggt<int, int>> ==
-             size_of_g<int> * 2);
-    REQUIRES(size_of_g<detail::compressed_pair_ggt<int, test::empty_t>> ==
-             size_of_g<int>);
-    REQUIRES(size_of_g<detail::compressed_pair_ggt<test::empty_t, int>> ==
-             size_of_g<int>);
-    REQUIRES(
-            size_of_g<detail::compressed_pair_ggt<test::empty_t, empty_t>> ==
-            size_of_g<empty_t>);
-
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_pair_ggt<int, int>>);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_pair_ggt<int, test::empty_t>>);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_pair_ggt<test::empty_t, int>>);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_pair_ggt<test::empty_t, empty_t>>);
-
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_pair_ggt<int, int>>);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_pair_ggt<int, test::empty_t>>);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_pair_ggt<test::empty_t, int>>);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_pair_ggt<test::empty_t, empty_t>>);
-}
-
-
-ENV_DETAIL_BEGIN
-
 tmp<name... T>
-strct compressed_base_gs;
-
-tmp<>
-strct compressed_base_gs<> : public type_gt<empty_t>
+strct compressed_vt : public detail::compressed_traits_vs<T...>::type
 {
+    DEFAULT_LIFE(compressed_vt, CMP);
+
+
+protected:
+    typ(traits_t) = detail::compressed_traits_vs<T...>;
+
+
+    DECL_BASE(compressed, (name traits_t::type));
+    using _compressed_base_t::_compressed_base_t;
+
+
+    let_cmp static rank{traits_t::rank};
+
+    tmp<index_t At> let_cmp static is_in_range{traits_t::tmp is_in_range<At>};
+
+
+    EXPR_TMP((index_t At), is_in_range<At>)
+    cmp_fn _get() const noex -> const auto&
+    {
+        ret detail::compressed_traits_vs<T...>::tmp get<At>(*this);
+    }
+
+    EXPR_TMP((index_t At), is_in_range<At>)
+    cmp_fn _get() noex -> auto&
+    {
+        ret detail::compressed_traits_vs<T...>::tmp get<At>(*this);
+    }
 };
 
-tmp<name T>
-strct compressed_base_gs<T> : public type_gt<unitary_gt < T>>
+ENV_TEST_CASE("compressed")
 {
-};
+    strct vector_t :
+            protected compressed_vt<int, empty_t, int, int, empty_t>
+    {
+        DECL_BASE
+        (
+                compressed,
+                (compressed_vt<int, empty_t, int, int, empty_t>)
+        );
 
-tmp<name TLhs, name TRhs>
-strct compressed_base_gs<TLhs, TRhs> :
-        public type_gt<compressed_pair_ggt < TLhs, TRhs>>
-{
-};
 
-tmp<name THead, name... TRest>
-strct compressed_base_gs<THead, TRest...> :
-        public type_gt<
-                compressed_pair_ggt <
-                THead,
-                name compressed_base_gs<TRest...>::type>>
-{
-};
+        GETTER(get_x, _get<0_i>());
+        GETTER(get_y, _get<2_i>());
+        GETTER(get_z, _get<3_i>());
 
-ENV_DETAIL_END
 
-ENV_TEST_CASE("compressed base")
-{
-    REQUIRES(size_of_g<detail::compressed_base_gs<>::type> ==
-             size_of_g<empty_t>);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_base_gs<>::type >);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_base_gs<>::type >);
+        con cmp inl vector_t(int x, int y, int z) noex:
+                _compressed_base_t{x, y, z} { }
 
-    REQUIRES(size_of_g<detail::compressed_base_gs<int>::type> ==
-             size_of_g<int>);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_base_gs<int>::type >);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_base_gs<int>::type >);
+        // so I just learned that trivial types can't be constexpr until c++20...
+        DEFAULT_LIFE(vector_t, NOEX);
+    };
 
-    // ??
-//    REQUIRES(size_of_g<detail::compressed_base_gs<empty_t>::type> ==
-//             size_of_g<empty_t>);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_base_gs<empty_t>::type >);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_base_gs<empty_t>::type >);
+    REQUIRES(ENV_STD::is_trivial_v < vector_t >);
+    REQUIRES(ENV_STD::is_standard_layout_v < vector_t >);
+    REQUIRES(size_of_g < vector_t > == size_of_g < int > *3);
 
-    REQUIRES(size_of_g<detail::compressed_base_gs<int, int>::type> ==
-             size_of_g<int> * 2);
-    REQUIRES(size_of_g<detail::compressed_base_gs<int, empty_t>::type> ==
-             size_of_g<int>);
-    REQUIRES(size_of_g<detail::compressed_base_gs<empty_t, int>::type> ==
-             size_of_g<int>);
-    REQUIRES(size_of_g<detail::compressed_base_gs<test::empty_t, empty_t>::type>
-             == size_of_g<empty_t>);
-
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_base_gs<int, int>::type >);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_base_gs<int, empty_t>::type >);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_base_gs<empty_t, int>::type >);
-    REQUIRES(ENV_STD::is_trivial_v <
-             detail::compressed_base_gs<test::empty_t, empty_t>::type >);
-
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_base_gs<int, int>::type >);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_base_gs<int, empty_t>::type >);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_base_gs<empty_t, int>::type >);
-    REQUIRES(ENV_STD::is_standard_layout_v <
-             detail::compressed_base_gs<test::empty_t, empty_t>::type >);
+    cmp vector_t vec{1, 2, 3};
+    REQUIRE_EQ(vec.get_x(), 1);
+    REQUIRE_EQ(vec.get_y(), 2);
+    REQUIRE_EQ(vec.get_z(), 3);
 }
 
 

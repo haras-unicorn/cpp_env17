@@ -149,11 +149,11 @@ ENV_TEST_CASE("emplaceable")
 }
 
 
-// stable
+// propagated
 
 COND_CHECK_UNARY
 (
-        is_stable,
+        is_propagated,
         ENV_STD::is_default_constructible_v < T > &&
         ENV_STD::is_copy_constructible_v < T > &&
         ENV_STD::is_copy_assignable_v < T > &&
@@ -161,20 +161,20 @@ COND_CHECK_UNARY
         ENV_STD::is_swappable_v < T >
 );
 
-COND_CONCEPT_UNARY(stable, is_stable_g<T>);
+COND_CONCEPT_UNARY(propagated, is_propagated_g<T>);
 
-ENV_TEST_CASE("stable")
+ENV_TEST_CASE("propagated")
 {
-    REQUIRES(is_stable_g<int>);
-    REQUIRES(is_stable_g<int*>);
-    REQUIRES(is_stable_g<void (*)()>);
-    REQUIRES(is_stable_g<ENV_STD::vector < int >>);
-    REQUIRES(is_stable_g<ENV_STD::string>);
-    REQUIRES(is_stable_g<ENV_STD::function < void() >>);
-    REQUIRES_FALSE(is_stable_g<int[3]>);
-    REQUIRES_FALSE(is_stable_g<ENV_STD::unique_ptr < int >>);
-    REQUIRES_FALSE(is_stable_g<int&>);
-    REQUIRES_FALSE(is_stable_g<void()>);
+    REQUIRES(is_propagated_g<int>);
+    REQUIRES(is_propagated_g<int*>);
+    REQUIRES(is_propagated_g<void (*)()>);
+    REQUIRES(is_propagated_g<ENV_STD::vector < int >>);
+    REQUIRES(is_propagated_g<ENV_STD::string>);
+    REQUIRES(is_propagated_g<ENV_STD::function < void() >>);
+    REQUIRES_FALSE(is_propagated_g<int[3]>);
+    REQUIRES_FALSE(is_propagated_g<ENV_STD::unique_ptr < int >>);
+    REQUIRES_FALSE(is_propagated_g<int&>);
+    REQUIRES_FALSE(is_propagated_g<void()>);
 }
 
 
