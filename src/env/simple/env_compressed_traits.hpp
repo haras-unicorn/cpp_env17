@@ -15,6 +15,7 @@ strct compressed_traits_vs<> : public type_gt<ENV::empty_t>
 
     let_cmp static rank{rank_zero};
 
+
     tmp<index_t At, dep_name>
     cmp_obj bool static is_in_range{ENV_STD::is_same_v<TDep, void> && false};
 
@@ -106,6 +107,8 @@ strct compressed_traits_vs<THead, TRest...> :
     );
     using name _type_base_t::type;
 
+    typ(rest_traits_t) = compressed_traits_vs<TRest...>;
+
     let_cmp static rank{rank_of_v < THead, TRest...>};
 
     tmp<index_t At>
@@ -121,8 +124,7 @@ strct compressed_traits_vs<THead, TRest...> :
         }
         else
         {
-            ret compressed_traits_vs<TRest...>::tmp get<index_t{At - 1}>(
-                    _subject.get_rhs());
+            ret rest_traits_t::tmp get<index_t{At - 1}>(_subject.get_rhs());
         }
     }
 
@@ -135,8 +137,7 @@ strct compressed_traits_vs<THead, TRest...> :
         }
         else
         {
-            ret compressed_traits_vs<TRest...>::tmp get<index_t{At - 1}>(
-                    _subject.get_rhs());
+            ret rest_traits_t::tmp get<index_t{At - 1}>(_subject.get_rhs());
         }
     }
 };
@@ -207,6 +208,25 @@ ENV_TEST_CASE("compressed traits")
     REQUIRES(detail::compressed_traits_vs<int>::rank == 1);
     REQUIRES(detail::compressed_traits_vs<int, empty_t>::rank == 2);
     REQUIRES(detail::compressed_traits_vs<int, empty_t, int>::rank == 3);
+
+
+    compressed_pair_ggt<
+            int, compressed_pair_ggt<
+                    int, compressed_pair_ggt<
+                            empty_t, compressed_pair_ggt<
+                                    int, empty_t>>>>
+    cmp compressed{1, 2, 3};
+
+    REQUIRE_EQ(compressed.get_lhs(), 1);
+    REQUIRE_EQ(compressed.get_rhs().get_lhs(), 2);
+    REQUIRE_EQ(compressed.get_rhs().get_rhs().get_rhs().get_lhs(), 3);
+
+    // hmm so this doesn't crash llvm on debug...
+    typ(traits_t) = detail::compressed_traits_vs<
+            int, int, empty_t, int, empty_t>;
+    REQUIRE_EQ(traits_t::get<0_i>(compressed), 1);
+    REQUIRE_EQ(traits_t::get<1_i>(compressed), 2);
+    REQUIRE_EQ(traits_t::get<3_i>(compressed), 3);
 }
 
 

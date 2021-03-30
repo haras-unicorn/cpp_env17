@@ -37,6 +37,7 @@ ENV_MESSAGE(Env Standard - C++ ENV_CPP)
 #include "env_bench.hpp"
 #include "env_mock.hpp"
 #include "env_test.hpp"
+#include "env_hana.hpp"
 
 #include "env_features.hpp"
 #include "env_glue.hpp" // TODO: remove this ASAP

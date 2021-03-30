@@ -47,10 +47,11 @@
 #define ENV_STD ::std
 
 
-// doctest, Google benchmark
+// doctest, Google benchmark, Boost Hana
 
 #define ENV_DTEST ::doctest
 #define ENV_GBENCH ::benchmark
+#define ENV_HANA ::hana
 
 
 #endif // ENV_NAMESPACING_HPP

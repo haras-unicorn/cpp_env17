@@ -49,6 +49,7 @@ ENV_END
 
 #undef ENV_DTEST
 #undef ENV_GBENCH
+#undef ENV_HANA
 
 // env namespaces
 
