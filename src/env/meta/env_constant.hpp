@@ -20,8 +20,14 @@ ENV_TEST_CASE("type constant")
 tmp<name TType, TType Value>
 strct value_gnt : public ENV_STD::integral_constant<TType, Value> { };
 
-#define val(_value) ENV::value_gnt<ENV_STD::remove_cv_t<ENV_STD::remove_reference_t<decltype(_value)>>, _value>
+#define val(_value)                                                     \
+        ENV::value_gnt<                                                 \
+                ENV_STD::remove_cv_t<                                   \
+                        ENV_STD::remove_reference_t<decltype(_value)>>, \
+                        _value>
+
 #define val_con(_value) val(_value) {}
+
 
 #if ENV_CPP >= 17
 
@@ -29,6 +35,7 @@ tmp<deduc Value>
 strct value_nt : public value_gnt<decltype(Value), Value> { };
 
 #endif // ENV_CPP >= 17
+
 
 ENV_TEST_CASE("value constant")
 {

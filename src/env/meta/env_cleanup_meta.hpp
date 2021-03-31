@@ -66,7 +66,7 @@
 
 // expr check
 
-#undef EXPR_CHECK_OPT
+#undef CHECK_OPT
 #undef ELABORATE_EXPR_CHECK
 #undef EXPR_CHECK
 #undef EXPR_CHECK_UNARY

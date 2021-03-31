@@ -7,3 +7,9 @@ env_fetch(
 )
 
 env_target_link(boost_dep INTERFACE hana)
+
+env_target_precompile(
+        boost_dep
+        INTERFACE
+        <boost/hana.hpp>
+)

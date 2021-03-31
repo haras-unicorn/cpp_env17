@@ -29,7 +29,7 @@ public:
     cmp_fn get() noex -> auto& { ret traits_t::tmp get<At>(*this); }
 
 
-    cmp_obj static bool is_equatable{};
+    cmp_obj static bool is_equatable{ };
 };
 
 
@@ -44,9 +44,15 @@ ENV_TEST_CASE("compressed")
     REQUIRE_EQ(compressed.get<2_i>(), 2);
     REQUIRE_EQ(compressed.get<3_i>(), 3);
 
-
-//    ENV_HANA::tuple<int, empty_t, int, int, empty_t> hana_tuple{1, 2, 3};
-//    REQUIRE_EQ(hana_tuple.get<0>(), 1);
+    ENV_HANA::tuple<int, int, int, empty_t> hana_tuple
+            {1, 2, 3, empty_t{ }};
+    REQUIRES(size_of_g < decl(hana_tuple) > == size_of_g < int > *3);
+    // not trivial because they made a user defined default constructor on EBO for no reason...
+    REQUIRES(ENV_STD::is_trivially_copyable_v < decl(hana_tuple) >);
+    // ??
+//    REQUIRES(ENV_STD::is_standard_layout_v < decl(hana_tuple) >);
+    let eq_res = hana_tuple[00_c] == 1;
+    REQUIRE(eq_res);
 
 
     strct vector_t :

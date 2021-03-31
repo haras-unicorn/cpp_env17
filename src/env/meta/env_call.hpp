@@ -8,29 +8,25 @@ tmp<name TResult, name... TIgnored>
 typ(first_gvt) =
 name variadic_vt<
         TResult,
-        TIgnored...>
-::tmp at_nt<0>;
+        TIgnored...>::tmp at_nt<0>;
 
 tmp<name TResult, TResult Result, name... TIgnored>
 let_cmp first_gnv =
         ENV::variadic_vt<
                 ENV::value_gnt<TResult, Result>,
-                TIgnored...>
-        ::tmp at_nt<0>::value;
+                TIgnored...>::tmp at_nt<0>::value;
 
 tmp<name TResult, name TIgnored, TIgnored... Ignored>
 typ(first_ggat) =
 name ENV::variadic_vt<
         TResult,
-        ENV::value_gnt<TIgnored, Ignored>...>
-::tmp at_nt<0>;
+        ENV::value_gnt<TIgnored, Ignored>...>::tmp at_nt<0>;
 
 tmp<name TResult, TResult Result, name TIgnored, TIgnored... Ignored>
 let_cmp first_gnga =
         ENV::variadic_vt<
                 ENV::value_gnt<TResult, Result>,
-                ENV::value_gnt<TIgnored, Ignored>...>
-        ::tmp at_nt<0>::value;
+                ENV::value_gnt<TIgnored, Ignored>...>::tmp at_nt<0>::value;
 
 #if ENV_CPP >= 17
 
@@ -38,15 +34,13 @@ tmp<deduc Result, name... TIgnored>
 let_cmp first_nv =
         ENV::variadic_vt<
                 ENV::value_gnt<decl(Result), Result>,
-                TIgnored...>
-        ::tmp at_nt<0>::value;
+                TIgnored...>::tmp at_nt<0>::value;
 
 tmp<deduc Result, deduc... Ignored>
 let_cmp first_na =
         ENV::variadic_vt<
                 ENV::value_gnt<decl(Result), Result>,
-                ENV::value_gnt<decl(Ignored), Ignored>...>
-        ::tmp at_nt<0>::value;
+                ENV::value_gnt<decl(Ignored), Ignored>...>::tmp at_nt<0>::value;
 
 #endif // ENV_CPP >= 17
 
@@ -66,10 +60,17 @@ ENV_TEST_CASE("first")
 // apply
 
 tmp<tmp<name...> class TKind, name TArgs, name = requirement_t>
-strct apply_kvs : type_gt<fail_t> { };
+strct apply_kvs :
+        type_gt<fail_t>
+{
+};
 
 tmp<tmp<name...> class TKind, name... TArgs>
-strct apply_kvs<TKind, variadic_vt < TArgs...>, success_vt <TKind<TArgs...>>> : type_gt <TKind<TArgs...>>
+strct apply_kvs<
+        TKind,
+        ENV::variadic_vt<TArgs...>,
+        ENV::success_vt<TKind<TArgs...>>> :
+        type_gt<TKind<TArgs...>>
 {
 };
 
@@ -81,9 +82,10 @@ strct apply_tvs : type_gt<fail_t> { };
 
 tmp<name TFunction, name... TArgs>
 strct apply_tvs<
-        TFunction, variadic_vt < TArgs...>,
-ENV::success_vt<decltype(TFunction{ }(declvalr<TArgs>()...))>> :
-type_gt<decltype(TFunction{ }(declvalr<TArgs>()...))>
+        TFunction,
+        ENV::variadic_vt<TArgs...>,
+        ENV::requirement_vt<decltype(TFunction{ }(declvalr<TArgs>()...))>> :
+        type_gt<decltype(TFunction{ }(declvalr<TArgs>()...))>
 {
 };
 
@@ -102,8 +104,12 @@ ENV_TEST_CASE("apply")
 
     SUBCASE("function")
     {
-        REQUIRE_EQT(apply_tvt<ENV_STD::plus < int>, int, int >, int);
-        REQUIRE_EQT(apply_tvt<ENV_STD::plus < int>, ENV_STD::string_view, int >, fail_t);
+        REQUIRE_EQT(
+                apply_tvt<ENV_STD::plus < int>, int, int >,
+                int);
+        REQUIRE_EQT(
+                apply_tvt<ENV_STD::plus < int>, ENV_STD::string_view, int >,
+                fail_t);
     }
 }
 

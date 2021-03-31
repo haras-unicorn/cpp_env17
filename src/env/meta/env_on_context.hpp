@@ -2,15 +2,20 @@
 #define ENV_ON_CONTEXT_HPP
 
 
-
 // dep
 
 #define dep_name name TDep = ENV::void_t
 
-// cond
-// NOTE: you can only check for conditions here, so no conversion from type or expr into condition
 
-#define ON_COND(...) COND_TMP((dep_name), (ENV_STD::is_same_v<TDep, ENV::void_t> && (__VA_ARGS__)))
+// cond
+// NOTE: you can only check for conditions here,
+// so no conversion from type or expr into condition
+
+
+#define ON_COND(...)                                                        \
+        COND_TMP(                                                           \
+                (dep_name),                                                 \
+                (ENV_STD::is_same_v<TDep, ENV::void_t> && (__VA_ARGS__)))
 
 ENV_TEST_BEGIN
 
@@ -33,10 +38,13 @@ ENV_TEST_CASE("cond")
     REQUIRES_FALSE(test::cond_const<int>{ }.test(0));
 }
 
+
 // TODO: do this for type
-// I believe it can be done somehow, but the thing is that the only reason that the cond works is that
-// the expression used to create the error in requires depends on TDep being known whereas if you have an expression in
-// decltype or just a type that is computable with the context the compiler immediately tries to compute the expression
+// I believe it can be done somehow, but the thing is that the only reason
+// that the cond works is that the expression used to create the error in
+// requires depends on TDep being known whereas if you have an expression in
+// decltype or just a type that is computable with the context
+// the compiler immediately tries to compute the expression
 // or type
 
 //// expr

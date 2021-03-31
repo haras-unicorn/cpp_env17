@@ -38,18 +38,23 @@ ENV_TEST_CASE("this type")
 strct no_inheritor_s
 {
 public:
-    COND_CLASS_CHECK_UNARY(is_hash_eq_compatible_with, (ENV::first_nv < false, T >));
+    COND_CLASS_CHECK_UNARY
+    (is_hash_eq_compatible_with, (ENV::first_nv < false, T >));
 
-    COND_CLASS_CHECK_UNARY(is_equality_compatible_with, (ENV::first_nv < false, T >));
+    COND_CLASS_CHECK_UNARY
+    (is_equality_compatible_with, (ENV::first_nv < false, T >));
 
-    COND_CLASS_CHECK_UNARY(is_comparison_compatible_with, (ENV::first_nv < false, T >));
+    COND_CLASS_CHECK_UNARY
+    (is_comparison_compatible_with, (ENV::first_nv < false, T >));
 };
 
 tmp<name TInheritor>
 let_cmp is_inheritor_g{!ENV_STD::is_same_v<TInheritor, no_inheritor_s>};
 
 tmp<name TThis, name TInheritor>
-typ_a(self_ggt, maybe_unused) = ENV_STD::conditional_t<is_inheritor_g<TInheritor>, TInheritor, TThis>;
+typ_a(self_ggt, maybe_unused) =
+ENV_STD::conditional_t<is_inheritor_g<TInheritor>, TInheritor, TThis>;
+
 
 ENV_TEST_CASE("no inheritor type")
 {
@@ -99,6 +104,7 @@ ENV_TEST_CASE("no inheritor type")
 
 #define DECL_INHERITOR DECL_INHERITOR_TYPE((TInheritor))
 
+
 ENV_TEST_BEGIN
 
 tmp<inheritor_name>
@@ -116,6 +122,7 @@ strct with_inheritor
 
 ENV_TEST_END
 
+
 ENV_TEST_CASE("inheritor type")
 {
     test::with_inheritor<int>{ }.test();
@@ -124,25 +131,32 @@ ENV_TEST_CASE("inheritor type")
 
 // self
 
-#define DECL_SELF_INHERITOR(_name, _inheritor_type)                                    \
-    DECL_THIS(_name);                                                                  \
-    DECL_INHERITOR_TYPE(_inheritor_type);                                              \
-                                                                                       \
-    ACCESS_BEGIN(private);                                                             \
-    cmp_obj static bool _has_inheritor = ENV::is_inheritor_g<SPREAD(_inheritor_type)>; \
-                                                                                       \
-    typ_a(_self_t, maybe_unused) = ENV::self_ggt<_this_t, SPREAD(_inheritor_type)>;    \
-    typ_a(_self_ct, maybe_unused) = ENV_STD::add_const_t<_self_t>;                     \
-    typ_a(_self_mt, maybe_unused) = ENV_STD::remove_const_t<_self_t>;                  \
-                                                                                       \
-    typ_a(_self_ptr_t, maybe_unused) = _self_t *;                                      \
-    typ_a(_c_self_ptr_t, maybe_unused) = _self_ct *;                                   \
-    typ_a(_m_self_ptr_t, maybe_unused) = _self_mt *;                                   \
+#define DECL_SELF_INHERITOR(_name, _inheritor_type)             \
+    DECL_THIS(_name);                                           \
+    DECL_INHERITOR_TYPE(_inheritor_type);                       \
+                                                                \
+    ACCESS_BEGIN(private);                                      \
+    cmp_obj static bool _has_inheritor =                        \
+            ENV::is_inheritor_g<SPREAD(_inheritor_type)>;       \
+                                                                \
+    typ_a(_self_t, maybe_unused) =                              \
+            ENV::self_ggt<_this_t, SPREAD(_inheritor_type)>;    \
+    typ_a(_self_ct, maybe_unused) =                             \
+            ENV_STD::add_const_t<_self_t>;                      \
+    typ_a(_self_mt, maybe_unused) =                             \
+            ENV_STD::remove_const_t<_self_t>;                   \
+                                                                \
+    typ_a(_self_ptr_t, maybe_unused) = _self_t *;               \
+    typ_a(_c_self_ptr_t, maybe_unused) = _self_ct *;            \
+    typ_a(_m_self_ptr_t, maybe_unused) = _self_mt *;            \
     ACCESS_END(public)
 
-#define DECL_SELF(_name) DECL_SELF_INHERITOR(_name, (TInheritor))
+#define DECL_SELF(_name) \
+        DECL_SELF_INHERITOR(_name, (TInheritor))
 
-#define DECL_SELF_NO_INHERITOR(_name) DECL_SELF_INHERITOR(_name, (ENV::no_inheritor_s))
+#define DECL_SELF_NO_INHERITOR(_name) \
+        DECL_SELF_INHERITOR(_name, (ENV::no_inheritor_s))
+
 
 ENV_TEST_BEGIN
 
@@ -155,9 +169,12 @@ strct with_self_t
     {
         SUBCASE("with inheritor")
         {
-            REQUIRE_EQT(with_self_t<int>::_self_t, int);
-            REQUIRE_EQT(with_self_t<>::_self_ct, const test::with_self_t<no_inheritor_s>);
-            REQUIRE_EQT(with_self_t<int>::_c_self_ptr_t, const int *);
+            REQUIRE_EQT
+            (with_self_t<int>::_self_t, int);
+            REQUIRE_EQT
+            (with_self_t<>::_self_ct, const test::with_self_t<no_inheritor_s>);
+            REQUIRE_EQT
+            (with_self_t<int>::_c_self_ptr_t, const int *);
         }
     }
 
@@ -181,6 +198,7 @@ strct with_self_no_inheritor_t
 };
 
 ENV_TEST_END
+
 
 ENV_TEST_CASE("self")
 {
@@ -206,25 +224,40 @@ ENV_TEST_CASE("self")
 
 #define GET_AS_BASE(_base) this->_AS_BASE_NAME(_base)()
 
-#define DEF_AS_BASE_BODY(_return, _name, _body) \
-    cmp_fn _name() const noex->const SPREAD(_return){SPREAD(_body)} fun inl _name() noex->SPREAD(_return){SPREAD(_body)} SEMI
+#define DEF_AS_BASE_BODY(_return, _name, _body)                         \
+        cmp_fn _name() const noex->const SPREAD(_return){SPREAD(_body)} \
+        fun inl _name() noex->SPREAD(_return){SPREAD(_body)} SEMI
 
-#define DEF_AS_BASE_FML(_return, _name, _formula) DEF_AS_BASE_BODY(_return, _name, FML_BODY(_formula))
-#define _DEF_AS_BASE(_base) DEF_AS_BASE_FML((BASE_NAME(_base) *), _AS_BASE_NAME(_base), (this))
-#define DEF_AS_BASE(_base) DEF_AS_BASE_FML((BASE_NAME(_base) &), AS_BASE_NAME(_base), (*GET_AS_BASE(_base)))
+#define DEF_AS_BASE_FML(_return, _name, _formula) \
+        DEF_AS_BASE_BODY(_return, _name, FML_BODY(_formula))
 
-#define DECL_BASE(_name, _type)                                                            \
-    ACCESS_BEGIN(private);                                                                 \
-    typ_a(BASE_NAME(_name), maybe_unused) = SPREAD(_type);                                 \
-    typ_a(BASE_CONST_NAME(_name), maybe_unused) = ENV_STD::add_const_t<BASE_NAME(_name)>;  \
-    typ_a(BASE_MUT_NAME(_name), maybe_unused) = ENV_STD::remove_const_t<BASE_NAME(_name)>; \
-                                                                                           \
-    typ_a(BASE_PTR_NAME(_name), maybe_unused) = BASE_NAME(_name) *;                        \
-    typ_a(BASE_CONST_PTR_NAME(_name), maybe_unused) = BASE_CONST_NAME(_name) *;            \
-    typ_a(BASE_MUT_PTR_NAME(_name), maybe_unused) = BASE_MUT_NAME(_name) *;                \
-                                                                                           \
-    _DEF_AS_BASE(_name);                                                                   \
-    ACCESS_END(public)
+#define _DEF_AS_BASE(_base) \
+        DEF_AS_BASE_FML((BASE_NAME(_base) *), _AS_BASE_NAME(_base), (this))
+
+#define DEF_AS_BASE(_base)                      \
+        DEF_AS_BASE_FML((BASE_NAME(_base) &),   \
+                        AS_BASE_NAME(_base),    \
+                        (*GET_AS_BASE(_base)))
+
+#define DECL_BASE(_name, _type)                                 \
+        ACCESS_BEGIN(private);                                  \
+        typ_a(BASE_NAME(_name), maybe_unused) =                 \
+                SPREAD(_type);                                  \
+        typ_a(BASE_CONST_NAME(_name), maybe_unused) =           \
+                ENV_STD::add_const_t<BASE_NAME(_name)>;         \
+        typ_a(BASE_MUT_NAME(_name), maybe_unused) =             \
+                ENV_STD::remove_const_t<BASE_NAME(_name)>;      \
+                                                                \
+        typ_a(BASE_PTR_NAME(_name), maybe_unused) =             \
+                BASE_NAME(_name) *;                             \
+        typ_a(BASE_CONST_PTR_NAME(_name), maybe_unused) =       \
+                BASE_CONST_NAME(_name) *;                       \
+        typ_a(BASE_MUT_PTR_NAME(_name), maybe_unused) =         \
+                BASE_MUT_NAME(_name) *;                         \
+                                                                \
+        _DEF_AS_BASE(_name);                                    \
+        ACCESS_END(public)
+
 
 ENV_TEST_CASE("bases")
 {
@@ -290,6 +323,7 @@ protected:
 
 ENV_TEST_END
 
+
 ENV_TEST_CASE("self getters")
 {
     cls subclass_t : public test::crtp_t<subclass_t>
@@ -309,8 +343,10 @@ ENV_TEST_CASE("self getters")
     test::crtp_t<> base{ };
     nonce(base);
 
-    // sub.get_as_crtp_base returns the base but it has the inheritor in the tmp, so
-    // it returns itself in _self() and that results in unwanted behaviour for this test.
+    // sub.get_as_crtp_base returns the base but
+    // it has the inheritor in the template, so
+    // it returns itself in _self() and that results in
+    // unwanted behaviour for this test.
 
     REQUIRE_EQ(base.get_label(), "base");
     REQUIRE_EQ(sub.get_label(), "derived");

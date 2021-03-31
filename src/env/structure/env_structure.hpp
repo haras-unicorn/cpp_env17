@@ -32,13 +32,14 @@ ENV_MESSAGE(Env OS - ENV_OS_NAME)
 ENV_MESSAGE(Env Standard - C++ ENV_CPP)
 
 
-#include "env_namespacing.hpp"
-
-#include "env_bench.hpp"
-#include "env_mock.hpp"
-#include "env_test.hpp"
+#include "env_std.hpp"
 #include "env_hana.hpp"
+#include "env_bench.hpp"
+#include "env_test.hpp"
+#include "env_mock.hpp"
 
+#include "env_using.hpp"
+#include "env_namespacing.hpp"
 #include "env_features.hpp"
 #include "env_glue.hpp" // TODO: remove this ASAP
 

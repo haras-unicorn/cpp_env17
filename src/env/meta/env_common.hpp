@@ -1,7 +1,8 @@
 #ifndef ENV_COMMON_HPP
 #define ENV_COMMON_HPP
 
-tmp<name... T> typ(common_vt) = ENV_STD::common_type_t<ENV::unqualified_gt<T>...>;
+tmp<name... T>
+typ(common_vt) = ENV_STD::common_type_t<ENV::unqualified_gt<T>...>;
 
 ENV_TEST_CASE("common")
 {

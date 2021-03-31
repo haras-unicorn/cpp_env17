@@ -16,43 +16,52 @@ let_cmp requirement{success_t{true}};
 
 // check
 
-tmp<name T> cmp_obj bool is_success_g{ENV_STD::is_same_v<T, success_t>};
+tmp<name T> cmp_obj bool is_success_g
+        {ENV_STD::is_same_v<T, success_t>};
 
 #if ENV_CPP >= 17
 
-tmp<deduc Expr> cmp_obj bool is_success_n{ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, success_t>};
+tmp<deduc Expr> cmp_obj bool is_success_n
+        {ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, success_t>};
 
 #else // ENV_CPP >= 17
 
 tmp<nullptr_t Expr> cmp_obj bool is_success_n{true};
 
-
 #endif // ENV_CPP >= 17
+
 
 tmp<name T> cmp_obj bool is_fail_g{ENV_STD::is_same_v<T, fail_t>};
 
 #if ENV_CPP >= 17
 
-tmp<deduc Expr> cmp_obj bool is_fail_n{ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, fail_t>};
+tmp<deduc Expr> cmp_obj bool is_fail_n{
+        ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, fail_t>};
 
 #else // ENV_CPP >= 17
 
 tmp<fail_t Expr> cmp_obj bool is_fail_n{true};
 
-
 #endif // ENV_CPP >= 17
+
 
 tmp<name T> cmp_obj bool is_requirement_g{ENV_STD::is_same_v<T, requirement_t>};
 
 #if ENV_CPP >= 17
 
-tmp<deduc Expr> cmp_obj bool is_requirement_n{ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, requirement_t>};
+tmp<deduc Expr> cmp_obj bool is_requirement_n
+        {
+                ENV_STD::is_same_v<
+                        ENV_STD::remove_const_t<decl(Expr)>,
+                        requirement_t>
+        };
 
 #else // ENV_CPP >= 17
 
 tmp<nullptr_t Expr> cmp_obj bool is_requirement_n{true};
 
 #endif // ENV_CPP >= 17
+
 
 ENV_TEST_CASE("check success/fail")
 {
@@ -115,36 +124,45 @@ tmp<name... T>
 strct make_false_vt : value_gnt<bool, false> { };
 
 
-tmp<name TRes, name... T>
-strct make_vt : type_gt<TRes> { };
-
-
 tmp<name... T>
 strct make_requirement_vt : value_gnt<requirement_t, requirement_t{true}> { };
+
+
+tmp<name TRes, name... T>
+strct make_vt : type_gt<TRes> { };
 
 ENV_DETAIL_END
 
 
-tmp<name... T> typ(success_vt) = name detail::make_success_vt<T...>::value_type;
+tmp<name... T>
+typ(success_vt) = name detail::make_success_vt<T...>::value_type;
 
-tmp<name... T> cmp_obj success_t success_v = detail::make_success_vt<T...>::value;
+tmp<name... T>
+cmp_obj success_t success_v = detail::make_success_vt<T...>::value;
 
-tmp<name... T> cmp_obj bool true_v = detail::make_true_vt<T...>::value;
-
-
-tmp<name... T> typ(fail_vt) = name detail::make_fail_vt<T...>::value_type;
-
-tmp<name... T> cmp_obj fail_t fail_v = detail::make_fail_vt<T...>::value;
-
-tmp<name... T> cmp_obj bool false_v = detail::make_false_vt<T...>::value;
+tmp<name... T>
+cmp_obj bool true_v = detail::make_true_vt<T...>::value;
 
 
-tmp<name TRes, name... T> typ(make_vt) = name detail::make_vt<TRes, T...>::type;
+tmp<name... T>
+typ(fail_vt) = name detail::make_fail_vt<T...>::value_type;
+
+tmp<name... T>
+cmp_obj fail_t fail_v = detail::make_fail_vt<T...>::value;
+
+tmp<name... T>
+cmp_obj bool false_v = detail::make_false_vt<T...>::value;
 
 
-tmp<name... T> typ(requirement_vt) = name detail::make_requirement_vt<T...>::value_type;
+tmp<name... T>
+typ(requirement_vt) = name detail::make_requirement_vt<T...>::value_type;
 
-tmp<name... T> cmp_obj requirement_t requirement_v = detail::make_requirement_vt<T...>::value;
+tmp<name... T>
+cmp_obj requirement_t requirement_v = detail::make_requirement_vt<T...>::value;
+
+
+tmp<name TRes, name... T>
+typ(make_vt) = name detail::make_vt<TRes, T...>::type;
 
 
 ENV_TEST_CASE("make")

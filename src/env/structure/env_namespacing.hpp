@@ -9,7 +9,14 @@
 #define ENV_CUSTOM_NAMESPACE_END() ENV_FORMAT_NAMESPACE }
 
 
-// format, detail, test
+// env namespace
+
+#ifndef ENV_NAMESPACE
+#define ENV_NAMESPACE env
+#endif
+
+
+// namespace scope
 
 #define ENV_DETAIL_BEGIN ENV_CUSTOM_NAMESPACE_BEGIN(detail)
 #define ENV_DETAIL_END ENV_CUSTOM_NAMESPACE_END()
@@ -20,38 +27,25 @@
 #define ENV_BENCH_BEGIN ENV_CUSTOM_NAMESPACE_BEGIN(bench)
 #define ENV_BENCH_END ENV_CUSTOM_NAMESPACE_END()
 
-
-// env namespace
-
-#if !defined(ENV_NAMESPACE)
-#define ENV_BEGIN ENV_CUSTOM_NAMESPACE_BEGIN(env)
+#define ENV_BEGIN ENV_CUSTOM_NAMESPACE_BEGIN(ENV_NAMESPACE) ENV_USING
 #define ENV_END ENV_CUSTOM_NAMESPACE_END()
-#define ENV ::env
-#else
-#define ENV_BEGIN ENV_CUSTOM_NAMESPACE_BEGIN(ENV_NAMESPACE)
-#define ENV_END ENV_CUSTOM_NAMESPACE_END()
-#define ENV ::ENV_NAMESPACE
-#endif
-
-
-// env -> global
 
 #define ENV_GLOBAL_BEGIN ENV_END ENV_FORMAT_NAMESPACE
 #define ENV_GLOBAL_END ENV_FORMAT_NAMESPACE ENV_BEGIN
-#define ENV_GLOBAL ::
-
-// env -> std
 
 #define ENV_STD_BEGIN ENV_END ENV_CUSTOM_NAMESPACE_BEGIN(std)
 #define ENV_STD_END ENV_CUSTOM_NAMESPACE_END() ENV_BEGIN
-#define ENV_STD ::std
 
 
-// doctest, Google benchmark, Boost Hana
+// namespace entries
 
-#define ENV_DTEST ::doctest
-#define ENV_GBENCH ::benchmark
-#define ENV_HANA ::hana
+#define ENV_GLOBAL
+#define ENV ENV_GLOBAL::ENV_NAMESPACE
+#define ENV_STD ENV_GLOBAL::std
+#define ENV_CHRONO ENV_STD::chrono
+#define ENV_DTEST ENV_GLOBAL::doctest
+#define ENV_GBENCH ENV_GLOBAL::benchmark
+#define ENV_HANA ENV_GLOBAL::boost::hana
 
 
 #endif // ENV_NAMESPACING_HPP

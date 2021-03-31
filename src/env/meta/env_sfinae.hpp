@@ -107,6 +107,7 @@ ENV_TEST_CASE("require")
     REQUIRE_EQT(require_ngt < true, int >, int);
 }
 
+
 #if ENV_CPP >= 17
 
 tmp<bool Condition, deduc Result = requirement>
@@ -124,7 +125,7 @@ let_cmp require_nn{require_nns<Condition, Result>::value};
 tmp<bool Condition>
 let_cmp require_n{require_nn<Condition, requirement>};
 
-ENV_TEST_CASE("require")
+ENV_TEST_CASE("require 17")
 {
     REQUIRES(require_nn < true, 1 > == 1);
     REQUIRES(require_n < true > == requirement);
@@ -171,7 +172,7 @@ ENV_TEST_CASE("declval")
 }
 
 
-// consume
+// hoard/consume
 
 tmp<name... T> cmp_callb hoard(T...) noex -> bool { ret true; }
 
@@ -211,9 +212,11 @@ ENV_TEST_CASE("implies")
 // qualified
 
 tmp<name T>
-cmp_obj bool is_qualified_g{
-        ENV_STD::is_reference_v<T> || ENV_STD::is_const_v<T> ||
-        ENV_STD::is_volatile_v<T>};
+cmp_obj bool is_qualified_g
+        {
+                ENV_STD::is_reference_v<T> || ENV_STD::is_const_v<T> ||
+                ENV_STD::is_volatile_v<T>
+        };
 
 tmp<name T>
 typ(unqualified_gt) = ENV_STD::remove_cv_t<ENV_STD::remove_reference_t<T>>;

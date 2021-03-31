@@ -31,33 +31,34 @@ ENV_END
 #undef ENV_TEST_CASE_CLASS
 #undef ENV_TEST_CASE_TMP
 
-// namespaces
 
-// core -> std
+// using
 
-#undef ENV_STD
-#undef ENV_STD_END
-#undef ENV_STD_BEGIN
+#undef ENV_USING
 
-// core -> global
 
+// namespacing
+
+// namespace entries
+
+#undef ENV
 #undef ENV_GLOBAL
-#undef ENV_GLOBAL_END
-#undef ENV_GLOBAL_BEGIN
-
-// native test, benchmark
-
+#undef ENV_STD
+#undef ENV_CHRONO
 #undef ENV_DTEST
 #undef ENV_GBENCH
 #undef ENV_HANA
 
-// env namespaces
+// namespace scope
 
-#undef ENV
 #undef ENV_END
 #undef ENV_BEGIN
 
-// detail, test, format...
+#undef ENV_STD_END
+#undef ENV_STD_BEGIN
+
+#undef ENV_GLOBAL_END
+#undef ENV_GLOBAL_BEGIN
 
 #undef ENV_DETAIL_END
 #undef ENV_DETAIL_BEGIN
@@ -67,6 +68,8 @@ ENV_END
 
 #undef ENV_BENCH_END
 #undef ENV_BENCH_BEGIN
+
+// namespaces
 
 #undef ENV_CUSTOM_NAMESPACE_BEGIN
 #undef ENV_CUSTOM_NAMESPACE_END
@@ -97,6 +100,7 @@ ENV_END
 #undef ENV_CLANG
 #undef ENV_GCC
 
+
 // arch
 
 #undef ENV_ARCH_NAME
@@ -105,6 +109,7 @@ ENV_END
 #undef ENV_X86
 #undef ENV_ARM
 #undef ENV_ARM64
+
 
 // os
 
@@ -122,6 +127,7 @@ ENV_END
 #undef ENV_LINUX
 #undef ENV_ANDROID
 
+
 // standard
 
 #undef ENV_CPP
@@ -132,6 +138,7 @@ ENV_END
 #undef ENV_CPP17
 #undef ENV_CPP20
 #undef ENV_CPP23
+
 
 // pragma
 
