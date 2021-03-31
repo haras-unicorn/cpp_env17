@@ -9,9 +9,7 @@ ENV_TEST_SUITE_BEGIN("simple");
 #include "env_unitary.hpp"
 #include "env_mutable.hpp"
 
-#include "env_compressed_pair.hpp"
-#include "env_compressed_traits.hpp"
-#include "env_compressed.hpp"
+#include "env_fields.hpp"
 
 #include "env_defaulted.hpp"
 #include "env_left_out.hpp"

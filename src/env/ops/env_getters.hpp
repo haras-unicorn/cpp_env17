@@ -14,120 +14,131 @@
 
 #define GET_MEM(_member) this->_GETTER_NAME(_member)()
 
+
 // getter impls
 
-#define SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, _pre, _post, _body)                                      \
-    SPREAD(_tmp)                                                                                             \
-    [[RETURN_ATTRIBUTES]] _pre inl SPREAD(_type) _name() _post noex /* NOLINT(readability-const-ret-type) */ \
-    {                                                                                                        \
-        SPREAD(_body)                                                                                        \
-    }
+#define SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, _pre, _post, _body)     \
+        SPREAD(_tmp)                                                        \
+        [[RETURN_ATTRIBUTES]] _pre inl                                      \
+        SPREAD(_type)  /* NOLINT(readability-const-ret-type) */             \
+        _name() _post noex                                                  \
+        {                                                                   \
+            SPREAD(_body)                                                   \
+        }
 
-#define GETTER_BODY_IMPL(_tmp, _type, _name, _pre_const, _body)                             \
-    SINGLE_GETTER_BODY_IMPL(_tmp, (const SPREAD(_type) &), _name, _pre_const, const, _body) \
-    SINGLE_GETTER_BODY_IMPL(_tmp, (SPREAD(_type) &), _name, SKIP, SKIP, _body)
+#define GETTER_BODY_IMPL(_tmp, _type, _name, _pre_const, _body)             \
+        SINGLE_GETTER_BODY_IMPL                                             \
+        (_tmp, (const SPREAD(_type) &), _name, _pre_const, const, _body)    \
+                                                                            \
+        SINGLE_GETTER_BODY_IMPL                                             \
+        (_tmp, (SPREAD(_type) &), _name, SKIP, SKIP, _body)
 
 // const and mutable
 
 #define GETTER_BODY(_tmp, _type, _name, _body) \
-    GETTER_BODY_IMPL(_tmp, _type, _name, SKIP, _body)
+        GETTER_BODY_IMPL(_tmp, _type, _name, cmp, _body)
 
 #define GETTER_FML(_tmp, _type, _name, _formula) \
-    GETTER_BODY(_tmp, _type, _name, FML_BODY(_formula))
+        GETTER_BODY(_tmp, _type, _name, FML_BODY(_formula))
 
 #define GETTER(_name, ...) \
-    GETTER_FML((), (auto), _name, (__VA_ARGS__))
+        GETTER_FML((), (auto), _name, (__VA_ARGS__))
 
-#define _MEM_GETTER_TMP(_tmp, _member)              \
-    GETTER_FML(                                     \
-        _tmp,                                       \
-        (MEM_TYPE(_member)), _GETTER_NAME(_member), \
-        (MEM_NAME(_member)))
+#define _MEM_GETTER_TMP(_tmp, _member)                      \
+        GETTER_FML(                                         \
+                _tmp,                                       \
+                (MEM_TYPE(_member)), _GETTER_NAME(_member), \
+                (MEM_NAME(_member)))
 
 #define _MEM_GETTER(_member) \
-    _MEM_GETTER_TMP((), _member)
+        _MEM_GETTER_TMP((), _member)
 
-#define MEM_GETTER_TMP(_tmp, _member)              \
-    GETTER_FML(                                    \
-        _tmp,                                      \
-        (MEM_TYPE(_member)), GETTER_NAME(_member), \
-        (GET_MEM(_member)))
+#define MEM_GETTER_TMP(_tmp, _member)                       \
+        GETTER_FML(                                         \
+                _tmp,                                       \
+                (MEM_TYPE(_member)), GETTER_NAME(_member),  \
+                (GET_MEM(_member)))
 
 #define MEM_GETTER(_member) \
-    MEM_GETTER_TMP((), _member)
+        MEM_GETTER_TMP((), _member)
 
 // const or mutable
 
 // cmp
 
 #define CMP_GETTER_BODY(_tmp, _type, _name, _body) \
-    SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, cmp, const, _body)
+        SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, cmp, const, _body)
 
 #define CMP_GETTER_FML(_tmp, _type, _name, _formula) \
-    CMP_GETTER_BODY(_tmp, _type, _name, FML_BODY(_formula))
+        CMP_GETTER_BODY(_tmp, _type, _name, FML_BODY(_formula))
 
 #define CMP_GETTER(_name, ...) CMP_GETTER_FML((), (auto), _name, (__VA_ARGS__))
 
-#define MEM_CMP_GETTER(_member)                    \
-    CMP_GETTER_FML(                                \
-        (),                                        \
-        (MEM_TYPE(_member)), GETTER_NAME(_member), \
-        (MEM_NAME(_member)))
+#define MEM_CMP_GETTER(_member)                             \
+        CMP_GETTER_FML(                                     \
+                (),                                         \
+                (MEM_TYPE(_member)), GETTER_NAME(_member),  \
+                (MEM_NAME(_member)))
 
-#define MEM_CMP_REF_GETTER(_member)                        \
-    CMP_GETTER_FML(                                        \
-        (),                                                \
-        (const MEM_TYPE(_member) &), GETTER_NAME(_member), \
-        (MEM_NAME(_member)))
+#define MEM_CMP_REF_GETTER(_member)                                 \
+        CMP_GETTER_FML(                                             \
+                (),                                                 \
+                (const MEM_TYPE(_member) &), GETTER_NAME(_member),  \
+                (MEM_NAME(_member)))
 
 // runtime
 
 // const
 
 #define CONST_GETTER_BODY(_tmp, _type, _name, _body) \
-    SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, SKIP, const, _body)
+        SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, SKIP, const, _body)
 
 #define CONST_GETTER_FML(_tmp, _type, _name, _formula) \
-    CONST_GETTER_BODY(_tmp, _type, _name, FML_BODY(_formula))
+        CONST_GETTER_BODY(_tmp, _type, _name, FML_BODY(_formula))
 
-#define CONST_GETTER(_name, ...) CONST_GETTER_FML((), (auto), _name, (__VA_ARGS__))
+#define CONST_GETTER(_name, ...) \
+        CONST_GETTER_FML((), (auto), _name, (__VA_ARGS__))
 
-#define MEM_VAL_GETTER(_member)                    \
-    CONST_GETTER_FML(                              \
-        (),                                        \
-        (MEM_TYPE(_member)), GETTER_NAME(_member), \
-        (GET_MEM(_member)))
+#define MEM_VAL_GETTER(_member)                             \
+        CONST_GETTER_FML(                                   \
+                (),                                         \
+                (MEM_TYPE(_member)), GETTER_NAME(_member),  \
+                (GET_MEM(_member)))
 
-#define MEM_CONST_GETTER(_member)                          \
-    CONST_GETTER_FML(                                      \
-        (),                                                \
-        (const MEM_TYPE(_member) &), GETTER_NAME(_member), \
-        (GET_MEM(_member)))
+#define MEM_CONST_GETTER(_member)                                   \
+        CONST_GETTER_FML(                                           \
+                (),                                                 \
+                (const MEM_TYPE(_member) &), GETTER_NAME(_member),  \
+                (GET_MEM(_member)))
 
 // mutable
 
 #define MUT_GETTER_BODY(_tmp, _type, _name, _body) \
-    SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, SKIP, SKIP, _body)
+        SINGLE_GETTER_BODY_IMPL(_tmp, _type, _name, SKIP, SKIP, _body)
 
 #define MUT_GETTER_FML(_tmp, _type, _name, _formula) \
-    MUT_GETTER_BODY(_tmp, _type, _name, FML_BODY(_formula))
+        MUT_GETTER_BODY(_tmp, _type, _name, FML_BODY(_formula))
 
-#define MUT_GETTER(_name, ...) MUT_GETTER_FML((), (auto), _name, (__VA_ARGS__))
+#define MUT_GETTER(_name, ...) \
+        MUT_GETTER_FML((), (auto), _name, (__VA_ARGS__))
 
-#define MEM_MUT_GETTER_TMP(_tmp, _member)            \
-    MUT_GETTER_FML(                                  \
-        _tmp,                                        \
-        (MEM_TYPE(_member) &), GETTER_NAME(_member), \
-        (GET_MEM(_member)))
+#define MEM_MUT_GETTER_TMP(_tmp, _member)                       \
+        MUT_GETTER_FML(                                         \
+                _tmp,                                           \
+                (MEM_TYPE(_member) &), GETTER_NAME(_member),    \
+                (GET_MEM(_member)))
 
 #define MEM_MUT_GETTER(_member) \
-    MEM_MUT_GETTER_TMP((), _member)
+        MEM_MUT_GETTER_TMP((), _member)
 
 
 // members
 
-#define DEF_MEM_TYPE(_type, _name) typ(MEM_TYPE(_name)) = SPREAD(_type)
-#define DEF_DEDUCED_MEM_TYPE(_name, _init) typ(MEM_TYPE(_name)) = ENV::unqualified_gt<decltype(SPREAD(_init))>
+#define DEF_MEM_TYPE(_type, _name) \
+        typ(MEM_TYPE(_name)) = SPREAD(_type)
+
+#define DEF_DEDUCED_MEM_TYPE(_name, _init) \
+        typ(MEM_TYPE(_name)) = ENV::unqualified_gt<decltype(SPREAD(_init))>
 
 #define DECL_MEM(_name) MEM_TYPE(_name) MEM_NAME(_name)
 
@@ -136,69 +147,69 @@
 #define DEF_DEDUCED_MEM(_name, _init) DECL_MEM(_name) { SPREAD(_init) }
 #define DEF_NIL_MEM(_type, _name) DECL_MEM(_name){ENV::nil}
 
-#define DECL(_type, _name)      \
-    ACCESS_BEGIN(protected);    \
-    DEF_MEM_TYPE(_type, _name); \
-    _MEM_GETTER(_name);         \
-                                \
-private:                        \
-    DECL_MEM(_name);            \
-    ACCESS_END(public)
+#define DECL(_type, _name)          \
+        ACCESS_BEGIN(protected);    \
+        DEF_MEM_TYPE(_type, _name); \
+        _MEM_GETTER(_name);         \
+                                    \
+    private:                        \
+        DECL_MEM(_name);            \
+        ACCESS_END(public)
 
-#define DEF(_type, _name, _init)  \
-    ACCESS_BEGIN(protected);      \
-    DEF_MEM_TYPE(_type, _name);   \
-    _MEM_GETTER(_name);           \
-                                  \
-private:                          \
-    DEF_MEM(_type, _name, _init); \
-    ACCESS_END(public)
-
-#define MEM(_name, _init)               \
-    ACCESS_BEGIN(protected);            \
-    DEF_DEDUCED_MEM_TYPE(_name, _init); \
-    _MEM_GETTER(_name);                 \
+#define DEF(_type, _name, _init)        \
+        ACCESS_BEGIN(protected);        \
+        DEF_MEM_TYPE(_type, _name);     \
+        _MEM_GETTER(_name);             \
                                         \
-private:                                \
-    DEF_DEDUCED_MEM(_name, _init);      \
-    ACCESS_END(public)
+    private:                            \
+        DEF_MEM(_type, _name, _init);   \
+        ACCESS_END(public)
 
-#define NIL(_type, _name)       \
-    ACCESS_BEGIN(protected);    \
-    DEF_MEM_TYPE(_type, _name); \
-    _MEM_GETTER(_name);         \
-                                \
-private:                        \
-    DEF_NIL_MEM(_type, _name);  \
-    ACCESS_END(public)
+#define MEM(_name, _init)                   \
+        ACCESS_BEGIN(protected);            \
+        DEF_DEDUCED_MEM_TYPE(_name, _init); \
+        _MEM_GETTER(_name);                 \
+                                            \
+    private:                                \
+        DEF_DEDUCED_MEM(_name, _init);      \
+        ACCESS_END(public)
 
-#define _DECL(_type, _name)     \
-    ACCESS_BEGIN(private);      \
-    DEF_MEM_TYPE(_type, _name); \
-    _MEM_GETTER(_name);         \
-    DECL_MEM(_name);            \
-    ACCESS_END(public)
+#define NIL(_type, _name)           \
+        ACCESS_BEGIN(protected);    \
+        DEF_MEM_TYPE(_type, _name); \
+        _MEM_GETTER(_name);         \
+                                    \
+    private:                        \
+        DEF_NIL_MEM(_type, _name);  \
+        ACCESS_END(public)
 
-#define _DEF(_type, _name, _init) \
-    ACCESS_BEGIN(private);        \
-    DEF_MEM_TYPE(_type, _name);   \
-    _MEM_GETTER(_name);           \
-    DEF_MEM(_type, _name, _init); \
-    ACCESS_END(public)
+#define _DECL(_type, _name)         \
+        ACCESS_BEGIN(private);      \
+        DEF_MEM_TYPE(_type, _name); \
+        _MEM_GETTER(_name);         \
+        DECL_MEM(_name);            \
+        ACCESS_END(public)
 
-#define _MEM(_name, _init)              \
-    ACCESS_BEGIN(private);              \
-    DEF_DEDUCED_MEM_TYPE(_name, _init); \
-    _MEM_GETTER(_name);                 \
-    DEF_DEDUCED_MEM(_name, _init);      \
-    ACCESS_END(public)
+#define _DEF(_type, _name, _init)       \
+        ACCESS_BEGIN(private);          \
+        DEF_MEM_TYPE(_type, _name);     \
+        _MEM_GETTER(_name);             \
+        DEF_MEM(_type, _name, _init);   \
+        ACCESS_END(public)
 
-#define _NIL(_type, _name)      \
-    ACCESS_BEGIN(private);      \
-    DEF_MEM_TYPE(_type, _name); \
-    _MEM_GETTER(_name);         \
-    DEF_NIL_MEM(_type, _name);  \
-    ACCESS_END(public)
+#define _MEM(_name, _init)                  \
+        ACCESS_BEGIN(private);              \
+        DEF_DEDUCED_MEM_TYPE(_name, _init); \
+        _MEM_GETTER(_name);                 \
+        DEF_DEDUCED_MEM(_name, _init);      \
+        ACCESS_END(public)
+
+#define _NIL(_type, _name)          \
+        ACCESS_BEGIN(private);      \
+        DEF_MEM_TYPE(_type, _name); \
+        _MEM_GETTER(_name);         \
+        DEF_NIL_MEM(_type, _name);  \
+        ACCESS_END(public)
 
 
 ENV_TEST_CASE("members")
@@ -268,8 +279,8 @@ cls with_reference_getter_t
 {
     DECL((const char *), member);
 
-    con cmp with_reference_getter_t(_member_t value) : _member{
-            ENV_STD::move(value)} { }
+    con cmp with_reference_getter_t(_member_t value) :
+            _member{ENV_STD::move(value)} { }
 
     MEM_GETTER(member);
 };
@@ -278,24 +289,28 @@ cls with_value_getter_t
 {
     DECL((const char *), member);
 
-    con cmp with_value_getter_t(_member_t value) : _member{
-            ENV_STD::move(value)} { }
+    con cmp with_value_getter_t(_member_t value) :
+            _member{ENV_STD::move(value)} { }
 
     MEM_CMP_GETTER(member);
 };
 
 ENV_TEST_END
 
+
 ENV_TEST_CASE("member getters")
 {
-    REQUIRES(is_ref_g <
-             decltype(test::with_reference_getter_t{""}.get_member()) >);
-    REQUIRES(
-            !is_ref_g < decltype(test::with_value_getter_t{""}.get_member()) >);
+    REQUIRES
+    (is_ref_g < decltype(test::with_reference_getter_t{""}.get_member()) >);
+    REQUIRES
+    (!is_ref_g < decltype(test::with_value_getter_t{""}.get_member()) >);
 
-    REQUIRE_EQ(test::with_reference_getter_t{"my_reference"}.get_member(),
-               "my_reference");
-    REQUIRE_EQ(test::with_value_getter_t{"my_value"}.get_member(), "my_value");
+    REQUIRE_EQ
+    (test::with_reference_getter_t{"my_reference"}.get_member(),
+     "my_reference");
+    REQUIRE_EQ
+    (test::with_value_getter_t{"my_value"}.get_member(),
+     "my_value");
 
     SUBCASE("reference separate")
     {
@@ -310,11 +325,12 @@ ENV_TEST_CASE("member getters")
             MEM_MUT_GETTER(member);
         };
 
-        REQUIRES(is_ref_g < decltype(with_separate_reference_getters_t{
-                ""}.get_member()) >);
-        REQUIRE_EQ(
-                with_separate_reference_getters_t{"my_reference"}.get_member(),
-                "my_reference");
+        REQUIRES
+        (is_ref_g <
+         decltype(with_separate_reference_getters_t{""}.get_member()) >);
+        REQUIRE_EQ
+        (with_separate_reference_getters_t{"my_reference"}.get_member(),
+         "my_reference");
     };
 }
 
@@ -398,7 +414,8 @@ ENV_TEST_CASE("singleton getters")
         {
             DECL_THIS(singleton_t);
 
-            singleton_t() : with_reference_getter_t{"singleton"} { }
+            singleton_t() :
+                    with_reference_getter_t{"singleton"} { }
 
 
             SINGLETON_GETTER;
@@ -415,7 +432,8 @@ ENV_TEST_CASE("singleton getters")
         {
             DECL_THIS(singleton_t);
 
-            con singleton_t() : with_reference_getter_t{"const singleton"} { }
+            con singleton_t() :
+                    with_reference_getter_t{"const singleton"} { }
 
             CONST_SINGLETON_GETTER;
         };
@@ -433,8 +451,8 @@ ENV_TEST_CASE("singleton getters")
             DECL_THIS(thread_safe_singleton_t);
 
         public:
-            con thread_safe_singleton_t() : with_reference_getter_t{
-                    "thread safe singleton"} { }
+            con thread_safe_singleton_t() :
+                    with_reference_getter_t{"thread safe singleton"} { }
 
             THREADED_MUT_SINGLETON_GETTER;
         };
@@ -457,8 +475,8 @@ ENV_TEST_CASE("singleton getters")
         {
             DECL_THIS(thread_safe_singleton_t);
 
-            thread_safe_singleton_t() : with_reference_getter_t{
-                    "const thread safe singleton"} { }
+            thread_safe_singleton_t() :
+                    with_reference_getter_t{"const thread safe singleton"} { }
 
             THREADED_CONST_SINGLETON_GETTER;
         };

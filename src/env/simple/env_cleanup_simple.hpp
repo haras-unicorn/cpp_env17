@@ -6,6 +6,10 @@
 
 #undef LABEL
 
+#undef FIELDS
+#undef FIELD
+#undef _FIELD
+
 #endif // ENV_UNDEF_SIMPLE
 
 

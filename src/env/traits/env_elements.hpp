@@ -8,7 +8,11 @@ COND_CHECK_UNARY
 (
         is_iterator,
         (is_propagated_g < T > ) &&
-        (is_indirect_g < T > && is_advanceable_g < T > && is_equatable_g < T > )
+        (
+                is_indirect_g < T > &&
+                is_advanceable_g < T > &&
+                is_equatable_g < T >
+        )
 );
 
 COND_CONCEPT(iterator, is_iterator_g<C>);
@@ -16,7 +20,11 @@ COND_CONCEPT(iterator, is_iterator_g<C>);
 
 tmp<name T> typ(iterator_element_gt) = subject_gt<iterator_r<T>>;
 
-COND_CHECK_BINARY(is_iterator_with_element, ENV_STD::is_same_v < iterator_element_gt<TLhs>, TRhs >);
+COND_CHECK_BINARY
+(
+        is_iterator_with_element,
+        ENV_STD::is_same_v < iterator_element_gt<TLhs>, TRhs >
+);
 
 COND_CONCEPT_UNARY(iterator_with_element, is_iterator_with_element_g<C, T>);
 
@@ -37,14 +45,24 @@ TEST_CASE("iterator traits")
 
 // iterables
 
-COND_CHECK_UNARY(is_iterable, is_iterator_g<decl(declvalr<T>().begin())> && is_iterator_g<decl(declvalr<T>().end())>);
+COND_CHECK_UNARY
+(
+        is_iterable,
+        is_iterator_g < decl(declvalr<T>().begin()) > &&
+        is_iterator_g < decl(declvalr<T>().end()) >
+);
 
 COND_CONCEPT(iterable, (is_iterable_g<C>));
 
-tmp<name T> typ(iterable_element_gt) = subject_gt<decl(declvalr<iterable_r<T>>().begin())>;
+tmp<name T>
+typ(iterable_element_gt) = subject_gt<decl(declvalr<iterable_r<T>>().begin())>;
 
 
-COND_CHECK_BINARY(is_iterable_with_element, (ENV_STD::is_same_v < iterable_element_gt<TLhs>, TRhs >));
+COND_CHECK_BINARY
+(
+        is_iterable_with_element,
+        (ENV_STD::is_same_v < iterable_element_gt<TLhs>, TRhs >)
+);
 
 COND_CONCEPT_UNARY(iterable_with_element, (is_iterable_with_element_g<C, T>));
 

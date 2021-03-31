@@ -1,13 +1,17 @@
-#ifndef ENV_NIL_HPP
-#define ENV_NIL_HPP
+#ifndef ENV_VAILD_HPP
+#define ENV_VAILD_HPP
 
 
 // checks
 
 ENV_DETAIL_BEGIN
 
-COND_CHECK_UNARY(is_zero_constructible, ENV_STD::is_integral_v < T > ||
-                                        ENV_STD::is_floating_point_v < T >);
+COND_CHECK_UNARY
+(
+        is_zero_constructible,
+        (ENV_STD::is_integral_v < T > ) ||
+        (ENV_STD::is_floating_point_v < T > )
+);
 
 EXPR_CHECK_UNARY(is_nullptr_constructible, T(nullptr));
 
@@ -28,12 +32,12 @@ TEST_CASE("nil checks")
     REQUIRES_FALSE(detail::is_nullptr_constructible_g<int>);
     REQUIRES(detail::is_zero_constructible_g<int>);
 
-    REQUIRES_FALSE(
-            detail::is_nullptr_constructible_g<test::default_constructible_t>);
-    REQUIRES_FALSE(
-            detail::is_zero_constructible_g<test::default_constructible_t>);
-    REQUIRES(ENV_STD::is_default_constructible_v <
-             test::default_constructible_t >);
+    REQUIRES_FALSE
+    (detail::is_nullptr_constructible_g<test::default_constructible_t>);
+    REQUIRES_FALSE
+    (detail::is_zero_constructible_g<test::default_constructible_t>);
+    REQUIRES
+    (ENV_STD::is_default_constructible_v < test::default_constructible_t >);
 }
 
 
@@ -387,4 +391,28 @@ ENV_TEST_CASE("is_(valid/invalid)")
 }
 
 
-#endif // ENV_NIL_HPP
+// valid, validator
+
+tmp<name T>
+cmp_fn valid(validatable_c<T>&& to_check) noex
+{
+    ret is_valid(ENV_STD::forward<T>(to_check));
+}
+
+strct validator_t
+{
+    tmp<name T>
+    cmp_fn op()(validatable_c<T>&& to_check) const noex
+    {
+        ret valid(ENV_STD::forward<T>(to_check));
+    }
+}
+cmp inl validator{ };
+
+ENV_TEST_CASE("valid, validator")
+{
+    REQUIRES_FALSE(validator(nil));
+}
+
+
+#endif // ENV_VAILD_HPP

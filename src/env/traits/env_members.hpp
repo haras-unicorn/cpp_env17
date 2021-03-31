@@ -20,16 +20,21 @@ strct member_gs<TMember THolder::*> : public type_gt<TMember>
 
 ENV_DETAIL_END
 
+
 COND_CHECK_UNARY(is_member, detail::member_gs<T>::is_member);
 
 COND_CONCEPT(member, is_member_g<C>);
 
-tmp<name T> typ(member_gs) = detail::member_gs<member_c<T>>;
 
-tmp<name T> typ(member_type_gt) = name detail::member_gs<member_c<T>>::type;
+tmp<name T>
+typ(member_gs) = detail::member_gs<member_c<T>>;
 
-tmp<name T> typ(member_holder_gt) = name detail::member_gs<
-        member_c<T>>::holder_t;
+tmp<name T>
+typ(member_type_gt) = name detail::member_gs<member_c<T>>::type;
+
+tmp<name T>
+typ(member_holder_gt) = name detail::member_gs<member_c<T>>::holder_t;
+
 
 TEST_CASE("members")
 {

@@ -65,7 +65,7 @@ TEST_CASE("members")
 
     SUBCASE("data detector")
     {
-        strct with_test_data_t { double test_data; };
+        strct with_test_data_t { private: nonced double test_data; };
         REQUIRES(test::has_test_data_g<with_test_data_t>);
         REQUIRES_FALSE(test::has_test_data_g<empty_t>);
         REQUIRES_FALSE(test::has_test_data_g<int>);
@@ -73,7 +73,7 @@ TEST_CASE("members")
 
     SUBCASE("function detector")
     {
-        strct with_test_function_t { nonced callb_p test_function(); };
+        strct with_test_function_t { private: nonced callb_p test_function(); };
         REQUIRES(test::has_test_function_g<with_test_function_t>);
         REQUIRES_FALSE(test::has_test_function_g<empty_t>);
         REQUIRES_FALSE(test::has_test_function_g<int>);
@@ -81,7 +81,7 @@ TEST_CASE("members")
 
     SUBCASE("operator detector")
     {
-        strct with_plus_t { fun operator+(double); };
+        strct with_plus_t { private: fun operator+(double); };
         REQUIRES(test::has_plus_g<with_plus_t>);
         REQUIRES_FALSE(test::has_plus_g<empty_t>);
         REQUIRES_FALSE(test::has_plus_g<int>);

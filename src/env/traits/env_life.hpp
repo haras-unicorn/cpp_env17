@@ -4,22 +4,33 @@
 
 // conversion traits
 
-COND_CHECK_BINARY(is_convertible, (ENV_STD::is_constructible_v < TRhs, TLhs >));
+COND_CHECK_BINARY
+(is_convertible, (ENV_STD::is_constructible_v < TRhs, TLhs >));
 
-COND_CONCEPT_UNARY(convertible, (is_convertible_g<C, T>));
+COND_CONCEPT_UNARY
+(convertible, (is_convertible_g<C, T>));
 
-COND_CHECK_BINARY(is_imp_convertible, (ENV_STD::is_convertible_v < TLhs, TRhs >));
+COND_CHECK_BINARY
+(is_imp_convertible, (ENV_STD::is_convertible_v < TLhs, TRhs >));
 
-COND_CONCEPT_UNARY(imp_convertible, (is_imp_convertible_g<C, T>));
+COND_CONCEPT_UNARY
+(imp_convertible, (is_imp_convertible_g<C, T>));
 
-COND_CHECK_BINARY(is_exp_convertible, (is_convertible_g<TLhs, TRhs> && !is_imp_convertible_g<TLhs, TRhs>));
+COND_CHECK_BINARY
+(
+        is_exp_convertible,
+        (is_convertible_g<TLhs, TRhs> && !is_imp_convertible_g<TLhs, TRhs>)
+);
 
-COND_CONCEPT_UNARY(exp_convertible, (is_exp_convertible_g<C, T>));
+COND_CONCEPT_UNARY
+(exp_convertible, (is_exp_convertible_g<C, T>));
 
 // Same as convertible - it's just more explicit about what it checks for.
-EXPR_CHECK_BINARY(is_static_castable, (static_cast<TRhs>(declvalr<TLhs>())));
+EXPR_CHECK_BINARY
+(is_static_castable, (static_cast<TRhs>(declvalr<TLhs>())));
 
-COND_CONCEPT_UNARY(static_castable, (is_static_castable_g<C, T>));
+COND_CONCEPT_UNARY
+(static_castable, (is_static_castable_g<C, T>));
 
 ENV_TEST_CASE("conversion traits")
 {
@@ -45,7 +56,8 @@ tmp<tmp<name...> class Template>
 strct tmp_ts
 {
     tmp<name... Types>
-    callb static consume(Template<Types...> arg) -> Template<Types...> { ret arg; }
+    callb static
+    consume(Template<Types...> arg) -> Template<Types...> { ret arg; }
 
     EXPR_TMP_UNARY((consume(declvalr<T>())))
     typ(converted_gt) = decltype(consume(declvalr<T>()));
@@ -73,57 +85,96 @@ ENV_TEST_CASE("template conversion traits")
     REQUIRES(is_imp_convertible_tmp_g < tmp_derived_t, variadic_vt >);
     REQUIRES(!is_imp_convertible_tmp_g < tmp_explicit_t, variadic_vt >);
 
-    REQUIRE_EQT(tmp_ts<variadic_vt>::converted_gt < tmp_derived_t >, variadic_vt<int>);
+    REQUIRE_EQT
+    (tmp_ts<variadic_vt>::converted_gt < tmp_derived_t >, variadic_vt<int>);
 }
 
 
 // writeable/placeable/transferable
 
-COND_CHECK_BINARY(is_placeable_on, ENV_STD::is_constructible_v < subject_gt < TRhs >, TLhs >);
+COND_CHECK_BINARY
+(
+        is_placeable_on,
+        ENV_STD::is_constructible_v < subject_gt < TRhs >, TLhs >
+);
 
 COND_CONCEPT_UNARY(placeable_on, is_placeable_on_g<C, T>);
 
-COND_CHECK_BINARY(is_writeable_to, ENV_STD::is_assignable_v < subject_gt < TRhs > &, TLhs >);
+COND_CHECK_BINARY
+(
+        is_writeable_to,
+        ENV_STD::is_assignable_v < subject_gt < TRhs > &, TLhs >
+);
 
 COND_CONCEPT_UNARY(writeable_to, is_writeable_to_g<C, T>);
 
-COND_CHECK_BINARY(is_transferable_to, ENV_STD::is_assignable_v < subject_gt < TRhs > &, subject_gt < TLhs > >);
+COND_CHECK_BINARY
+(
+        is_transferable_to,
+        ENV_STD::is_assignable_v < subject_gt < TRhs > &, subject_gt < TLhs > >
+);
 
 COND_CONCEPT_UNARY(transferable_to, is_transferable_to_g<C, T>);
 
 EXPR_CHECK_BINARY
 (
         are_interchangeable,
-        ENV_STD::swap(declval<subject_gt<TLhs>&>(), declval<subject_gt<TRhs>&>()),
-        ENV_STD::swap(declval<subject_gt<TRhs>&>(), declval<subject_gt<TLhs>&>())
+        ENV_STD::swap(declvall < subject_gt < TLhs > > (),
+                      declvall < subject_gt < TRhs > > ()),
+        ENV_STD::swap(declvall < subject_gt < TRhs > > (),
+                      declvall < subject_gt < TLhs > > ())
 );
 
 ENV_TEST_CASE("writeable/placeable/transferable/interchangeable")
 {
-    REQUIRES(is_placeable_on_g < int, int[]>);
-    REQUIRES(is_writeable_to_g < int, int*>);
-    REQUIRES(is_placeable_on_g<const int, int[3]>);
-    REQUIRES(is_writeable_to_g<const int, int*>);
-    REQUIRES(is_placeable_on_g<int, const int[]>);
-    REQUIRES(is_placeable_on_g < int, ENV_STD::unique_ptr<const int>>);
-    REQUIRES(is_placeable_on_g < int, ENV_STD::unique_ptr < int >>);
-    REQUIRES_FALSE(is_placeable_on_g < void(*)(), void(*)() >);
-    REQUIRES_FALSE(is_placeable_on_g < int *, ENV_STD::unique_ptr < int >>);
-    REQUIRES_FALSE(is_writeable_to_g<int, const int*>);
-    REQUIRES_FALSE(is_writeable_to_g < int, ENV_STD::unique_ptr<const int>>);
-    REQUIRES_FALSE(is_writeable_to_g<const int, const int*>);
-    REQUIRES_FALSE(is_writeable_to_g<const int, ENV_STD::unique_ptr<const int>>);
-    REQUIRES(is_transferable_to_g < int *, int[]>);
-    REQUIRES(is_transferable_to_g<const int[], int[3]>);
-    REQUIRES_FALSE(is_transferable_to_g<int[2], const int[]>);
-    REQUIRES_FALSE(is_transferable_to_g < int *, ENV_STD::unique_ptr<const int>>);
-    REQUIRES(is_transferable_to_g < int *, ENV_STD::unique_ptr < int >>);
-    REQUIRES_FALSE(is_transferable_to_g < void(*)(), void(*)() >);
-    REQUIRES_FALSE(is_transferable_to_g < int *, ENV_STD::unique_ptr<const int >>);
-    REQUIRES(are_interchangeable_g<int*, int*>);
-    REQUIRES_FALSE(are_interchangeable_g<const int*, const int*>);
-    REQUIRES_FALSE(are_interchangeable_g<const int*, int*>);
-    REQUIRES_FALSE(are_interchangeable_g<int*, const int*>);
+    REQUIRES
+    (is_placeable_on_g < int, int[]>);
+    REQUIRES
+    (is_writeable_to_g < int, int*>);
+    REQUIRES
+    (is_placeable_on_g<const int, int[3]>);
+    REQUIRES
+    (is_writeable_to_g<const int, int*>);
+    REQUIRES
+    (is_placeable_on_g<int, const int[]>);
+    REQUIRES
+    (is_placeable_on_g < int, ENV_STD::unique_ptr<const int>>);
+    REQUIRES
+    (is_placeable_on_g < int, ENV_STD::unique_ptr < int >>);
+    REQUIRES_FALSE
+    (is_placeable_on_g < void(*)(), void(*)() >);
+    REQUIRES_FALSE
+    (is_placeable_on_g < int *, ENV_STD::unique_ptr < int >>);
+    REQUIRES_FALSE
+    (is_writeable_to_g<int, const int*>);
+    REQUIRES_FALSE
+    (is_writeable_to_g < int, ENV_STD::unique_ptr<const int>>);
+    REQUIRES_FALSE
+    (is_writeable_to_g<const int, const int*>);
+    REQUIRES_FALSE
+    (is_writeable_to_g<const int, ENV_STD::unique_ptr<const int>>);
+    REQUIRES
+    (is_transferable_to_g < int *, int[]>);
+    REQUIRES
+    (is_transferable_to_g<const int[], int[3]>);
+    REQUIRES_FALSE
+    (is_transferable_to_g<int[2], const int[]>);
+    REQUIRES_FALSE
+    (is_transferable_to_g < int *, ENV_STD::unique_ptr<const int>>);
+    REQUIRES
+    (is_transferable_to_g < int *, ENV_STD::unique_ptr < int >>);
+    REQUIRES_FALSE
+    (is_transferable_to_g < void(*)(), void(*)() >);
+    REQUIRES_FALSE
+    (is_transferable_to_g < int *, ENV_STD::unique_ptr<const int >>);
+    REQUIRES
+    (are_interchangeable_g < int *, int*>);
+    REQUIRES_FALSE
+    (are_interchangeable_g<const int*, const int*>);
+    REQUIRES_FALSE
+    (are_interchangeable_g<const int*, int*>);
+    REQUIRES_FALSE
+    (are_interchangeable_g<int*, const int*>);
 }
 
 
@@ -141,11 +192,18 @@ COND_CONCEPT_UNARY(emplaceable, is_emplaceable_g<C, T>);
 
 ENV_TEST_CASE("emplaceable")
 {
-    REQUIRES(is_emplaceable_g<int*, v < int>>);
-    REQUIRES_FALSE(is_emplaceable_g<ENV_STD::pair < int, int> *, v < int > >);
-    REQUIRES(is_emplaceable_g<ENV_STD::pair < int, int> *, v < int, int > >);
-    REQUIRES(is_emplaceable_g<const ENV_STD::pair<int, int>*, v < int, int>>);
-    REQUIRES(is_emplaceable_g<ENV_STD::unique_ptr < ENV_STD::pair < int, int>>, v < int, int > >);
+    REQUIRES
+    (is_emplaceable_g<int*, v < int>>);
+    REQUIRES_FALSE
+    (is_emplaceable_g<ENV_STD::pair < int, int> *, v < int > >);
+    REQUIRES
+    (is_emplaceable_g<ENV_STD::pair < int, int> *, v < int, int > >);
+    REQUIRES
+    (is_emplaceable_g<const ENV_STD::pair<int, int>*, v < int, int>>);
+    REQUIRES
+    (is_emplaceable_g<
+             ENV_STD::unique_ptr < ENV_STD::pair < int, int >>,
+     v < int, int > >);
 }
 
 

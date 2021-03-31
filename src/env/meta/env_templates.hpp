@@ -22,8 +22,8 @@ ENV_TEST_CASE("template skips")
 // A lot of stuff depends on these macros and compilers vary a lot on this.
 // These current macros are passing on GCC, Clang and MSVC
 
-#define EXPR_TYPE(...) ENV::requirement_vt<decl(__VA_ARGS__)>
-#define EXPR_COND(...) (ENV::true_v<decl(__VA_ARGS__)>)
+#define EXPR_TYPE(...) ENV::requirement_vt<decl(nonce(__VA_ARGS__))>
+#define EXPR_COND(...) (ENV::true_v<decl(nonce(__VA_ARGS__))>)
 
 #define TYPE_EXPR(...) (ENV::requirement_v<__VA_ARGS__>)
 #define TYPE_COND(...) (ENV::true_v<__VA_ARGS__>)

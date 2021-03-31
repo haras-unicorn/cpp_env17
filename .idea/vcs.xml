@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/builds/fetch/env_bench_fetch_src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/builds/fetch/env_hana_fetch_src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/builds/fetch/env_test_fetch_src" vcs="Git" />
   </component>
 </project>

@@ -5,7 +5,7 @@
 // names and getter calls
 
 #define IS_VALID_NAME is_valid
-#define CHECK_IS_VALID(_type, _subject) (_subject.IS_VALID_NAME())
+#define CHECK_IS_VALID(_type, _subject) (ENV::is_valid(_subject))
 
 #define HASH_NAME hash
 #define GET_HASH(_type, _subject) (ENV::hash(_subject))
@@ -62,22 +62,23 @@
 
 // hash
 
-#define DEFINE_CALCULATE_HASH(_type, _pre, _post)                       \
+#define DEFINE_CALCULATE_HASH(_type, _pre, _post)                           \
     [[RETURN_ATTRIBUTES]] _pre inl ENV::hash_t calculate_hash() const _post \
-    {                                                                   \
-        ret GET_HASH(_type, (*this));                                   \
+    {                                                                       \
+        ret GET_HASH(_type, (*this));                                       \
     }
 
-#define DEFINE_HASH_OPERATOR(_type, _pre, _post)                     \
-    [[RETURN_ATTRIBUTES]] _pre inl explicit op ENV::hash_t() const _post \
-    {                                                                \
-        ret GET_HASH(_type, (*this));                                \
+#define DEFINE_HASH_OPERATOR(_type, _pre, _post)                            \
+    [[RETURN_ATTRIBUTES]] _pre inl explicit op ENV::hash_t() const _post    \
+    {                                                                       \
+        ret GET_HASH(_type, (*this));                                       \
     }
 
-#define DEFINE_STATIC_HASH(_type, _pre, _post)                                                   \
-    [[RETURN_ATTRIBUTES]] _pre static inl ENV::hash_t HASH_NAME(const SPREAD(_type) & subject) _post \
-    {                                                                                            \
-        ret GET_HASH(_type, subject);                                                            \
+#define DEFINE_STATIC_HASH(_type, _pre, _post)                      \
+    [[RETURN_ATTRIBUTES]] _pre static inl ENV::hash_t HASH_NAME(    \
+            const SPREAD(_type) & subject) _post                    \
+    {                                                               \
+        ret GET_HASH(_type, subject);                               \
     }
 
 #define DECLARE_HASH_FUNCTION(_type, _pre, _post) \
@@ -88,11 +89,12 @@
 
 #define DECLARE_BINARY_CHECK(_name, _type, _pre, _post) \
     [[RETURN_ATTRIBUTES]] _pre inl ENV::flag_t              \
-    _name(const SPREAD(_type) & rhs) const _post
+    _name(nonced const SPREAD(_type) & rhs) const _post
 
 #define DECLARE_STATIC_BINARY_CHECK(_name, _type_lhs, _type_rhs, _pre, _post) \
-    [[RETURN_ATTRIBUTES]] _pre static inl ENV::flag_t                             \
-    _name(const SPREAD(_type_lhs) & lhs, const SPREAD(_type_rhs) & rhs) _post
+    [[RETURN_ATTRIBUTES]] _pre static inl ENV::flag_t                         \
+    _name(nonced const SPREAD(_type_lhs) & lhs,                               \
+          nonced const SPREAD(_type_rhs) & rhs) _post
 
 #define DECLARE_NO_TEMPLATE_BINARY_CHECK(_name, _type, _pre, _post) \
     DECLARE_BINARY_CHECK(_name, _type, _pre, _post)
@@ -638,11 +640,14 @@ ENV_CLANG_SUPPRESS_POP
 
 // traits
 
-COND_CHECK_BINARY(are_hash_eq_compatible, (TLhs::tmp is_hash_eq_compatible_with_g < TRhs >));
+COND_CHECK_BINARY(are_hash_eq_compatible,
+                  (TLhs::tmp is_hash_eq_compatible_with_g < TRhs >));
 
-COND_CHECK_BINARY(are_equality_compatible, (TLhs::tmp is_equality_compatible_with_g < TRhs >));
+COND_CHECK_BINARY(are_equality_compatible,
+                  (TLhs::tmp is_equality_compatible_with_g < TRhs >));
 
-COND_CHECK_BINARY(are_comparison_compatible, (TLhs::tmp is_comparison_compatible_with_g < TRhs >));
+COND_CHECK_BINARY(are_comparison_compatible,
+                  (TLhs::tmp is_comparison_compatible_with_g < TRhs >));
 
 
 // tests
@@ -699,7 +704,8 @@ ENV_TEST_CASE("comparison")
         REQUIRE_GT(comparable_big, comparable_small);
         REQUIRE_LT(comparable_small, comparable_big);
         REQUIRE(comparable_small.is_less_than_or_equal_to(comparable_big));
-        REQUIRES(comparable_small.is_greater_than_or_equal_to(comparable_small));
+        REQUIRES(
+                comparable_small.is_greater_than_or_equal_to(comparable_small));
     }
 }
 
@@ -722,8 +728,14 @@ cls tmp_comparable_gt
     COMPAT(is_tmp_comparable);
     CMP_VALIDITY { ret get_value() >= _value_t{0}; }
     CMP_TMP_HASH { ret scast<hash_t>(get_value()); } // hash not constexpr
-    CMP_TMP_EQUALITY { ret get_value() == static_cast<_value_t>(rhs.get_value()); }
-    CMP_TMP_COMPARISON { ret get_value() < static_cast<_value_t>(rhs.get_value()); }
+    CMP_TMP_EQUALITY
+    {
+        ret get_value() == static_cast<_value_t>(rhs.get_value());
+    }
+    CMP_TMP_COMPARISON
+    {
+        ret get_value() < static_cast<_value_t>(rhs.get_value());
+    }
 };
 
 ENV_TEST_END
