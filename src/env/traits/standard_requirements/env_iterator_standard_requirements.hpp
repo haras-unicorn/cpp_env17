@@ -24,6 +24,7 @@ public:
             is_same,
             (name TOther),
             (TOther),
+
             ENV_STD::is_same_v<name iterator_traits_gt::value_t, name TOther::value_t> &&
             ENV_STD::is_same_v<name iterator_traits_gt::difference_t, name TOther::difference_t> &&
             ENV_STD::is_same_v<name iterator_traits_gt::reference_t, name TOther::reference_t> &&

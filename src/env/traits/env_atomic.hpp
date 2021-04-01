@@ -58,4 +58,18 @@ COND_CONCEPT(lock_free, is_lock_free_g<C>);
 tmp<name T> typ(atomic_value_gt) = detail::atomic_value_gt<atomic_r<T>>;
 
 
+ENV_TEST_CASE("atomic")
+{
+    REQUIRES(is_atomic_g<ENV_STD::atomic < int>>);
+    REQUIRES(is_atomic_g<ENV_STD::atomic_flag>);
+    REQUIRES_FALSE(is_atomic_g<int>);
+
+    REQUIRES(is_atomic_wrapper_g<ENV_STD::atomic < int>>);
+    REQUIRES_FALSE(is_atomic_wrapper_g<ENV_STD::atomic_flag>);
+
+    REQUIRE_EQT(atomic_value_gt<ENV_STD::atomic < int>>, int);
+    REQUIRE_EQT(atomic_value_gt<ENV_STD::atomic_flag>, bool);
+}
+
+
 #endif // ENV_ATOMIC_HPP

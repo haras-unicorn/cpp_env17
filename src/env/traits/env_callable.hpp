@@ -79,12 +79,13 @@ strct callable_gs<TReturn(TArguments...), TInheritor>
 {
     cmp_obj static bool is_consumer{true};
 
+
     typ(argument_tuple_t) = ENV_HANA::tuple<TArguments...>;
-    cmp_obj static ENV_STD::size_t argument_count =
-            ENV_HANA::tuple_size_v<argument_tuple_t>;
-    tmp<ENV_STD::size_t ArgumentIndex> typ(
-            argument_at_nt) = ENV_HANA::tuple_element_t<
-            ArgumentIndex, argument_tuple_t>;
+    cmp_obj static ENV_STD::size_t argument_count = sizeof...(TArguments);
+
+    tmp<ENV_STD::size_t ArgumentIndex>
+    typ(argument_at_nt) = name ENV::v<TArguments...>::tmp at_nt<ArgumentIndex>;
+
 
     typ(function_t) = TReturn(TArguments...);
     typ(function_ptr_t) = function_t*;
@@ -262,7 +263,6 @@ strct callable_gs<
 // NOTE: it is impossible to check if the holder is qualified for its templated call operator because
 // we can't get to the signature of an overloaded function and, therefore,
 // we can't get to the qualifiers of the function to check against the holder.
-// TODO: fix by adding a templates to members
 
 tmp<name TFunctor>
 strct callable_gs<
@@ -359,7 +359,6 @@ COND_CONCEPT(noex_callable, is_noex_callable_g<C>);
 
 
 // Uhh, yeah, so for some reason MSVC has an internal error if you don't do it like this
-// TODO: make small repro somehow
 
 ENV_DETAIL_BEGIN
 
@@ -433,8 +432,7 @@ ENV_TEST_CASE("callable traits")
         REQUIRES
         (is_callable_g<unqualified_gt<const ENV_STD::function<void()>>>);
         REQUIRES
-        (is_callable_g<
-                decl(&unqualified_gt<const ENV_STD::function<void()>>::op())>);
+        (is_callable_g<decl(&ENV_STD::function<void()>::op())>);
         REQUIRES
         (is_callable_g<const ENV_STD::function<void() >>);
         REQUIRES_FALSE
@@ -446,7 +444,8 @@ ENV_TEST_CASE("callable traits")
         (is_callable_g<decl(&test_t::int_unqualified_except_int)>);
         REQUIRE_EQT
         (
-                unqualified_gt < member_type_gt <
+                ENV::unqualified_gt <
+                ENV::member_type_gt <
                 decl(&test::templated_callable_t::lambda) >>,
                 ENV_STD::function < void() >
         );
