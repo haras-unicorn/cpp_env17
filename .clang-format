@@ -38,7 +38,7 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: MultiLine
 BreakBeforeBraces: Custom
 BreakBeforeBinaryOperators: None
-BreakBeforeTernaryOperators: true
+BreakBeforeTernaryOperators: false
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: AfterColon
 

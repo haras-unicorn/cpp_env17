@@ -12,30 +12,32 @@
 // so no conversion from type or expr into condition
 
 
-#define ON_COND(...)                                                        \
-        COND_TMP(                                                           \
-                (dep_name),                                                 \
-                (ENV_STD::is_same_v<TDep, ENV::void_t> && (__VA_ARGS__)))
+#define ON_COND(...) \
+    COND_TMP((dep_name), ENV::same_vt<TDep, ENV::void_t>, __VA_ARGS__)
 
 ENV_TEST_BEGIN
 
-tmp<name T>
-strct cond_const
+template<name T>
+struct cond_const
 {
-    ON_COND(ENV_STD::is_const_v < T >) cmp_fn test(int) const noex
+    ON_COND(ENV_STD::is_const<T>)
+    cmp_fn test(int) const noex
     {
         ret true;
     }
 
-    cmp_fn test(...) const noex { ret false; }
+    cmp_fn test(...) const noex
+    {
+        ret false;
+    }
 };
 
 ENV_TEST_END
 
 ENV_TEST_CASE("cond")
 {
-    REQUIRES(test::cond_const<const int>{ }.test(0));
-    REQUIRES_FALSE(test::cond_const<int>{ }.test(0));
+    REQUIRES(test::cond_const<const int>{}.test(0));
+    REQUIRES_FALSE(test::cond_const<int>{}.test(0));
 }
 
 

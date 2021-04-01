@@ -4,22 +4,18 @@
 
 // specialization traits
 
-ELABORATE_EXPR_CHECK
-(
+ELABORATE_EXPR_CHECK(
         is_specialization,
-        (name Type, tmp < name...> class Template),
+        (name Type, tmp<name...> class Template),
         (Type, Template),
         (tmp<name...> class Template, name... Types),
         (Template<Types...>, Template),
-        SKIP_EXPR
-);
+        SKIP_EXPR);
 
-ELABORATE_COND_CONCEPT
-(
+ELABORATE_COND_CONCEPT(
         specialization,
         (tmp<name...> class Of),
-        (is_specialization_g<C, Of>)
-);
+        is_specialization_gs<C, Of>);
 
 ENV_TEST_CASE("specialization traits")
 {
@@ -36,8 +32,8 @@ EXPR_CHECK_UNARY(is_complete, sizeof(T));
 
 ENV_TEST_CASE("completeness")
 {
-    REQUIRES(is_complete_g < int >);
-    REQUIRES_FALSE(is_complete_g < void >);
+    REQUIRES(is_complete_g<int>);
+    REQUIRES_FALSE(is_complete_g<void>);
 }
 
 

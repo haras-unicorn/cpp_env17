@@ -8,17 +8,17 @@ typ(std_ratio_num_t) = decl(ENV_STD::ratio<1, 1>::num);
 
 ENV_DETAIL_END
 
-tmp<uintmax_t Nominator, uintmax_t Denominator = 1>
+template<uintmax_t Nominator, uintmax_t Denominator = 1>
 typ(nratio_nns) = ENV_STD::ratio<Nominator, Denominator>;
 
-tmp<uintmax_t Nominator, uintmax_t Denominator>
-cmp_obj nratio_nns<Nominator, Denominator> nratio{ };
+template<uintmax_t Nominator, uintmax_t Denominator>
+cmp_obj nratio_nns<Nominator, Denominator> nratio{};
 
-tmp<intmax_t Nominator, intmax_t Denominator = 1>
+template<intmax_t Nominator, intmax_t Denominator = 1>
 typ(ratio_nns) = ENV_STD::ratio<Nominator, Denominator>;
 
-tmp<intmax_t Nominator, intmax_t Denominator>
-cmp_obj ratio_nns<Nominator, Denominator> ratio{ };
+template<intmax_t Nominator, intmax_t Denominator>
+cmp_obj ratio_nns<Nominator, Denominator> ratio{};
 
 ENV_TEST_CASE("ratios")
 {
@@ -35,13 +35,13 @@ ENV_TEST_CASE("ratios")
 }
 
 
-COND_CHECK_UNARY(is_nratio, (T::num > 0 && T::den > 0));
+COND_CHECK_UNARY(is_nratio, bool_nt<(T::num > 0 && T::den > 0)>);
 
-COND_CONCEPT(nratio, (is_nratio_g<C>));
+COND_CONCEPT(nratio, is_nratio_gs<C>);
 
-COND_CHECK_UNARY(is_ratio, (T::num || T::den));
+EXPR_CHECK_UNARY(is_ratio, T::num, T::den);
 
-COND_CONCEPT(ratio, (is_ratio_g<C>));
+COND_CONCEPT(ratio, is_ratio_gs<C>);
 
 ENV_TEST_CASE("ratio checks")
 {

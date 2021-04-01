@@ -33,27 +33,24 @@ ENV_TEST_CASE("no return")
 
 TAG(nores);
 
-#define res_name                                                               \
-    name TRes = nores_t,                                                       \
-         ENV::require_gt<ENV_STD::negation<ENV_STD::is_same<TRes, noret_t>>> = \
-                 ENV::requirement
+#define res_name name TRes = nores_t
 
-#define deduc_res(...)                         \
-    ENV_STD::conditional_t<                    \
-            ENV_STD::is_same_v<TRes, nores_t>, \
-            __VA_ARGS__,                       \
+#define deduc_res(...)                          \
+    ENV_STD::conditional_t<                     \
+            ENV::same_vt<TRes, nores_t>::value, \
+            __VA_ARGS__,                        \
             TRes>
 
-#define res_t(...)                             \
-    ENV_STD::conditional_t<                    \
-            ENV_STD::is_same_v<TRes, nores_t>, \
-            __VA_ARGS__,                       \
+#define res_t(...)                              \
+    ENV_STD::conditional_t<                     \
+            ENV::same_vt<TRes, nores_t>::value, \
+            __VA_ARGS__,                        \
             TRes>
 
-#define res_cast(...)                            \
-    CMP_TERN(                                    \
-            (ENV_STD::is_same_v<TRes, nores_t>), \
-            (__VA_ARGS__),                       \
+#define res_cast(...)                             \
+    CMP_TERN(                                     \
+            (ENV::same_vt<TRes, nores_t>::value), \
+            (__VA_ARGS__),                        \
             (scast<TRes>(__VA_ARGS__)))
 
 #define res_con(...)                             \

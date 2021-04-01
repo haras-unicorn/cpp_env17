@@ -5,44 +5,42 @@
 // from: https://en.wikibooks.org/wiki/More_C++_Idioms/Member_Detector
 // especially useful for detecting overloaded member functions
 
-#define MEMBER_DETECTOR(_name, _get, ...)                                   \
-    namespace CAT(_has_, _name)                                             \
-    {                                                                       \
-        namespace                                                           \
-        {                                                                   \
-            strct fallback_t{__VA_ARGS__};                                  \
-            COND_TMP_UNARY(ENV_STD::is_class_v<T>)                          \
-            strct derived_gt : T, fallback_t{};                             \
-            EXPR_CHECK_UNARY(CAT(hasnt_, _name), _get);                     \
-        }                                                                   \
-                                                                            \
-        COND_CHECK_UNARY                                                    \
-        (                                                                   \
-                CAT(has_, _name),                                           \
-                !INTER(hasnt_, _name, _g) < derived_gt<T> >                 \
-        );                                                                  \
-    }                                                                       \
-                                                                            \
-    using CAT(_has_, _name)::INTER(has_, _name, _gs);                       \
-    using CAT(_has_, _name)::INTER(has_, _name, _gt);                       \
+#define MEMBER_DETECTOR(_name, _get, ...)                                  \
+    namespace CAT(_has_, _name)                                            \
+    {                                                                      \
+        namespace                                                          \
+        {                                                                  \
+        strct fallback_t{__VA_ARGS__};                                     \
+        COND_TMP_UNARY(ENV_STD::is_class<T>)                               \
+        strct derived_gt : T, fallback_t{};                                \
+        EXPR_CHECK_UNARY(CAT(hasnt_, _name), _get);                        \
+        }                                                                  \
+                                                                           \
+        COND_CHECK_UNARY(                                                  \
+                CAT(has_, _name),                                          \
+                ENV::neg_vt<INTER(hasnt_, _name, _gs) < derived_gt<T>> >); \
+    }                                                                      \
+                                                                           \
+    using CAT(_has_, _name)::INTER(has_, _name, _gs);                      \
+    using CAT(_has_, _name)::INTER(has_, _name, _gt);                      \
     using CAT(_has_, _name)::INTER(has_, _name, _g)
 
 
 #define DATA_DETECTOR(_name) \
-        MEMBER_DETECTOR(_name, &T::_name, int PACK(_name);)
+    MEMBER_DETECTOR(_name, &T::_name, int PACK(_name);)
 
 #define FUNCTION_DETECTOR(_name) \
-        MEMBER_DETECTOR(_name, &T::_name, void _name();)
+    MEMBER_DETECTOR(_name, &T::_name, void _name();)
 
 #define OPERATOR_DETECTOR(_name, _operator, ...) \
-        MEMBER_DETECTOR(_name, &T::_operator, __VA_ARGS__)
+    MEMBER_DETECTOR(_name, &T::_operator, __VA_ARGS__)
 
 
 #define SDATA_DETECTOR(_name) \
-        EXPR_CHECK_UNARY(CAT(has_, _name), T::_name)
+    EXPR_CHECK_UNARY(CAT(has_, _name), T::_name)
 
 #define ALIAS_DETECTOR(_name) \
-        TYPE_CHECK_UNARY(CAT(has_, _name), name T::_name)
+    TYPE_CHECK_UNARY(CAT(has_, _name), name T::_name)
 
 
 ENV_TEST_BEGIN
@@ -54,18 +52,25 @@ SDATA_DETECTOR(test_sdata);
 
 ALIAS_DETECTOR(test_alias);
 
-strct with_test_sdata_t { nonced let_cmp_p static test_sdata{.0}; };
+strct with_test_sdata_t
+{
+    nonced let_cmp_p static test_sdata{.0};
+};
 
 ENV_TEST_END
 
 
 TEST_CASE("members")
 {
-    strct empty_t { };
+    strct empty_t{};
 
     SUBCASE("data detector")
     {
-        strct with_test_data_t { private: nonced double test_data; };
+        strct with_test_data_t
+        {
+        private:
+            nonced double test_data;
+        };
         REQUIRES(test::has_test_data_g<with_test_data_t>);
         REQUIRES_FALSE(test::has_test_data_g<empty_t>);
         REQUIRES_FALSE(test::has_test_data_g<int>);
@@ -73,7 +78,11 @@ TEST_CASE("members")
 
     SUBCASE("function detector")
     {
-        strct with_test_function_t { private: nonced callb_p test_function(); };
+        strct with_test_function_t
+        {
+        private:
+            nonced callb_p test_function();
+        };
         REQUIRES(test::has_test_function_g<with_test_function_t>);
         REQUIRES_FALSE(test::has_test_function_g<empty_t>);
         REQUIRES_FALSE(test::has_test_function_g<int>);
@@ -81,7 +90,11 @@ TEST_CASE("members")
 
     SUBCASE("operator detector")
     {
-        strct with_plus_t { private: fun operator+(double); };
+        strct with_plus_t
+        {
+        private:
+            fun operator+(double);
+        };
         REQUIRES(test::has_plus_g<with_plus_t>);
         REQUIRES_FALSE(test::has_plus_g<empty_t>);
         REQUIRES_FALSE(test::has_plus_g<int>);
@@ -96,7 +109,10 @@ TEST_CASE("members")
 
     SUBCASE("alias detector")
     {
-        strct with_test_alias_t { typ_a(test_alias, maybe_unused) = double; };
+        strct with_test_alias_t
+        {
+            typ_a(test_alias, maybe_unused) = double;
+        };
         REQUIRES(test::has_test_alias_g<with_test_alias_t>);
         REQUIRES_FALSE(test::has_test_alias_g<empty_t>);
         REQUIRES_FALSE(test::has_test_alias_g<int>);

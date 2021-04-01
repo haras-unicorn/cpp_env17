@@ -5,13 +5,13 @@
 // skips
 
 #define SKIP_COND true
-#define SKIP_EXPR ENV::requirement
-#define SKIP_TYPE ENV::requirement_t
+#define SKIP_EXPR ENV::req
+#define SKIP_TYPE ENV::req_t
 
 ENV_TEST_CASE("template skips")
 {
     REQUIRES(SKIP_COND);
-    REQUIRE_EQT(decl(SKIP_EXPR), const success_t);
+    REQUIRE_EQT(decl(SKIP_EXPR), const succ_t);
 }
 
 
@@ -22,16 +22,16 @@ ENV_TEST_CASE("template skips")
 // A lot of stuff depends on these macros and compilers vary a lot on this.
 // These current macros are passing on GCC, Clang and MSVC
 
-#define EXPR_TYPE(...) ENV::requirement_vt<decl(nonce(__VA_ARGS__))>
+#define EXPR_TYPE(...) ENV::req_vt<decl(nonce(__VA_ARGS__))>
 #define EXPR_COND(...) (ENV::true_v<decl(nonce(__VA_ARGS__))>)
 
-#define TYPE_EXPR(...) (ENV::requirement_v<__VA_ARGS__>)
+#define TYPE_EXPR(...) (ENV::req_v<__VA_ARGS__>)
 #define TYPE_COND(...) (ENV::true_v<__VA_ARGS__>)
 
-#define COND_EXPR(...) (ENV::require_nt<__VA_ARGS__>{})
-#define COND_TYPE(...) ENV::require_nt<__VA_ARGS__>
+#define COND_TYPE(...) name ENV_STD::enable_if<ENV::con_vt<__VA_ARGS__>::value, req_t>::type
+#define COND_EXPR(...) (COND_TYPE(__VA_ARGS__){})
 
-#define INSTANT(...) ENV::requirement_vt<__VA_ARGS__>
+#define INSTANT(...) ENV::req_vt<__VA_ARGS__>
 
 ENV_TEST_CASE("expression conversion")
 {
@@ -45,9 +45,9 @@ ENV_TEST_CASE("expression conversion")
         {
             ret TYPE_COND(bool);
         }
-        cmp_fn flag() const noex->first_gvt<bool, COND_TYPE(true)>
+        cmp_fn flag() const noex->first_gvt<bool, COND_TYPE(ENV_STD::true_type)>
         {
-            ret EXPR_COND(COND_EXPR(true));
+            ret EXPR_COND(COND_EXPR(ENV_STD::true_type));
         }
     }
     cmp test{};
@@ -55,70 +55,64 @@ ENV_TEST_CASE("expression conversion")
     REQUIRES(test.exp() == true);
     REQUIRES(test.type() == true);
     REQUIRES(test.flag() == true);
-    REQUIRE_EQT(INSTANT(int, float, void), requirement_t);
+    REQUIRE_EQT(INSTANT(int, float, void), req_t);
 }
 
 
 // cond
 
-#define COND_TMP_OPT(_tmp, ...) \
-    tmp<SPREAD(_tmp) COND_TYPE(__VA_ARGS__) = ENV::requirement>
-
-#define COND_TMP(_tmp, ...)    COND_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
-#define COND_TMP_UNARY(...)    COND_TMP((name T), __VA_ARGS__)
-#define COND_TMP_BINARY(...)   COND_TMP((name TLhs, name TRhs), __VA_ARGS__)
-#define COND_TMP_TERNARY(...)  COND_TMP((name T1, name T2, name T3), __VA_ARGS__)
-#define COND_TMP_VARIADIC(...) COND_TMP((name... TVar), __VA_ARGS__)
+#define COND_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) COND_TYPE(__VA_ARGS__) = ENV::req>
+#define COND_TMP(_tmp, ...)     COND_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
+#define COND_TMP_UNARY(...)     COND_TMP((name T), __VA_ARGS__)
+#define COND_TMP_BINARY(...)    COND_TMP((name TLhs, name TRhs), __VA_ARGS__)
+#define COND_TMP_TERNARY(...)   COND_TMP((name T1, name T2, name T3), __VA_ARGS__)
+#define COND_TMP_VARIADIC(...)  COND_TMP((name... TVar), __VA_ARGS__)
 
 ENV_TEST_BEGIN
 
-COND_TMP_UNARY(ENV_STD::is_same_v<T, void>)
+COND_TMP_UNARY(same_vt<void, T>)
 cmp_fn void_unary() noex
 {
     ret true;
 }
 
-COND_TMP_UNARY(!ENV_STD::is_same_v<T, void>)
+COND_TMP_UNARY(neg_vt<same_vt<void, T>>)
 cmp_fn void_unary() noex
 {
     ret false;
 }
 
-COND_TMP_BINARY(ENV_STD::is_same_v<TLhs, void>&& ENV_STD::is_same_v<TRhs, void>)
+COND_TMP_BINARY(same_vt<void, TLhs, TRhs>)
 cmp_fn void_binary() noex
 {
     ret true;
 }
 
-COND_TMP_BINARY(!ENV_STD::is_same_v<TLhs, void> || !ENV_STD::is_same_v<TRhs, void>)
+COND_TMP_BINARY(neg_vt<same_vt<void, TLhs, TRhs>>)
 cmp_fn void_binary() noex
 {
     ret false;
 }
 
-COND_TMP_TERNARY((ENV_STD::is_same_v<T1, void>) &&(ENV_STD::is_same_v<T2, void>) &&(ENV_STD::is_same_v<T3, void>) )
+COND_TMP_TERNARY(same_vt<void, T1, T2, T3>)
 cmp_fn void_ternary() noex
 {
     ret true;
 }
 
-COND_TMP_TERNARY((!ENV_STD::is_same_v<T1, void>) ||
-                 (!ENV_STD::is_same_v<T2, void>) ||
-                 (!ENV_STD::is_same_v<T3, void>) )
+COND_TMP_TERNARY(neg_vt<same_vt<void, T1, T2, T3>>)
 cmp_fn void_ternary() noex
 {
     ret false;
 }
 
-COND_TMP_VARIADIC(ENV_STD::conjunction_v<
-                  ENV_STD::is_same<TVar, void>...>)
+COND_TMP_VARIADIC(same_vt<void, TVar...>)
 cmp_fn void_variadic() noex
 {
     ret true;
 }
 
-COND_TMP_VARIADIC(ENV_STD::disjunction_v<
-                  ENV_STD::negation<ENV_STD::is_same<TVar, void>>...>)
+COND_TMP_VARIADIC(neg_vt<same_vt<void, TVar...>>)
 cmp_fn void_variadic() noex
 {
     ret false;
@@ -158,18 +152,16 @@ ENV_TEST_CASE("require template")
 
 // expr
 
-#define EXPR_TMP_OPT(_tmp, ...) \
-    tmp<SPREAD(_tmp) EXPR_TYPE(__VA_ARGS__) = ENV::requirement>
-
-#define EXPR_TMP(_tmp, ...)    EXPR_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
-#define EXPR_TMP_UNARY(...)    EXPR_TMP((name T), __VA_ARGS__)
-#define EXPR_TMP_BINARY(...)   EXPR_TMP((name TLhs, name TRhs), __VA_ARGS__)
-#define EXPR_TMP_TERNARY(...)  EXPR_TMP((name T1, name T2, name T3), __VA_ARGS__)
-#define EXPR_TMP_VARIADIC(...) EXPR_TMP((name... TVar), __VA_ARGS__)
+#define EXPR_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) EXPR_TYPE(__VA_ARGS__) = ENV::req>
+#define EXPR_TMP(_tmp, ...)     EXPR_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
+#define EXPR_TMP_UNARY(...)     EXPR_TMP((name T), __VA_ARGS__)
+#define EXPR_TMP_BINARY(...)    EXPR_TMP((name TLhs, name TRhs), __VA_ARGS__)
+#define EXPR_TMP_TERNARY(...)   EXPR_TMP((name T1, name T2, name T3), __VA_ARGS__)
+#define EXPR_TMP_VARIADIC(...)  EXPR_TMP((name... TVar), __VA_ARGS__)
 
 ENV_TEST_BEGIN
 
-EXPR_TMP_UNARY(ENV::declval<T>() + ENV::declval<T>())
+EXPR_TMP_UNARY(declval<T>() + declval<T>())
 cmp_fn test_addable_unary(int) noex
 {
     ret true;
@@ -181,7 +173,7 @@ nonced cmp_fn_p test_addable_unary(...) noex
     ret false;
 }
 
-EXPR_TMP_BINARY(ENV::declval<TLhs>() + ENV::declval<TRhs>())
+EXPR_TMP_BINARY(declval<TLhs>() + declval<TRhs>())
 cmp_fn test_addable_binary(int) noex
 {
     ret true;
@@ -193,7 +185,7 @@ nonced cmp_fn_p test_addable_binary(...) noex
     ret false;
 }
 
-EXPR_TMP_TERNARY(ENV::declval<T1>() + ENV::declval<T2>() + ENV::declval<T3>())
+EXPR_TMP_TERNARY(declval<T1>() + declval<T2>() + declval<T3>())
 cmp_fn test_addable_ternary(int) noex
 {
     ret true;
@@ -211,7 +203,7 @@ template<name... T>
 cmp_fn sum_res(T&&... args) noex
         ->name variadic_vt<decl((args + ...)), void>::last_t;
 
-EXPR_TMP_VARIADIC(sum_res(ENV::declval<TVar>()...))
+EXPR_TMP_VARIADIC(sum_res(declval<TVar>()...))
 cmp_fn test_addable_variadic(int) noex
 {
     ret true;
@@ -243,10 +235,8 @@ ENV_TEST_CASE("expr template")
 
     SUBCASE("ternary")
     {
-        REQUIRES(
-                test::test_addable_ternary<int, int, int>(0));
-        REQUIRES_FALSE(
-                test::test_addable_ternary<nullptr_t, nullptr_t, int>(0));
+        REQUIRES(test::test_addable_ternary<int, int, int>(0));
+        REQUIRES_FALSE(test::test_addable_ternary<nullptr_t, nullptr_t, int>(0));
     }
 
 #if ENV_CPP >= 17 // fold expression
@@ -265,14 +255,12 @@ ENV_TEST_CASE("expr template")
 
 // type
 
-#define TYPE_TMP_OPT(_tmp, ...) \
-    tmp<SPREAD(_tmp) INSTANT(__VA_ARGS__) = ENV::requirement>
-
-#define TYPE_TMP(_tmp, ...)    TYPE_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
-#define TYPE_TMP_UNARY(...)    TYPE_TMP((name T), __VA_ARGS__)
-#define TYPE_TMP_BINARY(...)   TYPE_TMP((name TLhs, name TRhs), __VA_ARGS__)
-#define TYPE_TMP_TERNARY(...)  TYPE_TMP((name T1, name T2, name T3), __VA_ARGS__)
-#define TYPE_TMP_VARIADIC(...) TYPE_TMP((name... TVar), __VA_ARGS__)
+#define TYPE_TMP_OPT(_tmp, ...) tmp<SPREAD(_tmp) INSTANT(__VA_ARGS__) = ENV::req>
+#define TYPE_TMP(_tmp, ...)     TYPE_TMP_OPT((SPREAD(_tmp), ), __VA_ARGS__)
+#define TYPE_TMP_UNARY(...)     TYPE_TMP((name T), __VA_ARGS__)
+#define TYPE_TMP_BINARY(...)    TYPE_TMP((name TLhs, name TRhs), __VA_ARGS__)
+#define TYPE_TMP_TERNARY(...)   TYPE_TMP((name T1, name T2, name T3), __VA_ARGS__)
+#define TYPE_TMP_VARIADIC(...)  TYPE_TMP((name... TVar), __VA_ARGS__)
 
 ENV_TEST_BEGIN
 
@@ -303,7 +291,7 @@ nonced cmp_fn_p test_subtractable_binary(...) noex
     ret false;
 }
 
-TYPE_TMP_TERNARY(enable_minus_gt<T1>, ENV_STD::minus<T2>, enable_minus_gt<T3>)
+TYPE_TMP_TERNARY(enable_minus_gt<T1>, enable_minus_gt<T2>, enable_minus_gt<T3>)
 cmp_fn test_subtractable_ternary(int) noex
 {
     ret true;
@@ -329,7 +317,7 @@ nonced cmp_fn_p test_subtractable_variadic(...) noex
 
 ENV_TEST_END
 
-ENV_TEST_CASE("expr template")
+ENV_TEST_CASE("type template")
 {
     SUBCASE("unary")
     {
@@ -354,8 +342,7 @@ ENV_TEST_CASE("expr template")
         REQUIRES(test::test_subtractable_variadic<int, int, int>(0));
         REQUIRES(test::test_subtractable_variadic<int, int>(0));
         REQUIRES_FALSE(test::test_subtractable_variadic<int, nullptr_t>(0));
-        REQUIRES_FALSE(test::test_subtractable_variadic<
-                       int, nullptr_t, double, nullptr_t>(0));
+        REQUIRES_FALSE(test::test_subtractable_variadic<int, nullptr_t, double, nullptr_t>(0));
     }
 }
 

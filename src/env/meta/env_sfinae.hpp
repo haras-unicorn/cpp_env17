@@ -52,38 +52,35 @@ strct variadic_vt<THead, TRest...>
     let_cmp static has_n = !ENV_STD::is_same_v<at_nt<Index>, fail_t>;
 };
 
-
-// shorthand
-
 template<name... T>
-typ(v) = variadic_vt<T...>;
+typ(var_vt) = variadic_vt<T...>;
 
 
 ENV_TEST_CASE("variadic")
 {
-    REQUIRES(variadic_vt<int, int>::rank == 2);
-    REQUIRE_EQT(variadic_vt<int, double, float>::at_nt<2>, float);
-    REQUIRE_EQT(variadic_vt<int, double, float>::at_nt<3>, fail_t);
-    REQUIRE_EQT(variadic_vt<int, double, float>::last_t, float);
-    REQUIRE_EQT(variadic_vt<int>::last_t, int);
-    REQUIRE_EQT(variadic_vt<>::last_t, fail_t);
-    REQUIRE_EQT(variadic_vt<>::at_nt<534>, fail_t);
+    REQUIRES(var_vt<int, int>::rank == 2);
+    REQUIRE_EQT(var_vt<int, double, float>::at_nt<2>, float);
+    REQUIRE_EQT(var_vt<int, double, float>::at_nt<3>, fail_t);
+    REQUIRE_EQT(var_vt<int, double, float>::last_t, float);
+    REQUIRE_EQT(var_vt<int>::last_t, int);
+    REQUIRE_EQT(var_vt<>::last_t, fail_t);
+    REQUIRE_EQT(var_vt<>::at_nt<534>, fail_t);
 }
 
 
 // require
 
-template<name TCondition, name TResult = requirement_t>
+template<name TCondition, name TResult = req_t>
 strct require_ggs : public ENV_STD::enable_if<TCondition::value, TResult>{};
 
-template<name TCondition, name TResult = requirement_t>
+template<name TCondition, name TResult = req_t>
 typ(require_ggt) = ENV_STD::enable_if_t<TCondition::value, TResult>;
 
 template<name TCondition>
-typ(require_gs) = ENV_STD::enable_if<TCondition::value, requirement_t>;
+typ(require_gs) = ENV_STD::enable_if<TCondition::value, req_t>;
 
 template<name TCondition>
-typ(require_gt) = ENV_STD::enable_if_t<TCondition::value, requirement_t>;
+typ(require_gt) = ENV_STD::enable_if_t<TCondition::value, req_t>;
 
 ENV_TEST_CASE("require")
 {
@@ -91,17 +88,17 @@ ENV_TEST_CASE("require")
     REQUIRE_EQT(require_ggt<ENV_STD::true_type, int>, int);
 }
 
-template<bool Condition, name TResult = requirement_t>
+template<bool Condition, name TResult = req_t>
 strct require_ngs : public ENV_STD::enable_if<Condition, TResult>{};
 
-template<bool Condition, name TResult = requirement_t>
+template<bool Condition, name TResult = req_t>
 typ(require_ngt) = ENV_STD::enable_if_t<Condition, TResult>;
 
 template<bool Condition>
-typ(require_ns) = ENV_STD::enable_if<Condition, requirement_t>;
+typ(require_ns) = ENV_STD::enable_if<Condition, req_t>;
 
 template<bool Condition>
-typ(require_nt) = ENV_STD::enable_if_t<Condition, requirement_t>;
+typ(require_nt) = ENV_STD::enable_if_t<Condition, req_t>;
 
 ENV_TEST_CASE("require")
 {
@@ -112,7 +109,7 @@ ENV_TEST_CASE("require")
 
 #if ENV_CPP >= 17
 
-template<bool Condition, deduc Result = requirement>
+template<bool Condition, deduc Result = req>
 strct require_nns;
 
 template<deduc Result>
@@ -121,16 +118,16 @@ strct require_nns<true, Result> : public value_nt<Result>{};
 template<deduc Result>
 strct require_nns<false, Result>{};
 
-template<bool Condition, deduc Result = requirement>
+template<bool Condition, deduc Result = req>
 let_cmp require_nn{require_nns<Condition, Result>::value};
 
 template<bool Condition>
-let_cmp require_n{require_nn<Condition, requirement>};
+let_cmp require_n{require_nn<Condition, req>};
 
 ENV_TEST_CASE("require 17")
 {
     REQUIRES(require_nn<true, 1> == 1);
-    REQUIRES(require_n<true> == requirement);
+    REQUIRES(require_n<true> == req);
 }
 
 #endif // ENV_CPP >= 17
@@ -222,9 +219,16 @@ ENV_TEST_CASE("implies")
 // qualified
 
 template<name T>
-cmp_obj bool is_qualified_g{
-        ENV_STD::is_reference_v<T> || ENV_STD::is_const_v<T> ||
-        ENV_STD::is_volatile_v<T>};
+typ(is_qualified_gs) =
+        dis_vt<ENV_STD::is_reference<T>,
+               ENV_STD::is_const<T>,
+               ENV_STD::is_volatile<T>>;
+
+template<name T>
+typ(is_qualified_gt) = is_qualified_gs<T>;
+
+template<name T>
+cmp_obj bool is_qualified_g{is_qualified_gs<T>::value};
 
 template<name T>
 typ(unqualified_gt) = ENV_STD::remove_cv_t<ENV_STD::remove_reference_t<T>>;

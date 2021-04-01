@@ -4,32 +4,32 @@
 
 // tags
 
-enm       success_t : bool { }
-cmp_obj_p success{true};
+enm       succ_t : bool { }
+cmp_obj_p succ{true};
 
 enm       fail_t : bool { }
 cmp_obj_p fail{false};
 
 
-typ(requirement_t) = success_t;
-let_cmp requirement{success_t{true}};
+typ(req_t) = succ_t;
+let_cmp req{succ_t{true}};
 
 
 // check
 
 template<name T>
-cmp_obj bool is_success_g{
-        ENV_STD::is_same_v<T, success_t>};
+cmp_obj bool is_succ_g{
+        ENV_STD::is_same_v<T, succ_t>};
 
 #if ENV_CPP >= 17
 
 template<deduc Expr>
-cmp_obj bool is_success_n{
-        ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, success_t>};
+cmp_obj bool is_succ_n{
+        ENV_STD::is_same_v<ENV_STD::remove_const_t<decl(Expr)>, succ_t>};
 
 #else // ENV_CPP >= 17
 
-tmp<nullptr_t Expr> cmp_obj bool is_success_n{true};
+tmp<nullptr_t Expr> cmp_obj bool is_succ_n{true};
 
 #endif // ENV_CPP >= 17
 
@@ -52,35 +52,35 @@ tmp<fail_t Expr> cmp_obj bool is_fail_n{true};
 
 
 template<name T>
-cmp_obj bool is_requirement_g{
-        ENV_STD::is_same_v<T, requirement_t>};
+cmp_obj bool is_req_g{
+        ENV_STD::is_same_v<T, req_t>};
 
 #if ENV_CPP >= 17
 
 template<deduc Expr>
-cmp_obj bool is_requirement_n{
+cmp_obj bool is_req_n{
         ENV_STD::is_same_v<
                 ENV_STD::remove_const_t<decl(Expr)>,
-                requirement_t>};
+                req_t>};
 
 #else // ENV_CPP >= 17
 
-tmp<nullptr_t Expr> cmp_obj bool is_requirement_n{true};
+tmp<nullptr_t Expr> cmp_obj bool is_req_n{true};
 
 #endif // ENV_CPP >= 17
 
 
-ENV_TEST_CASE("check success/fail")
+ENV_TEST_CASE("check succ/fail")
 {
-    SUBCASE("success")
+    SUBCASE("succ")
     {
-        REQUIRES(is_success_g<success_t>);
-        REQUIRES_FALSE(is_success_g<int>);
+        REQUIRES(is_succ_g<succ_t>);
+        REQUIRES_FALSE(is_succ_g<int>);
 
-        REQUIRES(is_success_n<success>);
+        REQUIRES(is_succ_n<succ>);
 
 #if ENV_CPP >= 17
-        REQUIRES_FALSE(is_success_n<fail>);
+        REQUIRES_FALSE(is_succ_n<fail>);
 #endif // ENV_CPP >= 17
     }
 
@@ -92,20 +92,20 @@ ENV_TEST_CASE("check success/fail")
         REQUIRES(is_fail_n<fail>);
 
 #if ENV_CPP >= 17
-        REQUIRES_FALSE(is_fail_n<success>);
+        REQUIRES_FALSE(is_fail_n<succ>);
 #endif // ENV_CPP >= 17
     }
 
-    SUBCASE("requirement")
+    SUBCASE("req")
     {
-        REQUIRES(is_requirement_g<requirement_t>);
-        REQUIRES_FALSE(is_requirement_g<int>);
+        REQUIRES(is_req_g<req_t>);
+        REQUIRES_FALSE(is_req_g<int>);
 
-        REQUIRES(is_requirement_n<requirement>);
-        REQUIRES(is_requirement_n<success>);
+        REQUIRES(is_req_n<req>);
+        REQUIRES(is_req_n<succ>);
 
 #if ENV_CPP >= 17
-        REQUIRES_FALSE(is_requirement_n<fail>);
+        REQUIRES_FALSE(is_req_n<fail>);
 #endif // ENV_CPP >= 17
     }
 }
@@ -118,7 +118,7 @@ ENV_TEST_CASE("check success/fail")
 ENV_DETAIL_BEGIN
 
 template<name... T>
-strct make_success_vt : value_gnt<success_t, success_t{true}>{};
+strct make_succ_vt : value_gnt<succ_t, succ_t{true}>{};
 
 template<name... T>
 strct make_true_vt : value_gnt<bool, true>{};
@@ -132,7 +132,7 @@ strct make_false_vt : value_gnt<bool, false>{};
 
 
 template<name... T>
-strct make_requirement_vt : value_gnt<requirement_t, requirement_t{true}>{};
+strct make_req_vt : value_gnt<req_t, req_t{true}>{};
 
 
 template<name TRes, name... T>
@@ -142,10 +142,10 @@ ENV_DETAIL_END
 
 
 template<name... T>
-typ(success_vt) = name detail::make_success_vt<T...>::value_type;
+typ(succ_vt) = name detail::make_succ_vt<T...>::value_type;
 
 template<name... T>
-cmp_obj success_t success_v = detail::make_success_vt<T...>::value;
+cmp_obj succ_t succ_v = detail::make_succ_vt<T...>::value;
 
 template<name... T>
 cmp_obj bool true_v = detail::make_true_vt<T...>::value;
@@ -162,10 +162,10 @@ cmp_obj bool false_v = detail::make_false_vt<T...>::value;
 
 
 template<name... T>
-typ(requirement_vt) = name detail::make_requirement_vt<T...>::value_type;
+typ(req_vt) = name detail::make_req_vt<T...>::value_type;
 
 template<name... T>
-cmp_obj requirement_t requirement_v = detail::make_requirement_vt<T...>::value;
+cmp_obj req_t req_v = detail::make_req_vt<T...>::value;
 
 template<typename TRes, typename... T>
 typ(make_vt) = name detail::make_vt<TRes, T...>::type;
@@ -173,10 +173,10 @@ typ(make_vt) = name detail::make_vt<TRes, T...>::type;
 
 ENV_TEST_CASE("make")
 {
-    SUBCASE("success")
+    SUBCASE("succ")
     {
-        REQUIRE_EQT(success_vt<int, float, double>, success_t);
-        REQUIRES(success_v<int, float, double> == success);
+        REQUIRE_EQT(succ_vt<int, float, double>, succ_t);
+        REQUIRES(succ_v<int, float, double> == succ);
         REQUIRES(true_v<int, float, double>);
     }
     SUBCASE("fail")
@@ -189,10 +189,10 @@ ENV_TEST_CASE("make")
     {
         REQUIRE_EQT(make_vt<int, float, double, fail_t>, int);
     }
-    SUBCASE("requirement")
+    SUBCASE("req")
     {
-        REQUIRE_EQT(requirement_vt<int, float, double>, requirement_t);
-        REQUIRES(requirement_v<int, float, double> == requirement);
+        REQUIRE_EQT(req_vt<int, float, double>, req_t);
+        REQUIRES(req_v<int, float, double> == req);
     }
 }
 

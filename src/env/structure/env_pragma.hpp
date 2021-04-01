@@ -3,24 +3,32 @@
 
 
 #if ENV_CLANG // clang
-    #define ENV_PRAGMA_IMPL(_content)   _Pragma(_content)
+    #define ENV_PRAGMA_IMPL(_content) _Pragma(_content)
+
     #define ENV_PRAGMA_STRING(_content) ENV_PRAGMA_IMPL(_content)
+
     #define ENV_PRAGMA(...)                    \
         ENV_PRAGMA_STRING(STRING(__VA_ARGS__)) \
         SEMI
 #endif // clang
 
+
 #if ENV_GCC // GCC
-    #define ENV_PRAGMA_IMPL(_content)   _Pragma(_content)
+    #define ENV_PRAGMA_IMPL(_content) _Pragma(_content)
+
     #define ENV_PRAGMA_STRING(_content) ENV_PRAGMA_IMPL(_content)
+
     #define ENV_PRAGMA(...)                    \
         ENV_PRAGMA_STRING(STRING(__VA_ARGS__)) \
         SEMI
 #endif // GCC
 
+
 #if ENV_MSVC // GCC
-    #define ENV_PRAGMA_IMPL(_content)   __pragma(_content)
+    #define ENV_PRAGMA_IMPL(_content) __pragma(_content)
+
     #define ENV_PRAGMA_STRING(_content) ENV_PRAGMA_IMPL(_content)
+
     #define ENV_PRAGMA(...)            \
         ENV_PRAGMA_STRING(__VA_ARGS__) \
         SEMI

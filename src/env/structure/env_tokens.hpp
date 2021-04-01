@@ -38,7 +38,7 @@
 // uid
 
 #define UID(_prefix) INTER(_z, _prefix, __COUNTER__)
-#define SEMI         typedef int UID(_env_demand_semicolon)
+#define SEMI         using UID(_env_demand_semicolon) [[maybe_unused]] = void
 
 
 #endif // ENV_TOKENS_HPP

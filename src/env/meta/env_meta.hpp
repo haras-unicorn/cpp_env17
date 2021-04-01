@@ -6,8 +6,8 @@ ENV_TEST_SUITE_BEGIN("meta");
 
 #include "env_constant.hpp"
 #include "env_success_fail.hpp"
+#include "env_logic.hpp"
 #include "env_sfinae.hpp"
-
 #include "env_call.hpp"
 #include "env_common.hpp"
 #include "env_result.hpp"

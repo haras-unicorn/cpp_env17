@@ -7,36 +7,36 @@
 
 // cond
 
-#define COND_CONCEPT_OPT(_name, _tmp, ...)                                  \
-        COND_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),  \
-                 ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>> &&          \
-                 (__VA_ARGS__))                                             \
-        typ(CAT(_name, _c)) = QC;                                           \
-                                                                            \
-        tmp<name C SPREAD(_tmp)>                                            \
-        typ(CAT(_name, _r)) = ENV::require_ngt<(__VA_ARGS__), C>
+#define COND_CONCEPT_OPT(_name, _tmp, ...)                             \
+    COND_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>), \
+             ENV::same_vt<C, ENV::unqualified_gt<QC>>, __VA_ARGS__)    \
+    typ(CAT(_name, _c)) = QC;                                          \
+                                                                       \
+    template<name C SPREAD(_tmp)>                                      \
+    typ(CAT(_name, _r)) =                                              \
+            name ENV_STD::enable_if<ENV::con_vt<__VA_ARGS__>::value, C>::type
 
 #define ELABORATE_COND_CONCEPT(_name, _tmp, ...) \
-        COND_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
+    COND_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
 
 #define COND_CONCEPT(_name, ...) \
-        COND_CONCEPT_OPT(_name, (), __VA_ARGS__)
+    COND_CONCEPT_OPT(_name, (), __VA_ARGS__)
 
 #define COND_CONCEPT_UNARY(_name, ...) \
-        ELABORATE_COND_CONCEPT(_name, (name T), __VA_ARGS__)
+    ELABORATE_COND_CONCEPT(_name, (name T), __VA_ARGS__)
 
 #define COND_CONCEPT_BINARY(_name, ...) \
-        ELABORATE_COND_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
+    ELABORATE_COND_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
 
 #define COND_CONCEPT_TERNARY(_name, ...) \
-        ELABORATE_COND_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
+    ELABORATE_COND_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
 
 
 ENV_TEST_BEGIN
 
-COND_CONCEPT(number, ENV_STD::is_arithmetic_v < C >);
+COND_CONCEPT(number, ENV_STD::is_arithmetic<C>);
 
-tmp<name TLhs, name TRhs>
+template<name TLhs, name TRhs>
 cmp_fn add(number_c<TLhs>&& lhs, number_c<TRhs>&& rhs) noex
 {
     ret ENV_STD::forward<TLhs>(lhs) + ENV_STD::forward<TRhs>(rhs);
@@ -54,36 +54,36 @@ ENV_TEST_CASE("require concept")
 
 // expr
 
-#define EXPR_CONCEPT_OPT(_name, _tmp, ...)                                  \
-        EXPR_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),  \
-                 COND_EXPR(ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>>), \
-                 __VA_ARGS__)                                               \
-        typ(CAT(_name, _c)) = QC;                                           \
-                                                                            \
-        tmp<name C SPREAD(_tmp)>                                            \
-        typ(CAT(_name, _r)) = ENV::make_vt<C, decl(__VA_ARGS__)>
+#define EXPR_CONCEPT_OPT(_name, _tmp, ...)                             \
+    EXPR_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>), \
+             COND_EXPR(ENV::same_vt<C, ENV::unqualified_gt<QC>>),      \
+             __VA_ARGS__)                                              \
+    typ(CAT(_name, _c)) = QC;                                          \
+                                                                       \
+    template<name C SPREAD(_tmp)>                                      \
+    typ(CAT(_name, _r)) = ENV::make_vt<C, decl(nonce(__VA_ARGS__))>
 
 #define ELABORATE_EXPR_CONCEPT(_name, _tmp, ...) \
-        EXPR_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
+    EXPR_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
 
 #define EXPR_CONCEPT(_name, ...) \
-        EXPR_CONCEPT_OPT(_name, (), __VA_ARGS__)
+    EXPR_CONCEPT_OPT(_name, (), __VA_ARGS__)
 
 #define EXPR_CONCEPT_UNARY(_name, ...) \
-        ELABORATE_EXPR_CONCEPT(_name, (name T), __VA_ARGS__)
+    ELABORATE_EXPR_CONCEPT(_name, (name T), __VA_ARGS__)
 
 #define EXPR_CONCEPT_BINARY(_name, ...) \
-        ELABORATE_EXPR_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
+    ELABORATE_EXPR_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
 
 #define EXPR_CONCEPT_TERNARY(_name, ...) \
-        ELABORATE_EXPR_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
+    ELABORATE_EXPR_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
 
 
 ENV_TEST_BEGIN
 
 EXPR_CONCEPT(addable, declvalr<number_r<C>>() + declvalr<C>());
 
-tmp<name T>
+template<name T>
 cmp_fn add(addable_c<T>&& lhs, addable_c<T>&& rhs) noex
 {
     ret ENV_STD::forward<T>(lhs) + ENV_STD::forward<T>(rhs);
@@ -101,36 +101,36 @@ ENV_TEST_CASE("sfinae concept")
 
 // type
 
-#define TYPE_CONCEPT_OPT(_name, _tmp, ...)                                  \
-        TYPE_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>),  \
-                 COND_TYPE(ENV_STD::is_same_v<C, ENV::unqualified_gt<QC>>), \
-                 __VA_ARGS__)                                               \
-        typ(CAT(_name, _c)) = QC;                                           \
-                                                                            \
-        tmp<name C SPREAD(_tmp)>                                            \
-        typ(CAT(_name, _r)) = ENV::make_vt<C, __VA_ARGS__>
+#define TYPE_CONCEPT_OPT(_name, _tmp, ...)                             \
+    TYPE_TMP((name QC SPREAD(_tmp), name C = ENV::unqualified_gt<QC>), \
+             COND_TYPE(ENV::same_vt<C, ENV::unqualified_gt<QC>>),      \
+             __VA_ARGS__)                                              \
+    typ(CAT(_name, _c)) = QC;                                          \
+                                                                       \
+    template<name C SPREAD(_tmp)>                                      \
+    typ(CAT(_name, _r)) = ENV::make_vt<C, __VA_ARGS__>
 
 #define ELABORATE_TYPE_CONCEPT(_name, _tmp, ...) \
-        TYPE_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
+    TYPE_CONCEPT_OPT(_name, (, SPREAD(_tmp)), __VA_ARGS__)
 
 #define TYPE_CONCEPT(_name, ...) \
-        TYPE_CONCEPT_OPT(_name, (), __VA_ARGS__)
+    TYPE_CONCEPT_OPT(_name, (), __VA_ARGS__)
 
 #define TYPE_CONCEPT_UNARY(_name, ...) \
-        ELABORATE_TYPE_CONCEPT(_name, (name T), __VA_ARGS__)
+    ELABORATE_TYPE_CONCEPT(_name, (name T), __VA_ARGS__)
 
 #define TYPE_CONCEPT_BINARY(_name, ...) \
-        ELABORATE_TYPE_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
+    ELABORATE_TYPE_CONCEPT(_name, (name TLhs, name TRhs), __VA_ARGS__)
 
 #define TYPE_CONCEPT_TERNARY(_name, ...) \
-        ELABORATE_TYPE_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
+    ELABORATE_TYPE_CONCEPT(_name, (name T1, name T2, name T3), __VA_ARGS__)
 
 
 ENV_TEST_BEGIN
 
-TYPE_CONCEPT(subtractable, enable_minus_gt < C >);
+TYPE_CONCEPT(subtractable, enable_minus_gt<C>);
 
-tmp<name TLhs, name TRhs>
+template<name TLhs, name TRhs>
 cmp_fn subtract(subtractable_c<TLhs>&& lhs, subtractable_c<TRhs>&& rhs) noex
 {
     ret ENV_STD::forward<TLhs>(lhs) - ENV_STD::forward<TRhs>(rhs);
