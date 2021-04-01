@@ -4,43 +4,43 @@
 
 // first
 
-tmp<name TResult, name... TIgnored>
+template<name TResult, name... TIgnored>
 typ(first_gvt) =
-name variadic_vt<
-        TResult,
-        TIgnored...>::tmp at_nt<0>;
+        name variadic_vt<
+                TResult,
+                TIgnored...>::template at_nt<0>;
 
-tmp<name TResult, TResult Result, name... TIgnored>
+template<name TResult, TResult Result, name... TIgnored>
 let_cmp first_gnv =
         ENV::variadic_vt<
                 ENV::value_gnt<TResult, Result>,
-                TIgnored...>::tmp at_nt<0>::value;
+                TIgnored...>::template at_nt<0>::value;
 
-tmp<name TResult, name TIgnored, TIgnored... Ignored>
+template<name TResult, name TIgnored, TIgnored... Ignored>
 typ(first_ggat) =
-name ENV::variadic_vt<
-        TResult,
-        ENV::value_gnt<TIgnored, Ignored>...>::tmp at_nt<0>;
+        name ENV::variadic_vt<
+                TResult,
+                ENV::value_gnt<TIgnored, Ignored>...>::template at_nt<0>;
 
-tmp<name TResult, TResult Result, name TIgnored, TIgnored... Ignored>
+template<name TResult, TResult Result, name TIgnored, TIgnored... Ignored>
 let_cmp first_gnga =
         ENV::variadic_vt<
                 ENV::value_gnt<TResult, Result>,
-                ENV::value_gnt<TIgnored, Ignored>...>::tmp at_nt<0>::value;
+                ENV::value_gnt<TIgnored, Ignored>...>::template at_nt<0>::value;
 
 #if ENV_CPP >= 17
 
-tmp<deduc Result, name... TIgnored>
+template<deduc Result, name... TIgnored>
 let_cmp first_nv =
         ENV::variadic_vt<
                 ENV::value_gnt<decl(Result), Result>,
-                TIgnored...>::tmp at_nt<0>::value;
+                TIgnored...>::template at_nt<0>::value;
 
-tmp<deduc Result, deduc... Ignored>
+template<deduc Result, deduc... Ignored>
 let_cmp first_na =
         ENV::variadic_vt<
                 ENV::value_gnt<decl(Result), Result>,
-                ENV::value_gnt<decl(Ignored), Ignored>...>::tmp at_nt<0>::value;
+                ENV::value_gnt<decl(Ignored), Ignored>...>::template at_nt<0>::value;
 
 #endif // ENV_CPP >= 17
 
@@ -59,42 +59,36 @@ ENV_TEST_CASE("first")
 
 // apply
 
-tmp<tmp<name...> class TKind, name TArgs, name = requirement_t>
+template<tmp<name...> class TKind, name TArgs, name = requirement_t>
 strct apply_kvs :
-        type_gt<fail_t>
-{
-};
+    type_gt<fail_t>{};
 
-tmp<tmp<name...> class TKind, name... TArgs>
+template<tmp<name...> class TKind, name... TArgs>
 strct apply_kvs<
         TKind,
         ENV::variadic_vt<TArgs...>,
         ENV::success_vt<TKind<TArgs...>>> :
-        type_gt<TKind<TArgs...>>
-{
-};
+    type_gt<TKind<TArgs...>>{};
 
-tmp<tmp<name...> class TKind, name... TArgs>
-typ(apply_kvt) = name apply_kvs<TKind, variadic_vt < TArgs...>>::type;
+template<tmp<name...> class TKind, name... TArgs>
+typ(apply_kvt) = name apply_kvs<TKind, variadic_vt<TArgs...>>::type;
 
-tmp<name TFunction, name TArgs, name = requirement_t>
-strct apply_tvs : type_gt<fail_t> { };
+template<name TFunction, name TArgs, name = requirement_t>
+strct apply_tvs : type_gt<fail_t>{};
 
-tmp<name TFunction, name... TArgs>
+template<name TFunction, name... TArgs>
 strct apply_tvs<
         TFunction,
         ENV::variadic_vt<TArgs...>,
-        ENV::requirement_vt<decltype(TFunction{ }(declvalr<TArgs>()...))>> :
-        type_gt<decltype(TFunction{ }(declvalr<TArgs>()...))>
-{
-};
+        ENV::requirement_vt<decltype(TFunction{}(declvalr<TArgs>()...))>> :
+    type_gt<decltype(TFunction{}(declvalr<TArgs>()...))>{};
 
-tmp<name TFunctor, name... TArgs>
-typ(apply_tvt) = name apply_tvs<TFunctor, variadic_vt < TArgs...>>::type;
+template<name TFunctor, name... TArgs>
+typ(apply_tvt) = name apply_tvs<TFunctor, variadic_vt<TArgs...>>::type;
 
 ENV_TEST_CASE("apply")
 {
-    enm test : int { };
+    enm test : int{};
 
     SUBCASE("functor")
     {
@@ -105,10 +99,10 @@ ENV_TEST_CASE("apply")
     SUBCASE("function")
     {
         REQUIRE_EQT(
-                apply_tvt<ENV_STD::plus < int>, int, int >,
+                apply_tvt<ENV_STD::plus<int>, int, int>,
                 int);
         REQUIRE_EQT(
-                apply_tvt<ENV_STD::plus < int>, ENV_STD::string_view, int >,
+                apply_tvt<ENV_STD::plus<int>, ENV_STD::string_view, int>,
                 fail_t);
     }
 }

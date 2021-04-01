@@ -2,20 +2,17 @@
 #define ENV_SCOPE_HPP
 
 
-// anon, semi
-
-#define SEMI using UID(_env_scope_anon) [[maybe_unused]] = void
-
-ENV_TEST_BEGIN
-
-SEMI;
-
-ENV_TEST_END
+// TODO: turn into functions
 
 
 // scopes
 
-#define SCOPE_IMPL(...) do { __VA_ARGS__ } while (false)
+#define SCOPE_IMPL(...) \
+    do                  \
+    {                   \
+        __VA_ARGS__     \
+    } while (false)
+
 #define SCOPE(...) SCOPE_IMPL(__VA_ARGS__)
 
 ENV_TEST_CASE("scope")
@@ -23,8 +20,10 @@ ENV_TEST_CASE("scope")
     SCOPE(REQUIRE(true););
 }
 
-#define IFFY_IMPL(...) ([&]() noexcept { __VA_ARGS__ })() // implicitly constexpr if it can be as of c++17
-#define IFFY(...) IFFY_IMPL(__VA_ARGS__)
+
+// implicitly constexpr if it can be as of c++17
+#define IFFY_IMPL(...) ([&]() noexcept { __VA_ARGS__ })()
+#define IFFY(...)      IFFY_IMPL(__VA_ARGS__)
 
 ENV_TEST_CASE("iffy")
 {
@@ -32,10 +31,12 @@ ENV_TEST_CASE("iffy")
     REQUIRE_EQ(a, 1);
 }
 
-#define EXC_IFFY_IMPL(...) ([&]() { __VA_ARGS__ })() // implicitly constexpr if it can be as of c++17
-#define EXC_IFFY(...) EXC_IFFY_IMPL(__VA_ARGS__)
 
-ENV_CLANG_SUPPRESS_PUSH("UnreachableCode")
+// implicitly constexpr if it can be as of c++17
+#define EXC_IFFY_IMPL(...) ([&]() { __VA_ARGS__ })()
+#define EXC_IFFY(...)      EXC_IFFY_IMPL(__VA_ARGS__)
+
+ENV_CLANG_SUPPRESS_PUSH("UnreachableCode");
 
 ENV_TEST_CASE("iffy")
 {
@@ -49,51 +50,42 @@ ENV_TEST_CASE("iffy")
     }
 }
 
-ENV_CLANG_SUPPRESS_POP
+ENV_CLANG_SUPPRESS_POP;
 
 
 // if
 
-#define IF(_condition, _if_true, _if_false) SCOPE(if _condition { SPREAD(_if_true) } else {SPREAD(_if_false)})
+#define IF(_condition, _if_true, _if_false) \
+    SCOPE(if _condition { SPREAD(_if_true) } else {SPREAD(_if_false)})
 
 ENV_TEST_CASE("if scope")
 {
-    IF
-    (
-            (true),
-            (REQUIRE(true);),
-            (REQUIRE(false);)
-    );
+    IF((true),
+       (REQUIRE(true);),
+       (REQUIRE(false);));
 
-    IF
-    (
-            (false),
-            (REQUIRE(false);),
-            (REQUIRE(true);)
-    );
+    IF((false),
+       (REQUIRE(false);),
+       (REQUIRE(true);));
 }
 
 #if ENV_CPP >= 17
-#define CMP_IF(_condition, _if_true, _if_false) IF(constexpr(_condition), _if_true, _if_false)
+    #define CMP_IF(_condition, _if_true, _if_false) \
+        IF(constexpr(_condition), _if_true, _if_false)
 #else // CPP >= 17
-#define CMP_IF(_condition, _if_true, _if_false) IF(_condition, _if_true, _if_false)
+    #define CMP_IF(_condition, _if_true, _if_false) \
+        IF(_condition, _if_true, _if_false)
 #endif // CPP >= 17
 
 ENV_TEST_CASE("constexpr if")
 {
-    CMP_IF
-    (
-            (true),
-            (REQUIRE(true);),
-            (REQUIRE(false);)
-    );
+    CMP_IF((true),
+           (REQUIRE(true);),
+           (REQUIRE(false);));
 
-    CMP_IF
-    (
-            (false),
-            (REQUIRE(false);),
-            (REQUIRE(true);)
-    );
+    CMP_IF((false),
+           (REQUIRE(false);),
+           (REQUIRE(true);));
 }
 
 
@@ -108,9 +100,9 @@ ENV_TEST_CASE("on")
 }
 
 #if ENV_CPP >= 17
-#define CMP_ON(_condition, ...) ON(constexpr _condition, __VA_ARGS__)
+    #define CMP_ON(_condition, ...) ON(constexpr _condition, __VA_ARGS__)
 #else // ENV_CPP >= 17
-#define CMP_ON(_condition, ...) ON(_condition, __VA_ARGS__)
+    #define CMP_ON(_condition, ...) ON(_condition, __VA_ARGS__)
 #endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("cmp on")
@@ -122,8 +114,10 @@ ENV_TEST_CASE("cmp on")
 
 // tern
 
-#define EXC_TERN(_condition, _if_true, _if_false) (_condition ? SPREAD(_if_true) : SPREAD(_if_false))
-#define TERN(_condition, _if_true, _if_false) (_condition ? SPREAD(_if_true) : SPREAD(_if_false))
+#define EXC_TERN(_condition, _if_true, _if_false) \
+    (_condition ? SPREAD(_if_true) : SPREAD(_if_false))
+#define TERN(_condition, _if_true, _if_false) \
+    (_condition ? SPREAD(_if_true) : SPREAD(_if_false))
 
 ENV_TEST_CASE("tern")
 {
@@ -134,11 +128,15 @@ ENV_TEST_CASE("tern")
 }
 
 #if ENV_CPP >= 17
-#define EXC_CMP_TERN(_condition, _if_true, _if_false) EXC_IFFY(CMP_IF(_condition, (return _if_true;), (return _if_false;));)
-#define CMP_TERN(_condition, _if_true, _if_false) IFFY(CMP_IF(_condition, (return _if_true;), (return _if_false;));)
+    #define EXC_CMP_TERN(_condition, _if_true, _if_false) \
+        EXC_IFFY(CMP_IF(_condition, (return _if_true;), (return _if_false;));)
+    #define CMP_TERN(_condition, _if_true, _if_false) \
+        IFFY(CMP_IF(_condition, (return _if_true;), (return _if_false;));)
 #else // ENV_CPP >= 17
-#define EXC_CMP_TERN(_condition, _if_true, _if_false) EXC_TERN(_condition, _if_true, _if_false)
-#define CMP_TERN(_condition, _if_true, _if_false) TERN(_condition, _if_true, _if_false)
+    #define EXC_CMP_TERN(_condition, _if_true, _if_false) \
+        EXC_TERN(_condition, _if_true, _if_false)
+    #define CMP_TERN(_condition, _if_true, _if_false) \
+        TERN(_condition, _if_true, _if_false)
 #endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("cmp tern")
@@ -152,8 +150,12 @@ ENV_TEST_CASE("cmp tern")
 
 // elvis
 
-#define EXC_ELVIS(_lhs, _rhs) EXC_IFFY(const auto _elvis{_lhs}; return EXC_TERN((_elvis), (_elvis), (_rhs));)
-#define ELVIS(_lhs, _rhs) IFFY(const auto _elvis{_lhs}; return TERN((_elvis), (_elvis), (_rhs));)
+#define EXC_ELVIS(_lhs, _rhs)         \
+    EXC_IFFY(const auto _elvis{_lhs}; \
+             return EXC_TERN((_elvis), (_elvis), (_rhs));)
+#define ELVIS(_lhs, _rhs)         \
+    IFFY(const auto _elvis{_lhs}; \
+         return TERN((_elvis), (_elvis), (_rhs));)
 
 ENV_TEST_CASE("elvis")
 {
@@ -164,25 +166,32 @@ ENV_TEST_CASE("elvis")
             auto static _test{1.0};
             return _test++;
         }
-    } test{ };
+    } test{};
 
     REQUIRE_EQ(ELVIS(test(), 2), 1);
 }
 
 #if ENV_CPP >= 17
-#define EXC_CMP_ELVIS(_lhs, _rhs) EXC_IFFY(constexpr auto _elvis{_lhs}; return EXC_TERN((_elvis), (_elvis), (_rhs));)
-#define CMP_ELVIS(_lhs, _rhs) IFFY(constexpr auto _elvis{_lhs}; return TERN((_elvis), (_elvis), (_rhs));)
+    #define EXC_CMP_ELVIS(_lhs, _rhs)         \
+        EXC_IFFY(constexpr auto _elvis{_lhs}; \
+                 return EXC_TERN((_elvis), (_elvis), (_rhs));)
+    #define CMP_ELVIS(_lhs, _rhs)         \
+        IFFY(constexpr auto _elvis{_lhs}; \
+             return TERN((_elvis), (_elvis), (_rhs));)
 #else
-#define EXC_CMP_ELVIS(_lhs, _rhs) EXC_ELVIS(_lhs, _rhs)
-#define CMP_ELVIS(_lhs, _rhs) ELVIS(_lhs, _rhs)
+    #define EXC_CMP_ELVIS(_lhs, _rhs) EXC_ELVIS(_lhs, _rhs)
+    #define CMP_ELVIS(_lhs, _rhs)     ELVIS(_lhs, _rhs)
 #endif // ENV_CPP >= 17
 
 ENV_TEST_CASE("cmp elvis")
 {
     struct
     {
-        constexpr auto operator()() const { return 1; }
-    } static constexpr test{ };
+        constexpr auto operator()() const
+        {
+            return 1;
+        }
+    } static constexpr test{};
     REQUIRE_EQ(CMP_ELVIS(test(), 2), 1);
     REQUIRE_EQ(EXC_CMP_ELVIS(test(), 2), 1);
 }

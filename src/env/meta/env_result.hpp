@@ -8,7 +8,7 @@ typ(nullptr_t) = decltype(nullptr);
 
 ENV_TEST_CASE("nullptr")
 {
-    obj nullptr_t some_nullptr{ };
+    obj nullptr_t some_nullptr{};
     nonce(some_nullptr);
 }
 
@@ -22,8 +22,9 @@ ENV_TEST_CASE("no return")
 {
     strct
     {
-        callb op()() const noex -> noret_t { }
-    } no_return;
+        callb op()() const noex->noret_t { }
+    }
+    no_return;
     no_return();
 }
 
@@ -32,41 +33,49 @@ ENV_TEST_CASE("no return")
 
 TAG(nores);
 
-#define res_name                                                              \
-        name TRes = nores_t,                                                  \
-        ENV::require_gt<ENV_STD::negation<ENV_STD::is_same<TRes, noret_t>>> = \
-                ENV::requirement
+#define res_name                                                               \
+    name TRes = nores_t,                                                       \
+         ENV::require_gt<ENV_STD::negation<ENV_STD::is_same<TRes, noret_t>>> = \
+                 ENV::requirement
 
-#define deduc_res(...)                             \
-        ENV_STD::conditional_t<                    \
-                ENV_STD::is_same_v<TRes, nores_t>, \
-                __VA_ARGS__,                       \
-                TRes>
+#define deduc_res(...)                         \
+    ENV_STD::conditional_t<                    \
+            ENV_STD::is_same_v<TRes, nores_t>, \
+            __VA_ARGS__,                       \
+            TRes>
 
-#define res_t(...)                                 \
-        ENV_STD::conditional_t<                    \
-                ENV_STD::is_same_v<TRes, nores_t>, \
-                __VA_ARGS__,                       \
-                TRes>
+#define res_t(...)                             \
+    ENV_STD::conditional_t<                    \
+            ENV_STD::is_same_v<TRes, nores_t>, \
+            __VA_ARGS__,                       \
+            TRes>
 
-#define res_cast(...)                                \
-        CMP_TERN(                                    \
-                (ENV_STD::is_same_v<TRes, nores_t>), \
-                (__VA_ARGS__),                       \
-                (scast<TRes>(__VA_ARGS__)))
+#define res_cast(...)                            \
+    CMP_TERN(                                    \
+            (ENV_STD::is_same_v<TRes, nores_t>), \
+            (__VA_ARGS__),                       \
+            (scast<TRes>(__VA_ARGS__)))
 
-#define res_con(...)                                 \
-        CMP_TERN(                                    \
-                (ENV_STD::is_same_v<TRes, nores_t>), \
-                (__VA_ARGS__),                       \
-                (TRes(__VA_ARGS__)))
+#define res_con(...)                             \
+    CMP_TERN(                                    \
+            (ENV_STD::is_same_v<TRes, nores_t>), \
+            (__VA_ARGS__),                       \
+            (TRes(__VA_ARGS__)))
 
 
 ENV_TEST_BEGIN
 
-tmp<res_name> cmp_fn cast_res() noex -> deduc_res(int) { ret res_cast(1); }
+template<res_name>
+cmp_fn cast_res() noex->deduc_res(int)
+{
+    ret res_cast(1);
+}
 
-tmp<res_name> cmp_fn con_res() noex -> deduc_res(int) { ret res_con(1); }
+template<res_name>
+cmp_fn con_res() noex->deduc_res(int)
+{
+    ret res_con(1);
+}
 
 ENV_TEST_END
 

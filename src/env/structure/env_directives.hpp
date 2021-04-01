@@ -11,10 +11,12 @@
  * MACRO DIRECTIVES:
  *
  * ENV_MESSAGES:
- * Display messages about compiler, architecture, OS, and C++ standard during compilation.
+ * Display messages about compiler, architecture, OS, and
+ * C++ standard during compilation.
  *
  * ENV_UNDEF_<MODULE>:
- * Undefine macros from <MODULE> and its children. <MODULE> can be one of: "OPS", "STACK", "META", "MACROS"
+ * Undefine macros from <MODULE> and its children. <MODULE> can be one of:
+ * "OPS", "STACK", "META", "MACROS"
  *
  *
  * TESTING DIRECTIVES:

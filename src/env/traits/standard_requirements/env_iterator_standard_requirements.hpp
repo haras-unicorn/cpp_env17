@@ -2,6 +2,8 @@
 #define ENV_ITERATOR_STANDARD_REQUIREMENTS_HPP
 
 
+// clang-format off
+
 ENV_DETAIL_BEGIN
 
 // the standard iterator traits are just empty for non-iterator types and, therefore, won't fail for non-iterators
@@ -324,4 +326,7 @@ ENV_TEST_CASE("contiguous iterator")
 #endif // ENV_CPP17
 
 
-#endif // ENV_ITERATOR_STANDARD_REQUIREMENTS_HPP
+// clang-format on
+
+
+#endif// ENV_ITERATOR_STANDARD_REQUIREMENTS_HPP

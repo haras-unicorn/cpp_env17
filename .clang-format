@@ -1,0 +1,154 @@
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: c++17
+
+
+# macros
+
+MacroBlockBegin: .*_ENTER
+MacroBlockEnd: .*_EXIT
+
+
+# tabs and indentation
+
+TabWidth: 4
+UseTab: Never
+
+IndentWidth: 4
+ContinuationIndentWidth: 8
+
+IndentPPDirectives: BeforeHash
+
+IndentExternBlock: NoIndent
+NamespaceIndentation: None
+
+IndentWrappedFunctionNames: false
+
+AccessModifierOffset: -4
+
+IndentCaseLabels: true
+IndentCaseBlocks: true
+
+
+# wrapping
+
+ColumnLimit: 0
+
+AlwaysBreakAfterReturnType: None
+AlwaysBreakTemplateDeclarations: MultiLine
+BreakBeforeBraces: Custom
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeColon
+BreakInheritanceList: AfterColon
+
+BinPackArguments: true
+BinPackParameters: true
+
+BraceWrapping:
+  IndentBraces: false
+  AfterExternBlock: true
+  AfterNamespace: true
+  SplitEmptyNamespace: false
+  AfterClass: true
+  AfterStruct: true
+  SplitEmptyRecord: false
+  AfterEnum: true
+  AfterUnion: true
+  AfterFunction: true
+  SplitEmptyFunction: false
+  BeforeLambdaBody: true
+  AfterControlStatement: MultiLine
+  BeforeElse: true
+  AfterCaseLabel: false
+  BeforeCatch: true
+
+ReflowComments: true
+
+BreakStringLiterals: true
+AlwaysBreakBeforeMultilineStrings: true
+
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 2
+
+
+# transformation
+
+SortIncludes: false
+IncludeBlocks: Preserve
+
+SortUsingDeclarations: false
+
+Cpp11BracedListStyle: true
+
+FixNamespaceComments: true
+
+InsertTrailingCommas: None
+
+
+
+# spacing
+
+SpaceAfterLogicalNot: false
+SpaceBeforeAssignmentOperators: true
+
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeRangeBasedForLoopColon: true
+BitFieldColonSpacing: Both
+
+SpacesInAngles: false
+SpaceAfterTemplateKeyword: false
+
+SpacesInParentheses: false
+SpaceInEmptyParentheses: false
+SpaceBeforeParens: ControlStatements
+SpacesInConditionalStatement: false
+
+SpacesInSquareBrackets: false
+SpacesInContainerLiterals: false
+
+SpaceInEmptyBlock: true
+SpaceBeforeCpp11BracedList: false
+
+SpacesBeforeTrailingComments: 1
+
+SpacesInCStyleCastParentheses: false
+SpaceAfterCStyleCast: true
+
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true
+
+
+# alignment
+
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignOperands: Align
+
+PointerAlignment: Left
+
+AlignConsecutiveBitFields: true
+AlignConsecutiveDeclarations: true
+
+AlignEscapedNewlines: Right
+AlignConsecutiveMacros: true
+
+AlignTrailingComments: true
+
+
+# brevity
+
+AllowAllArgumentsOnNextLine: true
+AllowAllConstructorInitializersOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Always
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+
+CompactNamespaces: true

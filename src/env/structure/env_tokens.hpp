@@ -15,26 +15,30 @@
 #define ERASE(_)
 #define CONSUME(...)
 
+
 // strings
 
 #define CAT_IMPL(_lhs, _rhs) _lhs##_rhs
-#define CAT(_lhs, _rhs) CAT_IMPL(_lhs, _rhs)
+#define CAT(_lhs, _rhs)      CAT_IMPL(_lhs, _rhs)
 
 #define INTER_IMPL(_lhs, _middle, _rhs) _lhs##_middle##_rhs
-#define INTER(_lhs, _middle, _rhs) INTER_IMPL(_lhs, _middle, _rhs)
+#define INTER(_lhs, _middle, _rhs)      INTER_IMPL(_lhs, _middle, _rhs)
 
 #define STRING_IMPL(...) #__VA_ARGS__
-#define STRING_VAR(...) STRING_IMPL(__VA_ARGS__)
-#define STRING(...) STRING_VAR(__VA_ARGS__)
+#define STRING_VAR(...)  STRING_IMPL(__VA_ARGS__)
+#define STRING(...)      STRING_VAR(__VA_ARGS__)
+
 
 // spread
 
 #define SPREAD_IMPL(_tuple) SINGLE(PACK _tuple)
-#define SPREAD(_tuple) SPREAD_IMPL(_tuple)
+#define SPREAD(_tuple)      SPREAD_IMPL(_tuple)
+
 
 // uid
 
 #define UID(_prefix) INTER(_z, _prefix, __COUNTER__)
+#define SEMI         typedef int UID(_env_demand_semicolon)
 
 
 #endif // ENV_TOKENS_HPP
