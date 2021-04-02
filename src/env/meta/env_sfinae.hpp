@@ -79,8 +79,14 @@ typ(require_ggt) = ENV_STD::enable_if_t<TCondition::value, TResult>;
 template<name TCondition>
 typ(require_gs) = ENV_STD::enable_if<TCondition::value, req_t>;
 
+template<name... TCondition>
+typ(require_vs) = ENV_STD::enable_if<con_vt<TCondition...>::value, req_t>;
+
 template<name TCondition>
 typ(require_gt) = ENV_STD::enable_if_t<TCondition::value, req_t>;
+
+template<name... TCondition>
+typ(require_vt) = ENV_STD::enable_if_t<con_vt<TCondition...>::value, req_t>;
 
 ENV_TEST_CASE("require")
 {

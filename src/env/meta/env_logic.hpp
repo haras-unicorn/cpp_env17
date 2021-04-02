@@ -14,10 +14,10 @@ typ(true_t) = ENV_STD::true_type;
 
 
 template<name... T>
-typ(neg_vt) = ENV_STD::disjunction<ENV_STD::negation<T>...>;
+typ(con_vt) = ENV_STD::conjunction<T...>;
 
 template<name... T>
-typ(con_vt) = ENV_STD::conjunction<T...>;
+typ(neg_vt) = ENV_STD::negation<ENV_STD::disjunction<T...>>;
 
 template<name... T>
 typ(dis_vt) = ENV_STD::disjunction<T...>;
@@ -35,6 +35,13 @@ typ(cond_gggt) = ENV_STD::conditional_t<TCond::value, TTrue, TFalse>;
 
 template<bool Cond, name TTrue, name TFalse>
 typ(cond_nggt) = ENV_STD::conditional_t<Cond, TTrue, TFalse>;
+
+
+template<name TIf, name... TThen>
+typ(imply_vt) =
+        ENV_STD::disjunction<
+                ENV_STD::negation<TIf>,
+                ENV_STD::conjunction<TThen...>>;
 
 
 #endif // ENV_LOGIC_HPP

@@ -184,6 +184,8 @@
 
 // inheritor type
 
+#undef inheritor
+#undef inheritor_extract
 #undef inheritor_name
 
 #undef DECL_INHERITOR_TYPE

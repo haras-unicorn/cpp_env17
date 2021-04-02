@@ -18,8 +18,7 @@ let_cmp req{succ_t{true}};
 // check
 
 template<name T>
-cmp_obj bool is_succ_g{
-        ENV_STD::is_same_v<T, succ_t>};
+cmp_obj bool is_succ_g{ENV_STD::is_same_v<T, succ_t>};
 
 #if ENV_CPP >= 17
 
@@ -135,8 +134,12 @@ template<name... T>
 strct make_req_vt : value_gnt<req_t, req_t{true}>{};
 
 
+template<name TRes, TRes Res, name... T>
+strct make_gnvt : value_gnt<TRes, Res>{};
+
 template<name TRes, name... T>
 strct make_vt : type_gt<TRes>{};
+
 
 ENV_DETAIL_END
 
@@ -146,6 +149,9 @@ typ(succ_vt) = name detail::make_succ_vt<T...>::value_type;
 
 template<name... T>
 cmp_obj succ_t succ_v = detail::make_succ_vt<T...>::value;
+
+template<name... T>
+typ(true_vt) = name detail::make_true_vt<T...>::type;
 
 template<name... T>
 cmp_obj bool true_v = detail::make_true_vt<T...>::value;
@@ -158,6 +164,9 @@ template<name... T>
 cmp_obj fail_t fail_v = detail::make_fail_vt<T...>::value;
 
 template<name... T>
+typ(false_vt) = name detail::make_false_vt<T...>::type;
+
+template<name... T>
 cmp_obj bool false_v = detail::make_false_vt<T...>::value;
 
 
@@ -167,7 +176,11 @@ typ(req_vt) = name detail::make_req_vt<T...>::value_type;
 template<name... T>
 cmp_obj req_t req_v = detail::make_req_vt<T...>::value;
 
-template<typename TRes, typename... T>
+
+template<name TRes, TRes Res, name... T>
+typ(make_gnvt) = name detail::make_gnvt<TRes, Res, T...>::type;
+
+template<name TRes, name... T>
 typ(make_vt) = name detail::make_vt<TRes, T...>::type;
 
 
@@ -187,7 +200,7 @@ ENV_TEST_CASE("make")
     }
     SUBCASE("make")
     {
-        REQUIRE_EQT(make_vt<int, float, double, fail_t>, int);
+        REQUIRE_EQT(make_gnvt<int, 1, float, double, fail_t>::value_type, int);
     }
     SUBCASE("req")
     {

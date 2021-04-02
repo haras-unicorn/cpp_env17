@@ -93,7 +93,9 @@ ENV_TEST_CASE("no inheritor type")
 
 // inheritor type
 
-#define inheritor_name name TInheritor = ENV::no_inheritor_s
+#define inheritor         TInheritor
+#define inheritor_extract name inheritor
+#define inheritor_name    name inheritor = ENV::no_inheritor_s
 
 #define DECL_INHERITOR_TYPE(_type)                            \
     ACCESS_BEGIN(private);                                    \
@@ -138,24 +140,25 @@ ENV_TEST_CASE("inheritor type")
 
 // self
 
-#define DECL_SELF_INHERITOR(_name, _inheritor_type)          \
-    DECL_THIS(_name);                                        \
-    DECL_INHERITOR_TYPE(_inheritor_type);                    \
-                                                             \
-    ACCESS_BEGIN(private);                                   \
-    cmp_obj static bool _has_inheritor =                     \
-            ENV::is_inheritor_g<SPREAD(_inheritor_type)>;    \
-                                                             \
-    typ_a(_self_t, maybe_unused) =                           \
-            ENV::self_ggt<_this_t, SPREAD(_inheritor_type)>; \
-    typ_a(_self_ct, maybe_unused) =                          \
-            ENV_STD::add_const_t<_self_t>;                   \
-    typ_a(_self_mt, maybe_unused) =                          \
-            ENV_STD::remove_const_t<_self_t>;                \
-                                                             \
-    typ_a(_self_ptr_t, maybe_unused) = _self_t*;             \
-    typ_a(_c_self_ptr_t, maybe_unused) = _self_ct*;          \
-    typ_a(_m_self_ptr_t, maybe_unused) = _self_mt*;          \
+#define DECL_SELF_INHERITOR(_name, _inheritor_type)                \
+    DECL_THIS(_name);                                              \
+    DECL_INHERITOR_TYPE(_inheritor_type);                          \
+                                                                   \
+    ACCESS_BEGIN(private);                                         \
+    cmp_obj static bool _has_inheritor =                           \
+            ENV::is_inheritor_g<SPREAD(_inheritor_type)>;          \
+    typ(_has_iterator_t) = ENV_STD::bool_constant<_has_inheritor>; \
+                                                                   \
+    typ_a(_self_t, maybe_unused) =                                 \
+            ENV::self_ggt<_this_t, SPREAD(_inheritor_type)>;       \
+    typ_a(_self_ct, maybe_unused) =                                \
+            ENV_STD::add_const_t<_self_t>;                         \
+    typ_a(_self_mt, maybe_unused) =                                \
+            ENV_STD::remove_const_t<_self_t>;                      \
+                                                                   \
+    typ_a(_self_ptr_t, maybe_unused) = _self_t*;                   \
+    typ_a(_c_self_ptr_t, maybe_unused) = _self_ct*;                \
+    typ_a(_m_self_ptr_t, maybe_unused) = _self_mt*;                \
     ACCESS_END(public)
 
 #define DECL_SELF(_name) \
@@ -229,8 +232,12 @@ ENV_TEST_CASE("self")
 
 #define GET_AS_BASE(_base) this->_AS_BASE_NAME(_base)()
 
-#define DEF_AS_BASE_BODY(_return, _name, _body) \
-    cmp_fn _name() const noex->const SPREAD(_return){SPREAD(_body)} fun inl _name() noex->SPREAD(_return){SPREAD(_body)} SEMI
+#define DEF_AS_BASE_BODY(_return, _name, _body)                     \
+    constexpr inline auto _name() const noex->const SPREAD(_return) \
+    {                                                               \
+        SPREAD(_body)                                               \
+    }                                                               \
+    inline auto _name() noex->SPREAD(_return){SPREAD(_body)} SEMI
 
 #define DEF_AS_BASE_FML(_return, _name, _formula) \
     DEF_AS_BASE_BODY(_return, _name, FML_BODY(_formula))

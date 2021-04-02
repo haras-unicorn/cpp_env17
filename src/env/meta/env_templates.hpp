@@ -23,13 +23,13 @@ ENV_TEST_CASE("template skips")
 // These current macros are passing on GCC, Clang and MSVC
 
 #define EXPR_TYPE(...) ENV::req_vt<decl(nonce(__VA_ARGS__))>
-#define EXPR_COND(...) (ENV::true_v<decl(nonce(__VA_ARGS__))>)
+#define EXPR_COND(...) ENV::true_vt<decl(nonce(__VA_ARGS__))>
 
 #define TYPE_EXPR(...) (ENV::req_v<__VA_ARGS__>)
-#define TYPE_COND(...) (ENV::true_v<__VA_ARGS__>)
+#define TYPE_COND(...) ENV::true_vt<__VA_ARGS__>
 
-#define COND_TYPE(...) name ENV_STD::enable_if<ENV::con_vt<__VA_ARGS__>::value, req_t>::type
-#define COND_EXPR(...) (COND_TYPE(__VA_ARGS__){})
+#define COND_EXPR(...) (ENV::require_vt<__VA_ARGS__>{})
+#define COND_TYPE(...) ENV::require_vt<__VA_ARGS__>
 
 #define INSTANT(...) ENV::req_vt<__VA_ARGS__>
 
@@ -39,15 +39,15 @@ ENV_TEST_CASE("expression conversion")
     {
         cmp_fn exp() const noex->first_gvt<bool, EXPR_TYPE(true)>
         {
-            ret EXPR_COND(true);
+            ret EXPR_COND(true)::value;
         }
         cmp_fn type() const noex->first_gvt<bool, EXPR_TYPE(TYPE_EXPR(bool))>
         {
-            ret TYPE_COND(bool);
+            ret TYPE_COND(bool)::value;
         }
         cmp_fn flag() const noex->first_gvt<bool, COND_TYPE(ENV_STD::true_type)>
         {
-            ret EXPR_COND(COND_EXPR(ENV_STD::true_type));
+            ret EXPR_COND(COND_EXPR(ENV_STD::true_type))::value;
         }
     }
     cmp test{};

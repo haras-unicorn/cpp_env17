@@ -68,8 +68,8 @@ TEST_CASE("members")
     {
         strct with_test_data_t
         {
-        private:
-            nonced double test_data;
+            // can be private
+            double test_data;
         };
         REQUIRES(test::has_test_data_g<with_test_data_t>);
         REQUIRES_FALSE(test::has_test_data_g<empty_t>);
@@ -80,8 +80,8 @@ TEST_CASE("members")
     {
         strct with_test_function_t
         {
-        private:
-            nonced callb_p test_function();
+            // can be private
+            callb_p test_function();
         };
         REQUIRES(test::has_test_function_g<with_test_function_t>);
         REQUIRES_FALSE(test::has_test_function_g<empty_t>);
@@ -92,7 +92,7 @@ TEST_CASE("members")
     {
         strct with_plus_t
         {
-        private:
+            // can be private
             fun operator+(double);
         };
         REQUIRES(test::has_plus_g<with_plus_t>);

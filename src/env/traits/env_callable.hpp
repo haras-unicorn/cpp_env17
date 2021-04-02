@@ -6,7 +6,7 @@ ENV_DETAIL_BEGIN
 
 // declaration
 
-template<name TCallable, name TInheritor = no_inheritor_s, name = req_t>
+template<name TCallable, inheritor_name, name = req_t>
 strct callable_gs
 {
     typ(is_callable_t) = false_t;
@@ -22,8 +22,8 @@ strct callable_gs
 
 // non overloaded base
 
-template<name TReturn, name TInheritor>
-strct callable_gs<TReturn(), TInheritor>
+template<name TReturn, inheritor_extract>
+strct callable_gs<TReturn(), inheritor>
 {
 private:
     DECL_SELF(callable_gs);
@@ -44,40 +44,40 @@ public:
     typ(is_noex_t) = false_t;
     typ(is_member_t) = false_t;
 
-    template<name = req_t>
-    typ(is_supported_t) =
-            neg_vt<dis_vt<
-                    name _self_t::is_member_t,
-                    name _self_t::is_noex_t>>;
+    template<name T>
+    cmp_obj static bool is_supported_g{
+            !_self_t::is_noex_t::value || !_self_t::is_member_t::value};
 };
 
-template<name TReturn, name TInheritor>
-strct callable_gs<TReturn() noex, TInheritor> :
+template<name TReturn, inheritor_extract>
+strct callable_gs<TReturn() noex, inheritor> :
     public callable_gs<
             TReturn(),
             ENV::self_ggt<
-                    callable_gs<TReturn() noex, TInheritor>,
-                    TInheritor>>
+                    callable_gs<TReturn() noex, inheritor>,
+                    inheritor>>
 {
     typ(is_noex_t) = true_t;
 };
 
-#define DEFINE_CALLABLE_STRUCTS(_call)                          \
-    tmp<name TReturn> strct callable_gs<TReturn _call()> :      \
-        public callable_gs<TReturn()>{};                        \
-    tmp<name TReturn> strct callable_gs<TReturn _call() noex> : \
+#define DEFINE_CALLABLE_STRUCTS(_call)        \
+    template<name TReturn>                    \
+    strct callable_gs<TReturn _call()> :      \
+        public callable_gs<TReturn()>{};      \
+    template<name TReturn>                    \
+    strct callable_gs<TReturn _call() noex> : \
         public callable_gs<TReturn() noex> { }
 
 
 // argument
 
-template<name TReturn, name TInheritor, name... TArguments>
-strct callable_gs<TReturn(TArguments...), TInheritor> :
+template<name TReturn, name... TArguments, inheritor_extract>
+strct callable_gs<TReturn(TArguments...), inheritor> :
     public callable_gs<
             TReturn(),
             ENV::self_ggt<
-                    callable_gs<TReturn(TArguments...), TInheritor>,
-                    TInheritor>>
+                    callable_gs<TReturn(TArguments...), inheritor>,
+                    inheritor>>
 {
     typ(is_consumer_t) = true_t;
 
@@ -85,22 +85,21 @@ strct callable_gs<TReturn(TArguments...), TInheritor> :
     typ(argument_tuple_t) = ENV_HANA::tuple<TArguments...>;
     typ(argument_count_t) = value_gnt<ENV_STD::size_t, sizeof...(TArguments)>;
 
-    template<ENV_STD::size_t ArgumentIndex>
-    typ(argument_at_nt) =
-            name ENV::var_vt<TArguments...>::tmp at_nt<ArgumentIndex>;
+    template<ENV_STD::size_t Index>
+    typ(argument_at_nt) = name ENV::var_vt<TArguments...>::tmp at_nt<Index>;
 
 
     typ(function_t) = TReturn(TArguments...);
     typ(function_ptr_t) = function_t*;
 };
 
-template<name TReturn, name TInheritor, name... TArguments>
-strct callable_gs<TReturn(TArguments...) noex, TInheritor> :
+template<name TReturn, name... TArguments, inheritor_extract>
+strct callable_gs<TReturn(TArguments...) noex, inheritor> :
     public callable_gs<
             TReturn(TArguments...),
             ENV::self_ggt<
-                    callable_gs<TReturn(TArguments...) noex, TInheritor>,
-                    TInheritor>>
+                    callable_gs<TReturn(TArguments...) noex, inheritor>,
+                    inheritor>>
 {
     typ(is_noex_t) = true_t;
 };
@@ -127,36 +126,22 @@ strct callable_gs<TReturn(TArguments...) noex, TInheritor> :
         public callable_gs<TReturn(TArguments...) noex> { }
 
 
-// these are needed here
+// this are needed here
 
 EXPR_CHECK_UNARY(is_non_overloaded_functor, &T::op());
 
 
-// qualified
-
-template<name TQ, name TInheritor>
-strct callable_gs<
-        TQ, TInheritor,
-        COND_TYPE(
-                ENV::is_qualified_gs<TQ>,
-                name callable_gs<unqualified_gt<TQ>>::is_callable_t,
-                has_call_operator_gs<ENV::unqualified_gt<TQ>>)> :
-    public callable_gs<
-            ENV::unqualified_gt<TQ>,
-            ENV::self_ggt<callable_gs<TQ, TInheritor>, TInheritor>>{};
-
-
 // member ptr
 
-tmp<name TMember, name THolder, name TInheritor>
-        strct callable_gs<
-                TMember THolder::*, TInheritor,
-                ENV::require_gt<name callable_gs<TMember>::is_callable_t>> :
+template<name TMember, name THolder, inheritor_extract>
+strct callable_gs<
+        TMember THolder::*, inheritor,
+        COND_TYPE(name callable_gs<TMember>::is_callable_t)> :
     public callable_gs<
             TMember,
             ENV::self_ggt<
-                    callable_gs<TMember THolder::*, TInheritor>,
-                    TInheritor>>
+                    callable_gs<TMember THolder::*, inheritor>,
+                    inheritor>>
 {
     typ(is_member_t) = true_t;
 
@@ -164,47 +149,43 @@ tmp<name TMember, name THolder, name TInheritor>
     typ(qualified_t) = THolder;
 };
 
-#define DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, _qualifier)               \
-    template<name TInheritor, name THolder, name TReturn, name... TArguments>        \
-    strct callable_gs<                                                               \
-            TReturn _call (THolder::*)(TArguments...)                                \
-                    _qualifier,                                                      \
-            TInheritor> :                                                            \
-        public callable_gs<                                                          \
-                TReturn (THolder::*)(TArguments...),                                 \
-                ENV::self_ggt<                                                       \
-                        callable_gs<                                                 \
-                                TReturn _call (THolder::*)(TArguments...)            \
-                                        _qualifier,                                  \
-                                TInheritor>,                                         \
-                        TInheritor>>                                                 \
-    {                                                                                \
-        typ(is_noex_t) = false_t;                                                    \
-        typ(is_member_t) = true_t;                                                   \
-                                                                                     \
-        typ(holder_t) = THolder;                                                     \
-        typ(qualified_t) = THolder _qualifier;                                       \
-    };                                                                               \
-                                                                                     \
-    template<name TInheritor, name THolder, name TReturn, name... TArguments>        \
-    strct callable_gs<                                                               \
-            TReturn            _call (THolder::*)(TArguments...)                     \
-                    _qualifier noex,                                                 \
-            TInheritor> :                                                            \
-        public callable_gs<                                                          \
-                TReturn (THolder::*)(TArguments...) noex,                            \
-                ENV::self_ggt<                                                       \
-                        callable_gs<                                                 \
-                                TReturn            _call (THolder::*)(TArguments...) \
-                                        _qualifier noex,                             \
-                                TInheritor>,                                         \
-                        TInheritor>>                                                 \
-    {                                                                                \
-        typ(is_noex_t) = true_t;                                                     \
-        typ(is_member_t) = true_t;                                                   \
-                                                                                     \
-        typ(holder_t) = THolder;                                                     \
-        typ(qualified_t) = THolder _qualifier;                                       \
+#define DEFINE_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call, _qualifier)                     \
+    template<name THolder, name TReturn, name... TArguments, inheritor_extract>            \
+    strct callable_gs<                                                                     \
+            TReturn _call (THolder::*)(TArguments...) _qualifier,                          \
+            inheritor> :                                                                   \
+        public callable_gs<                                                                \
+                TReturn(TArguments...),                                                    \
+                ENV::self_ggt<                                                             \
+                        callable_gs<                                                       \
+                                TReturn _call (THolder::*)(TArguments...) _qualifier,      \
+                                inheritor>,                                                \
+                        inheritor>>                                                        \
+    {                                                                                      \
+        typ(is_noex_t) = false_t;                                                          \
+        typ(is_member_t) = true_t;                                                         \
+                                                                                           \
+        typ(holder_t) = THolder;                                                           \
+        typ(qualified_t) = THolder _qualifier;                                             \
+    };                                                                                     \
+                                                                                           \
+    template<name THolder, name TReturn, name... TArguments, inheritor_extract>            \
+    strct callable_gs<                                                                     \
+            TReturn _call (THolder::*)(TArguments...) _qualifier noex,                     \
+            inheritor> :                                                                   \
+        public callable_gs<                                                                \
+                TReturn(TArguments...) noex,                                               \
+                ENV::self_ggt<                                                             \
+                        callable_gs<                                                       \
+                                TReturn _call (THolder::*)(TArguments...) _qualifier noex, \
+                                inheritor>,                                                \
+                        inheritor>>                                                        \
+    {                                                                                      \
+        typ(is_noex_t) = true_t;                                                           \
+        typ(is_member_t) = true_t;                                                         \
+                                                                                           \
+        typ(holder_t) = THolder;                                                           \
+        typ(qualified_t) = THolder _qualifier;                                             \
     }
 
 #define DEFINE_QUALIFIED_MEMBER_FUNCTION_PTR_CALLABLE_STRUCTS(_call)     \
@@ -223,19 +204,20 @@ tmp<name TMember, name THolder, name TInheritor>
 
 // functors
 
-template<name TFunctor, name TInheritor>
+template<name TFunctor, inheritor_extract>
 strct callable_gs<
-        TFunctor,
-        TInheritor,
-        ENV::require_gt<
+        TFunctor, inheritor,
+        COND_TYPE(
                 is_call_qualified_for_gs<
                         TFunctor,
                         name callable_gs<
                                 decl(&ENV::unqualified_gt<
-                                        TFunctor>::op())>::qualified_t>>> :
+                                        TFunctor>::op())>::qualified_t>)> :
     public callable_gs<
             decl(&ENV::unqualified_gt<TFunctor>::op()),
-            ENV::self_ggt<callable_gs<TFunctor, TInheritor>, TInheritor>>
+            ENV::self_ggt<
+                    callable_gs<TFunctor, inheritor>,
+                    inheritor>>
 {
     typ(is_member_t) = false_t;
 };
@@ -251,9 +233,9 @@ strct callable_gs<
 template<name TFunctor>
 strct callable_gs<
         TFunctor, no_inheritor_s,
-        require_gt<con_vt<
-                has_call_operator_gs<TFunctor>,
-                neg_vt<is_non_overloaded_functor_gs<TFunctor>>>>>
+        COND_TYPE(
+                con_vt<has_call_operator_gs<TFunctor>,
+                       neg_vt<is_non_overloaded_functor_gs<TFunctor>>>)>
 {
     EXPR_CLASS_CHECK_VARIADIC(
             is_callable,
@@ -263,8 +245,8 @@ strct callable_gs<
 
     typ(is_member_t) = false_t;
 
-    template<name = req_t>
-    typ(is_supported_t) = false_t;
+    template<name T>
+    typ(is_supported_t) = first_gvt<false_t, T>;
 };
 
 
@@ -346,7 +328,8 @@ COND_CONCEPT(noex_callable, is_noex_callable_gs<C>);
 ENV_DETAIL_BEGIN
 
 template<name T>
-typ(is_supported_callable_t) = name detail::callable_gs<T>::tmp is_supported_t<>;
+typ(is_supported_callable_t) =
+        bool_nt<detail::callable_gs<T>::tmp is_supported_g<void_t>>;
 
 ENV_DETAIL_END
 
@@ -421,11 +404,6 @@ ENV_TEST_CASE("callable traits")
 
         REQUIRES(is_callable_g<decl(&test_t::op())>);
         REQUIRES(is_callable_g<decl(&test_t::int_unqualified_except_int)>);
-        REQUIRE_EQT(
-                ENV::unqualified_gt<
-                        ENV::member_type_gt<
-                                decl(&test::templated_callable_t::lambda)>>,
-                ENV_STD::function<void()>);
         REQUIRES(is_callable_g<decl(&test::templated_callable_t::lambda)>);
         REQUIRES_FALSE(is_callable_g<
                        decl(&test::templated_callable_t::lambda_ptr)>);
