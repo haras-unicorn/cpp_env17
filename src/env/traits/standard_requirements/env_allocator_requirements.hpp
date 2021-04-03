@@ -144,34 +144,34 @@ EXPR_CHECK_UNARY(
         TYPE_EXPR(detail::allocator_traits_gt<T>),
 
         /* may throw */
-        detail::allocator_traits_gt<T>::allocate(
+        nonce(detail::allocator_traits_gt<T>::allocate(
                 declvall<T>(),
-                declval<name detail::allocator_traits_gt<T>::size_t>()),
+                declval<name detail::allocator_traits_gt<T>::size_t>())),
 
         /* this one is to aid locality */
-        detail::allocator_traits_gt<T>::allocate(
+        nonce(detail::allocator_traits_gt<T>::allocate(
                 declvall<T>(),
                 declval<name detail::allocator_traits_gt<T>::size_t>(),
-                declval<name detail::allocator_traits_gt<T>::c_void_ptr_t>()),
+                declval<name detail::allocator_traits_gt<T>::c_void_ptr_t>())),
 
         /* given pointer is gotten from allocate and is valid */
-        detail::allocator_traits_gt<T>::deallocate(
+        nonce(detail::allocator_traits_gt<T>::deallocate(
                 declvall<T>(),
                 declval<name detail::allocator_traits_gt<T>::ptr_t>(),
-                declval<name detail::allocator_traits_gt<T>::size_t>()),
+                declval<name detail::allocator_traits_gt<T>::size_t>())),
 
         /* largest value passable to allocate */
-        detail::allocator_traits_gt<T>::max_size(declvall<T>()),
+        nonce(detail::allocator_traits_gt<T>::max_size(declvall<T>())),
 
         /* surprisingly the pointer could be from anywhere */
-        detail::allocator_traits_gt<T>::construct(
+        nonce(detail::allocator_traits_gt<T>::construct(
                 declvall<T>(),
-                declval<detail::rebind_t*>()),
+                declval<detail::rebind_t*>())),
 
         /* surprisingly the pointer could be from anywhere */
-        detail::allocator_traits_gt<T>::destroy(
+        nonce(detail::allocator_traits_gt<T>::destroy(
                 declvall<T>(),
-                declval<detail::rebind_t*>()),
+                declval<detail::rebind_t*>())),
 
         /* this has some other restrictions and
          * it also satisfies CopyConstructible, but

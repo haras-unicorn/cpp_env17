@@ -60,6 +60,9 @@ ENV_END
 #undef ENV_GLOBAL_END
 #undef ENV_GLOBAL_BEGIN
 
+#undef ENV_HANA_BEGIN
+#undef ENV_HANA_END
+
 #undef ENV_DETAIL_END
 #undef ENV_DETAIL_BEGIN
 

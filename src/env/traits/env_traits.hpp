@@ -4,6 +4,7 @@
 
 ENV_TEST_SUITE_BEGIN("traits");
 
+#include "env_constexpr.hpp"
 #include "env_instantiation.hpp"
 #include "env_qualifiers.hpp"
 #include "env_members.hpp"

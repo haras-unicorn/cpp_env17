@@ -73,6 +73,17 @@
     ENV_BEGIN
 
 
+#define ENV_HANA_BEGIN                \
+    ENV_END                           \
+    ENV_CUSTOM_NAMESPACE_BEGIN(boost) \
+    ENV_CUSTOM_NAMESPACE_BEGIN(hana)
+
+#define ENV_HANA_END           \
+    ENV_CUSTOM_NAMESPACE_END() \
+    ENV_CUSTOM_NAMESPACE_END() \
+    ENV_BEGIN
+
+
 // namespace entries
 
 #define ENV_GLOBAL

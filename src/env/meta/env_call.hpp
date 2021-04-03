@@ -104,4 +104,23 @@ ENV_TEST_CASE("apply")
 }
 
 
+// instant
+
+template<template<name...> class TKind, name... TWith>
+typ(intant_kvt) = TKind<TWith...>;
+
+// this way is better because you can put lambdas in templates like this!
+
+template<name... TWith, template<TWith...> class TKind, TWith... Discard>
+cmp_fn instant(TKind<Discard...> kind, TWith... with) noex->TKind<with...>;
+
+template<name... TWith, template<TWith...> class TKind, TWith... Discard>
+cmp_fn instant(TKind<Discard...> kind) noex->TKind<TWith{}...>;
+
+ENV_TEST_CASE("instant")
+{
+    REQUIRES(decl(instant<long, 1>(value_gnt<int, 1>{}))::value == 1);
+}
+
+
 #endif // ENV_CALL_HPP

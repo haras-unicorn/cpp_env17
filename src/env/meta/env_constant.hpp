@@ -2,11 +2,56 @@
 #define ENV_CONSTANT_HPP
 
 
+// tag
+
+template<name T>
+strct tag_gt
+{
+    typ(tag) = ENV_HANA::tag_of_t<T>;
+
+    typ(type) = T;
+};
+
+ENV_TEST_CASE("tag constant")
+{
+}
+
+
+// kind
+
+template<template<name...> class TKind>
+strct kind_kt
+{
+    template<name TArgs>
+    typ(kind) = TKind<TArgs>;
+};
+
+template<name TKind>
+strct kind_gt
+{
+    template<name TArgs>
+    typ(kind) = name TKind::tmp kind<TArgs>;
+};
+
+ENV_TEST_CASE("kind constant")
+{
+    REQUIRE_EQT(kind_kt<ENV_STD::void_t>::kind<int, float>, void);
+    REQUIRE_EQT(kind_kt<ENV_STD::is_const>::kind<const int>::type,
+                ENV_STD::true_type);
+
+    REQUIRE_EQT(kind_gt<kind_kt<ENV_STD::is_const>>::kind<const int>::type,
+                ENV_STD::true_type);
+}
+
+
 // type
 
 template<name TType>
 strct type_gt
 {
+    template<name... TArgs>
+    typ(kind) = TType;
+
     typ(type) = TType;
 };
 
@@ -21,7 +66,14 @@ ENV_TEST_CASE("type constant")
 // value
 
 template<name TType, TType Value>
-strct value_gnt : public ENV_STD::integral_constant<TType, Value>{};
+strct value_gnt : public ENV_STD::integral_constant<TType, Value>
+{
+    template<name... TArgs>
+    typ(kind) = TType;
+};
+
+template<name TType>
+typ(value_gt) = value_gnt<name TType::value_type, TType::value>;
 
 #define val(_value)                                                 \
     ENV::value_gnt<                                                 \

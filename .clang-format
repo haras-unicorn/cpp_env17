@@ -57,7 +57,7 @@ BraceWrapping:
   AfterUnion: true
   AfterFunction: true
   SplitEmptyFunction: false
-  BeforeLambdaBody: true
+  BeforeLambdaBody: false
   AfterControlStatement: MultiLine
   BeforeElse: true
   AfterCaseLabel: false

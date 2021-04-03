@@ -255,6 +255,8 @@ ENV_TEST_CASE("complete sequence container")
 }
 
 
+// TODO: better formatting on these last two
+
 // notes: https://en.cppreference.com/w/cpp/named_req/AssociativeContainer
 COND_CHECK_UNARY(
         is_std_associative_container,
@@ -308,8 +310,6 @@ ENV_TEST_CASE("associative container")
     STD_REQUIRE_FALSE(is_std_associative_container_g<int>);
 }
 
-
-// TODO: better formatting
 
 // notes: https://en.cppreference.com/w/cpp/named_req/UnorderedAssociativeContainer
 COND_CHECK_UNARY(
