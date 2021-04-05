@@ -358,6 +358,10 @@ function(env_fetch _name)
     set(bin_dir "${env_fetch_build_dir}/${_name}/bin")
     set(sub_dir "${env_fetch_build_dir}/${_name}/sub")
 
+    set("${_name}_src_dir" "${src_dir}" PARENT_SCOPE)
+    set("${_name}_bin_dir" "${bin_dir}" PARENT_SCOPE)
+    set("${_name}_sub_dir" "${src_sir}" PARENT_SCOPE)
+
     set(lock_file "${env_fetch_dir}/${_name}_populated")
 
     if (NOT EXISTS "${lock_file}")
