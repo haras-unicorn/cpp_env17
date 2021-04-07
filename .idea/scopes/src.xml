@@ -1,3 +1,0 @@
-<component name="DependencyValidationManager">
-  <scope name="src" pattern="file[cpp_env17]:cmake//*||file[cpp_env17]:include//*||file[cpp_env17]:src//*||file:CMakeLists.txt||file:CMakePresets.json||file:conanfile.py" />
-</component>

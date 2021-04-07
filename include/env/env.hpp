@@ -1,20 +1,10 @@
-/*
- *
- * Env - environment for all of my C++ projects.
- *
- *
- * Macros you can define to configure the Env:
- *
- * ENV_MESSAGES:
- * Display messages about compiler, architecture, OS, and
- * C++ standard during compilation.
- *
- */
-
-
 #ifndef ENV_INCLUDED
 #define ENV_INCLUDED
 
+
+// macros
+
+#include <hedley.h>
 
 // basic macros
 
@@ -484,7 +474,7 @@ ENV_CLANG_SUPPRESS_POP;
 
 // deps
 
-// std/boost
+// std
 
 #include <utility>
 #include <type_traits>
@@ -533,267 +523,65 @@ ENV_CLANG_SUPPRESS_POP;
 #include <filesystem>
 
 
+// boost
+
 #include <boost/hana.hpp>
 
-
-// other
+// test
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+// Ignore GoogleTest unused static variable warning
+#define ENV_TEST(_suite, _test) TEST(_suite, _test) // NOLINT(cert-err58-cpp)
+
+// bench
+
+ENV_CLANG_SUPPRESS_PUSH("-Wmicrosoft-enum-value");
 #include <benchmark/benchmark.h>
+ENV_CLANG_SUPPRESS_POP;
+
+// alloc
 
 ENV_CLANG_SUPPRESS_PUSH("-Wdeprecated-declarations");
 #include <mimalloc.h>
 ENV_CLANG_SUPPRESS_POP;
 
+// json
 
-// namespace
+#include <nlohmann/json.hpp>
 
-ENV_CLANG_SUPPRESS_PUSH("-Wunknown-pragmas");
-ENV_CLANG_SUPPRESS_PUSH("Simplify");
-ENV_CLANG_SUPPRESS_PUSH("UnreachableCode");
-ENV_CLANG_SUPPRESS_PUSH("google-explicit-constructor");
+
+// env
 
 namespace env
 {
-// import
-
-using namespace ::std;
-
-namespace chrono
-{
-using namespace ::std::chrono;
-}
-
-namespace pmr
-{
-using namespace ::std::pmr;
-}
-
-namespace meta
-{
-using namespace ::boost::hana;
-} // namespace meta
-
-namespace test
-{
-using namespace ::testing;
-} // namespace test
-
-namespace bench
-{
-using namespace ::benchmark;
-} // namespace bench
+namespace meta = ::boost::hana;
+namespace test = ::testing;
+namespace bench = ::benchmark;
+namespace json = ::nlohmann;
 
 namespace literals
 {
 using namespace ::std::literals;
-using namespace ::std::chrono_literals;
 using namespace ::std::string_literals;
 using namespace ::std::string_view_literals;
+using namespace ::std::chrono_literals;
 
 using namespace ::boost::hana::literals;
 } // namespace literals
 
-
-// arch
-
-[[maybe_unused]] inline constexpr string_view arch_name = ENV_ARCH_NAME;
-[[maybe_unused]] inline constexpr bool        is_x86 = ENV_X86;
-[[maybe_unused]] inline constexpr bool        is_x64 = ENV_X64;
-[[maybe_unused]] inline constexpr bool        is_arm = ENV_ARM;
-[[maybe_unused]] inline constexpr bool        is_arm64 = ENV_ARM64;
-
-enum class arch_value
+namespace placeholder
 {
-    x86 [[maybe_unused]] = 0b0001,
-    x64 [[maybe_unused]] = 0b0010,
-    arm [[maybe_unused]] = 0b0100,
-    arm64 [[maybe_unused]] = 0b1000,
-    other [[maybe_unused]] = 0
-};
+using ::boost::hana::_;
+} // namespace placeholder
 
-[[maybe_unused]] struct arch_t
+namespace syntax
 {
-    arch_value  value;
-    string_view name;
-
-    [[maybe_unused]] inline constexpr operator arch_value() const noexcept
-    {
-        return value;
-    }
-} inline constexpr arch{
-        arch_value{
-                (is_x86 << 0) +
-                (is_x64 << 1) +
-                (is_arm << 2) +
-                (is_arm64 << 3)},
-        arch_name};
-
-static_assert(arch != arch_value::other, "Unsupported architecture.");
-
-
-// compiler
-
-[[maybe_unused]] inline constexpr string_view compiler_name = ENV_COMPILER_NAME;
-[[maybe_unused]] inline constexpr bool        is_gnu = ENV_GNU;
-[[maybe_unused]] inline constexpr bool        is_clang = ENV_CLANG;
-[[maybe_unused]] inline constexpr bool        is_msvc = ENV_MSVC;
-[[maybe_unused]] inline constexpr uintmax_t   compiler_major = ENV_COMPILER_MAJOR;
-[[maybe_unused]] inline constexpr uintmax_t   compiler_minor = ENV_COMPILER_MINOR;
-[[maybe_unused]] inline constexpr uintmax_t   compiler_patch = ENV_COMPILER_PATCH;
-
-enum class compiler_value
-{
-    gnu = 0b001,
-    clang = 0b010,
-    msvc = 0b100,
-    other = 0
-};
-
-[[maybe_unused]] struct compiler_t
-{
-    string_view    name;
-    compiler_value value;
-
-    struct version_t
-    {
-        [[maybe_unused]] uintmax_t major;
-        [[maybe_unused]] uintmax_t minor;
-        [[maybe_unused]] uintmax_t patch;
-    } version;
-
-    [[maybe_unused]] inline constexpr operator compiler_value() const noexcept
-    {
-        return value;
-    }
-} inline constexpr compiler{
-        compiler_name,
-        compiler_value{
-                (is_gnu << 0) +
-                (is_clang << 1) +
-                (is_msvc << 2)},
-        {compiler_major, compiler_minor, compiler_patch}};
-
-static_assert(compiler != compiler_value::other, "Unsupported compiler.");
-
-
-// os
-
-[[maybe_unused]] inline constexpr string_view os_name = ENV_OS_NAME;
-[[maybe_unused]] inline constexpr bool        is_win = ENV_WIN;
-[[maybe_unused]] inline constexpr bool        is_win32 = ENV_WIN32;
-[[maybe_unused]] inline constexpr bool        is_win64 = ENV_WIN64;
-[[maybe_unused]] inline constexpr bool        is_apple = ENV_APPLE;
-[[maybe_unused]] inline constexpr bool        is_mac = ENV_MAC;
-[[maybe_unused]] inline constexpr bool        is_ios = ENV_IOS;
-[[maybe_unused]] inline constexpr bool        is_ios_sim = ENV_IOS_SIM;
-[[maybe_unused]] inline constexpr bool        is_linux = ENV_LINUX;
-[[maybe_unused]] inline constexpr bool        is_android = ENV_ANDROID;
-
-enum class os_type
-{
-    win = 0b001,
-    apple = 0b010,
-    linux = 0b100,
-    other = 0
-};
-
-enum class win_value
-{
-    win32 = 0b01,
-    win64 = 0b10,
-    other = 0
-};
-
-enum class apple_value
-{
-    mac = 0b001,
-    ios = 0b010,
-    ios_sim = 0b100,
-    other = 0
-};
-
-enum class linux_value
-{
-    android = 0b1,
-    other = 0
-};
-
-enum class other_os_value
-{
-};
-
-namespace detail
-{
-inline constexpr auto _os_value() noexcept
-{
-    if constexpr (is_win)
-    {
-        return win_value{
-                (is_win32 << 0) +
-                (is_win64 << 1)};
-    }
-    else if constexpr (is_apple)
-    {
-        return apple_value{
-                (is_mac << 0) +
-                (is_ios << 1) +
-                (is_ios_sim << 2)};
-    }
-    else if constexpr (is_linux)
-    {
-        return linux_value{
-                (is_android << 0)};
-    }
-    else
-    {
-        return other_os_value{};
-    }
-}
-} // namespace detail
-
-using os_value =
-        conditional_t<
-                is_win, win_value,
-                conditional_t<
-                        is_apple, apple_value,
-                        conditional_t<
-                                is_linux, linux_value,
-                                other_os_value>>>;
-
-[[maybe_unused]] struct os_t
-{
-    string_view name;
-    os_type     type;
-    os_value    value;
-
-    [[maybe_unused]] inline constexpr operator os_type() const noexcept
-    {
-        return type;
-    }
-
-    [[maybe_unused]] inline constexpr operator os_value() const noexcept
-    {
-        return value;
-    }
-} inline constexpr os{
-        os_name,
-        os_type{
-                (is_win << 0) +
-                (is_apple << 1) +
-                (is_linux << 2)},
-        detail::_os_value()};
-
-static_assert(os != os_type::other, "Unsupported OS type.");
-static_assert(os != os_value::other, "Unsupported OS.");
+using namespace literals;
+using namespace placeholder;
+} // namespace syntax
 } // namespace env
-
-ENV_CLANG_SUPPRESS_POP;
-ENV_CLANG_SUPPRESS_POP;
-ENV_CLANG_SUPPRESS_POP;
-ENV_CLANG_SUPPRESS_POP;
 
 
 #endif // ENV_INCLUDED
