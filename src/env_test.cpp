@@ -22,21 +22,70 @@ ENV_TEST(env, deps)
 
 namespace test
 {
+template<typename T>
 struct vector
 {
-    BOOST_HANA_DEFINE_STRUCT(
-            vector,
-            (int, x),
-            (int, y));
+    BOOST_HANA_DEFINE_STRUCT(vector, (T, x), (T, y));
 };
 
-inline constexpr auto vector_accessors = ::env::meta::accessors<vector>();
+struct vector_tag
+{
+    using sample = vector<int>;
+};
+} // namespace test
+
+namespace boost::hana
+{
+template<typename TTag>
+struct accessors_impl<TTag, when<struct_detail::is_valid<typename TTag::sample>::value>>
+{
+private:
+    static constexpr auto sample_inner =
+            TTag::sample::hana_accessors_impl::apply();
+
+    template<typename T>
+    static constexpr decltype(T::hana_accessors_impl::apply()) inner =
+            T::hana_accessors_impl::apply();
+
+    template<std::size_t... I, typename... T>
+    static constexpr decltype(auto) _apply(
+            detail::basic_tuple_impl<std::index_sequence<I...>, T...>
+                    _sample_inner)
+    {
+        constexpr auto getter =
+                [](auto i, auto&& x) {
+                    using type = decltype(x);
+                    using unqualified =
+                            std::remove_reference_t<
+                                    std::remove_cv_t<type>>;
+
+                    return second(inner<unqualified>[i])(
+                            std::forward<type>(x));
+                };
+
+        return make_tuple(
+                make_pair(
+                        first(detail::ebo_get<detail::bti<I>>(_sample_inner)),
+                        partial(getter, size_c<I>))...);
+    }
+
+public:
+    static constexpr decltype(auto) apply()
+    {
+        return _apply(sample_inner.storage_);
+    }
+};
+} // namespace boost::hana
+
+namespace test
+{
+constexpr auto vector_accessors = ::boost::hana::accessors<vector_tag>();
 } // namespace test
 
 ENV_TEST(env, regular)
 {
-    test::vector a{1, 2};
-    test::vector b{2, 3};
+    test::vector<int> a{1, 2};
+    test::vector<int> b{2, 3};
     EXPECT_PRED2(::env::meta::not_equal, a, b);
     EXPECT_PRED2(::env::meta::in, BOOST_HANA_STRING("x"), a);
     EXPECT_EQ(
@@ -70,7 +119,32 @@ ENV_TEST(env, concepts)
               make_tuple(1, 4, 5));
 
     EXPECT_TRUE((Applicative<optional<int>>::value));
-    EXPECT_EQ()
+    EXPECT_EQ(ap(
+                      make_tuple(plus, minus),
+                      make_tuple(1, 2),
+                      make_tuple(2, 3)),
+              make_tuple(
+                      3, 4, 4, 5,
+                      -1, -2, 0, -1));
+
+    EXPECT_TRUE((Monoid<integral_constant<int, 1>>::value));
+    EXPECT_EQ(plus(
+                      BOOST_HANA_STRING("a"),
+                      zero<string_tag>()),
+              BOOST_HANA_STRING("a"));
+
+    EXPECT_TRUE((Monad<tuple<int>>::value));
+    constexpr auto doublet = [=](auto x) { return make_tuple(x, x); };
+    constexpr auto quadruplet = monadic_compose(doublet, doublet);
+    EXPECT_EQ(quadruplet(1), make_tuple(1, 1, 1, 1));
+    EXPECT_EQ(flatten(make_tuple(make_tuple())), make_tuple());
+
+    EXPECT_TRUE(Comonad<lazy_value_t<int>>::value);
+    EXPECT_EQ(extract(make_lazy(make_tuple)(0, 1)),
+              make_tuple(0, 1));
+
+    EXPECT_TRUE((Hashable<integral_constant<int, 1>>::value));
+    EXPECT_EQ(hash(1_c), (type_c<integral_constant<long long, 1>>) );
 
     EXPECT_TRUE((EuclideanRing<int>::value));
 

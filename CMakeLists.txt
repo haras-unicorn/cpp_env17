@@ -738,7 +738,22 @@ env_fetch(
 
 env_add_dep(json nlohmann_json::nlohmann_json)
 
-env_target_precompile(env_json_dep INTERFACE <nlohmann/json.hpp>)
+env_target_precompile(json_dep INTERFACE <nlohmann/json.hpp>)
+
+
+env_fetch(
+        immutable
+        GIT_REPOSITORY https://github.com/Hrle97/immer.git
+        GIT_TAG cmake
+)
+
+env_fetch(
+        transducers
+        GIT_REPOSITORY https://github.com/Hrle97/zug.git
+        GIT_TAG cmake
+)
+
+env_add_dep(functional zug immer)
 
 
 env_add_dep(default)
@@ -753,6 +768,7 @@ env_target_link(
         env::bench_dep
         env::alloc_dep
         env::json_dep
+        env::functional_dep
 )
 
 

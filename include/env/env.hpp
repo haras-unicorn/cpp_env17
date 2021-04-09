@@ -584,4 +584,10 @@ using namespace placeholder;
 } // namespace env
 
 
+namespace boost::hana
+{
+
+}
+
+
 #endif // ENV_INCLUDED
