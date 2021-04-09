@@ -25,7 +25,7 @@
 
 #define ENV_UID(_prefix) ENV_INTER(_z, _prefix, __COUNTER__)
 
-#define ENV_SEMI using ENV_UID(_env_demand_semicolon) [[maybe_unused]] = void
+#define ENV_SEMI static_assert(true, "Require semicolon.")
 
 
 // arch
@@ -527,6 +527,7 @@ ENV_CLANG_SUPPRESS_POP;
 
 #include <boost/hana.hpp>
 
+
 // test
 
 #include <gtest/gtest.h>
@@ -552,14 +553,59 @@ ENV_CLANG_SUPPRESS_POP;
 #include <nlohmann/json.hpp>
 
 
+// functional
+
+ENV_CLANG_SUPPRESS_PUSH("-Wunused-parameter");
+
+#include <immer/atom.hpp>
+#include <immer/box.hpp>
+
+#include <immer/array.hpp>
+#include <immer/array_transient.hpp>
+
+#include <immer/vector.hpp>
+#include <immer/vector_transient.hpp>
+#include <immer/flex_vector.hpp>
+#include <immer/flex_vector_transient.hpp>
+
+#include <immer/map.hpp>
+#include <immer/map_transient.hpp>
+#include <immer/set.hpp>
+#include <immer/set_transient.hpp>
+
+#include <immer/algorithm.hpp>
+
+ENV_CLANG_SUPPRESS_POP;
+
+
+#include <zug/compose.hpp>
+
+#include <zug/run.hpp>
+
+#include <zug/into.hpp>
+#include <zug/into_vector.hpp>
+
+#include <zug/any_state.hpp>
+
+// TODO: include more
+// Note: sequence uses boost MPL for some reason
+
+
 // env
 
 namespace env
 {
+namespace std = ::std;
 namespace meta = ::boost::hana;
 namespace test = ::testing;
 namespace bench = ::benchmark;
 namespace json = ::nlohmann;
+
+namespace func
+{
+using namespace ::immer;
+using namespace ::zug;
+} // namespace func
 
 namespace literals
 {
@@ -586,7 +632,6 @@ using namespace placeholder;
 
 namespace boost::hana
 {
-
 }
 
 

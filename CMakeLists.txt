@@ -430,43 +430,47 @@ function(env_fetch _name)
     env_prefix(${_name} ${PROJECT_NAME} _mod)
     env_suffix(${_mod} fetch _mod)
 
-    set(src_dir "${env_fetch_dir}/${_name}_src")
-    set(bin_dir "${env_fetch_build_dir}/${_name}/bin")
-    set(sub_dir "${env_fetch_build_dir}/${_name}/sub")
-    set(populated_file "${env_fetch_dir}/.process/${_name}.populated")
-    set(lock_file "${env_fetch_dir}/.process/${_name}.lock")
+    set(_src_dir "${env_fetch_dir}/${_name}")
+    set(_bin_dir "${env_fetch_build_dir}/${_name}/bin")
+    set(_sub_dir "${env_fetch_build_dir}/${_name}/sub")
+    set(_populated_file "${env_fetch_dir}/.process/${_name}.populated")
+    set(_lock_file "${env_fetch_dir}/.process/${_name}.lock")
 
-    set(${_mod}_src_dir "${src_dir}" PARENT_SCOPE)
-    set(${_mod}_bin_dir "${bin_dir}" PARENT_SCOPE)
-    set(${_mod}_sub_dir "${src_sir}" PARENT_SCOPE)
+    set(${_mod}_src_dir "${_src_dir}" PARENT_SCOPE)
+    set(${_mod}_bin_dir "${_bin_dir}" PARENT_SCOPE)
+    set(${_mod}_sub_dir "${_src_sir}" PARENT_SCOPE)
 
-    file(LOCK "${lock_file}")
-    if (NOT EXISTS "${populated_file}")
-        file(WRITE "${populated_file}" YES)
+    file(LOCK "${_lock_file}")
+    if (NOT EXISTS "${_populated_file}")
+        file(WRITE "${_populated_file}" YES)
 
-        env_log("Fetching \"${_name}\" into \"${src_dir}\".")
+        env_log("Fetching \"${_name}\" into \"${_src_dir}\".")
         fetchcontent_populate(
                 ${_mod}
                 QUIET
                 ${ARGN}
-                SOURCE_DIR "${src_dir}"
-                BINARY_DIR "${bin_dir}"
-                SUBBUILD_DIR "${sub_dir}"
+                SOURCE_DIR "${_src_dir}"
+                BINARY_DIR "${_bin_dir}"
+                SUBBUILD_DIR "${_sub_dir}"
         )
     else ()
-        env_log("Already fetched \"${_name}\" into \"${src_dir}\".")
+        env_log("Already fetched \"${_name}\" into \"${_src_dir}\".")
     endif ()
-    file(LOCK "${lock_file}" RELEASE)
+    file(LOCK "${_lock_file}" RELEASE)
 
-    file(GLOB is_sub "${src_dir}/CMakeLists.txt")
+    file(GLOB is_sub "${_src_dir}/CMakeLists.txt")
     if (is_sub)
-        env_log("Adding ${_name} subdirectories \"${_src_dir}\", \"${bin_dir}\".")
+        env_log(
+                "Adding ${_name} subdirectories \
+                \"${_src_dir}\", \
+                \"${_bin_dir}\"."
+        )
         set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
         set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
         set(CMAKE_MESSAGE_LOG_LEVEL VERBOSE)
         set(CMAKE_MESSAGE_INDENT "${_previous_log_indent}    ")
 
-        add_subdirectory("${src_dir}" "${bin_dir}")
+        add_subdirectory("${_src_dir}" "${_bin_dir}")
 
         set(CMAKE_MESSAGE_LOG_LEVEL ${_previous_log_level})
         set(CMAKE_MESSAGE_INDENT ${_previous_log_indent})
@@ -741,16 +745,53 @@ env_add_dep(json nlohmann_json::nlohmann_json)
 env_target_precompile(json_dep INTERFACE <nlohmann/json.hpp>)
 
 
+set(
+        immer_BUILD_EXAMPLES OFF CACHE BOOL
+        "Don't build immer examples."
+        FORCE
+)
+set(
+        immer_BUILD_TESTS OFF CACHE BOOL
+        "Don't build immer tests."
+        FORCE
+)
+set(
+        immer_BUILD_DOCS OFF CACHE BOOL
+        "Don't build immer docs."
+        FORCE
+)
+set(
+        immer_BUILD_EXTRAS OFF CACHE BOOL
+        "Don't build immer extras."
+        FORCE
+)
+
 env_fetch(
         immutable
         GIT_REPOSITORY https://github.com/Hrle97/immer.git
         GIT_TAG cmake
 )
 
+set(
+        zug_BUILD_TESTS OFF CACHE BOOL
+        "Don't build zug tests."
+        FORCE
+)
+set(
+        zug_BUILD_EXAMPLES OFF CACHE BOOL
+        "Don't build zug examples."
+        FORCE
+)
+set(
+        zug_BUILD_DOCS OFF CACHE BOOL
+        "Don't build zug docs."
+        FORCE
+)
+
 env_fetch(
         transducers
         GIT_REPOSITORY https://github.com/Hrle97/zug.git
-        GIT_TAG cmake
+        GIT_TAG v0.0.1-cmake
 )
 
 env_add_dep(functional zug immer)
@@ -759,7 +800,7 @@ env_add_dep(functional zug immer)
 env_add_dep(default)
 
 env_target_link(
-        env_default_dep
+        default_dep
         INTERFACE
         env::macros_dep
         env::std_dep
