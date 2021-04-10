@@ -405,7 +405,7 @@ else ()
                     ${_mod}
                     PRIVATE
                     -ggdb
-                    # TODO fix
+                    # TODO: fix
                     # -fsanitize=address,undefined
             )
         endfunction()
@@ -636,6 +636,7 @@ env_target_precompile(
 
         <any>
         <optional>
+        <variant>
         <tuple>
 
         <string>
@@ -696,8 +697,28 @@ env_target_precompile(
 
 
 set(
-        GTEST_FORCE_SHARED_CRT ON CACHE BOOL
+        INSTALL_GTEST OFF CACHE BOOL
+        "Don't install GoogleTest."
+        FORCE
+)
+set(
+        gtest_force_shared_crt ON CACHE BOOL
         "Use same compiler/linker as project."
+        FORCE
+)
+set(
+        gtest_build_tests OFF CACHE BOOL
+        "Don't build GoogleTest tests."
+        FORCE
+)
+set(
+        gtest_build_samples OFF CACHE BOOL
+        "Don't build GoogleTest samples."
+        FORCE
+)
+set(
+        gmock_build_tests CACHE BOOL
+        "Don't build GoogleMock tests."
         FORCE
 )
 
@@ -711,8 +732,18 @@ env_add_dep(test gtest gmock)
 
 
 set(
+        BENCHMARK_ENABLE_TESTING OFF CACHE BOOL
+        "Disable tests on GoogleBenchmark."
+        FORCE
+)
+set(
+        BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
+        "Disable install on GoogleBenchmark."
+        FORCE
+)
+set(
         BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL
-        "Turn off tests for benchmark."
+        "Disable tests depending on GoogleTest for GoogleBenchmark."
         FORCE
 )
 
@@ -725,14 +756,46 @@ env_fetch(
 env_add_dep(bench benchmark)
 
 
+set(
+        MI_USE_CXX ON CACHE BOOL
+        "Compile Mimalloc using C++ compiler."
+        FORCE
+)
+set(
+        MI_BUILD_SHARED OFF CACHE BOOL
+        "Don't compile Mimalloc as a shared library."
+        FORCE
+)
+set(
+        MI_BUILD_OBJECT OFF CACHE BOOL
+        "Don't compile Mimalloc as an object library."
+        FORCE
+)
+set(
+        MI_BUILD_TESTS OFF CACHE BOOL
+        "Don't compile Mimalloc tests."
+        FORCE
+)
+
 env_fetch(
         alloc
         GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
         GIT_TAG v2.0.0
 )
 
-env_add_dep(alloc mimalloc-obj)
+env_add_dep(alloc mimalloc-static)
 
+
+set(
+        JSON_BuildTests OFF CACHE BOOL
+        "Don't build tests for Nlohmann Json."
+        FORCE
+)
+set(
+        JSON_Install OFF CACHE BOOL
+        "Don't install Nlohmann Json."
+        FORCE
+)
 
 env_fetch(
         json
@@ -773,17 +836,17 @@ env_fetch(
 )
 
 set(
-        zug_BUILD_TESTS OFF CACHE BOOL
+        ZUG_BUILD_TESTS OFF CACHE BOOL
         "Don't build zug tests."
         FORCE
 )
 set(
-        zug_BUILD_EXAMPLES OFF CACHE BOOL
+        ZUG_BUILD_EXAMPLES OFF CACHE BOOL
         "Don't build zug examples."
         FORCE
 )
 set(
-        zug_BUILD_DOCS OFF CACHE BOOL
+        ZUG_BUILD_DOCS OFF CACHE BOOL
         "Don't build zug docs."
         FORCE
 )
@@ -791,7 +854,7 @@ set(
 env_fetch(
         transducers
         GIT_REPOSITORY https://github.com/Hrle97/zug.git
-        GIT_TAG v0.0.1-cmake
+        GIT_TAG v0.0.2-cmake
 )
 
 env_add_dep(functional zug immer)

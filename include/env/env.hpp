@@ -488,6 +488,7 @@ ENV_CLANG_SUPPRESS_POP;
 
 #include <any>
 #include <optional>
+#include <variant>
 #include <tuple>
 
 #include <string>
@@ -558,7 +559,6 @@ ENV_CLANG_SUPPRESS_POP;
 ENV_CLANG_SUPPRESS_PUSH("-Wunused-parameter");
 
 #include <immer/atom.hpp>
-#include <immer/box.hpp>
 
 #include <immer/array.hpp>
 #include <immer/array_transient.hpp>
@@ -575,37 +575,206 @@ ENV_CLANG_SUPPRESS_PUSH("-Wunused-parameter");
 
 #include <immer/algorithm.hpp>
 
-ENV_CLANG_SUPPRESS_POP;
-
 
 #include <zug/compose.hpp>
 
 #include <zug/run.hpp>
-
 #include <zug/into.hpp>
 #include <zug/into_vector.hpp>
+#include <zug/tuplify.hpp>
 
+#include <zug/sequence.hpp>
 #include <zug/any_state.hpp>
+#include <zug/with_state.hpp>
+#include <zug/skip.hpp>
 
-// TODO: include more
-// Note: sequence uses boost MPL for some reason
+#include <zug/reduce.hpp>
+#include <zug/maybe_reduced.hpp>
+#include <zug/reductor.hpp>
 
+#include <zug/transducer/transducer.hpp>
+
+#include <zug/transducer/iter.hpp>
+#include <zug/transducer/range.hpp>
+#include <zug/transducer/chain.hpp>
+#include <zug/transducer/cycle.hpp>
+#include <zug/transducer/count.hpp>
+#include <zug/transducer/repeat.hpp>
+#include <zug/transducer/product.hpp>
+#include <zug/transducer/random_sample.hpp>
+
+#include <zug/transducer/cat.hpp>
+#include <zug/transducer/interleave.hpp>
+#include <zug/transducer/interpose.hpp>
+#include <zug/transducer/partition.hpp>
+#include <zug/transducer/partition_by.hpp>
+
+#include <zug/transducer/dedupe.hpp>
+#include <zug/transducer/distinct.hpp>
+#include <zug/transducer/drop.hpp>
+#include <zug/transducer/drop_while.hpp>
+#include <zug/transducer/take.hpp>
+#include <zug/transducer/take_nth.hpp>
+#include <zug/transducer/take_while.hpp>
+#include <zug/transducer/remove.hpp>
+#include <zug/transducer/filter.hpp>
+
+#include <zug/transducer/each.hpp>
+#include <zug/transducer/scan.hpp>
+
+#include <zug/transducer/enumerate.hpp>
+#include <zug/transducer/map.hpp>
+#include <zug/transducer/map_indexed.hpp>
+#include <zug/transducer/mapcat.hpp>
+#include <zug/transducer/replace.hpp>
+
+#include <zug/transducer/eager.hpp>
+#include <zug/transducer/read.hpp>
+#include <zug/transducer/readbuf.hpp>
+#include <zug/transducer/write.hpp>
+#include <zug/transducer/writebuf.hpp>
+#include <zug/transducer/sink.hpp>
+
+#include <zug/transducer/zip.hpp>
+#include <zug/transducer/unzip.hpp>
+
+ENV_CLANG_SUPPRESS_POP;
 
 // env
 
 namespace env
 {
-namespace std = ::std;
+namespace alloc
+{
+template<typename T>
+using allocator [[maybe_unused]] = mi_stl_allocator<T>;
+
+struct heap
+{
+    template<typename... Tags>
+    static void* allocate(std::size_t size, Tags...)
+    {
+        return mi_new(size);
+    }
+
+    static void deallocate(std::size_t, void* data)
+    {
+        mi_free(data);
+    }
+};
+
+using memory_policy =
+        ::immer::memory_policy<
+                ::immer::heap_policy<heap>,
+                ::immer::default_refcount_policy,
+                ::immer::default_lock_policy>;
+} // namespace alloc
+
+namespace std
+{
+using namespace ::std;
+
+namespace alloc
+{
+template<typename T, typename TAlloc = ::env::alloc::allocator<T>>
+using deque [[maybe_unused]] = deque<T, TAlloc>;
+
+template<typename T, typename TSeq = deque<T>>
+using queue [[maybe_unused]] = queue<T, TSeq>;
+
+template<typename T, typename TSeq = deque<T>>
+using stack [[maybe_unused]] = stack<T, TSeq>;
+
+
+template<typename T, typename TAlloc = ::env::alloc::allocator<T>>
+using list [[maybe_unused]] = list<T, TAlloc>;
+
+template<typename T, typename TAlloc = ::env::alloc::allocator<T>>
+using forward_list [[maybe_unused]] = forward_list<T, TAlloc>;
+
+
+template<typename T, typename TAlloc = ::env::alloc::allocator<T>>
+using vector [[maybe_unused]] = vector<T, TAlloc>;
+
+
+template<typename T,
+         typename TCompare = std::less<T>,
+         typename TAlloc = ::env::alloc::allocator<T>>
+using set [[maybe_unused]] = set<T, TCompare, TAlloc>;
+
+template<typename T,
+         typename THash = std::hash<T>,
+         typename TEquals = std::equal_to<T>,
+         typename TAlloc = ::env::alloc::allocator<T>>
+using unordered_set [[maybe_unused]] = unordered_set<T, THash, TEquals, TAlloc>;
+
+template<typename T,
+         typename TCompare = std::less<T>,
+         typename TAlloc = ::env::alloc::allocator<T>>
+using map [[maybe_unused]] = map<T, TCompare, TAlloc>;
+
+template<typename T,
+         typename THash = std::hash<T>,
+         typename TEquals = std::equal_to<T>,
+         typename TAlloc = ::env::alloc::allocator<T>>
+using unordered_map [[maybe_unused]] = unordered_map<T, THash, TEquals, TAlloc>;
+} // namespace alloc
+} // namespace std
+
 namespace meta = ::boost::hana;
 namespace test = ::testing;
 namespace bench = ::benchmark;
 namespace json = ::nlohmann;
 
-namespace func
+namespace immut
 {
 using namespace ::immer;
+
+namespace alloc
+{
+template<typename T, typename TMem = ::env::alloc::memory_policy>
+using box [[maybe_unused]] = box<T, TMem>;
+
+
+template<typename T, typename TMem = ::env::alloc::memory_policy>
+using array [[maybe_unused]] = array<T, TMem>;
+
+template<typename T,
+         typename TMem = ::env::alloc::memory_policy,
+         detail::rbts::bits_t Bits = default_bits,
+         detail::rbts::bits_t BitsLeaf =
+                 detail::rbts::derive_bits_leaf<T, TMem, Bits>>
+using vector [[maybe_unused]] = vector<T, TMem, Bits, BitsLeaf>;
+
+template<typename T,
+         typename TMem = ::env::alloc::memory_policy,
+         detail::rbts::bits_t Bits = default_bits,
+         detail::rbts::bits_t BitsLeaf =
+                 detail::rbts::derive_bits_leaf<T, TMem, Bits>>
+using flex_vector [[maybe_unused]] = flex_vector<T, TMem, Bits, BitsLeaf>;
+
+
+template<typename T,
+         typename THash = std::hash<T>,
+         typename TEquals = std::equal_to<T>,
+         typename TMem = ::env::alloc::memory_policy,
+         ::immer::detail::hamts::bits_t Bits = default_bits>
+using set [[maybe_unused]] = set<T, THash, TEquals, TMem, Bits>;
+
+template<typename TKey,
+         typename TValue,
+         typename THash = std::hash<TKey>,
+         typename TEquals = std::equal_to<TKey>,
+         typename TMem = ::env::alloc::memory_policy,
+         ::immer::detail::hamts::bits_t Bits = default_bits>
+using map [[maybe_unused]] = map<TKey, TValue, THash, TEquals, TMem, Bits>;
+} // namespace alloc
+} // namespace immut
+
+namespace trans
+{
 using namespace ::zug;
-} // namespace func
+}
 
 namespace literals
 {
@@ -630,9 +799,49 @@ using namespace placeholder;
 } // namespace env
 
 
+// hack for templates using accessors
+
 namespace boost::hana
 {
-}
+template<typename TTag>
+struct accessors_impl<
+        TTag, when<struct_detail::is_valid<typename TTag::sample>::value>>
+{
+private:
+    static constexpr auto sample_inner =
+            TTag::sample::hana_accessors_impl::apply();
+
+    template<typename T>
+    static constexpr decltype(T::hana_accessors_impl::apply()) inner =
+            T::hana_accessors_impl::apply();
+
+    template<std::size_t... I, typename... T>
+    static constexpr decltype(auto) _apply(
+            detail::basic_tuple_impl<std::index_sequence<I...>, T...>
+                    _sample_inner)
+    {
+        constexpr auto getter =
+                [](auto i, auto&& x) {
+                    using type = decltype(x);
+                    using unqualified =
+                            std::remove_reference_t<
+                                    std::remove_cv_t<type>>;
+
+                    return second(inner<unqualified>[i])(std::forward<type>(x));
+                };
+
+        return make_tuple(
+                make_pair(first(detail::ebo_get<detail::bti<I>>(_sample_inner)),
+                          partial(getter, size_c<I>))...);
+    }
+
+public:
+    static constexpr decltype(auto) apply()
+    {
+        return _apply(sample_inner.storage_);
+    }
+};
+} // namespace boost::hana
 
 
 #endif // ENV_INCLUDED
