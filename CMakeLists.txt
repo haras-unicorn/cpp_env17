@@ -1,39 +1,116 @@
 include_guard()
 
+cmake_minimum_required(VERSION 3.17...3.20)
+
 
 # project
 
-cmake_minimum_required(VERSION 3.17...3.20)
-
-project(
-        env
+project(env
         DESCRIPTION "Environment for all of my C++ projects."
         VERSION 1.0
-        LANGUAGES C CXX
-)
+        LANGUAGES C CXX)
+
+macro(env_project_set_labels)
+    string(TOUPPER ${PROJECT_NAME} UPPER_PROJECT_NAME)
+    string(REGEX REPLACE
+           [[\.|-|_|/|\\]] [[_]]
+           UPPER_PROJECT_NAME
+           ${UPPER_PROJECT_NAME})
+
+    string(TOLOWER ${PROJECT_NAME} LOWER_PROJECT_NAME)
+    string(REGEX REPLACE
+           [[\.|-|_|/|\\]] [[_]]
+           LOWER_PROJECT_NAME
+           ${LOWER_PROJECT_NAME})
+endmacro()
+
+env_project_set_labels()
 
 
 # options
 
+macro(env_project_set_options)
+    if (CMAKE_BUILD_TYPE STREQUAL Debug)
+        option(${UPPER_PROJECT_NAME}_COMPILER_MESSAGES
+               "Turn on compiler messages for ${PROJECT_NAME}."
+               ON)
+
+    else ()
+        option(${UPPER_PROJECT_NAME}_COMPILER_MESSAGES
+               "Turn on compiler messages for ${PROJECT_NAME}."
+               OFF)
+
+    endif ()
+
+    option(${UPPER_PROJECT_NAME}_BUILD_EXAMPLES
+           "Build ${PROJECT_NAME} examples."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_TESTS
+           "Build ${PROJECT_NAME} tests."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_DOCS
+           "Build ${PROJECT_NAME} docs."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS
+           "Build ${PROJECT_NAME} benchmarks."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_EXTRAS
+           "Build ${PROJECT_NAME} extras."
+           OFF)
+endmacro()
+
+env_project_set_options()
+
+
+# logging
+
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    option(ENV_LOG "Turn on CMake logging." ON)
-    option(ENV_MESSAGE "Turn on compiler messages." ON)
+    option(ENV_LOG_VERBOSE
+           "Turn on verbose CMake logging."
+           ON)
 else ()
-    option(ENV_LOG "Turn on CMake logging." OFF)
-    option(ENV_MESSAGE "Turn on compiler messages." OFF)
+    option(ENV_LOG_VERBOSE
+           "Turn on verbose CMake logging."
+           OFF)
 endif ()
 
-option(ENV_BUILD_EXAMPLES "Build examples." OFF)
+set(__env_verbose_message_levels
+    "\
+STATUS;VERBOSE;DEBUG;TRACE\
+")
 
+set(__env_message_levels
+    "\
+FATAL_ERROR;SEND_ERROR;WARNING;AUTHOR_WARNING;DEPRECATION;NOTICE;\
+${env_verbose_message_levels}\
+")
 
-# log
+if (ENV_LOG_VERBOSE)
+    function(env_log _level)
+        list(FIND __env_message_levels ${_level} _index)
 
-if (ENV_LOG)
-    function(env_log)
-        message(STATUS "[env::${PROJECT_NAME}]: ${ARGN}")
+        list(JOIN ARGN " " _message)
+        if (NOT _index EQUAL -1)
+            message(${_level}
+                    "[env::${LOWER_PROJECT_NAME}]: ${_message}")
+        else ()
+            message(STATUS
+                    "[env::${LOWER_PROJECT_NAME}]: ${_level} ${_message}")
+        endif ()
     endfunction()
 else ()
-    function(env_log)
+    function(env_log _level)
+        list(FIND __env_verbose_message_levels ${_level} _index)
+
+        list(JOIN ARGN " " _message)
+        if (NOT _index EQUAL -1)
+            message(${_level}
+                    "[env::${LOWER_PROJECT_NAME}]: ${_message}")
+        endif ()
     endfunction()
 endif ()
 
@@ -62,20 +139,31 @@ function(env_suffix _name _suffix _out)
     endif ()
 endfunction()
 
+function(env_target_name_for _path _out)
+    string(REGEX MATCH [[\.?.*$]] _extension "${_path}")
+    file(RELATIVE_PATH _relative "${CMAKE_CURRENT_SOURCE_DIR}" "${_path}")
+
+    string(REPLACE ${_extension} "" _name "${_relative}")
+    string(REGEX REPLACE / _ _name "${_name}")
+
+    set(${_out} ${LOWER_PROJECT_NAME}_${_name} PARENT_SCOPE)
+endfunction()
+
 
 # compiler
 
-env_log("Compiler ID is: \"${CMAKE_CXX_COMPILER_ID}\".")
+env_log(Compiler ID is: \"${CMAKE_CXX_COMPILER_ID}\".)
+env_log(MSVC is present: ${MSVC})
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     if (MSVC)
-        env_log("Detected ClangCl compiler.")
+        env_log(Detected ClangCl compiler.)
         set(ENV_CLANG_CL TRUE CACHE BOOL "Whether CLANG_CL was detected or not.")
         set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
         set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
         set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
     else ()
-        env_log("Detected Clang compiler.")
+        env_log(Detected Clang compiler.)
         set(ENV_CLANG_CL FALSE CACHE BOOL "Whether CLANG_CL was detected or not.")
         set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
         set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
@@ -83,21 +171,21 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     endif ()
 
 elseif (MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
-    env_log("Detected MSVC compiler.")
+    env_log(Detected MSVC compiler.)
     set(ENV_CLANG_CL FALSE CACHE BOOL "Whether CLANG_CL was detected or not.")
     set(ENV_MSVC TRUE CACHE BOOL "Whether MSVC was detected or not.")
     set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
     set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-    env_log("Detected GCC compiler.")
+    env_log(Detected GCC compiler.)
     set(ENV_CLANG_CL FALSE CACHE BOOL "Whether CLANG_CL was detected or not.")
     set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
     set(ENV_GCC TRUE CACHE BOOL "Whether GCC was detected or not.")
     set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
 
 else ()
-    env_log("Unknown compiler.")
+    env_log(Unknown compiler.)
     set(ENV_CLANG_CL FALSE CACHE BOOL "Whether CLANG_CL was detected or not.")
     set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
     set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
@@ -109,22 +197,22 @@ endif ()
 # sources
 
 function(env_target_link _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("Linking \"${_name}\" with \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(Linking \"${_name}\" with \"${ARGN}\".)
 
     target_link_libraries(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_include _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("Into \"${_name}\" including \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(Into \"${_name}\" including \"${ARGN}\".)
 
     target_include_directories(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_sources _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("Sourcing \"${_name}\" with \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(Sourcing \"${_name}\" with \"${ARGN}\".)
 
     target_sources(${_mod} ${ARGN})
 endfunction()
@@ -133,8 +221,8 @@ endfunction()
 # properties
 
 function(env_target_set _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("On \"${_name}\" setting \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(On \"${_name}\" setting \"${ARGN}\".)
 
     set_target_properties(${_mod} PROPERTIES ${ARGN})
 endfunction()
@@ -142,13 +230,13 @@ endfunction()
 include(CheckIPOSupported)
 check_ipo_supported(RESULT env_ipo_supported)
 if (env_ipo_supported)
-    env_log("Interprocedural optimization is supported.")
+    env_log(Interprocedural optimization is supported.)
 
     function(env_target_set_ipo _name)
         env_target_set(${_name} INTERPROCEDURAL_OPTIMIZATION ON)
     endfunction()
 else ()
-    env_log("Interprocedural optimization is not supported.")
+    env_log(Interprocedural optimization is not supported.)
 
     function(env_target_set_ipo _name)
     endfunction()
@@ -171,26 +259,25 @@ endif ()
 # flags
 
 function(env_target_link_with _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("On \"${_name}\" adding link options \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(On \"${_name}\" adding link options \"${ARGN}\".)
 
     target_link_options(${_mod} ${ARGN})
 endfunction()
 
 include(CheckCXXCompilerFlag)
 function(env_target_safely_compile_with _name _visibility)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("On \"${_name}\" adding compile options \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(On \"${_name}\" adding compile options \"${ARGN}\".)
 
     foreach (_flag IN LISTS ARGN)
         check_compiler_flag(CXX ${_flag} _supported)
         if (_supported)
             target_compile_options(${_mod} ${_visibility} ${_flag})
         else ()
-            env_log(
-                    "WARN: On \"${_name}\" adding compile option \"${_flag}\" \
-                    FAILED. REASON: Option not supported by compiler."
-            )
+            env_log(WARNING
+                    On \"${_name}\" adding compile option \"${_flag}\"
+                    FAILED. REASON: Option not supported by compiler.)
         endif ()
     endforeach ()
 endfunction()
@@ -199,29 +286,29 @@ endfunction()
 # compilation
 
 function(env_target_precompile _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("Precompiling \"${_name}\" with \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(Precompiling \"${_name}\" with \"${ARGN}\".)
 
     target_precompile_headers(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_features _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("Compiling \"${_name}\" with \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(Compiling \"${_name}\" with \"${ARGN}\".)
 
     target_compile_features(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_definitions _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("Compiling \"${_name}\" with \"${ARGN}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(Compiling \"${_name}\" with \"${ARGN}\".)
 
     target_compile_definitions(${_mod} ${ARGN})
 endfunction()
 
 function(env_set_cpp17 _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("Setting C++17 standard on \"${_name}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(Setting C++17 standard on \"${_name}\".)
 
     target_compile_features(${_mod} PRIVATE cxx_std_17)
     set_target_properties(${_mod} PROPERTIES CXX_EXTENSIONS OFF)
@@ -232,63 +319,84 @@ endfunction()
 
 if (ENV_CLANG_CL)
     function(env_target_warn _name)
-        env_prefix(${_name} ${PROJECT_NAME} _mod)
-        env_log("Adding warnings to \"${_name}\".")
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_log(Adding warnings to \"${_name}\".)
 
         target_compile_options(
                 ${_mod}
                 PRIVATE
                 /W4 /WX
-                # used separately and would probably take a long time
-                # --analyze
-                /permissive- # standards compliance
-                /Zc:__cplusplus # otherwise we can't detect the C++ standard
-        )
+                --analyze
+                # standards compliance
+                /permissive-
+                # otherwise we can't detect the C++ standard
+                /Zc:__cplusplus)
+    endfunction()
+    function(env_import_warn _name)
+        env_log(Removing warnings from \"${_name}\".)
+
+        target_compile_options(${_name} PRIVATE /w)
     endfunction()
 elseif (ENV_MSVC)
     function(env_target_warn _name)
-        env_prefix(${_name} ${PROJECT_NAME} _mod)
-        env_log("Adding warnings to \"${_name}\".")
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_log(Adding warnings to \"${_name}\".)
 
         target_compile_options(
                 ${_mod}
                 PRIVATE
                 /W4 /WX
                 /analyze
-                /permissive- # standards compliance
-                /Zc:__cplusplus # otherwise we can't detect the C++ standard
-        )
+                # standards compliance
+                /permissive-
+                # otherwise we can't detect the C++ standard
+                /Zc:__cplusplus)
+    endfunction()
+    function(env_import_warn _name)
+        env_log(Removing warnings from \"${_name}\".)
+
+        target_compile_options(${_name} PRIVATE /w)
     endfunction()
 elseif (ENV_GCC)
     function(env_target_warn _name)
-        env_prefix(${_name} ${PROJECT_NAME} _mod)
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
         env_log("Adding warnings to \"${_name}\".")
 
         target_compile_options(
                 ${_mod}
                 PRIVATE
                 -Wall -Wextra -Wpedantic -Werror
-                # takes too long - run when library is done?
-                # -fanalyzer
-                -ftrack-macro-expansion=0 # so messages are printed nicely
-                -Wno-multichar # detect endianness
-        )
+                -fanalyzer
+                # so messages are printed nicely
+                -ftrack-macro-expansion=0
+                # detect endianness
+                -Wno-multichar)
+    endfunction()
+    function(env_import_warn _name)
+        env_log(Removing warnings from \"${_name}\".)
+
+        target_compile_options(${_name} PRIVATE -w)
     endfunction()
 elseif (ENV_CLANG)
     function(env_target_warn _name)
-        env_prefix(${_name} ${PROJECT_NAME} _mod)
-        env_log("Adding warnings to \"${_name}\".")
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_log(Adding warnings to \"${_name}\".)
 
         target_compile_options(
                 ${_mod}
                 PRIVATE
-                # used separately and would probably take a long time
-                # --analyze
                 -Wall -Wextra -Wpedantic -Werror
-        )
+                --analyze)
+    endfunction()
+    function(env_import_warn _name)
+        env_log(Removing warnings from \"${_name}\".)
+
+        target_compile_options(${_name} PRIVATE -w)
     endfunction()
 else ()
-    function(env_target_warn _name)
+    function(env_target_warn)
+    endfunction()
+    function(env_import_warn)
     endfunction()
 endif ()
 
@@ -298,61 +406,40 @@ endif ()
 if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
     if (ENV_CLANG_CL)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding optimizations to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding optimizations to \"${_name}\".)
 
-            target_compile_options(
-                    ${_mod}
-                    PRIVATE
-                    /O2
-            )
-
+            target_compile_options(${_mod} PRIVATE /O2)
             env_target_set_ipo(${_name})
         endfunction()
     elseif (ENV_MSVC)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding optimizations to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding optimizations to \"${_name}\".)
 
-            target_compile_options(
-                    ${_mod}
-                    PRIVATE
-                    /O2
-            )
-
+            target_compile_options(${_mod} PRIVATE /O2)
             env_target_set_ipo(${_mod})
         endfunction()
     elseif (ENV_GCC)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding optimizations to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding optimizations to \"${_name}\".)
 
-            target_compile_options(
-                    ${_mod}
-                    PRIVATE
-                    -O3
-            )
-
+            target_compile_options(${_mod} PRIVATE -O3)
             env_target_set_ipo(${_mod})
-
         endfunction()
     elseif (ENV_CLANG)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding optimizations to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding optimizations to \"${_name}\".)
 
-            target_compile_options(
-                    ${_mod}
-                    PRIVATE
-                    -O3
-            )
-
+            target_compile_options(${_mod} PRIVATE -O3)
             env_target_set_ipo(${_mod})
         endfunction()
     else ()
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding optimizations to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding optimizations to \"${_name}\".)
 
             env_target_set_ipo(${_mod})
         endfunction()
@@ -360,46 +447,45 @@ if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
 else ()
     if (ENV_CLANG_CL)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding sanitization to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding sanitization to \"${_name}\".)
 
             target_compile_options(
                     ${_mod}
                     PRIVATE
-                    # TODO: fix ClangCL complains
-                    # /ZI # debug info
+                    /Zi
+                    # TODO
+                    # -fsanitize=address,undefined
                     # /fsanitize=address
             )
         endfunction()
     elseif (ENV_MSVC)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding sanitization to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding sanitization to \"${_name}\".)
 
             target_compile_options(
                     ${_mod}
                     PRIVATE
-                    /ZI # debug info
-                    /fsanitize=address
-            )
+                    /Zi
+                    /fsanitize=address)
         endfunction()
     elseif (ENV_GCC)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding sanitization to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding sanitization to \"${_name}\".)
 
             target_compile_options(
                     ${_mod}
                     PRIVATE
                     -Og
                     -ggdb
-                    -fsanitize=address,leak,undefined
-            )
+                    -fsanitize=address,leak,undefined)
         endfunction()
     elseif (ENV_CLANG)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${PROJECT_NAME} _mod)
-            env_log("Adding sanitization to \"${_name}\".")
+            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_log(Adding sanitization to \"${_name}\".)
 
             target_compile_options(
                     ${_mod}
@@ -420,21 +506,20 @@ endif ()
 
 include(FetchContent)
 
-set(env_fetch_dir "${PROJECT_SOURCE_DIR}/.fetch")
-set(env_fetch_build_dir "${PROJECT_BINARY_DIR}/.fetch")
+set(__env_fetch_dir "${PROJECT_SOURCE_DIR}/.fetch")
+set(__env_fetch_build_dir "${PROJECT_BINARY_DIR}/.fetch")
 
-set(FETCHCONTENT_BASE_DIR ${env_fetch_dir})
-
+set(FETCHCONTENT_BASE_DIR ${__env_fetch_dir})
 
 function(env_fetch _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_suffix(${_mod} fetch _mod)
 
-    set(_src_dir "${env_fetch_dir}/${_name}")
-    set(_bin_dir "${env_fetch_build_dir}/${_name}/bin")
-    set(_sub_dir "${env_fetch_build_dir}/${_name}/sub")
-    set(_populated_file "${env_fetch_dir}/.process/${_name}.populated")
-    set(_lock_file "${env_fetch_dir}/.process/${_name}.lock")
+    set(_src_dir "${__env_fetch_dir}/${_name}")
+    set(_bin_dir "${__env_fetch_build_dir}/${_name}/bin")
+    set(_sub_dir "${__env_fetch_build_dir}/${_name}/sub")
+    set(_populated_file "${__env_fetch_dir}/.process/${_name}.populated")
+    set(_lock_file "${__env_fetch_dir}/.process/${_name}.lock")
 
     set(${_mod}_src_dir "${_src_dir}" PARENT_SCOPE)
     set(${_mod}_bin_dir "${_bin_dir}" PARENT_SCOPE)
@@ -451,25 +536,21 @@ function(env_fetch _name)
                 ${ARGN}
                 SOURCE_DIR "${_src_dir}"
                 BINARY_DIR "${_bin_dir}"
-                SUBBUILD_DIR "${_sub_dir}"
-        )
+                SUBBUILD_DIR "${_sub_dir}")
     else ()
         env_log("Already fetched \"${_name}\" into \"${_src_dir}\".")
     endif ()
     file(LOCK "${_lock_file}" RELEASE)
 
-    file(GLOB is_sub "${_src_dir}/CMakeLists.txt")
-    if (is_sub)
-        env_log(
-                "Adding ${_name} subdirectories \
-                \"${_src_dir}\", \
-                \"${_bin_dir}\"."
-        )
+    file(GLOB _is_sub "${_src_dir}/CMakeLists.txt")
+    if (_is_sub)
+        env_log(Adding ${_name} subdirectories \"${_src_dir}\", \"${_bin_dir}\".)
+
         set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
         set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
+
         set(CMAKE_MESSAGE_LOG_LEVEL VERBOSE)
         set(CMAKE_MESSAGE_INDENT "${_previous_log_indent}    ")
-
         add_subdirectory("${_src_dir}" "${_bin_dir}")
 
         set(CMAKE_MESSAGE_LOG_LEVEL ${_previous_log_level})
@@ -481,13 +562,14 @@ endfunction()
 # atomic targets
 
 function(env_add_executable _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_log("Adding executable \"${_name}\".")
 
     add_executable(${_mod} ${ARGN})
 
     env_target_link(${_mod} PRIVATE env::default_dep)
-    env_target_include(${_mod} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    env_target_link(${_mod} PRIVATE ${LOWER_LOWER_PROJECT_NAME}::pch)
+    env_target_include(${_mod} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
     env_target_warn(${_mod})
     env_target_optimize(${_mod})
@@ -496,13 +578,14 @@ function(env_add_executable _name)
 endfunction()
 
 function(env_add_library _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_log("Adding library \"${_name}\".")
 
     add_library(${_mod} ${ARGN})
 
     env_target_link(${_mod} PRIVATE env::default_dep)
-    env_target_include(${_mod} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    env_target_link(${_mod} PRIVATE ${LOWER_LOWER_PROJECT_NAME}::pch)
+    env_target_include(${_mod} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
     env_target_warn(${_mod})
     env_target_optimize(${_mod})
@@ -512,7 +595,7 @@ function(env_add_library _name)
 endfunction()
 
 function(env_add_interface _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_log("Adding interface \"${_name}\".")
 
     add_library(${_mod} INTERFACE)
@@ -521,7 +604,7 @@ function(env_add_interface _name)
 endfunction()
 
 function(env_add_import _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_log("Adding import \"${_name}\".")
 
     add_library(${_mod} INTERFACE IMPORTED GLOBAL)
@@ -530,10 +613,29 @@ function(env_add_import _name)
 endfunction()
 
 function(env_add_alias _name)
-    env_prefix(${_name} ${PROJECT_NAME} _mod)
-    env_log("Adding alias \"${PROJECT_NAME}::${_name}\".")
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log("Adding alias \"${LOWER_PROJECT_NAME}::${_name}\".")
 
-    add_library(${PROJECT_NAME}::${_name} ALIAS ${_mod})
+    add_library(${LOWER_PROJECT_NAME}::${_name} ALIAS ${_mod})
+endfunction()
+
+function(env_project_add_pch)
+    env_suffix(${LOWER_PROJECT_NAME} pch _mod)
+    env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
+
+    set(_source "${CMAKE_CURRENT_SOURCE_DIR}/pch/${LOWER_PROJECT_NAME}_pch.cpp")
+    set(_header "${CMAKE_CURRENT_SOURCE_DIR}/pch/${LOWER_PROJECT_NAME}_pch.hpp")
+
+    add_library(${_mod} STATIC ${_source})
+    add_library(${LOWER_PROJECT_NAME}::${pch} ALIAS ${_mod})
+
+    env_target_precompile(${_mod} PUBLIC ${_header})
+
+    env_import_warn(${_mod})
+    env_target_optimize(${_mod})
+
+    env_target_set_pie(${_mod})
+    env_set_cpp17(${_mod})
 endfunction()
 
 
@@ -547,19 +649,25 @@ function(env_add_dep _name)
     env_add_alias(${_mod})
 endfunction()
 
-enable_testing()
-include(GoogleTest)
-function(env_add_test _name _src)
-    env_suffix(${_name} test _mod)
-    env_log(" - Adding test \"${_name}\". - ")
+if (ENV_BUILD_TESTS)
+    enable_testing()
+    include(GoogleTest)
 
-    env_add_executable(${_mod} ${_src})
+    function(env_add_test _name _src)
+        env_suffix(${_name} test _mod)
+        env_log(" - Adding test \"${_name}\". - ")
 
-    env_prefix(${_mod} ${PROJECT_NAME} _mod)
-    gtest_discover_tests(${_mod})
-endfunction()
+        env_add_executable(${_mod} ${_src})
 
-if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
+        env_prefix(${_mod} ${LOWER_PROJECT_NAME} _mod)
+        gtest_discover_tests(${_mod})
+    endfunction()
+else ()
+    function(env_add_test)
+    endfunction()
+endif ()
+
+if (NOT CMAKE_BUILD_TYPE STREQUAL Debug AND ENV_BUILD_BENCHMARKS)
     function(env_add_bench _name)
         env_suffix(${_name} bench _mod)
         env_log(" - Adding bench \"${_name}\". - ")
@@ -571,7 +679,7 @@ else ()
     endfunction()
 endif ()
 
-function(env_add_static_name)
+function(env_add_static _name)
     env_suffix(${_name} static _mod)
     env_log(" - Adding static \"${_name}\". - ")
 
@@ -579,7 +687,7 @@ function(env_add_static_name)
     env_add_alias(${_mod})
 endfunction()
 
-function(env_add_shared_name)
+function(env_add_shared _name)
     env_suffix(${_name} shared _mod)
     env_log(" - Adding shared \"${_name}\". - ")
 
@@ -603,259 +711,191 @@ function(env_add_export _name)
 endfunction()
 
 
-# deps
+# aggregate targets
+
+function(env_hook _dependency)
+    cmake_parse_arguments(ENV_HOOK "" "" "INTO" ${ARGN})
+
+    foreach (_target IN LISTS ENV_HOOK_INTO)
+        if (NOT TARGET ${_target})
+            add_custom_target(${_target} DEPENDS ${_dependency})
+        else ()
+            get_target_property(
+                    _dependencies
+                    ${_target}
+                    MANUALLY_ADDED_DEPENDENCIES)
+
+            list(FIND _dependencies ${_dependency} _index)
+            if (_index EQUAL -1)
+                add_dependencies(${_target} ${_dependency})
+            endif ()
+        endif ()
+    endforeach ()
+endfunction()
+
+
+# default dependencies
 
 env_log("-!- Adding default dependencies... -!-")
 
 
-env_fetch(
-        macros
-        GIT_REPOSITORY https://github.com/nemequ/hedley.git
-        GIT_TAG v15
-)
+env_fetch(macros
+          GIT_REPOSITORY https://github.com/nemequ/hedley.git
+          GIT_TAG v15)
 
 env_add_dep(macros)
 
 env_target_include(macros_dep INTERFACE ${env_macros_fetch_src_dir})
 
 
-env_add_dep(std)
+set(BOOST_HANA_BUILD_TESTS OFF CACHE BOOL
+    "Don't build Hana tests."
+    FORCE)
 
-env_target_precompile(
-        env_std_dep
-        INTERFACE
-        <utility>
-        <type_traits>
+set(BOOST_HANA_BUILD_EXAMPLES OFF CACHE BOOL
+    "Don't build Hana examples."
+    FORCE)
 
-        <memory>
-        <new>
-        <cstring>
-        <iterator>
+set(BOOST_HANA_BUILD_BENCHMARKS OFF CACHE BOOL
+    "Don't build Hana benchmarks."
+    FORCE)
 
-        <bitset>
+set(BOOST_HANA_BUILD_DOCS OFF CACHE BOOL
+    "Don't build Hana docs."
+    FORCE)
 
-        <any>
-        <optional>
-        <variant>
-        <tuple>
+set(BOOST_HANA_BUILD_EXTRAS OFF CACHE BOOL
+    "Don't build Hana extras."
+    FORCE)
 
-        <string>
-        <string_view>
-
-        <stack>
-        <deque>
-        <queue>
-
-        <list>
-        <forward_list>
-
-        <array>
-        <vector>
-
-        <set>
-        <map>
-        <unordered_map>
-        <unordered_set>
-
-        <thread>
-        <mutex>
-        <shared_mutex>
-        <atomic>
-        <chrono>
-
-        <cmath>
-        <functional>
-        <algorithm>
-        <exception>
-
-        <iostream>
-        <filesystem>
-)
-
-
-env_fetch(
-        hana
-        GIT_REPOSITORY https://github.com/boostorg/hana.git
-        GIT_TAG v1.7.0
-)
+env_fetch(hana
+          GIT_REPOSITORY https://github.com/Hrle97/hana.git
+          GIT_TAG cmake)
 
 env_add_dep(boost hana)
 
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    env_target_definitions(
-            boost_dep
-            INTERFACE
-            BOOST_HANA_CONFIG_ENABLE_DEBUG_MODE
-    )
-endif ()
 
-env_target_precompile(
-        boost_dep
-        INTERFACE
-        <boost/hana.hpp>
-)
+set(INSTALL_GTEST OFF CACHE BOOL
+    "Don't install GoogleTest."
+    FORCE)
 
+set(gtest_force_shared_crt ON CACHE BOOL
+    "Use same compiler/linker as project."
+    FORCE)
 
-set(
-        INSTALL_GTEST OFF CACHE BOOL
-        "Don't install GoogleTest."
-        FORCE
-)
-set(
-        gtest_force_shared_crt ON CACHE BOOL
-        "Use same compiler/linker as project."
-        FORCE
-)
-set(
-        gtest_build_tests OFF CACHE BOOL
-        "Don't build GoogleTest tests."
-        FORCE
-)
-set(
-        gtest_build_samples OFF CACHE BOOL
-        "Don't build GoogleTest samples."
-        FORCE
-)
-set(
-        gmock_build_tests CACHE BOOL
-        "Don't build GoogleMock tests."
-        FORCE
-)
+set(gtest_build_tests OFF CACHE BOOL
+    "Don't build GoogleTest tests."
+    FORCE)
 
-env_fetch(
-        test
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG release-1.10.0
-)
+set(gtest_build_samples OFF CACHE BOOL
+    "Don't build GoogleTest samples."
+    FORCE)
+
+set(gmock_build_tests CACHE BOOL
+    "Don't build GoogleMock tests."
+    FORCE)
+
+env_fetch(test
+          GIT_REPOSITORY https://github.com/google/googletest.git
+          GIT_TAG release-1.10.0)
 
 env_add_dep(test gtest gmock)
 
+env_add_dep(test_main gtest_main gmock)
 
-set(
-        BENCHMARK_ENABLE_TESTING OFF CACHE BOOL
-        "Disable tests on GoogleBenchmark."
-        FORCE
-)
-set(
-        BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
-        "Disable install on GoogleBenchmark."
-        FORCE
-)
-set(
-        BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL
-        "Disable tests depending on GoogleTest for GoogleBenchmark."
-        FORCE
-)
 
-env_fetch(
-        bench
-        GIT_REPOSITORY https://github.com/google/benchmark.git
-        GIT_TAG v1.5.2
-)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL
+    "Disable tests on GoogleBenchmark."
+    FORCE)
+
+set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL
+    "Disable install on GoogleBenchmark."
+    FORCE)
+
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL
+    "Disable tests depending on GoogleTest for GoogleBenchmark."
+    FORCE)
+
+env_fetch(bench
+          GIT_REPOSITORY https://github.com/google/benchmark.git
+          GIT_TAG v1.5.2)
 
 env_add_dep(bench benchmark)
 
 
-set(
-        MI_USE_CXX ON CACHE BOOL
-        "Compile Mimalloc using C++ compiler."
-        FORCE
-)
-set(
-        MI_BUILD_SHARED OFF CACHE BOOL
-        "Don't compile Mimalloc as a shared library."
-        FORCE
-)
-set(
-        MI_BUILD_OBJECT OFF CACHE BOOL
-        "Don't compile Mimalloc as an object library."
-        FORCE
-)
-set(
-        MI_BUILD_TESTS OFF CACHE BOOL
-        "Don't compile Mimalloc tests."
-        FORCE
-)
+set(MI_USE_CXX ON CACHE BOOL
+    "Compile Mimalloc using C++ compiler."
+    FORCE)
 
-env_fetch(
-        alloc
-        GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
-        GIT_TAG v2.0.0
-)
+set(MI_BUILD_SHARED OFF CACHE BOOL
+    "Don't compile Mimalloc as a shared library."
+    FORCE)
+
+set(MI_BUILD_OBJECT OFF CACHE BOOL
+    "Don't compile Mimalloc as an object library."
+    FORCE)
+
+set(MI_BUILD_TESTS OFF CACHE BOOL
+    "Don't compile Mimalloc tests."
+    FORCE)
+
+env_fetch(alloc
+          GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
+          GIT_TAG v2.0.0)
 
 env_add_dep(alloc mimalloc-static)
 
 
-set(
-        JSON_BuildTests OFF CACHE BOOL
-        "Don't build tests for Nlohmann Json."
-        FORCE
-)
-set(
-        JSON_Install OFF CACHE BOOL
-        "Don't install Nlohmann Json."
-        FORCE
-)
+set(JSON_BuildTests OFF CACHE BOOL
+    "Don't build tests for Nlohmann Json."
+    FORCE)
 
-env_fetch(
-        json
-        GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.9.1
-)
+set(JSON_Install OFF CACHE BOOL
+    "Don't install Nlohmann Json."
+    FORCE)
+
+env_fetch(json
+          GIT_REPOSITORY https://github.com/nlohmann/json.git
+          GIT_TAG v3.9.1)
 
 env_add_dep(json nlohmann_json::nlohmann_json)
 
-env_target_precompile(json_dep INTERFACE <nlohmann/json.hpp>)
 
+set(immer_BUILD_EXAMPLES OFF CACHE BOOL
+    "Don't build immer examples."
+    FORCE)
 
-set(
-        immer_BUILD_EXAMPLES OFF CACHE BOOL
-        "Don't build immer examples."
-        FORCE
-)
-set(
-        immer_BUILD_TESTS OFF CACHE BOOL
-        "Don't build immer tests."
-        FORCE
-)
-set(
-        immer_BUILD_DOCS OFF CACHE BOOL
-        "Don't build immer docs."
-        FORCE
-)
-set(
-        immer_BUILD_EXTRAS OFF CACHE BOOL
-        "Don't build immer extras."
-        FORCE
-)
+set(immer_BUILD_TESTS OFF CACHE BOOL
+    "Don't build immer tests."
+    FORCE)
 
-env_fetch(
-        immutable
-        GIT_REPOSITORY https://github.com/Hrle97/immer.git
-        GIT_TAG cmake
-)
+set(immer_BUILD_DOCS OFF CACHE BOOL
+    "Don't build immer docs."
+    FORCE)
 
-set(
-        ZUG_BUILD_TESTS OFF CACHE BOOL
-        "Don't build zug tests."
-        FORCE
-)
-set(
-        ZUG_BUILD_EXAMPLES OFF CACHE BOOL
-        "Don't build zug examples."
-        FORCE
-)
-set(
-        ZUG_BUILD_DOCS OFF CACHE BOOL
-        "Don't build zug docs."
-        FORCE
-)
+set(immer_BUILD_EXTRAS OFF CACHE BOOL
+    "Don't build immer extras."
+    FORCE)
 
-env_fetch(
-        transducers
-        GIT_REPOSITORY https://github.com/Hrle97/zug.git
-        GIT_TAG v0.0.2-cmake
-)
+env_fetch(immutable
+          GIT_REPOSITORY https://github.com/Hrle97/immer.git
+          GIT_TAG cmake)
+
+set(ZUG_BUILD_TESTS OFF CACHE BOOL
+    "Don't build zug tests."
+    FORCE)
+
+set(ZUG_BUILD_EXAMPLES OFF CACHE BOOL
+    "Don't build zug examples."
+    FORCE)
+
+set(ZUG_BUILD_DOCS OFF CACHE BOOL
+    "Don't build zug docs."
+    FORCE)
+
+env_fetch(transducers
+          GIT_REPOSITORY https://github.com/Hrle97/zug.git
+          GIT_TAG v0.0.2-cmake)
 
 env_add_dep(functional zug immer)
 
@@ -866,19 +906,19 @@ env_target_link(
         default_dep
         INTERFACE
         env::macros_dep
-        env::std_dep
         env::boost_dep
         env::test_dep
         env::bench_dep
         env::alloc_dep
         env::json_dep
-        env::functional_dep
-)
+        env::functional_dep)
 
 
 # targets
 
 env_log("-!- Adding targets... -!-")
+
+env_project_add_pch()
 
 env_add_test(env src/env_test.cpp)
 env_add_bench(env src/env_bench.cpp)

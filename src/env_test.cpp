@@ -134,6 +134,12 @@ ENV_TEST(env, immutable)
     EXPECT_EQ(f2, (alloc::flex_vector<int>{1, 2, 3, 4, 5, 6}));
 }
 
+ENV_TEST(env, alloc)
+{
+    EXPECT_TRUE(mi_option_is_enabled(mi_option_reserve_huge_os_pages));
+    EXPECT_TRUE(mi_option_is_enabled(mi_option_eager_commit));
+    EXPECT_TRUE(mi_option_is_enabled(mi_option_eager_region_commit));
+}
 
 int main(int argc, char** argv)
 {
