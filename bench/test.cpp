@@ -1,16 +1,17 @@
-#define ENV_MESSAGES
+#define ENV_COMPILER_MESSAGES
 
 #include <env/env.hpp>
 
+#include <benchmark/benchmark.h>
 
-void bench(env::bench::State& state)
+
+void bench(benchmark::State& state)
 {
     for ([[maybe_unused]] auto _ : state)
     {
-        std::vector<int> a{100};
+        env::immut::vector<int> a{100};
         std::fill(a.begin(), a.end(), 1);
-        env::bench::DoNotOptimize(a.data());
-        env::bench::ClobberMemory();
+        benchmark::ClobberMemory();
     }
 }
 

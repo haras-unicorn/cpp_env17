@@ -1,7 +1,3 @@
-// macros
-
-#include <hedley.h>
-
 // std
 
 #include <utility>
@@ -56,16 +52,6 @@
 
 #include <boost/hana.hpp>
 
-
-// test
-
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-// bench
-
-#include <benchmark/benchmark.h>
-
 // alloc
 
 #include <mimalloc.h>
@@ -105,7 +91,7 @@
 #include <zug/sequence.hpp>
 #include <zug/any_state.hpp>
 #include <zug/with_state.hpp>
-#include <zug/skip.hpp>
+//#include <zug/skip.hpp>
 
 #include <zug/reduce.hpp>
 #include <zug/maybe_reduced.hpp>

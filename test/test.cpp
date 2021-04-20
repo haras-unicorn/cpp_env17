@@ -1,6 +1,15 @@
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include <env/env.hpp>
+#include <env/env_macros.hpp>
 
 using namespace ::env::syntax;
+
+// Ignore GoogleTest unused static variable warning
+#define ENV_TEST(_suite, _test) TEST(_suite, _test) // NOLINT(cert-err58-cpp)
+
+ENV_MESSAGE(Message test...);
 
 
 ENV_TEST(env, deps)
@@ -141,10 +150,11 @@ ENV_TEST(env, alloc)
     EXPECT_TRUE(mi_option_is_enabled(mi_option_eager_region_commit));
 }
 
+
 int main(int argc, char** argv)
 {
-    env::test::InitGoogleMock(&argc, argv);
-    env::test::InitGoogleTest(&argc, argv);
+    testing::InitGoogleTest(&argc, argv);
+    testing::InitGoogleMock(&argc, argv);
 
     return RUN_ALL_TESTS();
 }

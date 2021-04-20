@@ -1,3 +1,8 @@
+include_guard()
+
+
+# project
+
 cmake_minimum_required(VERSION 3.17...3.20)
 
 project(env
@@ -10,7 +15,7 @@ include(./cmake/EnvFunc.cmake)
 env_init_project()
 
 
-env_log(-!- Fetching env dependencies... -!-)
+# fetch
 
 env_fetch(macros
           GIT_REPOSITORY https://github.com/nemequ/hedley.git
@@ -21,11 +26,11 @@ env_fetch(hana
           GIT_TAG cmake
 
           OPTIONS
-          "BOOS_HANA_BUILD_TESTS OFF"
-          "BOOS_HANA_BUILD_EXAMPLES OFF"
-          "BOOS_HANA_BUILD_BENCHMARKS OFF"
-          "BOOS_HANA_BUILD_DOCS OFF"
-          "BOOS_HANA_BUILD_EXTRAS OFF")
+          "BOOST_HANA_BUILD_TESTS OFF"
+          "BOOST_HANA_BUILD_EXAMPLES OFF"
+          "BOOST_HANA_BUILD_BENCHMARKS OFF"
+          "BOOST_HANA_BUILD_DOCS OFF"
+          "BOOST_HANA_BUILD_EXTRAS OFF")
 
 env_fetch(test
           GIT_REPOSITORY https://github.com/google/googletest.git
@@ -85,9 +90,10 @@ env_fetch(transducers
           "ZUG_BUILD_DOCS OFF")
 
 
-env_log(-!- Adding env dependencies... -!-)
+# dependencies
 
 env_add_dep(boost hana)
+env_add_dep(alloc mimalloc-static)
 env_add_dep(test gtest gmock)
 env_add_dep(test_main gtest_main gmock)
 env_add_dep(bench benchmark)
@@ -95,18 +101,18 @@ env_add_dep(json nlohmann_json::nlohmann_json)
 env_add_dep(functional zug immer)
 
 
-env_log(-!- Adding env targets... -!-)
+# targets
 
 env_project_targets(
         DEPENDENCIES
-        env::macros_dep
-        env::boost_dep
-        env::alloc_dep
-        env::json_dep
-        env::functional_dep
+        env::macros
+        env::boost
+        env::alloc
+        env::json
+        env::functional
 
         TEST_DEPENDENCIES
-        env::test_dep
+        env::test_main
 
         BENCHMARK_DEPENDENCIES
-        env::bench_dep)
+        env::bench)

@@ -6,19 +6,19 @@ include_guard()
 # project declaration
 
 macro(env_init_project)
-    string(TOUPPER ${PROJECT_NAME} _upper_project_name)
+    string(TOUPPER ${PROJECT_NAME} __env_upper_project_name)
     string(REGEX REPLACE
            [[\.|-|_|/|\\]] [[_]]
-           _upper_project_name
-           ${_upper_project_name})
-    set(UPPER_PROJECT_NAME ${_upper_project_name})
+           __env_upper_project_name
+           ${__env_upper_project_name})
+    set(UPPER_PROJECT_NAME ${__env_upper_project_name})
 
-    string(TOLOWER ${PROJECT_NAME} _lower_project_name)
+    string(TOLOWER ${PROJECT_NAME} __env_lower_project_name)
     string(REGEX REPLACE
            [[\.|-|_|/|\\]] [[_]]
-           _lower_project_name
-           ${_lower_project_name})
-    set(LOWER_PROJECT_NAME ${_lower_project_name})
+           __env_lower_project_name
+           ${__env_lower_project_name})
+    set(LOWER_PROJECT_NAME ${__env_lower_project_name})
 
 
     if (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -145,10 +145,10 @@ function(env_suffix _name _suffix _out)
 endfunction()
 
 function(env_target_name_for _path _out)
-    string(REGEX MATCH [[\.?.*$]] _extension "${_path}")
+    string(REGEX MATCH [[\..*$]] _extension "${_path}")
     file(RELATIVE_PATH _relative "${PROJECT_SOURCE_DIR}" "${_path}")
 
-    string(REPLACE ${_extension} "" _name "${_relative}")
+    string(REPLACE "${_extension}" "" _name "${_relative}")
     string(REGEX REPLACE / _ _name "${_name}")
 
     set(${_out} ${LOWER_PROJECT_NAME}_${_name} PARENT_SCOPE)
@@ -340,7 +340,7 @@ if (ENV_CLANG_CL)
     function(env_import_warn _name)
         env_log(Removing warnings from \"${_name}\".)
 
-        target_compile_options(${_name} PRIVATE /w)
+        target_compile_options(${_name} PRIVATE /w /Zc:__cplusplus)
     endfunction()
 elseif (ENV_MSVC)
     function(env_target_warn _name)
@@ -360,7 +360,7 @@ elseif (ENV_MSVC)
     function(env_import_warn _name)
         env_log(Removing warnings from \"${_name}\".)
 
-        target_compile_options(${_name} PRIVATE /w)
+        target_compile_options(${_name} PRIVATE /w /Zc:__cplusplus)
     endfunction()
 elseif (ENV_GCC)
     function(env_target_warn _name)
@@ -589,11 +589,10 @@ endfunction()
 # compound targets
 
 function(env_add_dep _name)
-    env_suffix(${_name} dep _mod)
     env_log(" - Adding dependency \"${_name}\". - ")
 
-    env_add_import(${_mod} ${ARGN})
-    env_add_alias(${_mod})
+    env_add_import(${_name} ${ARGN})
+    env_add_alias(${_name})
 endfunction()
 
 enable_testing()
@@ -601,13 +600,12 @@ include(GoogleTest)
 
 function(env_add_test _name)
     if (${UPPER_PROJECT_NAME}_BUILD_TESTS)
-        env_suffix(${_name} test _mod)
         env_log(" - Adding test \"${_name}\". - ")
 
-        env_add_executable(${_mod} ${ARGN})
+        env_add_executable(${_name} ${ARGN})
 
-        env_prefix(${_mod} ${LOWER_PROJECT_NAME} _mod)
-        gtest_discover_tests(${_mod})
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        gtest_discover_tests(${_name})
     endif ()
 endfunction()
 
@@ -615,48 +613,43 @@ function(env_add_bench _name)
     if (NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
         ${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS)
 
-        env_suffix(${_name} bench _mod)
         env_log(" - Adding bench \"${_name}\". - ")
 
-        env_add_executable(${_mod} ${ARGN})
+        env_add_executable(${_name} ${ARGN})
     endif ()
 endfunction()
 
 function(env_add_static _name)
     if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
-        env_suffix(${_name} static _mod)
-        env_log(" - Adding static \"${_name}\". - ")
+        env_log(- Adding static \"${_name}\". -)
 
-        env_add_library(${_mod} STATIC ${ARGN})
-        env_add_alias(${_mod})
+        env_add_library(${_name} STATIC ${ARGN})
+        env_add_alias(${_name})
     endif ()
 endfunction()
 
 function(env_add_shared _name)
     if (${UPPER_PROJECT_NAME}_BUILD_SHARED)
-        env_suffix(${_name} shared _mod)
-        env_log(" - Adding shared \"${_name}\". - ")
+        env_log(- Adding shared \"${_name}\". -)
 
-        env_add_library(${_mod} SHARED ${ARGN})
-        env_add_alias(${_mod})
+        env_add_library(${_name} SHARED ${ARGN})
+        env_add_alias(${_name})
     endif ()
 endfunction()
 
 function(env_add_app _name)
     if (${UPPER_PROJECT_NAME}_BUILD_APPS)
-        env_suffix(${_name} app _mod)
         env_log(" - Adding app \"${_name}\". - ")
 
-        env_add_executable(${_mod} ${ARGN})
+        env_add_executable(${_name} ${ARGN})
     endif ()
 endfunction()
 
 function(env_add_export _name)
-    env_suffix(${_name} export _mod)
     env_log(" - Adding export \"${_name}\". - ")
 
-    env_add_interface(${_mod} ${ARGN})
-    env_add_alias(${_mod})
+    env_add_interface(${_name} ${ARGN})
+    env_add_alias(${_name})
 endfunction()
 
 
@@ -690,7 +683,7 @@ function(env_project_tests)
 
         file(GLOB_RECURSE
              _tests
-             "${PROJECT_SOURCE_DIR}/test/**/*.cpp")
+             "${PROJECT_SOURCE_DIR}/test/*.cpp")
 
         foreach (_test IN LISTS _tests)
             env_target_name_for(${_test} _target)
@@ -704,12 +697,14 @@ function(env_project_tests)
 endfunction()
 
 function(env_project_benchmarks)
-    if (${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS)
+    if (NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
+        ${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS)
+
         env_log(-!- Adding benchmarks for ${PROJECT_NAME}. -!-)
 
         file(GLOB_RECURSE
              _benchmarks
-             "${PROJECT_SOURCE_DIR}/bench/**/*.cpp")
+             "${PROJECT_SOURCE_DIR}/bench/*.cpp")
 
         foreach (_benchmark IN LISTS _benchmarks)
             env_target_name_for(${_benchmark} _target)
@@ -730,7 +725,7 @@ function(env_project_examples)
 
         file(GLOB_RECURSE
              _examples
-             "${PROJECT_SOURCE_DIR}/example/**/CMakeLists.txt")
+             "${PROJECT_SOURCE_DIR}/example/*CMakeLists.txt")
 
         foreach (_example IN LISTS _examples)
             set(_path "${_example}/..")
@@ -763,28 +758,24 @@ endfunction()
 
 function(env_project_static)
     if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
-        env_log(-!- Adding static for ${PROJECT_NAME}. -!-)
-
         file(GLOB_RECURSE
              _sources
-             "${PROJECT_SOURCE_DIR}/src/**/*.cpp")
+             "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
         if (_sources)
-            env_add_static(${LOWER_PROJECT_NAME} ${_sources})
+            env_add_static(${LOWER_PROJECT_NAME}_static ${_sources})
         endif ()
     endif ()
 endfunction()
 
 function(env_project_shared)
     if (${UPPER_PROJECT_NAME}_BUILD_SHARED)
-        env_log(-!- Adding shared for ${PROJECT_NAME}. -!-)
-
         file(GLOB_RECURSE
              _sources
-             "${PROJECT_SOURCE_DIR}/src/**/*.cpp")
+             "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
         if (_sources)
-            env_add_shared(${LOWER_PROJECT_NAME} ${_sources})
+            env_add_shared(${LOWER_PROJECT_NAME}_shared ${_sources})
         endif ()
     endif ()
 endfunction()
@@ -795,14 +786,15 @@ function(env_project_apps)
 
         file(GLOB_RECURSE
              _apps
-             "${PROJECT_SOURCE_DIR}/app/**/*.cpp")
+             "${PROJECT_SOURCE_DIR}/app/*.cpp")
 
         file(GLOB_RECURSE
              _sources
-             "${PROJECT_SOURCE_DIR}/src/**/*.cpp")
+             "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
         foreach (_app IN LISTS _apps)
             env_target_name_for(${_app} _target)
+
             env_add_app(${_target} ${_app} ${_sources})
         endforeach ()
     endif ()
@@ -813,7 +805,7 @@ function(env_project_targets)
             PARSED
             ""
             ""
-            "DEPENDENCIES TEST_DEPENDENCIES BENCHMARK_DEPENDENCIES"
+            "DEPENDENCIES;TEST_DEPENDENCIES;BENCHMARK_DEPENDENCIES"
             ${ARGN})
 
     env_project_pch(${PARSED_DEPENDENCIES})
