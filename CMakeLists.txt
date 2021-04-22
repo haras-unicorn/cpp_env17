@@ -81,13 +81,14 @@ env_fetch(immutable
           "immer_BUILD_EXTRAS OFF")
 
 env_fetch(transducers
-          GIT_REPOSITORY https://github.com/Hrle97/immer.git
-          GIT_TAG cmake
+          GIT_REPOSITORY https://github.com/Hrle97/zug.git
+          GIT_TAG v0.0.9-cmake
 
           OPTIONS
           "ZUG_BUILD_TESTS OFF"
           "ZUG_BUILD_EXAMPLES OFF"
-          "ZUG_BUILD_DOCS OFF")
+          "ZUG_BUILD_DOCS OFF"
+          "ZUG_LINK_BOOST OFF")
 
 
 # dependencies

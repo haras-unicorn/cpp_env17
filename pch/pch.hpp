@@ -1,3 +1,36 @@
+// push warning superssion
+
+#if defined(__clang__) // clang
+
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-arguments"
+    #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+    #pragma clang diagnostic ignored "-Wc++98-compat"
+    #pragma clang diagnostic ignored "-Wreserved-id-macro"
+    #pragma clang diagnostic ignored "-Wold-style-cast"
+    #pragma clang diagnostic ignored "-Wcast-qual"
+
+#elif defined(_MSC_VER) // MSVC
+
+    #pragma warning(push)
+    #pragma warning(disable : 4100)  // unreferenced formal parameter
+    #pragma warning(disable : 4996)  // deprecated std::literal_type
+    #pragma warning(disable : 28204) // override with different annotation
+    #pragma warning(disable : 5059)  // sanitizers not currently supported
+
+
+#elif defined(__GNUC__) // GNU
+
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-arguments"
+
+#else // compiler
+
+    #error "Unsupported C++ compiler."
+
+#endif // compiler
+
+
 // std
 
 #include <utility>
@@ -91,7 +124,7 @@
 #include <zug/sequence.hpp>
 #include <zug/any_state.hpp>
 #include <zug/with_state.hpp>
-//#include <zug/skip.hpp>
+#include <zug/skip.hpp>
 
 #include <zug/reduce.hpp>
 #include <zug/maybe_reduced.hpp>
@@ -142,3 +175,24 @@
 
 #include <zug/transducer/zip.hpp>
 #include <zug/transducer/unzip.hpp>
+
+
+// pop warning pragmas
+
+#if defined(__clang__) // clang
+
+    #pragma clang diagnostic pop
+
+#elif defined(_MSC_VER) // MSVC
+
+    #pragma warning(pop)
+
+#elif defined(__GNUC__) // GNU
+
+    #pragma GCC diagnostic pop
+
+#else // compiler
+
+    #error "Unsupported C++ compiler."
+
+#endif // compiler

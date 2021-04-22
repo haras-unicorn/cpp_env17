@@ -337,10 +337,17 @@ if (ENV_CLANG_CL)
                 # otherwise we can't detect the C++ standard
                 /Zc:__cplusplus)
     endfunction()
-    function(env_import_warn _name)
-        env_log(Removing warnings from \"${_name}\".)
+    function(env_target_suppress _name)
+        env_log(Suppressing warnings on \"${_name}\".)
 
-        target_compile_options(${_name} PRIVATE /w /Zc:__cplusplus)
+        # same as above with /w for warning suppression
+        target_compile_options(
+                ${_name}
+                PRIVATE
+                /w
+                /permissive-
+                /Zc:__cplusplus
+                /Zc:auto)
     endfunction()
 elseif (ENV_MSVC)
     function(env_target_warn _name)
@@ -355,12 +362,21 @@ elseif (ENV_MSVC)
                 # standards compliance
                 /permissive-
                 # otherwise we can't detect the C++ standard
-                /Zc:__cplusplus)
+                /Zc:__cplusplus
+                # MSVC is weird about auto
+                /Zc:auto)
     endfunction()
-    function(env_import_warn _name)
-        env_log(Removing warnings from \"${_name}\".)
+    function(env_target_suppress _name)
+        env_log(Suppressing warnings on \"${_name}\".)
 
-        target_compile_options(${_name} PRIVATE /w /Zc:__cplusplus)
+        # same as above with /w for warning suppression and without analysis
+        target_compile_options(
+                ${_name}
+                PRIVATE
+                /w
+                /permissive-
+                /Zc:__cplusplus
+                /Zc:auto)
     endfunction()
 elseif (ENV_GCC)
     function(env_target_warn _name)
@@ -377,8 +393,8 @@ elseif (ENV_GCC)
                 # detect endianness
                 -Wno-multichar)
     endfunction()
-    function(env_import_warn _name)
-        env_log(Removing warnings from \"${_name}\".)
+    function(env_target_suppress _name)
+        env_log(Suppressing warnings on \"${_name}\".)
 
         target_compile_options(${_name} PRIVATE -w)
     endfunction()
@@ -393,17 +409,41 @@ elseif (ENV_CLANG)
                 -Wall -Wextra -Wpedantic -Werror
                 --analyze)
     endfunction()
-    function(env_import_warn _name)
-        env_log(Removing warnings from \"${_name}\".)
+    function(env_target_suppress _name)
+        env_log(Suppressing warnings on \"${_name}\".)
 
         target_compile_options(${_name} PRIVATE -w)
     endfunction()
 else ()
     function(env_target_warn)
     endfunction()
-    function(env_import_warn)
+    function(env_target_suppress)
     endfunction()
 endif ()
+
+set(__env_warning_regex [[/W.*|-W.*]])
+
+function(env_target_clear_warn _name)
+    env_log(Clearing warnings from \"${_name}\".)
+
+    get_target_property(_options ${_name} COMPILE_OPTIONS)
+    if (NOT _options STREQUAL _options-NOTFOUND)
+        list(FILTER _options EXCLUDE REGEX ${__env_warning_regex})
+        set_target_properties(
+                ${_name}
+                PROPERTIES
+                COMPILE_OPTIONS "${_options}")
+    endif ()
+
+    get_target_property(_interface_options ${_name} INTERFACE_COMPILE_OPTIONS)
+    if (NOT _interface_options STREQUAL _interface_options-NOTFOUND)
+        list(FILTER _interface_options EXCLUDE REGEX ${__env_warning_regex})
+        set_target_properties(
+                ${_name}
+                PROPERTIES
+                INTERFACE_COMPILE_OPTIONS "${_interface_options}")
+    endif ()
+endfunction()
 
 
 # optimization
@@ -459,7 +499,7 @@ else ()
                     ${_mod}
                     PRIVATE
                     /Zi
-                    # TODO
+                    # TODO: fix
                     # -fsanitize=address,undefined
                     # /fsanitize=address
             )
@@ -473,7 +513,9 @@ else ()
                     ${_mod}
                     PRIVATE
                     /Zi
-                    /fsanitize=address)
+                    # TODO: fix
+                    # /fsanitize=address
+            )
         endfunction()
     elseif (ENV_GCC)
         function(env_target_optimize _name)
@@ -485,7 +527,9 @@ else ()
                     PRIVATE
                     -Og
                     -ggdb
-                    -fsanitize=address,leak,undefined)
+                    # TODO: fix
+                    # -fsanitize=address,leak,undefined
+            )
         endfunction()
     elseif (ENV_CLANG)
         function(env_target_optimize _name)
@@ -507,6 +551,36 @@ else ()
 endif ()
 
 
+# rtti/exceptions
+
+if (ENV_CLANG_CL)
+    function(env_target_add_rtti _name)
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_log(Adding RTTI to \"${_name}\".)
+
+
+    endfunction()
+elseif (ENV_MSVC)
+    function(env_target_add_rtti _name)
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_log(Adding RTTI to \"${_name}\".)
+    endfunction()
+elseif (ENV_GCC)
+    function(env_target_add_rtti _name)
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_log(Adding RTTI to \"${_name}\".)
+    endfunction()
+elseif (ENV_CLANG)
+    function(env_target_add_rtti _name)
+        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_log(Adding RTTI to \"${_name}\".)
+    endfunction()
+else ()
+    function(env_target_add_rtti _name)
+    endfunction()
+endif ()
+
+
 # atomic targets
 
 function(env_project_pch)
@@ -522,7 +596,7 @@ function(env_project_pch)
     env_target_link(${_mod} PUBLIC ${ARGN})
     env_target_precompile(${_mod} PUBLIC ${_header})
 
-    env_import_warn(${_mod})
+    env_target_suppress(${_mod})
     env_target_optimize(${_mod})
 
     env_target_set_pie(${_mod})
@@ -590,6 +664,14 @@ endfunction()
 
 function(env_add_dep _name)
     env_log(" - Adding dependency \"${_name}\". - ")
+
+    foreach (_link IN LISTS ARGN)
+        get_target_property(_type ${_link} TYPE)
+        if (NOT _type STREQUAL INTERFACE_LIBRARY)
+            env_target_clear_warn(${_link})
+            env_target_suppress(${_link})
+        endif ()
+    endforeach ()
 
     env_add_import(${_name} ${ARGN})
     env_add_alias(${_name})
@@ -914,7 +996,7 @@ function(env_fetch _name)
         target_sources(${_prefixed} ${_sources})
 
         env_target_optimize(${_prefixed})
-        env_import_warn(${_prefixed})
+        env_target_suppress(${_prefixed})
 
         env_target_set_pie(${_prefixed})
 
