@@ -4,11 +4,6 @@
 
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wunused-arguments"
-    #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
-    #pragma clang diagnostic ignored "-Wc++98-compat"
-    #pragma clang diagnostic ignored "-Wreserved-id-macro"
-    #pragma clang diagnostic ignored "-Wold-style-cast"
-    #pragma clang diagnostic ignored "-Wcast-qual"
 
 #elif defined(_MSC_VER) // MSVC
 

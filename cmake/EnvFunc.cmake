@@ -270,6 +270,13 @@ function(env_target_link_with _name)
     target_link_options(${_mod} ${ARGN})
 endfunction()
 
+function(env_target_compile_with _name _visibility)
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log(On \"${_name}\" adding compile options \"${ARGN}\".)
+
+    target_compile_options(${_mod} ${ARGN})
+endfunction()
+
 include(CheckCXXCompilerFlag)
 function(env_target_safely_compile_with _name _visibility)
     env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
@@ -294,7 +301,7 @@ function(env_target_precompile _name)
     env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_log(Precompiling \"${_name}\" with \"${ARGN}\".)
 
-    target_precompile_headers(${_mod} ${ARGN})
+    target_precompile_headers(${_mod} PRIVATE ${ARGN})
 endfunction()
 
 function(env_target_features _name)
@@ -310,6 +317,54 @@ function(env_target_definitions _name)
 
     target_compile_definitions(${_mod} ${ARGN})
 endfunction()
+
+if (ENV_CLANG_CL)
+    function(env_target_conform _name)
+        env_log(Setting standards conformance on \"${_name}\".)
+
+        target_compile_options(
+                ${_name}
+                PRIVATE
+                # standards conformance
+                /permissive-
+                # otherwise we can't detect the C++ standard
+                /Zc:__cplusplus
+                # MSVC and ClangCL are weird about auto
+                /Zc:auto)
+
+        # clang-cl doesn't enable exceptions by default unlike all other
+        # compilers
+
+        get_target_property(_options ${_name} COMPILE_OPTIONS)
+        if (_options STREQUAL _options-NOTFOUND)
+            target_compile_options(${_name} PRIVATE /EHsc)
+        else ()
+            string(REGEX MATCH [[/EH.*]] _exceptions_enabled ${_options})
+            if (NOT _exceptions_enabled)
+                target_compile_options(${_name} PRIVATE /EHsc)
+            else ()
+                env_log(Exceptions already enabled on \"${_name}\".)
+            endif ()
+        endif ()
+    endfunction()
+elseif (ENV_MSVC)
+    function(env_target_conform _name)
+        env_log(Setting standards conformance on \"${_name}\".)
+
+        target_compile_options(
+                ${_name}
+                PRIVATE
+                # standards compliance
+                /permissive-
+                # otherwise we can't detect the C++ standard
+                /Zc:__cplusplus
+                # MSVC and ClangCL are weird about auto
+                /Zc:auto)
+    endfunction()
+else ()
+    function(env_target_conform _name)
+    endfunction()
+endif ()
 
 function(env_set_cpp17 _name)
     env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
@@ -327,57 +382,27 @@ if (ENV_CLANG_CL)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
         env_log(Adding warnings to \"${_name}\".)
 
-        target_compile_options(
-                ${_mod}
-                PRIVATE
-                /W4 /WX
-                --analyze
-                # standards compliance
-                /permissive-
-                # otherwise we can't detect the C++ standard
-                /Zc:__cplusplus)
+        target_compile_options(${_mod} PRIVATE /W4 /WX --analyze)
     endfunction()
     function(env_target_suppress _name)
         env_log(Suppressing warnings on \"${_name}\".)
 
-        # same as above with /w for warning suppression
-        target_compile_options(
-                ${_name}
-                PRIVATE
-                /w
-                /permissive-
-                /Zc:__cplusplus
-                /Zc:auto)
+        target_compile_options(${_name} PRIVATE /w)
     endfunction()
+
 elseif (ENV_MSVC)
     function(env_target_warn _name)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
         env_log(Adding warnings to \"${_name}\".)
 
-        target_compile_options(
-                ${_mod}
-                PRIVATE
-                /W4 /WX
-                /analyze
-                # standards compliance
-                /permissive-
-                # otherwise we can't detect the C++ standard
-                /Zc:__cplusplus
-                # MSVC is weird about auto
-                /Zc:auto)
+        target_compile_options(${_mod} PRIVATE /W4 /WX /analyze)
     endfunction()
     function(env_target_suppress _name)
         env_log(Suppressing warnings on \"${_name}\".)
 
-        # same as above with /w for warning suppression and without analysis
-        target_compile_options(
-                ${_name}
-                PRIVATE
-                /w
-                /permissive-
-                /Zc:__cplusplus
-                /Zc:auto)
+        target_compile_options(${_name} PRIVATE /w)
     endfunction()
+
 elseif (ENV_GCC)
     function(env_target_warn _name)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
@@ -398,6 +423,7 @@ elseif (ENV_GCC)
 
         target_compile_options(${_name} PRIVATE -w)
     endfunction()
+
 elseif (ENV_CLANG)
     function(env_target_warn _name)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
@@ -414,11 +440,13 @@ elseif (ENV_CLANG)
 
         target_compile_options(${_name} PRIVATE -w)
     endfunction()
+
 else ()
     function(env_target_warn)
     endfunction()
     function(env_target_suppress)
     endfunction()
+
 endif ()
 
 set(__env_warning_regex [[/W.*|-W.*]])
@@ -447,6 +475,8 @@ endfunction()
 
 
 # optimization
+
+# TODO: sanitization
 
 if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
     if (ENV_CLANG_CL)
@@ -499,7 +529,6 @@ else ()
                     ${_mod}
                     PRIVATE
                     /Zi
-                    # TODO: fix
                     # -fsanitize=address,undefined
                     # /fsanitize=address
             )
@@ -513,7 +542,6 @@ else ()
                     ${_mod}
                     PRIVATE
                     /Zi
-                    # TODO: fix
                     # /fsanitize=address
             )
         endfunction()
@@ -527,7 +555,6 @@ else ()
                     PRIVATE
                     -Og
                     -ggdb
-                    # TODO: fix
                     # -fsanitize=address,leak,undefined
             )
         endfunction()
@@ -540,7 +567,6 @@ else ()
                     ${_mod}
                     PRIVATE
                     -ggdb
-                    # TODO: fix
                     # -fsanitize=address,undefined
             )
         endfunction()
@@ -551,32 +577,38 @@ else ()
 endif ()
 
 
-# rtti/exceptions
+# nonconforming optimizations
 
 if (ENV_CLANG_CL)
-    function(env_target_add_rtti _name)
+    function(env_target_optimize_nonconforming _name)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
-        env_log(Adding RTTI to \"${_name}\".)
+        env_log(Adding nonconforming optimizations to \"${_name}\".)
 
-
+        target_compile_options(${_mod} PRIVATE /GR-)
     endfunction()
 elseif (ENV_MSVC)
-    function(env_target_add_rtti _name)
+    function(env_target_optimize_nonconforming _name)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
-        env_log(Adding RTTI to \"${_name}\".)
+        env_log(Adding nonconforming optimizations to \"${_name}\".)
+
+        target_compile_options(${_mod} PRIVATE /GR-)
     endfunction()
 elseif (ENV_GCC)
-    function(env_target_add_rtti _name)
+    function(env_target_optimize_nonconforming _name)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
-        env_log(Adding RTTI to \"${_name}\".)
+        env_log(Adding nonconforming optimizations to \"${_name}\".)
+
+        target_compile_options(${_mod} PRIVATE -fno-rtti)
     endfunction()
 elseif (ENV_CLANG)
-    function(env_target_add_rtti _name)
+    function(env_target_optimize_nonconforming _name)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
-        env_log(Adding RTTI to \"${_name}\".)
+        env_log(Adding nonconforming optimizations to \"${_name}\".)
+
+        target_compile_options(${_mod} PRIVATE -fno-rtti)
     endfunction()
 else ()
-    function(env_target_add_rtti _name)
+    function(env_target_optimize_nonconforming _name)
     endfunction()
 endif ()
 
@@ -596,6 +628,7 @@ function(env_project_pch)
     env_target_link(${_mod} PUBLIC ${ARGN})
     env_target_precompile(${_mod} PUBLIC ${_header})
 
+    env_target_conform(${_mod})
     env_target_suppress(${_mod})
     env_target_optimize(${_mod})
 
@@ -612,6 +645,7 @@ function(env_add_executable _name)
     env_target_link(${_mod} PRIVATE ${LOWER_PROJECT_NAME}::pch)
     env_target_include(${_mod} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
+    env_target_conform(${_mod})
     env_target_warn(${_mod})
     env_target_optimize(${_mod})
 
@@ -627,6 +661,7 @@ function(env_add_library _name)
     env_target_link(${_mod} PRIVATE ${LOWER_PROJECT_NAME}::pch)
     env_target_include(${_mod} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
+    env_target_conform(${_mod})
     env_target_warn(${_mod})
     env_target_optimize(${_mod})
 
@@ -670,6 +705,8 @@ function(env_add_dep _name)
         if (NOT _type STREQUAL INTERFACE_LIBRARY)
             env_target_clear_warn(${_link})
             env_target_suppress(${_link})
+
+            env_target_conform(${_link})
         endif ()
     endforeach ()
 
@@ -738,6 +775,7 @@ endfunction()
 # aggregate targets
 
 # TODO: run multi-targets somehow
+# executable target that runs the dependencies somehow?
 
 function(env_hook _dependency)
     cmake_parse_arguments(PARSED "" "" "INTO" ${ARGN})
@@ -995,6 +1033,7 @@ function(env_fetch _name)
         target_include_directories(${_prefixed} "${_src_dir}/include")
         target_sources(${_prefixed} ${_sources})
 
+        env_target_conform(${_prefixed})
         env_target_optimize(${_prefixed})
         env_target_suppress(${_prefixed})
 
