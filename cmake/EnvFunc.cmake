@@ -8,14 +8,14 @@ include_guard()
 macro(env_init_project)
     string(TOUPPER ${PROJECT_NAME} __env_upper_project_name)
     string(REGEX REPLACE
-           [[\.|-|_|/|\\]] [[_]]
+           [[\.|-|_|/|\\|::]] [[_]]
            __env_upper_project_name
            ${__env_upper_project_name})
     set(UPPER_PROJECT_NAME ${__env_upper_project_name})
 
     string(TOLOWER ${PROJECT_NAME} __env_lower_project_name)
     string(REGEX REPLACE
-           [[\.|-|_|/|\\]] [[_]]
+           [[\.|-|_|/|\\|::]] [[_]]
            __env_lower_project_name
            ${__env_lower_project_name})
     set(LOWER_PROJECT_NAME ${__env_lower_project_name})
@@ -250,12 +250,14 @@ endif ()
 include(CheckPIESupported)
 check_pie_supported(OUTPUT_VARIABLE __env_pie_supported LANGUAGES CXX)
 if (__env_pie_supported)
-    env_log("Position independent code is supported.")
+    env_log(Position independent code is supported.)
 
     function(env_target_set_pie _name)
         env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
     endfunction()
 else ()
+    env_log(Position independent code is not supported.)
+
     function(env_target_set_pie _name)
     endfunction()
 endif ()
@@ -377,12 +379,21 @@ endfunction()
 
 # warnings
 
+# TODO: clang analysis
+# deeply copy the original target and
+# add the deep copy as a dependency with the --analyze flag?
+
 if (ENV_CLANG_CL)
     function(env_target_warn _name)
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
         env_log(Adding warnings to \"${_name}\".)
 
-        target_compile_options(${_mod} PRIVATE /W4 /WX --analyze)
+        target_compile_options(
+                ${_mod}
+                PRIVATE
+                /W4 /WX
+                # --analyze
+        )
     endfunction()
     function(env_target_suppress _name)
         env_log(Suppressing warnings on \"${_name}\".)
@@ -433,7 +444,8 @@ elseif (ENV_CLANG)
                 ${_mod}
                 PRIVATE
                 -Wall -Wextra -Wpedantic -Werror
-                --analyze)
+                #                --analyze
+        )
     endfunction()
     function(env_target_suppress _name)
         env_log(Suppressing warnings on \"${_name}\".)
@@ -619,14 +631,16 @@ function(env_project_pch)
     env_suffix(${LOWER_PROJECT_NAME} pch _mod)
     env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
 
-    set(_source "${PROJECT_SOURCE_DIR}/pch/pch.cpp")
-    set(_header "${PROJECT_SOURCE_DIR}/pch/pch.hpp")
+    set(_pch_dir "${PROJECT_SOURCE_DIR}/pch")
+    set(_project_pch_dir "${_pch_dir}/${LOWER_PROJECT_NAME}")
+    file(GLOB_RECURSE _sources "${_project_pch_dir}/src/*.cpp")
 
-    add_library(${_mod} STATIC ${_source})
+    add_library(${_mod} STATIC ${_sources})
     add_library(${LOWER_PROJECT_NAME}::pch ALIAS ${_mod})
 
     env_target_link(${_mod} PUBLIC ${ARGN})
-    env_target_precompile(${_mod} PUBLIC ${_header})
+    env_target_include(${_mod} PUBLIC "${_pch_dir}")
+    env_target_precompile(${_mod} PUBLIC "${_project_pch_dir}/pch.hpp")
 
     env_target_conform(${_mod})
     env_target_suppress(${_mod})
@@ -842,14 +856,11 @@ endfunction()
 function(env_project_examples)
     if (${UPPER_PROJECT_NAME}_BUILD_EXAMPLES)
         env_log(-!- Adding examples for ${PROJECT_NAME}. -!-)
-
-        file(GLOB_RECURSE
-             _examples
-             "${PROJECT_SOURCE_DIR}/example/*CMakeLists.txt")
+        file(GLOB _examples "${PROJECT_SOURCE_DIR}/example/*/CMakeLists.txt")
 
         foreach (_example IN LISTS _examples)
-            set(_path "${_example}/..")
-            add_subdirectory(${_path})
+            env_log(- Adding example with CMakeLists.txt at \"${_example}\". -)
+            add_subdirectory("${_example}/..")
         endforeach ()
     endif ()
 endfunction()
@@ -868,11 +879,14 @@ endfunction()
 # TODO: CI here?
 
 function(env_project_extra)
-    if (${UPPER_PROJECT_NAME}_BUILD_EXTRAS AND
-        EXISTS "${PROJECT_SOURCE_DIR}/extra/CMakeLists.txt")
-
+    if (${UPPER_PROJECT_NAME}_BUILD_EXTRAS)
         env_log(-!- Adding extras for ${PROJECT_NAME}. -!-)
-        add_subdirectory("${PROJECT_SOURCE_DIR}/extra")
+        file(GLOB _extras "${PROJECT_SOURCE_DIR}/extra/*/CMakeLists.txt")
+
+        foreach (_extra IN LISTS _extras)
+            env_log(- Adding extra with CMakeLists.txt at \"${_extra}\". -)
+            add_subdirectory("${_extra}/..")
+        endforeach ()
     endif ()
 endfunction()
 
@@ -930,6 +944,10 @@ function(env_project_targets)
 
     env_project_pch(${PARSED_DEPENDENCIES})
 
+    env_project_static()
+    env_project_shared()
+    env_project_apps()
+
     env_project_tests(${PARSED_TEST_DEPENDENCIES})
     env_project_benchmarks(${PARSED_BENCHMARK_DEPENDENCIES})
 
@@ -937,10 +955,6 @@ function(env_project_targets)
     env_project_docs()
 
     env_project_extra()
-
-    env_project_static()
-    env_project_shared()
-    env_project_apps()
 endfunction()
 
 

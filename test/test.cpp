@@ -1,15 +1,6 @@
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <env/test.hpp>
 
-#include <env/env.hpp>
-#include <env/env_macros.hpp>
-
-using namespace ::env::syntax;
-
-// Ignore GoogleTest unused static variable warning
-#define ENV_TEST(_suite, _test) TEST(_suite, _test) // NOLINT(cert-err58-cpp)
-
-ENV_MESSAGE(Message test...);
+ENV_MSVC_SUPPRESS_PUSH(6326);
 
 
 ENV_TEST(env, deps)
@@ -151,10 +142,4 @@ ENV_TEST(env, alloc)
 }
 
 
-int main(int argc, char** argv)
-{
-    testing::InitGoogleTest(&argc, argv);
-    testing::InitGoogleMock(&argc, argv);
-
-    return RUN_ALL_TESTS();
-}
+ENV_MSVC_SUPPRESS_POP;

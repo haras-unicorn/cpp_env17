@@ -2,26 +2,29 @@
 #define ENV_MACROS_INCLUDED
 
 
+// macro lib
+
 #include <hedley.h>
+
 
 // basic macros - uncomment if needed
 
-// #define ENV_EVAL(...) __VA_ARGS__
+#define ENV_EVAL(...) __VA_ARGS__
 
-// #define ENV_CAT_IMPL(_lhs, _rhs) _lhs##_rhs
-// #define ENV_CAT(_lhs, _rhs)      ENV_CAT_IMPL(_lhs, _rhs)
+#define ENV_CAT_IMPL(_lhs, _rhs) _lhs##_rhs
+#define ENV_CAT(_lhs, _rhs)      ENV_CAT_IMPL(_lhs, _rhs)
 
-// #define ENV_INTER_IMPL(_lhs, _middle, _rhs) _lhs##_middle##_rhs
-// #define ENV_INTER(_lhs, _middle, _rhs)      ENV_INTER_IMPL(_lhs, _middle, _rhs)
+#define ENV_INTER_IMPL(_lhs, _middle, _rhs) _lhs##_middle##_rhs
+#define ENV_INTER(_lhs, _middle, _rhs)      ENV_INTER_IMPL(_lhs, _middle, _rhs)
 
 #define ENV_STRING_IMPL(...) #__VA_ARGS__
 #define ENV_STRING_VAR(...)  ENV_STRING_IMPL(__VA_ARGS__)
 #define ENV_STRING(...)      ENV_STRING_VAR(__VA_ARGS__)
 
-// #define ENV_SPREAD_IMPL(_tuple) ENV_EVAL(ENV_EVAL _tuple)
-// #define ENV_SPREAD(_tuple)      ENV_SPREAD_IMPL(_tuple)
+#define ENV_SPREAD_IMPL(_tuple) ENV_EVAL(ENV_EVAL _tuple)
+#define ENV_SPREAD(_tuple)      ENV_SPREAD_IMPL(_tuple)
 
-// #define ENV_UID(_prefix) ENV_INTER(_z, _prefix, __COUNTER__)
+#define ENV_UID(_prefix) ENV_CAT(__z_env_uid, __COUNTER__)
 
 #define ENV_SEMI static_assert(true, "Require semicolon.")
 
@@ -64,38 +67,6 @@
 #ifndef ENV_ARM64
     #define ENV_ARM64 0
 #endif // ENV_ARM64
-
-
-// intrinsics
-
-// https://docs.microsoft.com/en-us/cpp/intrinsics/compiler-intrinsics?view=msvc-160
-
-// TODO: ARM
-
-
-#if ENV_X86 // intrinsics
-
-    // pause
-    #include <immintrin.h>
-
-
-#elif ENV_X64 // intrinsics
-
-    // pause
-    #include <immintrin.h>
-
-
-#elif ENV_ARM // intrinsics
-
-
-#elif ENV_ARM64 // intrinsics
-
-
-#else // intrinsics
-
-    #error "Unsupported intrinsics."
-
-#endif // intrinsics
 
 
 // compiler
@@ -425,7 +396,7 @@
 
 // warnings
 
-#if ENV_CLANG || defined(__JETBRAINS_IDE__) // clang
+#if ENV_CLANG // clang
     #define ENV_CLANG_SUPPRESS_PUSH(_warning) \
         ENV_PRAGMA(clang diagnostic push);    \
         ENV_PRAGMA(clang diagnostic ignored _warning)
@@ -436,7 +407,7 @@
     #define ENV_CLANG_SUPPRESS_POP            ENV_SEMI
 #endif // clang
 
-#if ENV_MSVC && !defined(__JETBRAINS_IDE__) // MSVC
+#if ENV_MSVC // MSVC
     #define ENV_MSVC_SUPPRESS_PUSH(_warning) \
         ENV_PRAGMA(warning(push));           \
         ENV_PRAGMA(warning(disable           \
@@ -448,12 +419,12 @@
     #define ENV_MSVC_SUPPRESS_POP            ENV_SEMI
 #endif // MSVC
 
-#if ENV_GNU && !defined(__JETBRAINS_IDE__) // gnu
+#if ENV_GNU // gnu
     #define ENV_GNU_SUPPRESS_PUSH(_warning) \
-        ENV_PRAGMA(GNU diagnostic push);    \
-        ENV_PRAGMA(GNU diagnostic ignored _warning)
+        ENV_PRAGMA(GCC diagnostic push);    \
+        ENV_PRAGMA(GCC diagnostic ignored _warning)
     #define ENV_GNU_SUPPRESS_POP \
-        ENV_PRAGMA(GNU diagnostic pop)
+        ENV_PRAGMA(GCC diagnostic pop)
 #else // gnu
     #define ENV_GNU_SUPPRESS_PUSH(_warning) ENV_SEMI
     #define ENV_GNU_SUPPRESS_POP            ENV_SEMI
@@ -461,14 +432,12 @@
 
 
 ENV_CLANG_SUPPRESS_PUSH("-W#pragma-messages");
-ENV_GNU_SUPPRESS_PUSH("-W#pragma-messages");
 
 ENV_MESSAGE(Env Compiler - ENV_COMPILER_NAME, ENV_COMPILER_VER);
 ENV_MESSAGE(Env Arch - ENV_ARCH_NAME);
 ENV_MESSAGE(Env OS - ENV_OS_NAME);
 ENV_MESSAGE(Env Standard - C++ ENV_CPP);
 
-ENV_GNU_SUPPRESS_POP;
 ENV_CLANG_SUPPRESS_POP;
 
 
