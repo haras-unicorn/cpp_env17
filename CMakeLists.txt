@@ -1,7 +1,7 @@
 include_guard()
 
 
-# project
+# Project ---------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.17...3.20)
 
@@ -10,12 +10,12 @@ project(env
         VERSION 1.0
         LANGUAGES C CXX)
 
-include(./cmake/EnvFunc.cmake)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/EnvFunc.cmake")
 
-env_init_project()
+env_project_initialize()
 
 
-# fetch
+# Fetch -----------------------------------------------------------------------
 
 env_fetch(macros
           GIT_REPOSITORY https://github.com/nemequ/hedley.git
@@ -91,7 +91,7 @@ env_fetch(transducers
           "ZUG_LINK_BOOST OFF")
 
 
-# dependencies
+# Dependencies ----------------------------------------------------------------
 
 env_add_dep(boost hana)
 env_add_dep(alloc mimalloc-static)
@@ -102,7 +102,7 @@ env_add_dep(json nlohmann_json::nlohmann_json)
 env_add_dep(functional zug immer)
 
 
-# targets
+# Targets ---------------------------------------------------------------------
 
 env_project_targets(
         DEPENDENCIES

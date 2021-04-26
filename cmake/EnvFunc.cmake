@@ -1,126 +1,16 @@
-include_guard()
+# Guard -----------------------------------------------------------------------
+
+if (ENV_FUNCTIONS_INCLUDED)
+    return()
+endif ()
+
+set(ENV_FUNCTIONS_INCLUDED TRUE)
 
 
 # TODO: fix diamond dependencies
 
-# project declaration
 
-macro(env_init_project)
-    string(TOUPPER ${PROJECT_NAME} __env_upper_project_name)
-    string(REGEX REPLACE
-           [[\.|-|_|/|\\|::]] [[_]]
-           __env_upper_project_name
-           ${__env_upper_project_name})
-    set(UPPER_PROJECT_NAME ${__env_upper_project_name})
-
-    string(TOLOWER ${PROJECT_NAME} __env_lower_project_name)
-    string(REGEX REPLACE
-           [[\.|-|_|/|\\|::]] [[_]]
-           __env_lower_project_name
-           ${__env_lower_project_name})
-    set(LOWER_PROJECT_NAME ${__env_lower_project_name})
-
-
-    if (CMAKE_BUILD_TYPE STREQUAL Debug)
-        option(${UPPER_PROJECT_NAME}_COMPILER_MESSAGES
-               "Turn on compiler messages for ${PROJECT_NAME}."
-               ON)
-
-    else ()
-        option(${UPPER_PROJECT_NAME}_COMPILER_MESSAGES
-               "Turn on compiler messages for ${PROJECT_NAME}."
-               OFF)
-
-    endif ()
-
-
-    option(${UPPER_PROJECT_NAME}_BUILD_TESTS
-           "Build ${PROJECT_NAME} tests."
-           OFF)
-
-    option(${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS
-           "Build ${PROJECT_NAME} benchmarks."
-           OFF)
-
-
-    option(${UPPER_PROJECT_NAME}_BUILD_EXAMPLES
-           "Build ${PROJECT_NAME} examples."
-           OFF)
-
-    option(${UPPER_PROJECT_NAME}_BUILD_DOCS
-           "Build ${PROJECT_NAME} docs."
-           OFF)
-
-
-    option(${UPPER_PROJECT_NAME}_BUILD_EXTRAS
-           "Build ${PROJECT_NAME} extras."
-           OFF)
-
-
-    option(${UPPER_PROJECT_NAME}_BUILD_STATIC
-           "Build ${PROJECT_NAME} static."
-           ON)
-
-    option(${UPPER_PROJECT_NAME}_BUILD_SHARED
-           "Build ${PROJECT_NAME} shared."
-           OFF)
-
-    option(${UPPER_PROJECT_NAME}_BUILD_APPS
-           "Build ${PROJECT_NAME} apps."
-           OFF)
-endmacro()
-
-
-# logging
-
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    option(ENV_LOG_VERBOSE
-           "Turn on verbose CMake logging."
-           ON)
-else ()
-    option(ENV_LOG_VERBOSE
-           "Turn on verbose CMake logging."
-           OFF)
-endif ()
-
-set(__env_verbose_message_levels
-    "\
-STATUS;VERBOSE;DEBUG;TRACE\
-")
-
-set(__env_message_levels
-    "\
-FATAL_ERROR;SEND_ERROR;WARNING;AUTHOR_WARNING;DEPRECATION;NOTICE;\
-${env_verbose_message_levels}\
-")
-
-if (ENV_LOG_VERBOSE)
-    function(env_log _level)
-        list(FIND __env_message_levels ${_level} _index)
-
-        list(JOIN ARGN " " _message)
-        if (NOT _index EQUAL -1)
-            message(${_level}
-                    "[env::${LOWER_PROJECT_NAME}]: ${_message}")
-        else ()
-            message(STATUS
-                    "[env::${LOWER_PROJECT_NAME}]: ${_level} ${_message}")
-        endif ()
-    endfunction()
-else ()
-    function(env_log _level)
-        list(FIND __env_verbose_message_levels ${_level} _index)
-
-        list(JOIN ARGN " " _message)
-        if (NOT _index EQUAL -1)
-            message(${_level}
-                    "[env::${LOWER_PROJECT_NAME}]: ${_message}")
-        endif ()
-    endfunction()
-endif ()
-
-
-# names
+# Names -----------------------------------------------------------------------
 
 function(env_prefix _name _prefix _out)
     string(REGEX MATCH "^${_prefix}" _match ${_name})
@@ -144,6 +34,33 @@ function(env_suffix _name _suffix _out)
     endif ()
 endfunction()
 
+
+set(__env_delimiter_regex
+    [[\.|-|_|/|\\|::]]
+    CACHE STRING
+    "Matches delimiters."
+    FORCE)
+
+function(env_use_upper_project_name)
+    string(TOUPPER ${PROJECT_NAME} _upper)
+    string(REGEX REPLACE ${__env_delimiter_regex} [[_]] _upper ${_upper})
+    set(UPPER_PROJECT_NAME ${_upper} PARENT_SCOPE)
+endfunction()
+
+function(env_use_lower_project_name)
+    string(TOLOWER ${PROJECT_NAME} _lower)
+    string(REGEX REPLACE ${__env_delimiter_regex} [[_]] _lower ${_lower})
+    set(LOWER_PROJECT_NAME ${_lower} PARENT_SCOPE)
+endfunction()
+
+
+function(env_prefix_with_project_name _name _out)
+    env_use_lower_project_name()
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _prefixed)
+    set(${_out} ${_prefixed} PARENT_SCOPE)
+endfunction()
+
+
 function(env_target_name_for _path _out)
     string(REGEX MATCH [[\..*$]] _extension "${_path}")
     file(RELATIVE_PATH _relative "${PROJECT_SOURCE_DIR}" "${_path}")
@@ -151,11 +68,68 @@ function(env_target_name_for _path _out)
     string(REPLACE "${_extension}" "" _name "${_relative}")
     string(REGEX REPLACE / _ _name "${_name}")
 
+    env_use_lower_project_name()
     set(${_out} ${LOWER_PROJECT_NAME}_${_name} PARENT_SCOPE)
 endfunction()
 
 
-# compiler
+# Logging ---------------------------------------------------------------------
+
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+    option(ENV_LOG_VERBOSE
+           "Turn on verbose CMake logging."
+           ON)
+else ()
+    option(ENV_LOG_VERBOSE
+           "Turn on verbose CMake logging."
+           OFF)
+endif ()
+
+set(__env_verbose_message_levels
+    "\
+STATUS;VERBOSE;DEBUG;TRACE\
+"
+    CACHE STRING
+    "Message levels considered verbose by the environment."
+    FORCE)
+
+set(__env_message_levels
+    "\
+FATAL_ERROR;SEND_ERROR;WARNING;AUTHOR_WARNING;DEPRECATION;NOTICE;\
+${env_verbose_message_levels}\
+"
+    CACHE_STRING
+    "Valid message levels for environment."
+    FORCE)
+
+if (ENV_LOG_VERBOSE)
+    function(env_log _level)
+        list(FIND __env_message_levels ${_level} _index)
+
+        list(JOIN ARGN " " _message)
+        env_use_lower_project_name()
+        if (NOT _index EQUAL -1)
+            message(${_level} "[env::${LOWER_PROJECT_NAME}]: ${_message}")
+        else ()
+            message(STATUS "[env::${LOWER_PROJECT_NAME}]: ${_level} ${_message}")
+        endif ()
+    endfunction()
+else ()
+    function(env_log _level)
+        list(FIND __env_verbose_message_levels ${_level} _index)
+
+        list(JOIN ARGN " " _message)
+        if (NOT _index EQUAL -1)
+            env_use_lower_project_name()
+            message(${_level} "[env::${LOWER_PROJECT_NAME}]: ${_message}")
+        endif ()
+    endfunction()
+endif ()
+
+
+# Compiler --------------------------------------------------------------------
+
+# TODO: Intel compiler support
 
 env_log(Compiler ID is: \"${CMAKE_CXX_COMPILER_ID}\".)
 env_log(MSVC is present: ${MSVC})
@@ -199,34 +173,34 @@ else ()
 endif ()
 
 
-# sources
+# Sources ---------------------------------------------------------------------
 
 function(env_target_link _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(Linking \"${_name}\" with \"${ARGN}\".)
 
     target_link_libraries(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_include _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(Into \"${_name}\" including \"${ARGN}\".)
 
     target_include_directories(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_sources _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(Sourcing \"${_name}\" with \"${ARGN}\".)
 
     target_sources(${_mod} ${ARGN})
 endfunction()
 
 
-# properties
+# Properties ------------------------------------------------------------------
 
 function(env_target_set _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(On \"${_name}\" setting \"${ARGN}\".)
 
     set_target_properties(${_mod} PROPERTIES ${ARGN})
@@ -263,17 +237,17 @@ else ()
 endif ()
 
 
-# flags
+# Flags -----------------------------------------------------------------------
 
 function(env_target_link_with _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(On \"${_name}\" adding link options \"${ARGN}\".)
 
     target_link_options(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_compile_with _name _visibility)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(On \"${_name}\" adding compile options \"${ARGN}\".)
 
     target_compile_options(${_mod} ${ARGN})
@@ -281,7 +255,7 @@ endfunction()
 
 include(CheckCXXCompilerFlag)
 function(env_target_safely_compile_with _name _visibility)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(On \"${_name}\" adding compile options \"${ARGN}\".)
 
     foreach (_flag IN LISTS ARGN)
@@ -297,24 +271,24 @@ function(env_target_safely_compile_with _name _visibility)
 endfunction()
 
 
-# compilation
+# Compilation -----------------------------------------------------------------
 
 function(env_target_precompile _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(Precompiling \"${_name}\" with \"${ARGN}\".)
 
     target_precompile_headers(${_mod} PRIVATE ${ARGN})
 endfunction()
 
 function(env_target_features _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(Compiling \"${_name}\" with \"${ARGN}\".)
 
     target_compile_features(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_definitions _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(Compiling \"${_name}\" with \"${ARGN}\".)
 
     target_compile_definitions(${_mod} ${ARGN})
@@ -369,7 +343,7 @@ else ()
 endif ()
 
 function(env_set_cpp17 _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log(Setting C++17 standard on \"${_name}\".)
 
     target_compile_features(${_mod} PRIVATE cxx_std_17)
@@ -377,7 +351,7 @@ function(env_set_cpp17 _name)
 endfunction()
 
 
-# warnings
+# Warnings --------------------------------------------------------------------
 
 # TODO: clang analysis
 # deeply copy the original target and
@@ -385,7 +359,7 @@ endfunction()
 
 if (ENV_CLANG_CL)
     function(env_target_warn _name)
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_prefix_with_project_name(${_name} _mod)
         env_log(Adding warnings to \"${_name}\".)
 
         target_compile_options(
@@ -403,7 +377,7 @@ if (ENV_CLANG_CL)
 
 elseif (ENV_MSVC)
     function(env_target_warn _name)
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_prefix_with_project_name(${_name} _mod)
         env_log(Adding warnings to \"${_name}\".)
 
         target_compile_options(${_mod} PRIVATE /W4 /WX /analyze)
@@ -416,7 +390,7 @@ elseif (ENV_MSVC)
 
 elseif (ENV_GCC)
     function(env_target_warn _name)
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_prefix_with_project_name(${_name} _mod)
         env_log("Adding warnings to \"${_name}\".")
 
         target_compile_options(
@@ -437,7 +411,7 @@ elseif (ENV_GCC)
 
 elseif (ENV_CLANG)
     function(env_target_warn _name)
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_prefix_with_project_name(${_name} _mod)
         env_log(Adding warnings to \"${_name}\".)
 
         target_compile_options(
@@ -461,7 +435,10 @@ else ()
 
 endif ()
 
-set(__env_warning_regex [[/W.*|-W.*]])
+set(__env_warning_regex [[/W.*|-W.*]]
+    CACHE STRING
+    "Regex that matches compiler warning options."
+    FORCE)
 
 function(env_target_clear_warn _name)
     env_log(Clearing warnings from \"${_name}\".)
@@ -486,14 +463,14 @@ function(env_target_clear_warn _name)
 endfunction()
 
 
-# optimization
+# Optimization ----------------------------------------------------------------
 
 # TODO: sanitization
 
 if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
     if (ENV_CLANG_CL)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding optimizations to \"${_name}\".)
 
             target_compile_options(${_mod} PRIVATE /O2)
@@ -501,7 +478,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
         endfunction()
     elseif (ENV_MSVC)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding optimizations to \"${_name}\".)
 
             target_compile_options(${_mod} PRIVATE /O2)
@@ -509,7 +486,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
         endfunction()
     elseif (ENV_GCC)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding optimizations to \"${_name}\".)
 
             target_compile_options(${_mod} PRIVATE -O3)
@@ -517,7 +494,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
         endfunction()
     elseif (ENV_CLANG)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding optimizations to \"${_name}\".)
 
             target_compile_options(${_mod} PRIVATE -O3)
@@ -525,7 +502,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
         endfunction()
     else ()
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding optimizations to \"${_name}\".)
 
             env_target_set_ipo(${_mod})
@@ -534,7 +511,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
 else ()
     if (ENV_CLANG_CL)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding sanitization to \"${_name}\".)
 
             target_compile_options(
@@ -547,7 +524,7 @@ else ()
         endfunction()
     elseif (ENV_MSVC)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding sanitization to \"${_name}\".)
 
             target_compile_options(
@@ -559,7 +536,7 @@ else ()
         endfunction()
     elseif (ENV_GCC)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding sanitization to \"${_name}\".)
 
             target_compile_options(
@@ -572,7 +549,7 @@ else ()
         endfunction()
     elseif (ENV_CLANG)
         function(env_target_optimize _name)
-            env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+            env_prefix_with_project_name(${_name} _mod)
             env_log(Adding sanitization to \"${_name}\".)
 
             target_compile_options(
@@ -589,32 +566,34 @@ else ()
 endif ()
 
 
-# nonconforming optimizations
+# Nonconforming optimization --------------------------------------------------
+
+# TODO: exceptions?
 
 if (ENV_CLANG_CL)
     function(env_target_optimize_nonconforming _name)
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_prefix_with_project_name(${_name} _mod)
         env_log(Adding nonconforming optimizations to \"${_name}\".)
 
         target_compile_options(${_mod} PRIVATE /GR-)
     endfunction()
 elseif (ENV_MSVC)
     function(env_target_optimize_nonconforming _name)
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_prefix_with_project_name(${_name} _mod)
         env_log(Adding nonconforming optimizations to \"${_name}\".)
 
         target_compile_options(${_mod} PRIVATE /GR-)
     endfunction()
 elseif (ENV_GCC)
     function(env_target_optimize_nonconforming _name)
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_prefix_with_project_name(${_name} _mod)
         env_log(Adding nonconforming optimizations to \"${_name}\".)
 
         target_compile_options(${_mod} PRIVATE -fno-rtti)
     endfunction()
 elseif (ENV_CLANG)
     function(env_target_optimize_nonconforming _name)
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+        env_prefix_with_project_name(${_name} _mod)
         env_log(Adding nonconforming optimizations to \"${_name}\".)
 
         target_compile_options(${_mod} PRIVATE -fno-rtti)
@@ -625,10 +604,10 @@ else ()
 endif ()
 
 
-# atomic targets
+# Atomic targets --------------------------------------------------------------
 
 function(env_project_pch)
-    env_suffix(${LOWER_PROJECT_NAME} pch _mod)
+    env_prefix_with_project_name(pch _mod)
     env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
 
     set(_pch_dir "${PROJECT_SOURCE_DIR}/pch")
@@ -651,7 +630,7 @@ function(env_project_pch)
 endfunction()
 
 function(env_add_executable _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log("Adding executable \"${_name}\".")
 
     add_executable(${_mod} ${ARGN})
@@ -667,7 +646,7 @@ function(env_add_executable _name)
 endfunction()
 
 function(env_add_library _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log("Adding library \"${_name}\".")
 
     add_library(${_mod} ${ARGN})
@@ -684,7 +663,7 @@ function(env_add_library _name)
 endfunction()
 
 function(env_add_interface _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log("Adding interface \"${_name}\".")
 
     add_library(${_mod} INTERFACE)
@@ -693,7 +672,7 @@ function(env_add_interface _name)
 endfunction()
 
 function(env_add_import _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log("Adding import \"${_name}\".")
 
     add_library(${_mod} INTERFACE IMPORTED GLOBAL)
@@ -702,14 +681,14 @@ function(env_add_import _name)
 endfunction()
 
 function(env_add_alias _name)
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_prefix_with_project_name(${_name} _mod)
     env_log("Adding alias \"${LOWER_PROJECT_NAME}::${_name}\".")
 
     add_library(${LOWER_PROJECT_NAME}::${_name} ALIAS ${_mod})
 endfunction()
 
 
-# compound targets
+# Compound targets ------------------------------------------------------------
 
 function(env_add_dep _name)
     env_log(" - Adding dependency \"${_name}\". - ")
@@ -732,17 +711,20 @@ enable_testing()
 include(GoogleTest)
 
 function(env_add_test _name)
+    env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_TESTS)
         env_log(" - Adding test \"${_name}\". - ")
 
         env_add_executable(${_name} ${ARGN})
 
+        env_use_lower_project_name()
         env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
         gtest_discover_tests(${_name})
     endif ()
 endfunction()
 
 function(env_add_bench _name)
+    env_use_upper_project_name()
     if (NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
         ${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS)
 
@@ -753,6 +735,7 @@ function(env_add_bench _name)
 endfunction()
 
 function(env_add_static _name)
+    env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
         env_log(- Adding static \"${_name}\". -)
 
@@ -762,6 +745,7 @@ function(env_add_static _name)
 endfunction()
 
 function(env_add_shared _name)
+    env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_SHARED)
         env_log(- Adding shared \"${_name}\". -)
 
@@ -771,6 +755,7 @@ function(env_add_shared _name)
 endfunction()
 
 function(env_add_app _name)
+    env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_APPS)
         env_log(" - Adding app \"${_name}\". - ")
 
@@ -786,199 +771,37 @@ function(env_add_export _name)
 endfunction()
 
 
-# aggregate targets
-
-# TODO: run multi-targets somehow
-# executable target that runs the dependencies somehow?
-
-function(env_hook _dependency)
-    cmake_parse_arguments(PARSED "" "" "INTO" ${ARGN})
-
-    foreach (_target IN LISTS PARSED_INTO)
-        if (NOT TARGET ${_target})
-            add_custom_target(${_target} DEPENDS ${_dependency})
-        else ()
-            get_target_property(
-                    _dependencies
-                    ${_target}
-                    MANUALLY_ADDED_DEPENDENCIES)
-
-            list(FIND _dependencies ${_dependency} _index)
-            if (_index EQUAL -1)
-                add_dependencies(${_target} ${_dependency})
-            endif ()
-        endif ()
-    endforeach ()
-endfunction()
-
-function(env_project_tests)
-    if (${UPPER_PROJECT_NAME}_BUILD_TESTS)
-        env_log(-!- Adding tests for ${PROJECT_NAME}. -!-)
-
-        file(GLOB_RECURSE
-             _tests
-             "${PROJECT_SOURCE_DIR}/test/*.cpp")
-
-        foreach (_test IN LISTS _tests)
-            env_target_name_for(${_test} _target)
-            env_add_test(${_target} ${_test})
-
-            env_target_link(${_target} PRIVATE ${ARGN})
-
-            env_hook(${_target} INTO ${LOWER_PROJECT_NAME}_tests)
-        endforeach ()
-    endif ()
-endfunction()
-
-function(env_project_benchmarks)
-    if (NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
-        ${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS)
-
-        env_log(-!- Adding benchmarks for ${PROJECT_NAME}. -!-)
-
-        file(GLOB_RECURSE
-             _benchmarks
-             "${PROJECT_SOURCE_DIR}/bench/*.cpp")
-
-        foreach (_benchmark IN LISTS _benchmarks)
-            env_target_name_for(${_benchmark} _target)
-            env_add_bench(${_target} ${_benchmark})
-
-            env_target_link(${_target} PRIVATE ${ARGN})
-
-            env_hook(${_target} INTO ${LOWER_PROJECT_NAME}_benchmarks)
-        endforeach ()
-    endif ()
-endfunction()
-
-# TODO: maybe one file per example?
-
-function(env_project_examples)
-    if (${UPPER_PROJECT_NAME}_BUILD_EXAMPLES)
-        env_log(-!- Adding examples for ${PROJECT_NAME}. -!-)
-        file(GLOB _examples "${PROJECT_SOURCE_DIR}/example/*/CMakeLists.txt")
-
-        foreach (_example IN LISTS _examples)
-            env_log(- Adding example with CMakeLists.txt at \"${_example}\". -)
-            add_subdirectory("${_example}/..")
-        endforeach ()
-    endif ()
-endfunction()
-
-# TODO: configure Doxygen
-
-function(env_project_docs)
-    if (${UPPER_PROJECT_NAME}_BUILD_DOCS AND
-        EXISTS "${PROJECT_SOURCE_DIR}/docs/CMakeLists.txt")
-
-        env_log(-!- Adding docs for ${PROJECT_NAME}. -!-)
-        add_subdirectory("${PROJECT_SOURCE_DIR}/docs")
-    endif ()
-endfunction()
-
-# TODO: CI here?
-
-function(env_project_extra)
-    if (${UPPER_PROJECT_NAME}_BUILD_EXTRAS)
-        env_log(-!- Adding extras for ${PROJECT_NAME}. -!-)
-        file(GLOB _extras "${PROJECT_SOURCE_DIR}/extra/*/CMakeLists.txt")
-
-        foreach (_extra IN LISTS _extras)
-            env_log(- Adding extra with CMakeLists.txt at \"${_extra}\". -)
-            add_subdirectory("${_extra}/..")
-        endforeach ()
-    endif ()
-endfunction()
-
-function(env_project_static)
-    if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
-        file(GLOB_RECURSE
-             _sources
-             "${PROJECT_SOURCE_DIR}/src/*.cpp")
-
-        if (_sources)
-            env_add_static(${LOWER_PROJECT_NAME}_static ${_sources})
-        endif ()
-    endif ()
-endfunction()
-
-function(env_project_shared)
-    if (${UPPER_PROJECT_NAME}_BUILD_SHARED)
-        file(GLOB_RECURSE
-             _sources
-             "${PROJECT_SOURCE_DIR}/src/*.cpp")
-
-        if (_sources)
-            env_add_shared(${LOWER_PROJECT_NAME}_shared ${_sources})
-        endif ()
-    endif ()
-endfunction()
-
-function(env_project_apps)
-    if (${UPPER_PROJECT_NAME}_BUILD_APPS)
-        env_log(-!- Adding apps for ${PROJECT_NAME}. -!-)
-
-        file(GLOB_RECURSE
-             _apps
-             "${PROJECT_SOURCE_DIR}/app/*.cpp")
-
-        file(GLOB_RECURSE
-             _sources
-             "${PROJECT_SOURCE_DIR}/src/*.cpp")
-
-        foreach (_app IN LISTS _apps)
-            env_target_name_for(${_app} _target)
-
-            env_add_app(${_target} ${_app} ${_sources})
-        endforeach ()
-    endif ()
-endfunction()
-
-function(env_project_targets)
-    cmake_parse_arguments(
-            PARSED
-            ""
-            ""
-            "DEPENDENCIES;TEST_DEPENDENCIES;BENCHMARK_DEPENDENCIES"
-            ${ARGN})
-
-    env_project_pch(${PARSED_DEPENDENCIES})
-
-    env_project_static()
-    env_project_shared()
-    env_project_apps()
-
-    env_project_tests(${PARSED_TEST_DEPENDENCIES})
-    env_project_benchmarks(${PARSED_BENCHMARK_DEPENDENCIES})
-
-    env_project_examples()
-    env_project_docs()
-
-    env_project_extra()
-endfunction()
-
-
-# fetch
+# Fetch -----------------------------------------------------------------------
 
 include(FetchContent)
 
-set(__env_fetch_dir "${CMAKE_SOURCE_DIR}/.fetch")
-set(__env_fetch_build_dir "${PROJECT_BINARY_DIR}/.fetch")
+set(ENV_FETCH_DIR
+    "${CMAKE_SOURCE_DIR}/.fetch"
+    CACHE STRING
+    "Download directory for fetching dependencies."
+    FORCE)
 
-set(FETCHCONTENT_BASE_DIR ${__env_fetch_dir})
+set(ENV_FETCH_BUILD_DIR
+    "${PROJECT_BINARY_DIR}/.fetch"
+    CACHE STRING
+    "Build directory for fetched dependencies."
+    FORCE)
+
+set(FETCHCONTENT_BASE_DIR ${ENV_FETCH_DIR})
 
 function(env_fetch _name)
     cmake_parse_arguments(PARSED "" "" "OPTIONS" ${ARGN})
 
 
+    env_use_lower_project_name()
     env_prefix(${_name} ${LOWER_PROJECT_NAME} _prefixed)
     env_suffix(${_prefixed} fetch _mod)
 
-    set(_src_dir "${__env_fetch_dir}/${_name}")
-    set(_bin_dir "${__env_fetch_build_dir}/${_name}/bin")
-    set(_sub_dir "${__env_fetch_build_dir}/${_name}/sub")
-    set(_populated_file "${__env_fetch_dir}/.process/${_name}.populated")
-    set(_lock_file "${__env_fetch_dir}/.process/${_name}.lock")
+    set(_src_dir "${ENV_FETCH_DIR}/${_name}")
+    set(_bin_dir "${ENV_FETCH_BUILD_DIR}/${_name}/bin")
+    set(_sub_dir "${ENV_FETCH_BUILD_DIR}/${_name}/sub")
+    set(_populated_file "${ENV_FETCH_DIR}/.process/${_name}.populated")
+    set(_lock_file "${ENV_FETCH_DIR}/.process/${_name}.lock")
 
     set(${_mod}_src_dir "${_src_dir}" PARENT_SCOPE)
     set(${_mod}_bin_dir "${_bin_dir}" PARENT_SCOPE)
@@ -1074,3 +897,253 @@ function(env_fetch _name)
         target_include_directories(${_prefixed} INTERFACE "${_src_dir}")
     endif ()
 endfunction()
+
+
+# Bindings --------------------------------------------------------------------
+
+# TODO
+
+
+# Project declaration ---------------------------------------------------------
+
+function(env_project_initialize)
+    env_use_upper_project_name()
+
+    if (CMAKE_BUILD_TYPE STREQUAL Debug)
+        option(${UPPER_PROJECT_NAME}_COMPILER_MESSAGES
+               "Turn on compiler messages for ${PROJECT_NAME}."
+               ON)
+
+    else ()
+        option(${UPPER_PROJECT_NAME}_COMPILER_MESSAGES
+               "Turn on compiler messages for ${PROJECT_NAME}."
+               OFF)
+
+    endif ()
+
+
+    option(${UPPER_PROJECT_NAME}_BUILD_TESTS
+           "Build ${PROJECT_NAME} tests."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS
+           "Build ${PROJECT_NAME} benchmarks."
+           OFF)
+
+
+    option(${UPPER_PROJECT_NAME}_BUILD_EXAMPLES
+           "Build ${PROJECT_NAME} examples."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_DOCS
+           "Build ${PROJECT_NAME} docs."
+           OFF)
+
+
+    option(${UPPER_PROJECT_NAME}_BUILD_EXTRAS
+           "Build ${PROJECT_NAME} extras."
+           OFF)
+
+
+    option(${UPPER_PROJECT_NAME}_BUILD_STATIC
+           "Build ${PROJECT_NAME} static."
+           ON)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_SHARED
+           "Build ${PROJECT_NAME} shared."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_APPS
+           "Build ${PROJECT_NAME} apps."
+           OFF)
+endfunction()
+
+
+# Project targets -------------------------------------------------------------
+
+# TODO: run multi-targets somehow
+# executable target that runs the dependencies somehow?
+
+function(env_hook _dependency)
+    cmake_parse_arguments(PARSED "" "" "INTO" ${ARGN})
+
+    foreach (_target IN LISTS PARSED_INTO)
+        if (NOT TARGET ${_target})
+            add_custom_target(${_target} DEPENDS ${_dependency})
+        else ()
+            get_target_property(
+                    _dependencies
+                    ${_target}
+                    MANUALLY_ADDED_DEPENDENCIES)
+
+            list(FIND _dependencies ${_dependency} _index)
+            if (_index EQUAL -1)
+                add_dependencies(${_target} ${_dependency})
+            endif ()
+        endif ()
+    endforeach ()
+endfunction()
+
+
+function(env_project_tests)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_TESTS)
+        env_log(-!- Adding tests for ${PROJECT_NAME}. -!-)
+
+        file(GLOB_RECURSE
+             _tests
+             "${PROJECT_SOURCE_DIR}/test/*.cpp")
+
+        env_use_lower_project_name()
+        foreach (_test IN LISTS _tests)
+            env_target_name_for(${_test} _target)
+            env_add_test(${_target} ${_test})
+
+            env_target_link(${_target} PRIVATE ${ARGN})
+
+            env_hook(${_target} INTO ${LOWER_PROJECT_NAME}_tests)
+        endforeach ()
+    endif ()
+endfunction()
+
+function(env_project_benchmarks)
+    env_use_upper_project_name()
+    if (NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
+        ${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS)
+
+        env_log(-!- Adding benchmarks for ${PROJECT_NAME}. -!-)
+
+        file(GLOB_RECURSE
+             _benchmarks
+             "${PROJECT_SOURCE_DIR}/bench/*.cpp")
+
+        env_use_lower_project_name()
+        foreach (_benchmark IN LISTS _benchmarks)
+            env_target_name_for(${_benchmark} _target)
+            env_add_bench(${_target} ${_benchmark})
+
+            env_target_link(${_target} PRIVATE ${ARGN})
+
+            env_hook(${_target} INTO ${LOWER_PROJECT_NAME}_benchmarks)
+        endforeach ()
+    endif ()
+endfunction()
+
+# TODO: maybe one file per example?
+
+function(env_project_examples)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_EXAMPLES)
+        env_log(-!- Adding examples for ${PROJECT_NAME}. -!-)
+        file(GLOB _examples "${PROJECT_SOURCE_DIR}/example/*/CMakeLists.txt")
+
+        foreach (_example IN LISTS _examples)
+            env_log(- Adding example with CMakeLists.txt at \"${_example}\". -)
+            add_subdirectory("${_example}/..")
+        endforeach ()
+    endif ()
+endfunction()
+
+# TODO: configure Doxygen
+
+function(env_project_docs)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_DOCS AND
+        EXISTS "${PROJECT_SOURCE_DIR}/docs/CMakeLists.txt")
+
+        env_log(-!- Adding docs for ${PROJECT_NAME}. -!-)
+        add_subdirectory("${PROJECT_SOURCE_DIR}/docs")
+    endif ()
+endfunction()
+
+# TODO: CI here?
+
+function(env_project_extras)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_EXTRAS)
+        env_log(-!- Adding extras for ${PROJECT_NAME}. -!-)
+        file(GLOB _extras "${PROJECT_SOURCE_DIR}/extra/*/CMakeLists.txt")
+
+        foreach (_extra IN LISTS _extras)
+            env_log(- Adding extra with CMakeLists.txt at \"${_extra}\". -)
+            add_subdirectory("${_extra}/..")
+        endforeach ()
+    endif ()
+endfunction()
+
+function(env_project_static)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
+        file(GLOB_RECURSE
+             _sources
+             "${PROJECT_SOURCE_DIR}/src/*.cpp")
+
+        if (_sources)
+            env_use_lower_project_name()
+            env_add_static(${LOWER_PROJECT_NAME}_static ${_sources})
+        endif ()
+    endif ()
+endfunction()
+
+function(env_project_shared)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_SHARED)
+        file(GLOB_RECURSE
+             _sources
+             "${PROJECT_SOURCE_DIR}/src/*.cpp")
+
+        if (_sources)
+            env_use_lower_project_name()
+            env_add_shared(${LOWER_PROJECT_NAME}_shared ${_sources})
+        endif ()
+    endif ()
+endfunction()
+
+function(env_project_apps)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_APPS)
+        env_log(-!- Adding apps for ${PROJECT_NAME}. -!-)
+
+        file(GLOB_RECURSE
+             _apps
+             "${PROJECT_SOURCE_DIR}/app/*.cpp")
+
+        file(GLOB_RECURSE
+             _sources
+             "${PROJECT_SOURCE_DIR}/src/*.cpp")
+
+        foreach (_app IN LISTS _apps)
+            env_target_name_for(${_app} _target)
+
+            env_add_app(${_target} ${_app} ${_sources})
+        endforeach ()
+    endif ()
+endfunction()
+
+function(env_project_targets)
+    cmake_parse_arguments(
+            PARSED
+            ""
+            ""
+            "DEPENDENCIES;TEST_DEPENDENCIES;BENCHMARK_DEPENDENCIES"
+            ${ARGN})
+
+    env_project_pch(${PARSED_DEPENDENCIES})
+
+    env_project_static()
+    env_project_shared()
+    env_project_apps()
+
+    env_project_tests(${PARSED_TEST_DEPENDENCIES})
+    env_project_benchmarks(${PARSED_BENCHMARK_DEPENDENCIES})
+
+    env_project_examples()
+    env_project_docs()
+
+    env_project_extras()
+endfunction()
+
+
+# Project bindings ------------------------------------------------------------
+
+# TODO
