@@ -2,12 +2,12 @@
 #define ENV_MACROS_INCLUDED
 
 
-// macro lib
+// Macro library --------------------------------------------------------------
 
 #include <hedley.h>
 
 
-// basic macros - uncomment if needed
+// Basic macros ---------------------------------------------------------------
 
 #define ENV_EVAL(...) __VA_ARGS__
 
@@ -29,7 +29,7 @@
 #define ENV_SEMI static_assert(true, "Require semicolon.")
 
 
-// arch
+// Architecture ---------------------------------------------------------------
 
 // https://sourceforge.net/p/predef/wiki/Architectures/
 // https://stackoverflow.com/questions/37244202/detect-arm-64-in-preprocessor
@@ -69,7 +69,7 @@
 #endif // ENV_ARM64
 
 
-// compiler
+// Compiler -------------------------------------------------------------------
 
 // GNU/Clang and GNU/MSVC are mutually exclusive,
 // but Clang/MSVC are not because of clang-cl...
@@ -143,7 +143,7 @@
      (ENV_COMPILER_PATCH))
 
 
-// OS
+// OS -------------------------------------------------------------------------
 
 // https://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
 
@@ -255,7 +255,7 @@
 #endif // ENV_ANDROID
 
 
-// standard
+// Standard -------------------------------------------------------------------
 
 // https://sourceforge.net/p/predef/wiki/Standards/
 
@@ -316,7 +316,7 @@
 #endif // ENV_CPP23
 
 
-// pragma
+// Pragma ---------------------------------------------------------------------
 
 #if ENV_CLANG // clang
     #define ENV_PRAGMA_IMPL(_content) _Pragma(_content)
@@ -351,7 +351,7 @@
 #endif // GNU
 
 
-// messages
+// Messages -------------------------------------------------------------------
 
 #ifdef ENV_COMPILER_MESSAGES // messages
 
@@ -394,7 +394,7 @@
 #endif // messages
 
 
-// warnings
+// Warnings -------------------------------------------------------------------
 
 #if ENV_CLANG // clang
     #define ENV_CLANG_SUPPRESS_PUSH(_warning) \
@@ -439,6 +439,15 @@ ENV_MESSAGE(Env OS - ENV_OS_NAME);
 ENV_MESSAGE(Env Standard - C++ ENV_CPP);
 
 ENV_CLANG_SUPPRESS_POP;
+
+
+// Visibility -----------------------------------------------------------------
+
+// TODO: static, shared, executable detection - in CMake?
+
+#define ENV_VISIBLE HEDLEY_PUBLIC
+#define ENV_HIDDEN  HEDLEY_PRIVATE
+#define ENV_IMPORT  HEDLEY_IMPORT
 
 
 #endif // ENV_MACROS_INCLUDED

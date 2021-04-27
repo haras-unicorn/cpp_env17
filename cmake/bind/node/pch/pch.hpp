@@ -1,0 +1,4 @@
+#ifndef ENV_BIND_NODE_PCH_HPP
+#define ENV_BIND_NODE_PCH_HPP
+
+#endif // ENV_BIND_NODE_PCH_HPP

@@ -41,18 +41,42 @@ set(__env_delimiter_regex
     "Matches delimiters."
     FORCE)
 
+set(__env_extension_regex
+    [[\..*$]]
+    CACHE STRING
+    "Matches file extensions."
+    FORCE)
+
+function(env_name_format _name _out)
+    string(REGEX REPLACE "${__env_extension_regex}" "" _name "${_name}")
+    string(REGEX REPLACE "${__env_delimiter_regex}" _ _name "${_name}")
+    set(${_out} ${_name} PARENT_SCOPE)
+endfunction()
+
+function(env_normalize_name _name _out)
+    env_name_format(${_name} _name)
+    string(TOLOWER ${_name} _name)
+    set(${_out} ${_name} PARENT_SCOPE)
+endfunction()
+
+function(env_macro_name _name _out)
+    env_name_format(${_name} _name)
+    string(TOUPPER ${_name} _name)
+    set(${_out} ${_name} PARENT_SCOPE)
+endfunction()
+
+
 function(env_use_upper_project_name)
-    string(TOUPPER ${PROJECT_NAME} _upper)
-    string(REGEX REPLACE ${__env_delimiter_regex} [[_]] _upper ${_upper})
+    env_name_format(${PROJECT_NAME} _upper)
+    string(TOUPPER ${_upper} _upper)
     set(UPPER_PROJECT_NAME ${_upper} PARENT_SCOPE)
 endfunction()
 
 function(env_use_lower_project_name)
-    string(TOLOWER ${PROJECT_NAME} _lower)
-    string(REGEX REPLACE ${__env_delimiter_regex} [[_]] _lower ${_lower})
+    env_name_format(${PROJECT_NAME} _lower)
+    string(TOLOWER ${_lower} _lower)
     set(LOWER_PROJECT_NAME ${_lower} PARENT_SCOPE)
 endfunction()
-
 
 function(env_prefix_with_project_name _name _out)
     env_use_lower_project_name()
@@ -60,16 +84,23 @@ function(env_prefix_with_project_name _name _out)
     set(${_out} ${_prefixed} PARENT_SCOPE)
 endfunction()
 
-
 function(env_target_name_for _path _out)
-    string(REGEX MATCH [[\..*$]] _extension "${_path}")
     file(RELATIVE_PATH _relative "${PROJECT_SOURCE_DIR}" "${_path}")
-
-    string(REPLACE "${_extension}" "" _name "${_relative}")
-    string(REGEX REPLACE / _ _name "${_name}")
+    env_normalize_name(${_relative} _name)
 
     env_use_lower_project_name()
     set(${_out} ${LOWER_PROJECT_NAME}_${_name} PARENT_SCOPE)
+endfunction()
+
+
+function(env_has_extension _path _out)
+    string(REGEX REPLACE "${__env_extension_regex}" "" _no_ex "${_path}")
+
+    if (_path STREQUAL ${_no_ex})
+        set(${_out} FALSE PARENT_SCOPE)
+    else ()
+        set(${_out} TRUE PARENT_SCOPE)
+    endif ()
 endfunction()
 
 
@@ -98,7 +129,7 @@ set(__env_message_levels
 FATAL_ERROR;SEND_ERROR;WARNING;AUTHOR_WARNING;DEPRECATION;NOTICE;\
 ${env_verbose_message_levels}\
 "
-    CACHE_STRING
+    CACHE STRING
     "Valid message levels for environment."
     FORCE)
 
@@ -131,6 +162,7 @@ endif ()
 
 # TODO: Intel compiler support
 
+
 env_log(Compiler ID is: \"${CMAKE_CXX_COMPILER_ID}\".)
 env_log(MSVC is present: ${MSVC})
 
@@ -138,39 +170,57 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     if (MSVC)
         env_log(Detected ClangCl compiler.)
         set(ENV_CLANG_CL TRUE CACHE BOOL "Whether CLANG_CL was detected or not.")
-        set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
-        set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
-        set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
     else ()
         env_log(Detected Clang compiler.)
-        set(ENV_CLANG_CL FALSE CACHE BOOL "Whether CLANG_CL was detected or not.")
-        set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
-        set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
         set(ENV_CLANG TRUE CACHE BOOL "Whether Clang was detected or not.")
     endif ()
 
 elseif (MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
     env_log(Detected MSVC compiler.)
-    set(ENV_CLANG_CL FALSE CACHE BOOL "Whether CLANG_CL was detected or not.")
     set(ENV_MSVC TRUE CACHE BOOL "Whether MSVC was detected or not.")
-    set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
-    set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
     env_log(Detected GCC compiler.)
-    set(ENV_CLANG_CL FALSE CACHE BOOL "Whether CLANG_CL was detected or not.")
-    set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
     set(ENV_GCC TRUE CACHE BOOL "Whether GCC was detected or not.")
-    set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
 
 else ()
-    env_log(Unknown compiler.)
-    set(ENV_CLANG_CL FALSE CACHE BOOL "Whether CLANG_CL was detected or not.")
-    set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
-    set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
-    set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
+    env_log(FATAL_ERROR Unknown compiler.)
 
 endif ()
+
+
+set(ENV_CLANG_CL FALSE CACHE BOOL "Whether ClangCL was detected or not.")
+set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
+set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
+set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
+set(ENV_INTEL FALSE CACHE BOOL "Whether Intel was detected or not.")
+
+
+# Architecture ----------------------------------------------------------------
+
+# TODO: amd64, x86, arm detection
+
+if (${CMAKE_SIZEOF_VOID_P} STREQUAL 4)
+    env_log(Architecture is 32 bit.)
+    set(ENV_32BIT TRUE CACHE BOOL "Whether architecture is 32 bit.")
+
+elseif (${CMAKE_SIZEOF_VOID_P} STREQUAL 8)
+    env_log(Architecture is 64 bit.)
+    set(ENV_64BIT TRUE CACHE BOOL "Whether architecture is 64 bit.")
+
+elseif ()
+    env_log(FATAL_ERROR Unknown architecture.)
+
+endif ()
+
+
+set(ENV_32BIT FALSE CACHE BOOL "Whether architecture is 32 bit.")
+set(ENV_64BIT FALSE CACHE BOOL "Whether architecture is 64 bit.")
+
+
+# OS --------------------------------------------------------------------------
+
+# TODO
 
 
 # Sources ---------------------------------------------------------------------
@@ -207,8 +257,15 @@ function(env_target_set _name)
 endfunction()
 
 include(CheckIPOSupported)
-check_ipo_supported(RESULT __env_ipo_supported)
-if (__env_ipo_supported)
+check_ipo_supported(RESULT __env_ipo_supported LANGUAGES CXX C)
+
+set(ENV_IPO_SUPPORTED
+    ${__env_ipo_supported}
+    CACHE BOOL
+    "Whether interprocedural optimization is supported."
+    FORCE)
+
+if (ENV_IPO_SUPPORTED)
     env_log(Interprocedural optimization is supported.)
 
     function(env_target_set_ipo _name)
@@ -222,8 +279,15 @@ else ()
 endif ()
 
 include(CheckPIESupported)
-check_pie_supported(OUTPUT_VARIABLE __env_pie_supported LANGUAGES CXX)
-if (__env_pie_supported)
+check_pie_supported(OUTPUT_VARIABLE __env_pie_supported LANGUAGES CXX C)
+
+set(ENV_PIE_SUPPORTED
+    ${__env_pie_supported}
+    CACHE BOOL
+    "Whether position independent code is supported."
+    FORCE)
+
+if (ENV_PIE_SUPPORTED)
     env_log(Position independent code is supported.)
 
     function(env_target_set_pie _name)
@@ -235,6 +299,38 @@ else ()
     function(env_target_set_pie _name)
     endfunction()
 endif ()
+
+function(env_set_visibility _name _type)
+    env_prefix_with_project_name(${_name} _mod)
+
+    if (_type STREQUAL DEFAULT)
+        env_log(Setting default visibility on \"${_name}\".)
+        set_target_properties(
+                ${_mod}
+                PROPERTIES
+                CXX_VISIBILITY_PRESET default
+                C_VISIBILITY_PRESET default)
+
+    elseif (_type STREQUAL INLINES_HIDDEN)
+        env_log(Setting inlines hidden visibility on \"${_name}\".)
+        set_target_properties(
+                ${_mod}
+                PROPERTIES
+                CXX_VISIBILITY_PRESET default
+                C_VISIBILITY_PRESET default
+                VISIBILITY_INLINES_HIDDEN TRUE)
+
+    elseif (_type STREQUAL HIDDEN)
+        env_log(Setting hidden visibility on \"${_name}\".)
+        set_target_properties(
+                ${_mod}
+                PROPERTIES
+                CXX_VISIBILITY_PRESET hidden
+                C_VISIBILITY_PRESET hidden
+                VISIBILITY_INLINES_HIDDEN TRUE)
+
+    endif ()
+endfunction()
 
 
 # Flags -----------------------------------------------------------------------
@@ -346,8 +442,17 @@ function(env_set_cpp17 _name)
     env_prefix_with_project_name(${_name} _mod)
     env_log(Setting C++17 standard on \"${_name}\".)
 
-    target_compile_features(${_mod} PRIVATE cxx_std_17)
-    set_target_properties(${_mod} PROPERTIES CXX_EXTENSIONS OFF)
+    target_compile_features(
+            ${_mod}
+            PRIVATE
+            cxx_std_17
+            c_std_11)
+
+    set_target_properties(
+            ${_mod}
+            PROPERTIES
+            CXX_EXTENSIONS OFF
+            C_EXTENSIONS OFF)
 endfunction()
 
 
@@ -434,6 +539,7 @@ else ()
     endfunction()
 
 endif ()
+
 
 set(__env_warning_regex [[/W.*|-W.*]]
     CACHE STRING
@@ -607,7 +713,8 @@ endif ()
 # Atomic targets --------------------------------------------------------------
 
 function(env_project_pch)
-    env_prefix_with_project_name(pch _mod)
+    env_use_lower_project_name()
+    env_prefix(pch ${LOWER_PROJECT_NAME} _mod)
     env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
 
     set(_pch_dir "${PROJECT_SOURCE_DIR}/pch")
@@ -630,7 +737,8 @@ function(env_project_pch)
 endfunction()
 
 function(env_add_executable _name)
-    env_prefix_with_project_name(${_name} _mod)
+    env_use_lower_project_name()
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_log("Adding executable \"${_name}\".")
 
     add_executable(${_mod} ${ARGN})
@@ -646,13 +754,14 @@ function(env_add_executable _name)
 endfunction()
 
 function(env_add_library _name)
-    env_prefix_with_project_name(${_name} _mod)
+    env_use_lower_project_name()
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_log("Adding library \"${_name}\".")
 
     add_library(${_mod} ${ARGN})
 
     env_target_link(${_mod} PRIVATE ${LOWER_PROJECT_NAME}::pch)
-    env_target_include(${_mod} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+    env_target_include(${_mod} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
     env_target_conform(${_mod})
     env_target_warn(${_mod})
@@ -681,7 +790,8 @@ function(env_add_import _name)
 endfunction()
 
 function(env_add_alias _name)
-    env_prefix_with_project_name(${_name} _mod)
+    env_use_lower_project_name()
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
     env_log("Adding alias \"${LOWER_PROJECT_NAME}::${_name}\".")
 
     add_library(${LOWER_PROJECT_NAME}::${_name} ALIAS ${_mod})
@@ -711,23 +821,17 @@ enable_testing()
 include(GoogleTest)
 
 function(env_add_test _name)
-    env_use_upper_project_name()
-    if (${UPPER_PROJECT_NAME}_BUILD_TESTS)
-        env_log(" - Adding test \"${_name}\". - ")
+    env_log(" - Adding test \"${_name}\". - ")
 
-        env_add_executable(${_name} ${ARGN})
+    env_add_executable(${_name} ${ARGN})
 
-        env_use_lower_project_name()
-        env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
-        gtest_discover_tests(${_name})
-    endif ()
+    env_use_lower_project_name()
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    gtest_discover_tests(${_name})
 endfunction()
 
 function(env_add_bench _name)
-    env_use_upper_project_name()
-    if (NOT CMAKE_BUILD_TYPE STREQUAL Debug AND
-        ${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS)
-
+    if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
         env_log(" - Adding bench \"${_name}\". - ")
 
         env_add_executable(${_name} ${ARGN})
@@ -735,32 +839,23 @@ function(env_add_bench _name)
 endfunction()
 
 function(env_add_static _name)
-    env_use_upper_project_name()
-    if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
-        env_log(- Adding static \"${_name}\". -)
+    env_log(- Adding static \"${_name}\". -)
 
-        env_add_library(${_name} STATIC ${ARGN})
-        env_add_alias(${_name})
-    endif ()
+    env_add_library(${_name} STATIC ${ARGN})
+    env_add_alias(${_name})
 endfunction()
 
 function(env_add_shared _name)
-    env_use_upper_project_name()
-    if (${UPPER_PROJECT_NAME}_BUILD_SHARED)
-        env_log(- Adding shared \"${_name}\". -)
+    env_log(- Adding shared \"${_name}\". -)
 
-        env_add_library(${_name} SHARED ${ARGN})
-        env_add_alias(${_name})
-    endif ()
+    env_add_library(${_name} SHARED ${ARGN})
+    env_set_visibility(${_name} HIDDEN)
+    env_add_alias(${_name})
 endfunction()
 
 function(env_add_app _name)
-    env_use_upper_project_name()
-    if (${UPPER_PROJECT_NAME}_BUILD_APPS)
-        env_log(" - Adding app \"${_name}\". - ")
-
-        env_add_executable(${_name} ${ARGN})
-    endif ()
+    env_log(" - Adding app \"${_name}\". - ")
+    env_add_executable(${_name} ${ARGN})
 endfunction()
 
 function(env_add_export _name)
@@ -771,26 +866,63 @@ function(env_add_export _name)
 endfunction()
 
 
-# Fetch -----------------------------------------------------------------------
+# Subdirectories --------------------------------------------------------------
 
-include(FetchContent)
+function(env_add_subdirectory)
+    env_log(Adding subdirectories: \"${ARGN}\".)
+
+    set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
+    set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
+
+    set(CMAKE_MESSAGE_LOG_LEVEL VERBOSE)
+    set(CMAKE_MESSAGE_INDENT "${_previous_log_indent}    ")
+    add_subdirectory(${ARGN})
+
+    set(CMAKE_MESSAGE_LOG_LEVEL ${_previous_log_level})
+    set(CMAKE_MESSAGE_INDENT ${_previous_log_indent})
+endfunction()
+
+
+# Fetch -----------------------------------------------------------------------
 
 set(ENV_FETCH_DIR
     "${CMAKE_SOURCE_DIR}/.fetch"
     CACHE STRING
-    "Download directory for fetching dependencies."
-    FORCE)
+    "Download directory for fetching dependencies.")
 
 set(ENV_FETCH_BUILD_DIR
     "${PROJECT_BINARY_DIR}/.fetch"
     CACHE STRING
-    "Build directory for fetched dependencies."
-    FORCE)
+    "Build directory for fetched dependencies.")
 
+
+set(ENV_FETCH_DEFAULT_INCLUDE_DIRS
+    "/include"
+    CACHE STRING
+    "Default include directory of fetched dependencies.")
+
+set(ENV_FETCH_DEFAULT_SOURCE_GLOB
+    "/src/*.cpp;/src/*.cc;/src/*.c;/source/*.cpp;/source/*.cc;/source/*.c"
+    CACHE STRING
+    "Default list of globbing patterns for source files of fetched dependencies.")
+
+set(ENV_FETCH_DEFAULT_LIB_GLOB
+    "/bin/*.lib;/bin/*.a"
+    CACHE STRING
+    "Default list of globbing patterns for libraries of fetched dependencies.")
+
+
+include(FetchContent)
 set(FETCHCONTENT_BASE_DIR ${ENV_FETCH_DIR})
 
+
 function(env_fetch _name)
-    cmake_parse_arguments(PARSED "" "" "OPTIONS" ${ARGN})
+    cmake_parse_arguments(
+            PARSED
+            "JUST_FETCH"
+            ""
+            "OPTIONS;INCLUDE_DIRS;SOURCE_GLOB;LIB_GLOB"
+            ${ARGN})
 
 
     env_use_lower_project_name()
@@ -834,67 +966,65 @@ function(env_fetch _name)
     endforeach ()
 
 
-    if (EXISTS "${_src_dir}/CMakeLists.txt")
-        env_log(Adding for \"${_name}\" subdirectories
-                \"${_src_dir}\",
-                \"${_bin_dir}\".)
+    if (NOT PARSED_JUST_FETCH)
+        if (EXISTS "${_src_dir}/CMakeLists.txt")
+            env_add_subdirectory("${_src_dir}" "${_bin_dir}")
 
-        set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
-        set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
+        else ()
+            if (NOT PARSED_INCLUDE_DIRS)
+                set(PARSED_INCLUDE_DIRS "${ENV_FETCH_DEFAULT_INCLUDE_DIRS}")
+            endif ()
+            if (NOT PARSED_SOURCE_GLOB)
+                set(PARSED_SOURCE_GLOB "${ENV_FETCH_DEFAULT_SOURCE_GLOB}")
+            endif ()
+            if (NOT PARSED_LIB_GLOB)
+                set(PARSED_LIB_GLOB "${ENV_FETCH_DEFAULT_LIB_GLOB}")
+            endif ()
 
-        set(CMAKE_MESSAGE_LOG_LEVEL VERBOSE)
-        set(CMAKE_MESSAGE_INDENT "${_previous_log_indent}    ")
-        add_subdirectory("${_src_dir}" "${_bin_dir}")
+            set(_include_dirs "")
+            foreach (_include_dir IN LISTS PARSED_INCLUDE_DIRS)
+                list(APPEND _include_dirs "${_src_dir}${_include_dir}")
+            endforeach ()
 
-        set(CMAKE_MESSAGE_LOG_LEVEL ${_previous_log_level})
-        set(CMAKE_MESSAGE_INDENT ${_previous_log_indent})
+            set(_sources "")
+            foreach (_src_glob IN LISTS PARSED_SOURCE_GLOB)
+                file(GLOB_RECURSE _globbed "${_src_dir}${_src_glob}")
+                list(APPEND _sources ${_globbed})
+            endforeach ()
 
-    elseif (EXISTS "${_src_dir}/include" AND
-            EXISTS "${_src_dir}/src" OR EXISTS "${_src_dir}/source")
-        env_log(Adding for \"${_name}\" a static library
-                \"${_prefixed}\" with include directory
-                \"${_src_dir}/include\".)
+            set(_libs "")
+            foreach (_lib_glob IN LISTS PARSED_LIB_GLOB)
+                file(GLOB_RECURSE _globbed "${_src_dir}${_lib_glob}")
+                list(APPEND _libs ${_globbed})
+            endforeach ()
 
-        file(GLOB_RECURSE
-             _sources
-             "${_src_dir}/src/*.cpp"
-             "${_src_dir}/src/*.cc"
-             "${_src_dir}/src/*.c"
-             "${_src_dir}/source/*.cpp"
-             "${_src_dir}/source/*.cc"
-             "${_src_dir}/source/*.c")
 
-        add_library(${_prefixed} STATIC IMPORTED GLOBAL)
-        env_add_alias(${_name})
+            if (_sources)
+                env_log(Adding for \"${_name}\"
+                        a static library \"${_prefixed}\".)
 
-        target_include_directories(${_prefixed} "${_src_dir}/include")
-        target_sources(${_prefixed} ${_sources})
+                add_library(${_prefixed} STATIC IMPORTED GLOBAL)
+                env_target_include(${_prefixed} PUBLIC ${_include_dirs})
+                env_target_sources(${_prefixed} ${_sources})
+                env_target_link(${_prefixed} PUBLIC ${_libs})
 
-        env_target_conform(${_prefixed})
-        env_target_optimize(${_prefixed})
-        env_target_suppress(${_prefixed})
+                env_target_optimize(${_prefixed})
+                env_target_suppress(${_prefixed})
 
-        env_target_set_pie(${_prefixed})
+                env_target_set_pie(${_prefixed})
 
-    elseif (EXISTS "${_src_dir}/include")
-        env_log(Adding for \"${_name}\" an interface library
-                \"${_prefixed}\" with include directory
-                \"${_src_dir}/include\".)
+            else ()
+                env_log(Adding for \"${_name}\"
+                        an interface library \"${_prefixed}\".)
 
-        add_library(${_prefixed} INTERFACE IMPORTED GLOBAL)
-        env_add_alias(${_name})
+                add_library(${_prefixed} INTERFACE IMPORTED GLOBAL)
+                env_target_link(${_prefixed} INTERFACE ${_libs})
+                env_target_include(${_prefixed} INTERFACE ${_include_dirs})
 
-        target_include_directories(${_prefixed} INTERFACE "${_src_dir}/include")
+            endif ()
 
-    else ()
-        env_log(Adding for \"${_name}\" an interface library
-                \"${_prefixed}\" with include directory
-                \"${_src_dir}\".)
-
-        add_library(${_prefixed} INTERFACE IMPORTED GLOBAL)
-        env_add_alias(${_name})
-
-        target_include_directories(${_prefixed} INTERFACE "${_src_dir}")
+            env_add_alias(${_name})
+        endif ()
     endif ()
 endfunction()
 

@@ -19,7 +19,10 @@ env_project_initialize()
 
 env_fetch(macros
           GIT_REPOSITORY https://github.com/nemequ/hedley.git
-          GIT_TAG v15)
+          GIT_TAG v15
+
+          INCLUDE_DIRS
+          "/")
 
 env_fetch(hana
           GIT_REPOSITORY https://github.com/Hrle97/hana.git
