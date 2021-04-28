@@ -10,6 +10,26 @@ set(ENV_FUNCTIONS_INCLUDED TRUE)
 # TODO: fix diamond dependencies
 
 
+# Eval ------------------------------------------------------------------------
+
+# TODO: use cmake_language with 3.18
+
+set(__env_eval_file
+    "${CMAKE_BINARY_DIR}/.eval.cmake"
+    CACHE STRING
+    "File used for evaluating CMake code with environment evaluation functions."
+    FORCE)
+
+function(env_eval _code)
+    file(WRITE "${__env_eval_file}" "${_code}")
+    include("${__env_eval_file}")
+endfunction()
+
+function(env_call _function)
+    env_eval("${_function}(${ARGN})")
+endfunction()
+
+
 # Names -----------------------------------------------------------------------
 
 function(env_prefix _name _prefix _out)
@@ -883,6 +903,133 @@ function(env_add_subdirectory)
 endfunction()
 
 
+# Scaffold --------------------------------------------------------------------
+
+set(ENV_SCAFFOLD_DEFAULT_INCLUDE_DIRS
+    "/include"
+    CACHE STRING
+    "Default include directory for scaffolded libraries.")
+
+set(ENV_SCAFFOLD_DEFAULT_SOURCE_GLOB
+    "/src/*.cpp;/src/*.cc;/src/*.c;/source/*.cpp;/source/*.cc;/source/*.c"
+    CACHE STRING
+    "Default list of globbing patterns for scaffolded libraries.")
+
+set(ENV_SCAFFOLD_DEFAULT_LIB_GLOB
+    "/bin/*.lib;/bin/*.a"
+    CACHE STRING
+    "Default list of globbing patterns for scaffolded libraries.")
+
+set(ENV_SCAFFOLD_DEFAULT_PCH
+    "/pch/pch.hpp"
+    CACHE STRING
+    "Default location of precompiled header for scaffolded libraries.")
+
+
+function(env_scaffold _src_dir)
+    cmake_parse_arguments(
+            PARSED
+            ""
+            "NAME;BINARY_DIR"
+            "OPTIONS;INCLUDE_DIRS;SOURCE_GLOB;LIB_GLOB;PCH"
+            ${ARGN})
+
+    env_log(Scaffolding \"${_src_dir}\".)
+
+
+    if (EXISTS "${_src_dir}/CMakeLists.txt")
+        foreach (_option IN LISTS PARSED_OPTIONS)
+            separate_arguments(_option UNIX_COMMAND "${_option}")
+            set(${_option} CACHE BOOL "" FORCE)
+
+            env_log(Setting \"${_name}\" option \"${_option}\".)
+        endforeach ()
+
+        if (PARSED_BINARY_DIR)
+            env_add_subdirectory("${_src_dir}" "${PARSED_BINARY_DIR}")
+        else ()
+            env_add_subdirectory("${_src_dir}")
+        endif ()
+
+
+    else ()
+        if (NOT PARSED_NAME)
+            env_log(FATAL_ERROR
+                    Please provide a name for the scaffolded
+                    library that doesn't have a CMakeLists.txt file.)
+        endif ()
+
+        set(_name ${PARSED_NAME})
+        env_prefix_with_project_name(${_name} _prefixed)
+
+
+        if (NOT PARSED_INCLUDE_DIRS)
+            set(PARSED_INCLUDE_DIRS "${ENV_SCAFFOLD_DEFAULT_INCLUDE_DIRS}")
+        endif ()
+        if (NOT PARSED_SOURCE_GLOB)
+            set(PARSED_SOURCE_GLOB "${ENV_SCAFFOLD_DEFAULT_SOURCE_GLOB}")
+        endif ()
+        if (NOT PARSED_LIB_GLOB)
+            set(PARSED_LIB_GLOB "${ENV_SCAFFOLD_DEFAULT_LIB_GLOB}")
+        endif ()
+        if (NOT PARSED_PCH)
+            set(PARSED_PCH "${ENV_SCAFFOLD_DEFAULT_PCH}")
+        endif ()
+
+        set(_include_dirs "")
+        foreach (_include_dir IN LISTS PARSED_INCLUDE_DIRS)
+            list(APPEND _include_dirs "${_src_dir}${_include_dir}")
+        endforeach ()
+
+        set(_sources "")
+        foreach (_src_glob IN LISTS PARSED_SOURCE_GLOB)
+            file(GLOB_RECURSE _globbed "${_src_dir}${_src_glob}")
+            list(APPEND _sources ${_globbed})
+        endforeach ()
+
+        set(_libs "")
+        foreach (_lib_glob IN LISTS PARSED_LIB_GLOB)
+            file(GLOB_RECURSE _globbed "${_src_dir}${_lib_glob}")
+            list(APPEND _libs ${_globbed})
+        endforeach ()
+
+        set(_pch "")
+        foreach (__pch IN LISTS PARSED_PCH)
+            list(APPEND _pch "${_src_dir}${__pch}")
+        endforeach ()
+
+
+        if (_sources)
+            env_log(Adding for \"${_name}\"
+                    a static library \"${_prefixed}\".)
+
+            add_library(${_prefixed} STATIC IMPORTED GLOBAL)
+            env_target_include(${_prefixed} PUBLIC ${_include_dirs})
+            env_target_sources(${_prefixed} ${_sources})
+            env_target_link(${_prefixed} PUBLIC ${_libs})
+            env_target_precompile(${_prefixed} PUBLIC ${_pch})
+
+            env_target_optimize(${_prefixed})
+            env_target_suppress(${_prefixed})
+
+            env_target_set_pie(${_prefixed})
+
+        else ()
+            env_log(Adding for \"${_name}\"
+                    an interface library \"${_prefixed}\".)
+
+            add_library(${_prefixed} INTERFACE IMPORTED GLOBAL)
+            env_target_link(${_prefixed} INTERFACE ${_libs})
+            env_target_include(${_prefixed} INTERFACE ${_include_dirs})
+            env_target_precompile(${_prefixed} INTERFACE ${_pch})
+
+        endif ()
+
+        env_add_alias(${_name})
+    endif ()
+endfunction()
+
+
 # Fetch -----------------------------------------------------------------------
 
 set(ENV_FETCH_DIR
@@ -896,34 +1043,12 @@ set(ENV_FETCH_BUILD_DIR
     "Build directory for fetched dependencies.")
 
 
-set(ENV_FETCH_DEFAULT_INCLUDE_DIRS
-    "/include"
-    CACHE STRING
-    "Default include directory of fetched dependencies.")
-
-set(ENV_FETCH_DEFAULT_SOURCE_GLOB
-    "/src/*.cpp;/src/*.cc;/src/*.c;/source/*.cpp;/source/*.cc;/source/*.c"
-    CACHE STRING
-    "Default list of globbing patterns for source files of fetched dependencies.")
-
-set(ENV_FETCH_DEFAULT_LIB_GLOB
-    "/bin/*.lib;/bin/*.a"
-    CACHE STRING
-    "Default list of globbing patterns for libraries of fetched dependencies.")
-
-
 include(FetchContent)
 set(FETCHCONTENT_BASE_DIR ${ENV_FETCH_DIR})
 
 
 function(env_fetch _name)
-    cmake_parse_arguments(
-            PARSED
-            "JUST_FETCH"
-            ""
-            "OPTIONS;INCLUDE_DIRS;SOURCE_GLOB;LIB_GLOB"
-            ${ARGN})
-
+    cmake_parse_arguments(PARSED "" "" "SCAFFOLD" ${ARGN})
 
     env_use_lower_project_name()
     env_prefix(${_name} ${LOWER_PROJECT_NAME} _prefixed)
@@ -958,83 +1083,18 @@ function(env_fetch _name)
     file(LOCK "${_lock_file}" RELEASE)
 
 
-    foreach (_option IN LISTS PARSED_OPTIONS)
-        separate_arguments(_option UNIX_COMMAND "${_option}")
-        set(${_option} CACHE BOOL "" FORCE)
-
-        env_log(Setting \"${_name}\" option \"${_option}\".)
-    endforeach ()
-
-
-    if (NOT PARSED_JUST_FETCH)
-        if (EXISTS "${_src_dir}/CMakeLists.txt")
-            env_add_subdirectory("${_src_dir}" "${_bin_dir}")
-
-        else ()
-            if (NOT PARSED_INCLUDE_DIRS)
-                set(PARSED_INCLUDE_DIRS "${ENV_FETCH_DEFAULT_INCLUDE_DIRS}")
-            endif ()
-            if (NOT PARSED_SOURCE_GLOB)
-                set(PARSED_SOURCE_GLOB "${ENV_FETCH_DEFAULT_SOURCE_GLOB}")
-            endif ()
-            if (NOT PARSED_LIB_GLOB)
-                set(PARSED_LIB_GLOB "${ENV_FETCH_DEFAULT_LIB_GLOB}")
-            endif ()
-
-            set(_include_dirs "")
-            foreach (_include_dir IN LISTS PARSED_INCLUDE_DIRS)
-                list(APPEND _include_dirs "${_src_dir}${_include_dir}")
-            endforeach ()
-
-            set(_sources "")
-            foreach (_src_glob IN LISTS PARSED_SOURCE_GLOB)
-                file(GLOB_RECURSE _globbed "${_src_dir}${_src_glob}")
-                list(APPEND _sources ${_globbed})
-            endforeach ()
-
-            set(_libs "")
-            foreach (_lib_glob IN LISTS PARSED_LIB_GLOB)
-                file(GLOB_RECURSE _globbed "${_src_dir}${_lib_glob}")
-                list(APPEND _libs ${_globbed})
-            endforeach ()
-
-
-            if (_sources)
-                env_log(Adding for \"${_name}\"
-                        a static library \"${_prefixed}\".)
-
-                add_library(${_prefixed} STATIC IMPORTED GLOBAL)
-                env_target_include(${_prefixed} PUBLIC ${_include_dirs})
-                env_target_sources(${_prefixed} ${_sources})
-                env_target_link(${_prefixed} PUBLIC ${_libs})
-
-                env_target_optimize(${_prefixed})
-                env_target_suppress(${_prefixed})
-
-                env_target_set_pie(${_prefixed})
-
-            else ()
-                env_log(Adding for \"${_name}\"
-                        an interface library \"${_prefixed}\".)
-
-                add_library(${_prefixed} INTERFACE IMPORTED GLOBAL)
-                env_target_link(${_prefixed} INTERFACE ${_libs})
-                env_target_include(${_prefixed} INTERFACE ${_include_dirs})
-
-            endif ()
-
-            env_add_alias(${_name})
-        endif ()
+    if (PARSED_SCAFFOLD)
+        env_scaffold(
+                NAME "${_name}"
+                BINARY_DIR "${_bin_dir}"
+                ${PARSED_SCAFFOLD})
     endif ()
 endfunction()
 
 
-# Bindings --------------------------------------------------------------------
-
-# TODO
-
-
 # Project declaration ---------------------------------------------------------
+
+# TODO: object library
 
 function(env_project_initialize)
     env_use_upper_project_name()
@@ -1050,6 +1110,23 @@ function(env_project_initialize)
                OFF)
 
     endif ()
+
+
+    option(${UPPER_PROJECT_NAME}_BUILD_STATIC
+           "Build ${PROJECT_NAME} static."
+           ON)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_SHARED
+           "Build ${PROJECT_NAME} shared."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_APPS
+           "Build ${PROJECT_NAME} apps."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_BINDINGS
+           "Build ${PROJECT_NAME} bindings."
+           OFF)
 
 
     option(${UPPER_PROJECT_NAME}_BUILD_TESTS
@@ -1072,19 +1149,6 @@ function(env_project_initialize)
 
     option(${UPPER_PROJECT_NAME}_BUILD_EXTRAS
            "Build ${PROJECT_NAME} extras."
-           OFF)
-
-
-    option(${UPPER_PROJECT_NAME}_BUILD_STATIC
-           "Build ${PROJECT_NAME} static."
-           ON)
-
-    option(${UPPER_PROJECT_NAME}_BUILD_SHARED
-           "Build ${PROJECT_NAME} shared."
-           OFF)
-
-    option(${UPPER_PROJECT_NAME}_BUILD_APPS
-           "Build ${PROJECT_NAME} apps."
            OFF)
 endfunction()
 
@@ -1250,6 +1314,22 @@ function(env_project_apps)
     endif ()
 endfunction()
 
+function(env_project_bindings)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_BINDINGS)
+        env_log(-!- Adding bindings for ${PROJECT_NAME}. -!-)
+
+        file(GLOB
+             _bindings
+             "${PROJECT_SOURCE_DIR}/bind"
+             LIST_DIRECTORIES TRUE)
+
+        foreach (_binding IN LISTS _bindings)
+            env_add_subdirectory(${_binding})
+        endforeach ()
+    endif ()
+endfunction()
+
 function(env_project_targets)
     cmake_parse_arguments(
             PARSED
@@ -1263,6 +1343,7 @@ function(env_project_targets)
     env_project_static()
     env_project_shared()
     env_project_apps()
+    env_project_bindings()
 
     env_project_tests(${PARSED_TEST_DEPENDENCIES})
     env_project_benchmarks(${PARSED_BENCHMARK_DEPENDENCIES})
@@ -1272,8 +1353,3 @@ function(env_project_targets)
 
     env_project_extras()
 endfunction()
-
-
-# Project bindings ------------------------------------------------------------
-
-# TODO

@@ -21,6 +21,7 @@ env_fetch(macros
           GIT_REPOSITORY https://github.com/nemequ/hedley.git
           GIT_TAG v15
 
+          SCAFFOLD
           INCLUDE_DIRS
           "/")
 
@@ -28,6 +29,7 @@ env_fetch(hana
           GIT_REPOSITORY https://github.com/Hrle97/hana.git
           GIT_TAG cmake
 
+          SCAFFOLD
           OPTIONS
           "BOOST_HANA_BUILD_TESTS OFF"
           "BOOST_HANA_BUILD_EXAMPLES OFF"
@@ -39,6 +41,7 @@ env_fetch(test
           GIT_REPOSITORY https://github.com/google/googletest.git
           GIT_TAG release-1.10.0
 
+          SCAFFOLD
           OPTIONS
           "INSTALL_GTEST OFF"
           "gtest_force_shared_crt ON"
@@ -50,6 +53,7 @@ env_fetch(benchmark
           GIT_REPOSITORY https://github.com/google/benchmark.git
           GIT_TAG v1.5.2
 
+          SCAFFOLD
           OPTIONS
           "BENCHMARK_ENABLE_TESTING OFF"
           "BENCHMARK_ENABLE_INSTALL OFF"
@@ -59,6 +63,7 @@ env_fetch(alloc
           GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
           GIT_TAG v2.0.0
 
+          SCAFFOLD
           OPTIONS
           "MI_USE_CXX ON"
           "MI_BUILD_SHARED OFF"
@@ -69,6 +74,7 @@ env_fetch(json
           GIT_REPOSITORY https://github.com/nlohmann/json.git
           GIT_TAG v3.9.1
 
+          SCAFFOLD
           OPTIONS
           "JSON_BuildTests OFF"
           "JSON_Install OFF")
@@ -77,6 +83,7 @@ env_fetch(immutable
           GIT_REPOSITORY https://github.com/Hrle97/immer.git
           GIT_TAG cmake
 
+          SCAFFOLD
           OPTIONS
           "immer_BUILD_TESTS OFF"
           "immer_BUILD_EXAMPLES OFF"
@@ -87,6 +94,7 @@ env_fetch(transducers
           GIT_REPOSITORY https://github.com/Hrle97/zug.git
           GIT_TAG v0.0.9-cmake
 
+          SCAFFOLD
           OPTIONS
           "ZUG_BUILD_TESTS OFF"
           "ZUG_BUILD_EXAMPLES OFF"
