@@ -10,9 +10,14 @@ set(ENV_FUNCTIONS_INCLUDED TRUE)
 # TODO: fix diamond dependencies
 
 
+# -----------------------------------------------------------------------------
+# Utilities
+# -----------------------------------------------------------------------------
+
 # Eval ------------------------------------------------------------------------
 
 # TODO: use cmake_language with 3.18
+
 
 set(__env_eval_file
     "${CMAKE_BINARY_DIR}/.eval.cmake"
@@ -124,6 +129,17 @@ function(env_has_extension _path _out)
 endfunction()
 
 
+# Set -------------------------------------------------------------------------
+
+# TODO: rename into something better...
+
+function(env_set_if _name)
+    if (NOT ${_name})
+        set(${_name} ${ARGN})
+    endif ()
+endfunction()
+
+
 # Logging ---------------------------------------------------------------------
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -178,9 +194,13 @@ else ()
 endif ()
 
 
+# -----------------------------------------------------------------------------
+# Detection
+# -----------------------------------------------------------------------------
+
 # Compiler --------------------------------------------------------------------
 
-# TODO: Intel compiler support
+# TODO: Proper Intel compiler support
 
 
 env_log(Compiler ID is: \"${CMAKE_CXX_COMPILER_ID}\".)
@@ -189,19 +209,40 @@ env_log(MSVC is present: ${MSVC})
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     if (MSVC)
         env_log(Detected ClangCl compiler.)
-        set(ENV_CLANG_CL TRUE CACHE BOOL "Whether CLANG_CL was detected or not.")
+        set(ENV_CLANG_CL
+            TRUE CACHE BOOL
+            "Whether CLANG_CL was detected or not.")
     else ()
         env_log(Detected Clang compiler.)
-        set(ENV_CLANG TRUE CACHE BOOL "Whether Clang was detected or not.")
+        set(ENV_CLANG
+            TRUE CACHE BOOL
+            "Whether Clang was detected or not.")
     endif ()
 
-elseif (MSVC) # for some reason "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't work
+    # "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't always work
+elseif (MSVC)
     env_log(Detected MSVC compiler.)
-    set(ENV_MSVC TRUE CACHE BOOL "Whether MSVC was detected or not.")
+    set(ENV_MSVC
+        TRUE CACHE BOOL
+        "Whether MSVC was detected or not.")
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-    env_log(Detected GCC compiler.)
-    set(ENV_GCC TRUE CACHE BOOL "Whether GCC was detected or not.")
+    env_log(Detected GNU compiler.)
+    set(ENV_GNU
+        TRUE CACHE BOOL
+        "Whether GNU was detected or not.")
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL Intel)
+    env_log(Detected Intel compiler.)
+    set(ENV_INTEL
+        TRUE CACHE BOOL
+        "Whether Intel was detected or not.")
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL IntelLLVM)
+    env_log(Detected Intel LLVM compiler.)
+    set(ENV_INTEL_LLVM
+        TRUE CACHE BOOL
+        "Whether Intel LLVM was detected or not.")
 
 else ()
     env_log(FATAL_ERROR Unknown compiler.)
@@ -211,14 +252,17 @@ endif ()
 
 set(ENV_CLANG_CL FALSE CACHE BOOL "Whether ClangCL was detected or not.")
 set(ENV_MSVC FALSE CACHE BOOL "Whether MSVC was detected or not.")
-set(ENV_GCC FALSE CACHE BOOL "Whether GCC was detected or not.")
+set(ENV_GNU FALSE CACHE BOOL "Whether GCC was detected or not.")
 set(ENV_CLANG FALSE CACHE BOOL "Whether Clang was detected or not.")
 set(ENV_INTEL FALSE CACHE BOOL "Whether Intel was detected or not.")
+set(ENV_INTEL_LLVM FALSE CACHE BOOL "Whether Intel LLVM was detected or not.")
 
 
 # Architecture ----------------------------------------------------------------
 
 # TODO: amd64, x86, arm detection
+# TODO: cross-compilation detection
+
 
 if (${CMAKE_SIZEOF_VOID_P} STREQUAL 4)
     env_log(Architecture is 32 bit.)
@@ -240,8 +284,13 @@ set(ENV_64BIT FALSE CACHE BOOL "Whether architecture is 64 bit.")
 
 # OS --------------------------------------------------------------------------
 
-# TODO
+# TODO: detection
+# TODO: cross-compilation detection
 
+
+# -----------------------------------------------------------------------------
+# Target configuration
+# -----------------------------------------------------------------------------
 
 # Sources ---------------------------------------------------------------------
 
@@ -513,7 +562,7 @@ elseif (ENV_MSVC)
         target_compile_options(${_name} PRIVATE /w)
     endfunction()
 
-elseif (ENV_GCC)
+elseif (ENV_GNU)
     function(env_target_warn _name)
         env_prefix_with_project_name(${_name} _mod)
         env_log("Adding warnings to \"${_name}\".")
@@ -610,7 +659,7 @@ if (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
             target_compile_options(${_mod} PRIVATE /O2)
             env_target_set_ipo(${_mod})
         endfunction()
-    elseif (ENV_GCC)
+    elseif (ENV_GNU)
         function(env_target_optimize _name)
             env_prefix_with_project_name(${_name} _mod)
             env_log(Adding optimizations to \"${_name}\".)
@@ -660,7 +709,7 @@ else ()
                     # /fsanitize=address
             )
         endfunction()
-    elseif (ENV_GCC)
+    elseif (ENV_GNU)
         function(env_target_optimize _name)
             env_prefix_with_project_name(${_name} _mod)
             env_log(Adding sanitization to \"${_name}\".)
@@ -710,7 +759,7 @@ elseif (ENV_MSVC)
 
         target_compile_options(${_mod} PRIVATE /GR-)
     endfunction()
-elseif (ENV_GCC)
+elseif (ENV_GNU)
     function(env_target_optimize_nonconforming _name)
         env_prefix_with_project_name(${_name} _mod)
         env_log(Adding nonconforming optimizations to \"${_name}\".)
@@ -730,6 +779,10 @@ else ()
 endif ()
 
 
+# -----------------------------------------------------------------------------
+# Targets
+# -----------------------------------------------------------------------------
+
 # Atomic targets --------------------------------------------------------------
 
 function(env_project_pch)
@@ -737,16 +790,16 @@ function(env_project_pch)
     env_prefix(pch ${LOWER_PROJECT_NAME} _mod)
     env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
 
-    set(_pch_dir "${PROJECT_SOURCE_DIR}/pch")
-    set(_project_pch_dir "${_pch_dir}/${LOWER_PROJECT_NAME}")
-    file(GLOB_RECURSE _sources "${_project_pch_dir}/src/*.cpp")
+    file(GLOB_RECURSE
+         _sources
+         CONFIGURE_DEPENDS
+         "${PROJECT_SOURCE_DIR}/pch/src/*.cpp")
 
     add_library(${_mod} STATIC ${_sources})
     add_library(${LOWER_PROJECT_NAME}::pch ALIAS ${_mod})
 
     env_target_link(${_mod} PUBLIC ${ARGN})
-    env_target_include(${_mod} PUBLIC "${_pch_dir}")
-    env_target_precompile(${_mod} PUBLIC "${_project_pch_dir}/pch.hpp")
+    env_target_precompile(${_mod} PUBLIC "${PROJECT_SOURCE_DIR}/pch/pch.hpp")
 
     env_target_conform(${_mod})
     env_target_suppress(${_mod})
@@ -875,6 +928,7 @@ endfunction()
 
 function(env_add_app _name)
     env_log(" - Adding app \"${_name}\". - ")
+
     env_add_executable(${_name} ${ARGN})
 endfunction()
 
@@ -886,9 +940,13 @@ function(env_add_export _name)
 endfunction()
 
 
-# Subdirectories --------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Automatic configuration
+# -----------------------------------------------------------------------------
 
-function(env_add_subdirectory)
+# Subdirectory ----------------------------------------------------------------
+
+function(env_subdirectory)
     env_log(Adding subdirectories: \"${ARGN}\".)
 
     set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
@@ -905,22 +963,22 @@ endfunction()
 
 # Scaffold --------------------------------------------------------------------
 
-set(ENV_SCAFFOLD_DEFAULT_INCLUDE_DIRS
+set(__env_scaffold_default_include_dirs
     "/include"
     CACHE STRING
     "Default include directory for scaffolded libraries.")
 
-set(ENV_SCAFFOLD_DEFAULT_SOURCE_GLOB
+set(__env_scaffold_default_src_glob
     "/src/*.cpp;/src/*.cc;/src/*.c;/source/*.cpp;/source/*.cc;/source/*.c"
     CACHE STRING
     "Default list of globbing patterns for scaffolded libraries.")
 
-set(ENV_SCAFFOLD_DEFAULT_LIB_GLOB
+set(__env_scaffold_default_lib_glob
     "/bin/*.lib;/bin/*.a"
     CACHE STRING
     "Default list of globbing patterns for scaffolded libraries.")
 
-set(ENV_SCAFFOLD_DEFAULT_PCH
+set(__env_scaffold_default_pch_glob
     "/pch/pch.hpp"
     CACHE STRING
     "Default location of precompiled header for scaffolded libraries.")
@@ -931,7 +989,7 @@ function(env_scaffold _src_dir)
             PARSED
             ""
             "NAME;BINARY_DIR"
-            "OPTIONS;INCLUDE_DIRS;SOURCE_GLOB;LIB_GLOB;PCH"
+            "OPTIONS;INCLUDE_DIRS;SRC_GLOB;LIB_GLOB;PCH_GLOB"
             ${ARGN})
 
     env_log(Scaffolding \"${_src_dir}\".)
@@ -946,9 +1004,9 @@ function(env_scaffold _src_dir)
         endforeach ()
 
         if (PARSED_BINARY_DIR)
-            env_add_subdirectory("${_src_dir}" "${PARSED_BINARY_DIR}")
+            env_subdirectory("${_src_dir}" "${PARSED_BINARY_DIR}")
         else ()
-            env_add_subdirectory("${_src_dir}")
+            env_subdirectory("${_src_dir}")
         endif ()
 
 
@@ -964,16 +1022,16 @@ function(env_scaffold _src_dir)
 
 
         if (NOT PARSED_INCLUDE_DIRS)
-            set(PARSED_INCLUDE_DIRS "${ENV_SCAFFOLD_DEFAULT_INCLUDE_DIRS}")
+            set(PARSED_INCLUDE_DIRS "${__env_scaffold_default_include_dirs}")
         endif ()
-        if (NOT PARSED_SOURCE_GLOB)
-            set(PARSED_SOURCE_GLOB "${ENV_SCAFFOLD_DEFAULT_SOURCE_GLOB}")
+        if (NOT PARSED_SRC_GLOB)
+            set(PARSED_SOURCE_GLOB "${__env_scaffold_default_src_glob}")
         endif ()
         if (NOT PARSED_LIB_GLOB)
-            set(PARSED_LIB_GLOB "${ENV_SCAFFOLD_DEFAULT_LIB_GLOB}")
+            set(PARSED_LIB_GLOB "${__env_scaffold_default_lib_glob}")
         endif ()
-        if (NOT PARSED_PCH)
-            set(PARSED_PCH "${ENV_SCAFFOLD_DEFAULT_PCH}")
+        if (NOT PARSED_PCH_GLOB)
+            set(PARSED_PCH_GLOB "${__env_scaffold_default_pch_glob}")
         endif ()
 
         set(_include_dirs "")
@@ -982,7 +1040,7 @@ function(env_scaffold _src_dir)
         endforeach ()
 
         set(_sources "")
-        foreach (_src_glob IN LISTS PARSED_SOURCE_GLOB)
+        foreach (_src_glob IN LISTS PARSED_SRC_GLOB)
             file(GLOB_RECURSE _globbed "${_src_dir}${_src_glob}")
             list(APPEND _sources ${_globbed})
         endforeach ()
@@ -994,8 +1052,9 @@ function(env_scaffold _src_dir)
         endforeach ()
 
         set(_pch "")
-        foreach (__pch IN LISTS PARSED_PCH)
-            list(APPEND _pch "${_src_dir}${__pch}")
+        foreach (__pch IN LISTS PARSED_PCH_GLOB)
+            file(GLOB_RECURSE _globbed "${_src_dir}${__pch}")
+            list(APPEND _pch ${_globbed})
         endforeach ()
 
 
@@ -1005,9 +1064,9 @@ function(env_scaffold _src_dir)
 
             add_library(${_prefixed} STATIC IMPORTED GLOBAL)
             env_target_include(${_prefixed} PUBLIC ${_include_dirs})
-            env_target_sources(${_prefixed} ${_sources})
+            env_target_sources(${_prefixed} PRIVATE ${_sources})
             env_target_link(${_prefixed} PUBLIC ${_libs})
-            env_target_precompile(${_prefixed} PUBLIC ${_pch})
+            env_target_precompile(${_prefixed} PRIVATE ${_pch})
 
             env_target_optimize(${_prefixed})
             env_target_suppress(${_prefixed})
@@ -1030,51 +1089,86 @@ function(env_scaffold _src_dir)
 endfunction()
 
 
-# Fetch -----------------------------------------------------------------------
+# Stratify --------------------------------------------------------------------
 
-set(ENV_FETCH_DIR
+# TODO: with 3.18 cmake_language
+
+
+# -----------------------------------------------------------------------------
+# Fetch
+# -----------------------------------------------------------------------------
+
+set(__env_fetch_dir
     "${CMAKE_SOURCE_DIR}/.fetch"
     CACHE STRING
-    "Download directory for fetching dependencies.")
+    "Download directory for fetching dependencies."
+    FORCE)
 
-set(ENV_FETCH_BUILD_DIR
+set(__env_fetch_build_dir
     "${PROJECT_BINARY_DIR}/.fetch"
     CACHE STRING
-    "Build directory for fetched dependencies.")
+    "Build directory for fetched dependencies."
+    FORCE)
 
 
 include(FetchContent)
-set(FETCHCONTENT_BASE_DIR ${ENV_FETCH_DIR})
+set(FETCHCONTENT_BASE_DIR ${__env_fetch_dir})
 
 
 function(env_fetch _name)
-    cmake_parse_arguments(PARSED "" "" "SCAFFOLD" ${ARGN})
-
     env_use_lower_project_name()
+    cmake_parse_arguments(PARSED "NO_EXTRACT" "INTO" "FROM;SCAFFOLD" ${ARGN})
+
     env_prefix(${_name} ${LOWER_PROJECT_NAME} _prefixed)
     env_suffix(${_prefixed} fetch _mod)
 
-    set(_src_dir "${ENV_FETCH_DIR}/${_name}")
-    set(_bin_dir "${ENV_FETCH_BUILD_DIR}/${_name}/bin")
-    set(_sub_dir "${ENV_FETCH_BUILD_DIR}/${_name}/sub")
-    set(_populated_file "${ENV_FETCH_DIR}/.process/${_name}.populated")
-    set(_lock_file "${ENV_FETCH_DIR}/.process/${_name}.lock")
+    if (PARSED_INTO)
+        set(_src_dir "${__env_fetch_dir}/${PARSED_INTO}/${_name}")
+        set(_bin_dir "${__env_fetch_build_dir}/${PARSED_INTO}/${_name}/bin")
+        set(_sub_dir "${__env_fetch_build_dir}/${PARSED_INTO}/${_name}/sub")
+
+        set(_populated_file
+            "${__env_fetch_dir}/.process/${PARSED_INTO}/${_name}.populated")
+        set(_lock_file
+            "${__env_fetch_dir}/.process/${PARSED_INTO}/${_name}.lock")
+    else ()
+        set(_src_dir "${__env_fetch_dir}/${_name}")
+        set(_bin_dir "${__env_fetch_build_dir}/${_name}/bin")
+        set(_sub_dir "${__env_fetch_build_dir}/${_name}/sub")
+
+        set(_populated_file
+            "${__env_fetch_dir}/.process/${_name}.populated")
+        set(_lock_file
+            "${__env_fetch_dir}/.process/${_name}.lock")
+    endif ()
 
     set(${_mod}_src_dir "${_src_dir}" PARENT_SCOPE)
     set(${_mod}_bin_dir "${_bin_dir}" PARENT_SCOPE)
-    set(${_mod}_sub_dir "${_src_sir}" PARENT_SCOPE)
 
 
     file(LOCK "${_lock_file}")
     if (NOT EXISTS "${_populated_file}")
         env_log("Fetching \"${_name}\" into \"${_src_dir}\".")
-        fetchcontent_populate(
-                ${_mod}
-                QUIET
-                ${PARSED_UNPARSED_ARGUMENTS}
-                SOURCE_DIR "${_src_dir}"
-                BINARY_DIR "${_bin_dir}"
-                SUBBUILD_DIR "${_sub_dir}")
+
+        if (PARSED_NO_EXTRACT)
+            fetchcontent_populate(
+                    ${_mod}
+                    QUIET
+                    ${PARSED_FROM}
+                    DOWNLOAD_NO_EXTRACT TRUE
+                    DOWNLOAD_DIR "${_src_dir}"
+                    SOURCE_DIR "${_src_dir}"
+                    BINARY_DIR "${_bin_dir}"
+                    SUBBUILD_DIR "${_sub_dir}")
+        else ()
+            fetchcontent_populate(
+                    ${_mod}
+                    QUIET
+                    ${PARSED_FROM}
+                    SOURCE_DIR "${_src_dir}"
+                    BINARY_DIR "${_bin_dir}"
+                    SUBBUILD_DIR "${_sub_dir}")
+        endif ()
 
         file(WRITE "${_populated_file}" YES)
     else ()
@@ -1085,6 +1179,7 @@ function(env_fetch _name)
 
     if (PARSED_SCAFFOLD)
         env_scaffold(
+                "${_src_dir}"
                 NAME "${_name}"
                 BINARY_DIR "${_bin_dir}"
                 ${PARSED_SCAFFOLD})
@@ -1092,12 +1187,22 @@ function(env_fetch _name)
 endfunction()
 
 
-# Project declaration ---------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Projects
+# -----------------------------------------------------------------------------
 
 # TODO: object library
 
+# TODO: shared/static/shared linking definitions...
+
+# TODO: set bin as output directory
+
+
+# Project initialization ------------------------------------------------------
+
 function(env_project_initialize)
     env_use_upper_project_name()
+    env_log(---!!!--- Initializing project \"${PROJECT_NAME}\". ---!!!---)
 
     if (CMAKE_BUILD_TYPE STREQUAL Debug)
         option(${UPPER_PROJECT_NAME}_COMPILER_MESSAGES
@@ -1124,9 +1229,21 @@ function(env_project_initialize)
            "Build ${PROJECT_NAME} apps."
            OFF)
 
-    option(${UPPER_PROJECT_NAME}_BUILD_BINDINGS
+
+    option(${UPPER_PROJECT_NAME}_BUILD_BINDS
            "Build ${PROJECT_NAME} bindings."
            OFF)
+
+    if (${UPPER_PROJECT_NAME}_BUILD_BINDS)
+        set(${UPPER_PROJECT_NAME}_BUILD_BIND_UTILS
+            ON CACHE BOOL
+            "Build ${PROJECT_NAME} binding utils."
+            FORCE)
+    else ()
+        option(${UPPER_PROJECT_NAME}_BUILD_BIND_UTILS
+               "Build ${PROJECT_NAME} binding utils."
+               OFF)
+    endif ()
 
 
     option(${UPPER_PROJECT_NAME}_BUILD_TESTS
@@ -1158,6 +1275,7 @@ endfunction()
 # TODO: run multi-targets somehow
 # executable target that runs the dependencies somehow?
 
+
 function(env_hook _dependency)
     cmake_parse_arguments(PARSED "" "" "INTO" ${ARGN})
 
@@ -1179,6 +1297,78 @@ function(env_hook _dependency)
 endfunction()
 
 
+function(env_project_static)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_STATIC AND ARGN)
+        env_use_lower_project_name()
+        env_add_static(static ${ARGN})
+    endif ()
+endfunction()
+
+function(env_project_shared)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_SHARED AND ARGN)
+        env_use_lower_project_name()
+        env_add_shared(shared ${ARGN})
+    endif ()
+endfunction()
+
+function(env_project_apps)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_APPS)
+        env_log(-!- Adding apps for ${PROJECT_NAME}. -!-)
+
+        file(GLOB_RECURSE
+             _apps
+             CONFIGURE_DEPENDS
+             "${PROJECT_SOURCE_DIR}/app/*.cpp")
+
+        foreach (_app IN LISTS _apps)
+            env_target_name_for(${_app} _target)
+
+            env_add_app(${_target} ${_app} ${ARGN})
+        endforeach ()
+    endif ()
+endfunction()
+
+
+function(env_project_binding_utilities)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_BIND_UTILS)
+        env_log(-!- Adding binding utilities for ${PROJECT_NAME}. -!-)
+
+        file(GLOB
+             _bind_utils
+             CONFIGURE_DEPENDS
+             "${PROJECT_SOURCE_DIR}/bind/utils/*"
+             LIST_DIRECTORIES TRUE)
+
+        foreach (_bind_util IN LISTS _bind_utils)
+            env_subdirectory(${_bind_util})
+        endforeach ()
+    endif ()
+endfunction()
+
+function(env_project_bindings)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_BINDS)
+        env_log(-!- Adding bindings for ${PROJECT_NAME}. -!-)
+
+        file(GLOB
+             _bindings
+             CONFIGURE_DEPENDS
+             "${PROJECT_SOURCE_DIR}/bind/*"
+             LIST_DIRECTORIES TRUE)
+
+        list(FILTER _bindings EXCLUDE REGEX [[.*utils]])
+
+        foreach (_binding IN LISTS _bindings)
+            env_subdirectory(${_binding})
+        endforeach ()
+    endif ()
+endfunction()
+
+
 function(env_project_tests)
     env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_TESTS)
@@ -1186,6 +1376,7 @@ function(env_project_tests)
 
         file(GLOB_RECURSE
              _tests
+             CONFIGURE_DEPENDS
              "${PROJECT_SOURCE_DIR}/test/*.cpp")
 
         env_use_lower_project_name()
@@ -1209,6 +1400,7 @@ function(env_project_benchmarks)
 
         file(GLOB_RECURSE
              _benchmarks
+             CONFIGURE_DEPENDS
              "${PROJECT_SOURCE_DIR}/bench/*.cpp")
 
         env_use_lower_project_name()
@@ -1223,7 +1415,17 @@ function(env_project_benchmarks)
     endif ()
 endfunction()
 
-# TODO: maybe one file per example?
+# TODO: configure CI
+function(env_project_ci)
+    env_use_upper_project_name()
+    if (${UPPER_PROJECT_NAME}_BUILD_CI AND
+        EXISTS "${PROJECT_SOURCE_DIR}/ci/CMakeLists.txt")
+
+        env_log(-!- Adding CI for ${PROJECT_NAME}. -!-)
+        env_subdirectory("${PROJECT_SOURCE_DIR}/ci")
+    endif ()
+endfunction()
+
 
 function(env_project_examples)
     env_use_upper_project_name()
@@ -1233,24 +1435,22 @@ function(env_project_examples)
 
         foreach (_example IN LISTS _examples)
             env_log(- Adding example with CMakeLists.txt at \"${_example}\". -)
-            add_subdirectory("${_example}/..")
+            env_subdirectory("${_example}/..")
         endforeach ()
     endif ()
 endfunction()
 
 # TODO: configure Doxygen
-
 function(env_project_docs)
     env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_DOCS AND
         EXISTS "${PROJECT_SOURCE_DIR}/docs/CMakeLists.txt")
 
         env_log(-!- Adding docs for ${PROJECT_NAME}. -!-)
-        add_subdirectory("${PROJECT_SOURCE_DIR}/docs")
+        env_subdirectory("${PROJECT_SOURCE_DIR}/docs")
     endif ()
 endfunction()
 
-# TODO: CI here?
 
 function(env_project_extras)
     env_use_upper_project_name()
@@ -1260,96 +1460,46 @@ function(env_project_extras)
 
         foreach (_extra IN LISTS _extras)
             env_log(- Adding extra with CMakeLists.txt at \"${_extra}\". -)
-            add_subdirectory("${_extra}/..")
+            env_subdirectory("${_extra}/..")
         endforeach ()
     endif ()
 endfunction()
 
-function(env_project_static)
-    env_use_upper_project_name()
-    if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
-        file(GLOB_RECURSE
-             _sources
-             "${PROJECT_SOURCE_DIR}/src/*.cpp")
-
-        if (_sources)
-            env_use_lower_project_name()
-            env_add_static(${LOWER_PROJECT_NAME}_static ${_sources})
-        endif ()
-    endif ()
-endfunction()
-
-function(env_project_shared)
-    env_use_upper_project_name()
-    if (${UPPER_PROJECT_NAME}_BUILD_SHARED)
-        file(GLOB_RECURSE
-             _sources
-             "${PROJECT_SOURCE_DIR}/src/*.cpp")
-
-        if (_sources)
-            env_use_lower_project_name()
-            env_add_shared(${LOWER_PROJECT_NAME}_shared ${_sources})
-        endif ()
-    endif ()
-endfunction()
-
-function(env_project_apps)
-    env_use_upper_project_name()
-    if (${UPPER_PROJECT_NAME}_BUILD_APPS)
-        env_log(-!- Adding apps for ${PROJECT_NAME}. -!-)
-
-        file(GLOB_RECURSE
-             _apps
-             "${PROJECT_SOURCE_DIR}/app/*.cpp")
-
-        file(GLOB_RECURSE
-             _sources
-             "${PROJECT_SOURCE_DIR}/src/*.cpp")
-
-        foreach (_app IN LISTS _apps)
-            env_target_name_for(${_app} _target)
-
-            env_add_app(${_target} ${_app} ${_sources})
-        endforeach ()
-    endif ()
-endfunction()
-
-function(env_project_bindings)
-    env_use_upper_project_name()
-    if (${UPPER_PROJECT_NAME}_BUILD_BINDINGS)
-        env_log(-!- Adding bindings for ${PROJECT_NAME}. -!-)
-
-        file(GLOB
-             _bindings
-             "${PROJECT_SOURCE_DIR}/bind"
-             LIST_DIRECTORIES TRUE)
-
-        foreach (_binding IN LISTS _bindings)
-            env_add_subdirectory(${_binding})
-        endforeach ()
-    endif ()
-endfunction()
 
 function(env_project_targets)
     cmake_parse_arguments(
             PARSED
             ""
             ""
-            "DEPENDENCIES;TEST_DEPENDENCIES;BENCHMARK_DEPENDENCIES"
+            "DEPS;TEST_DEPS;BENCH_DEPS"
             ${ARGN})
 
-    env_project_pch(${PARSED_DEPENDENCIES})
+    env_log(---!!!--- Adding project targets for \"${PROJECT_NAME}\". ---!!!---)
 
-    env_project_static()
-    env_project_shared()
-    env_project_apps()
+
+    env_project_pch(${PARSED_DEPS})
+
+    file(GLOB_RECURSE
+         _sources
+         CONFIGURE_DEPENDS
+         "${PROJECT_SOURCE_DIR}/src/*.cpp")
+
+
+    env_project_static(${_sources})
+    env_project_shared(${_sources})
+    env_project_apps(${_sources})
+
+    env_project_binding_utilities()
     env_project_bindings()
 
-    env_project_tests(${PARSED_TEST_DEPENDENCIES})
-    env_project_benchmarks(${PARSED_BENCHMARK_DEPENDENCIES})
+
+    env_project_tests(${PARSED_TEST_DEPS})
+    env_project_benchmarks(${PARSED_BENCH_DEPS})
+    env_project_ci()
 
     env_project_examples()
     env_project_docs()
+
 
     env_project_extras()
 endfunction()

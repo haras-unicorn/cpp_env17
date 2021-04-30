@@ -10,7 +10,9 @@ project(env
         VERSION 1.0
         LANGUAGES C CXX)
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/EnvFunc.cmake")
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
+include(EnvFunc)
 
 env_project_initialize()
 
@@ -18,14 +20,15 @@ env_project_initialize()
 # Fetch -----------------------------------------------------------------------
 
 env_fetch(macros
+          FROM
           GIT_REPOSITORY https://github.com/nemequ/hedley.git
           GIT_TAG v15
 
           SCAFFOLD
-          INCLUDE_DIRS
-          "/")
+          INCLUDE_DIRS "/")
 
 env_fetch(hana
+          FROM
           GIT_REPOSITORY https://github.com/Hrle97/hana.git
           GIT_TAG cmake
 
@@ -38,6 +41,7 @@ env_fetch(hana
           "BOOST_HANA_BUILD_EXTRAS OFF")
 
 env_fetch(test
+          FROM
           GIT_REPOSITORY https://github.com/google/googletest.git
           GIT_TAG release-1.10.0
 
@@ -50,6 +54,7 @@ env_fetch(test
           "gmock_build_tests OFF")
 
 env_fetch(benchmark
+          FROM
           GIT_REPOSITORY https://github.com/google/benchmark.git
           GIT_TAG v1.5.2
 
@@ -60,6 +65,7 @@ env_fetch(benchmark
           "BENCHMARK_ENABLE_GTEST_TESTS OFF")
 
 env_fetch(alloc
+          FROM
           GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
           GIT_TAG v2.0.0
 
@@ -71,6 +77,7 @@ env_fetch(alloc
           "MI_BUILD_TESTS OFF")
 
 env_fetch(json
+          FROM
           GIT_REPOSITORY https://github.com/nlohmann/json.git
           GIT_TAG v3.9.1
 
@@ -80,6 +87,7 @@ env_fetch(json
           "JSON_Install OFF")
 
 env_fetch(immutable
+          FROM
           GIT_REPOSITORY https://github.com/Hrle97/immer.git
           GIT_TAG cmake
 
@@ -91,6 +99,7 @@ env_fetch(immutable
           "immer_BUILD_EXTRAS OFF")
 
 env_fetch(transducers
+          FROM
           GIT_REPOSITORY https://github.com/Hrle97/zug.git
           GIT_TAG v0.0.9-cmake
 
@@ -116,15 +125,15 @@ env_add_dep(functional zug immer)
 # Targets ---------------------------------------------------------------------
 
 env_project_targets(
-        DEPENDENCIES
+        DEPS
         env::macros
         env::boost
         env::alloc
         env::json
         env::functional
 
-        TEST_DEPENDENCIES
-        env::test_main
+        TEST_DEPS
+        env::test
 
-        BENCHMARK_DEPENDENCIES
+        BENCH_DEPS
         env::bench)

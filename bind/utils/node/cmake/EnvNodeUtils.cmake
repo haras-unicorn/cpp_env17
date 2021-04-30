@@ -1,5 +1,7 @@
 include_guard()
 
+include(EnvFunc)
+
 
 # Versions --------------------------------------------------------------------
 
@@ -17,7 +19,7 @@ function(env_node_detect_installed_version _out)
     endif ()
 
     if (_res STREQUAL 0)
-        env_log(Installed NodeJS version is: \"${_version}\".)
+        env_log(Installed NodeJS version is \"${_version}\".)
     else ()
         set(_version "")
         env_log(Installed NodeJS version not detected.)
@@ -26,14 +28,21 @@ function(env_node_detect_installed_version _out)
     set(${_out} "${_version}" PARENT_SCOPE)
 endfunction()
 
-function(env_node_resolve_checksums_version _version _installed_version _out)
-    if (_node_version STREQUAL installed AND
-        _installed_version)
-        set(_checksums_version "${_installed_version}")
+function(env_node_resolve_checksums_version
+         _version
+         _installed_version
+         _fallback_version
+         _out)
+    if (_version STREQUAL installed)
+        if (_installed_version)
+            set(_checksums_version "${_installed_version}")
+        else ()
+            set(_checksums_version "${_fallback_version}")
+        endif ()
     else ()
         set(_checksums_version "${_version}")
     endif ()
-    env_log(Resolved NodeJS checksums version: \"${_checksums_version}\".)
+    env_log(Resolved NodeJS checksums version \"${_checksums_version}\".)
 
     set(${_out} "${_checksums_version}" PARENT_SCOPE)
 endfunction()
@@ -42,11 +51,18 @@ endfunction()
 # Checksums file --------------------------------------------------------------
 
 function(env_node_fetch_checksums_file _url _name _out)
-    env_fetch(checksums URL "${_url}" DOWNLOAD_NO_EXTRACT TRUE)
+    env_fetch(checksums
+              FROM
+              URL "${_url}"
+              NO_EXTRACT
+
+              INTO node)
 
     env_use_lower_project_name()
-    string(JOIN / _file "${${LOWER_PROJECT_NAME}_checksums_src_dir}" "${_name}")
-    env_log(NodeJS checksums file fetched in: \"${_file}\".)
+    string(JOIN / _file
+           "${${LOWER_PROJECT_NAME}_checksums_fetch_src_dir}"
+           "${_name}")
+    env_log(NodeJS checksums file fetched in \"${_file}\".)
 
     set(${_out} "${_file}" PARENT_SCOPE)
 endfunction()
@@ -81,24 +97,25 @@ function(env_node_extract_headers_archive_components
            "${_checksum_line}")
 
 
-    set(${_out_name} "${CMAKE_MATCH_2}" PARENT_SCOPE)
+    set(_name "${CMAKE_MATCH_2}")
+    set(${_out_name} "${_name}" PARENT_SCOPE)
 
     if (CMAKE_MATCH_3 STREQUAL headers)
-        set(_version "${CMAKE_MATCH_4}" PARENT_SCOPE)
+        set(_version "${CMAKE_MATCH_4}")
     else ()
-        set(_version "${CMAKE_MATCH_3}" PARENT_SCOPE)
+        set(_version "${CMAKE_MATCH_3}")
     endif ()
     set(${_out_version} "${_version}" PARENT_SCOPE)
 
-    set(_id "${_out_name}-${_out_version}")
+    set(_id "${_name}-${_version}")
     set(${_out_id} "${_id}" PARENT_SCOPE)
-    env_log(NodeJS ID used for headers' archive is:
+    env_log(NodeJS ID used for headers' archive is
             \"${_id}\".)
 
 
     set(_checksum "${CMAKE_MATCH_1}")
-    set(${_out_checksum} "_checksum" PARENT_SCOPE)
-    env_log(NodeJS headers' archive checksum is:
+    set(${_out_checksum} "${_checksum}" PARENT_SCOPE)
+    env_log(NodeJS headers' archive checksum is
             \"${_checksum}\".)
 
     string(JOIN "" _rpath
@@ -106,7 +123,7 @@ function(env_node_extract_headers_archive_components
            "${CMAKE_MATCH_2}-${CMAKE_MATCH_3}-${CMAKE_MATCH_4}"
            "${CMAKE_MATCH_5}")
     set(${_out_rpath} "${_rpath}" PARENT_SCOPE)
-    env_log(NodeJS headers' archive relative path is:
+    env_log(NodeJS headers' archive relative path is
             \"${_rpath}\".)
 endfunction()
 
@@ -139,8 +156,8 @@ function(env_node_extract_win_lib32_components
 
 
     set(_checksum "${CMAKE_MATCH_1}")
-    set(${_out_checksum} "_checksum" PARENT_SCOPE)
-    env_log(NodeJS Windows 32 bit library checksum is:
+    set(${_out_checksum} "${_checksum}" PARENT_SCOPE)
+    env_log(NodeJS Windows 32 bit library checksum is
             \"${_checksum}\".)
 
     string(JOIN "" _version_rpath
@@ -149,7 +166,7 @@ function(env_node_extract_win_lib32_components
            "${CMAKE_MATCH_4}"
            "${CMAKE_MATCH_5}")
     set(${_out_version_rpath} "${_version_rpath}" PARENT_SCOPE)
-    env_log(NodeJS Windows 32 bit library version relative path is:
+    env_log(NodeJS Windows 32 bit library version relative path is
             \"${_version_rpath}\".)
 endfunction()
 
@@ -182,8 +199,8 @@ function(env_node_extract_win_lib64_components
 
 
     set(_checksum "${CMAKE_MATCH_1}")
-    set(${_out_checksum} "_checksum" PARENT_SCOPE)
-    env_log(NodeJS Windows 64 bit library checksum is:
+    set(${_out_checksum} "${_checksum}" PARENT_SCOPE)
+    env_log(NodeJS Windows 64 bit library checksum is
             \"${_checksum}\".)
 
     string(JOIN "" _version_rpath
@@ -192,37 +209,146 @@ function(env_node_extract_win_lib64_components
            "${CMAKE_MATCH_4}"
            "${CMAKE_MATCH_5}")
     set(${_out_version_rpath} "${_version_rpath}" PARENT_SCOPE)
-    env_log(NodeJS Windows 64 bit library version relative path is:
+    env_log(NodeJS Windows 64 bit library version relative path is
             \"${_version_rpath}\".)
 endfunction()
 
 
 # Component fetch -------------------------------------------------------------
 
-function(env_node_fetch_headers _name _url _check_type _checksum _id)
-    env_fetch(${_name}
+function(env_node_fetch_headers _url _check_type _checksum)
+    env_fetch(headers
+              FROM
               URL "${_url}"
               URL_HASH "${_check_type}=${_checksum}"
+
+              INTO node
 
               SCAFFOLD
-              INCLUDE_DIRS "/${_id}/include")
+              INCLUDE_DIRS "/include")
 
     env_use_lower_project_name()
-    env_log(NodeJS headers' archive fetched in:
-            \"${${LOWER_PROJECT_NAME}_${_name}_src_dir}\")
+    env_log(NodeJS headers' archive fetched in
+            \"${${LOWER_PROJECT_NAME}_headers_fetch_src_dir}\")
 endfunction()
 
-function(env_node_fetch_win_lib _name _url _check_type _checksum)
-    env_fetch(${_name}
+function(env_node_fetch_win_lib _url _check_type _checksum)
+    env_fetch(win_lib
+              FROM
               URL "${_url}"
               URL_HASH "${_check_type}=${_checksum}"
+              NO_EXTRACT
 
-              DOWNLOAD_NO_EXTRACT TRUE
+              INTO node
 
               SCAFFOLD
               LIB_GLOB "/*.lib")
 
     env_use_lower_project_name()
-    env_log(NodeJS Windows library \"${_name}\" fetched in:
-            \"${${LOWER_PROJECT_NAME}_${_name}_src_dir}\")
+    env_log(NodeJS Windows library fetched in
+            \"${${LOWER_PROJECT_NAME}_win_lib_src_dir}\")
+endfunction()
+
+
+# OS specific interface -------------------------------------------------------
+
+function(env_node_add_os_specific_interface
+         _win_delay_load_hook_src
+         _node_win_lib)
+
+    env_log(Adding for NodeJS bindings OS specific target.)
+    env_add_export(os)
+
+    if (WIN32)
+        env_use_lower_project_name()
+        add_library(
+                ${LOWER_PROJECT_NAME}_win_delay_load_hook
+                OBJECT
+                "${_win_delay_load_hook_src}")
+
+        env_add_alias(win_delay_load_hook)
+
+        env_target_link(
+                os
+                INTERFACE
+                "kernel32.lib"
+                "user32.lib"
+                "gdi32.lib"
+                "winspool.lib"
+                "comdlg32.lib"
+                "advapi32.lib"
+                "shell32.lib"
+                "ole32.lib"
+                "oleaut32.lib"
+                "uuid.lib"
+                "odbc32.lib"
+                "Shlwapi.lib"
+                "DelayImp.lib"
+                ${LOWER_PROJECT_NAME}::win_delay_load_hook
+                ${_node_win_lib})
+
+        env_target_link_with(
+                os
+                INTERFACE
+                "-IGNORE:4199"
+                "-DELAYLOAD:iojs.exe"
+                "-DELAYLOAD:node.exe"
+                "-DELAYLOAD:node.dll")
+
+    else ()
+        env_target_definitions(
+                os
+                INTERFACE
+                "_LARGEFILE_SOURCE"
+                "_FILE_OFFSET_BITS=64")
+    endif ()
+
+    if (APPLE)
+        env_target_link_with(
+                os
+                INTERFACE
+                "-undefined dynamic_lookup")
+
+        env_target_definitions(
+                os
+                INTERFACE
+                "_DARWIN_USE_64_BIT_INODE=1")
+    endif ()
+endfunction()
+
+
+# Bindings --------------------------------------------------------------------
+
+function(env_node_decorate_bind _name)
+    env_use_upper_project_mod()
+    env_prefix_with_project_name(${_name} _mod)
+    env_log(Decorating NodeJS binding \"${_name}\".)
+
+    string(MAKE_C_IDENTIFIER ${_mod} _sym_check)
+    if (NOT "${_mod}" STREQUAL "${_sym_check}")
+        env_log(FATAL_ERROR
+                NodeJS binding name name must be a valid C identifier.
+                Suggested alternative \"${_sym_check}\".)
+    endif ()
+
+    env_target_set(
+            ${_mod}
+            PREFIX ""
+            SUFFIX ".node"
+            MACOSX_RPATH ON)
+
+    string(TOUPPER "${_mod}_BUILD" _build_def)
+    env_target_definitions(
+            ${_mod}
+            PRIVATE
+            "MODULE__name=${_mod}"
+            "${_build_def}")
+
+    env_macro_name(${_mod} _prefix)
+    env_target_definitions(
+            ${_mod}
+            PRIVATE
+            "${_prefix}_NODE_BIND=1"
+            "${UPPER_PROJECT_NAME}_NODE_BIND=1"
+            "ENV_NODE_BIND=1")
 endfunction()
