@@ -225,7 +225,7 @@ function(env_node_fetch_headers _url _check_type _checksum)
               INTO node
 
               SCAFFOLD
-              INCLUDE_DIRS "/include")
+              INCLUDE_DIRS "/include/node")
 
     env_use_lower_project_name()
     env_log(NodeJS headers' archive fetched in
@@ -259,7 +259,7 @@ function(env_node_add_os_specific_interface
     env_log(Adding for NodeJS bindings OS specific target.)
     env_add_export(os)
 
-    if (WIN32)
+    if (ENV_WIN)
         env_use_lower_project_name()
         add_library(
                 ${LOWER_PROJECT_NAME}_win_delay_load_hook
@@ -303,7 +303,7 @@ function(env_node_add_os_specific_interface
                 "_FILE_OFFSET_BITS=64")
     endif ()
 
-    if (APPLE)
+    if (ENV_IOS OR ENV_MACOS)
         env_target_link_with(
                 os
                 INTERFACE

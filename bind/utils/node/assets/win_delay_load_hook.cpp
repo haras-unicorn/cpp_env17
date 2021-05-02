@@ -1,14 +1,15 @@
 #ifdef _MSC_VER
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
 
-#include <Windows.h>
+    #include <Windows.h>
     #include <delayimp.h>
-#include <string.h>
+    #include <cstring>
 
-static FARPROC WINAPI load_exe_hook(unsigned int event, DelayLoadInfo *info) {
+static FARPROC WINAPI load_exe_hook(unsigned int event, DelayLoadInfo* info)
+{
     HMODULE m;
     if (event != dliNotePreLoadLibrary)
         return NULL;
@@ -17,7 +18,7 @@ static FARPROC WINAPI load_exe_hook(unsigned int event, DelayLoadInfo *info) {
         return NULL;
 
     m = GetModuleHandle(NULL);
-    return (FARPROC)m;
+    return (FARPROC) m;
 }
 
 decltype(__pfnDliNotifyHook2) __pfnDliNotifyHook2 = load_exe_hook;

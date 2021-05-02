@@ -477,7 +477,7 @@ endif ()
 # OS specific -----------------------------------------------------------------
 
 if (NOT TARGET env_node::os)
-    if (NOT TARGET env_node::win_lib)
+    if (ENV_WIN AND NOT TARGET env_node::win_lib)
         if (ENV_32BIT)
             if (ENV_NODE_WIN_LIB32_PATH)
                 env_add_export(win_lib "${ENV_NODE_WIN_LIB32_PATH}")
@@ -554,20 +554,22 @@ env_project_targets(
         env::test
 
         BENCH_DEPS
-        env::bench)
+        env::bench
+
+        SOURCES
+        __env_node_sources)
+
+env_add_static(static_suppressed ${__env_node_sources})
+env_add_dep(node env_node_static_suppressed)
 
 
 # Add binding -----------------------------------------------------------------
 
-if (ENV_NODE_BUILD_STATIC)
-    env_add_dep(node env_node_static)
+function(env_node_add_bind _name)
+    env_log(Adding NodeJS binding \"${_name}\".)
 
-    function(env_node_add_bind _name)
-        env_log(Adding NodeJS binding \"${_name}\".)
+    env_add_module(${_name} ${ARGN})
+    env_target_link(${_name} PRIVATE env_node::node)
 
-        env_add_shared(${_name} SHARED ${ARGN})
-        env_target_link(${_name} PRIVATE env_node::node)
-
-        env_node_decorate_bind(${_name})
-    endfunction()
-endif ()
+    env_node_decorate_bind(${_name})
+endfunction()

@@ -1,0 +1,4 @@
+set(CMAKE_GENERATOR Ninja)
+
+set(CMAKE_C_COMPILER cl)
+set(CMAKE_CXX_COMPILER cl)
