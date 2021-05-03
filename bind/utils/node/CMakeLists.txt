@@ -225,7 +225,7 @@ if (NOT ENV_NODE_CHECKSUMS_VERSION OR
         "Version for NodeJS bindings checksums."
         FORCE)
 
-    env_set_if(ENV_NODE_REMOTE_CHECKSUMS_RPATH
+    env_null_set(ENV_NODE_REMOTE_CHECKSUMS_RPATH
                "${ENV_NODE_CHECKSUMS_VERSION}/${ENV_NODE_REMOTE_CHECKSUMS_FILE}"
                CACHE STRING
                "\
@@ -233,7 +233,7 @@ Path to checksums of NodeJS headers' archive and library relative to \
 remote NodeJS root url."
                FORCE)
 
-    env_set_if(ENV_NODE_CHECKSUMS_URL
+    env_null_set(ENV_NODE_CHECKSUMS_URL
                "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_CHECKSUMS_RPATH}"
                CACHE STRING
                "\
@@ -261,7 +261,7 @@ if (NOT ENV_NODE_CHECKSUMS_PATH)
             "${ENV_NODE_REMOTE_CHECKSUMS_FILE}"
             __env_node_checksums_path)
 
-    env_set_if(ENV_NODE_CHECKSUMS_PATH
+    env_null_set(ENV_NODE_CHECKSUMS_PATH
                "${__env_node_checksums_path}"
                CACHE STRING
                "\
@@ -319,7 +319,7 @@ if (NOT ENV_NODE_NAME OR
         FORCE)
 
 
-    env_set_if(ENV_NODE_HEADERS_ARCHIVE_CHECKSUM
+    env_null_set(ENV_NODE_HEADERS_ARCHIVE_CHECKSUM
                "${__env_node_headers_archive_checksum}"
                CACHE STRING
                "\
@@ -327,7 +327,7 @@ Checksum to use for checking the download of \
 NodeJS headers' archive."
                FORCE)
 
-    env_set_if(ENV_NODE_REMOTE_HEADERS_ARCHIVE_RPATH
+    env_null_set(ENV_NODE_REMOTE_HEADERS_ARCHIVE_RPATH
                "${__env_node_headers_archive_rpath}"
                CACHE STRING
                "\
@@ -335,7 +335,7 @@ Path to NodeJS headers' archive relative to \
 remote NodeJS root url."
                FORCE)
 
-    env_set_if(ENV_NODE_HEADERS_ARCHIVE_URL
+    env_null_set(ENV_NODE_HEADERS_ARCHIVE_URL
                "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_HEADERS_ARCHIVE_RPATH}"
                CACHE STRING
                "\
@@ -369,7 +369,7 @@ if (NOT ENV_NODE_WIN_LIB32_CHECKSUM OR
             __env_node_win_lib32_version_rpath)
 
 
-    env_set_if(ENV_NODE_WIN_LIB32_CHECKSUM
+    env_null_set(ENV_NODE_WIN_LIB32_CHECKSUM
                "${__env_node_win_lib32_checksum}"
                CACHE STRING
                "\
@@ -377,7 +377,7 @@ Checksum to use for checking the download of \
 NodeJS Windows 32 bit library."
                FORCE)
 
-    env_set_if(ENV_NODE_REMOTE_WIN_LIB32_RPATH
+    env_null_set(ENV_NODE_REMOTE_WIN_LIB32_RPATH
                "${ENV_NODE_TARGET_VERSION}/${__env_node_win_lib32_version_rpath}"
                CACHE STRING
                "\
@@ -385,7 +385,7 @@ Path to NodeJS Windows 32 bit library relative to \
 remote NodeJS root url."
                FORCE)
 
-    env_set_if(ENV_NODE_WIN_LIB32_URL
+    env_null_set(ENV_NODE_WIN_LIB32_URL
                "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_WIN_LIB32_RPATH}"
                CACHE STRING
                "\
@@ -416,7 +416,7 @@ if (NOT ENV_NODE_WIN_LIB64_CHECKSUM OR
             __env_node_win_lib64_version_rpath)
 
 
-    env_set_if(ENV_NODE_WIN_LIB64_CHECKSUM
+    env_null_set(ENV_NODE_WIN_LIB64_CHECKSUM
                "${__env_node_win_lib64_checksum}"
                CACHE STRING
                "\
@@ -424,7 +424,7 @@ Checksum to use for checking the download of \
 NodeJS Windows 64 bit library."
                FORCE)
 
-    env_set_if(ENV_NODE_REMOTE_WIN_LIB64_RPATH
+    env_null_set(ENV_NODE_REMOTE_WIN_LIB64_RPATH
                "${ENV_NODE_TARGET_VERSION}/${__env_node_win_lib64_version_rpath}"
                CACHE STRING
                "\
@@ -432,7 +432,7 @@ Path to NodeJS Windows 64 bit library relative to \
 remote NodeJS root url."
                FORCE)
 
-    env_set_if(ENV_NODE_WIN_LIB64_URL
+    env_null_set(ENV_NODE_WIN_LIB64_URL
                "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_WIN_LIB64_RPATH}"
                CACHE STRING
                "\

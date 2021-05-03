@@ -11,6 +11,8 @@ set(ENV_FUNCTIONS_INCLUDED TRUE)
 
 # TODO: use EXPORT_COMPILE_COMMAND in 3.20
 
+# TODO: versioning
+
 
 # -----------------------------------------------------------------------------
 # Utilities
@@ -139,9 +141,7 @@ endfunction()
 
 # Set -------------------------------------------------------------------------
 
-# TODO: rename into something better...
-
-function(env_set_if _name)
+function(env_null_set _name)
     if (NOT ${_name})
         set(${_name} ${ARGN})
     endif ()
@@ -708,17 +708,40 @@ function(env_target_compile_with _name _visibility)
     target_compile_options(${_mod} ${ARGN})
 endfunction()
 
-# TODO: use cmake_parse_arguments
-
 include(CheckCXXCompilerFlag)
-function(env_target_safely_compile_with _name _visibility)
+function(env_target_safely_compile_with _name)
+    cmake_parse_arguments(PARSED "" "" "PRIVATE;PUBLIC;INTERFACE" ${ARGN})
+
     env_prefix_with_project_name(${_name} _mod)
     env_log(On \"${_name}\" adding compile options \"${ARGN}\".)
 
-    foreach (_flag IN LISTS ARGN)
+
+    foreach (_flag IN LISTS PARSED_PRIVATE)
         check_compiler_flag(CXX ${_flag} _supported)
         if (_supported)
-            target_compile_options(${_mod} ${_visibility} ${_flag})
+            target_compile_options(${_mod} PRIVATE ${_flag})
+        else ()
+            env_log(WARNING
+                    On \"${_name}\" adding compile option \"${_flag}\"
+                    FAILED. REASON: Option not supported by compiler.)
+        endif ()
+    endforeach ()
+
+    foreach (_flag IN LISTS PARSED_PUBLIC)
+        check_compiler_flag(CXX ${_flag} _supported)
+        if (_supported)
+            target_compile_options(${_mod} PUBLIC ${_flag})
+        else ()
+            env_log(WARNING
+                    On \"${_name}\" adding compile option \"${_flag}\"
+                    FAILED. REASON: Option not supported by compiler.)
+        endif ()
+    endforeach ()
+
+    foreach (_flag IN LISTS PARSED_INTERFACE)
+        check_compiler_flag(CXX ${_flag} _supported)
+        if (_supported)
+            target_compile_options(${_mod} INTERFACE ${_flag})
         else ()
             env_log(WARNING
                     On \"${_name}\" adding compile option \"${_flag}\"
@@ -1601,7 +1624,7 @@ endfunction()
 # Projects
 # -----------------------------------------------------------------------------
 
-# TODO: shared/static/shared linking definitions...
+# TODO (important): shared/static/shared linking definitions...
 
 
 # Initialization --------------------------------------------------------------
@@ -1634,6 +1657,7 @@ function(env_project_initialize)
     option(${UPPER_PROJECT_NAME}_BUILD_SHARED
            "Build ${PROJECT_NAME} shared."
            OFF)
+
 
     option(${UPPER_PROJECT_NAME}_BUILD_APPS
            "Build ${PROJECT_NAME} apps."
