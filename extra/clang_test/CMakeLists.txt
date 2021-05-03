@@ -10,10 +10,10 @@ if (ENV_CLANG AND CMAKE_BUILD_TYPE STREQUAL Release)
             PRIVATE
             "${PROJECT_SOURCE_DIR}/include")
 
-    target_include_directories(
+    target_precompile_headers(
             env_extra_clang_test
             PRIVATE
-            "${PROJECT_SOURCE_DIR}/pch")
+            "${PROJECT_SOURCE_DIR}/pch/pch.hpp")
 
     target_link_libraries(
             env_extra_clang_test

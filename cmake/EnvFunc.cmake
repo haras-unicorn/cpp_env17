@@ -9,6 +9,8 @@ set(ENV_FUNCTIONS_INCLUDED TRUE)
 
 # TODO: fix diamond dependencies
 
+# TODO: use EXPORT_COMPILE_COMMAND in 3.20
+
 
 # -----------------------------------------------------------------------------
 # Utilities
@@ -129,6 +131,12 @@ function(env_has_extension _path _out)
 endfunction()
 
 
+function(env_escape_backslash _string _out)
+    string(REGEX REPLACE [[\\]] [[\\\\]] _res "${_string}")
+    set(${_out} "${_res}" PARENT_SCOPE)
+endfunction()
+
+
 # Set -------------------------------------------------------------------------
 
 # TODO: rename into something better...
@@ -209,8 +217,8 @@ env_log(-!- Running detection. -!-)
 env_log(- Detecting compiler. -)
 
 
-env_log(CMake Compiler ID is: \"${CMAKE_CXX_COMPILER_ID}\".)
-env_log(MSVC is present: ${MSVC})
+env_log(CMake Compiler ID is \"${CMAKE_CXX_COMPILER_ID}\".)
+env_log(CMake MSVC is present \"${MSVC}\".)
 
 
 # "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't always work for MSVC
@@ -294,7 +302,7 @@ set(ENV_INTEL_LLVM FALSE CACHE BOOL "Whether Intel LLVM was detected or not.")
 env_log(- Detecting hardware. -)
 
 
-env_log(CMake sizeof\(void*\) is \"${CMAKE_SIZEOF_VOID_P}\")
+env_log(CMake sizeof\(void*\) = ${CMAKE_SIZEOF_VOID_P}.)
 
 include(TestBigEndian)
 test_big_endian(__env_is_big_endian)
@@ -345,7 +353,7 @@ set(ENV_BIG_ENDIAN FALSE CACHE BOOL "Whether architecture is big endian.")
 set(ENV_LITTLE_ENDIAN FALSE CACHE BOOL "Whether architecture is little endian.")
 
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL amd64)
+if (CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64)
     env_log(Architecture is amd64.)
     set(ENV_AMD64
         TRUE CACHE BOOL
@@ -398,10 +406,10 @@ env_log(- Detecting OS. -)
 
 
 env_log(CMake system is \"${CMAKE_SYSTEM}\".)
-env_log(Windows is present: ${WIN32})
-env_log(Android is present: ${ANDROID})
-env_log(Apple is present: ${APPLE})
-env_log(Linux is present: ${LINUX})
+env_log(CMake Windows is present \"${WIN32}\".)
+env_log(CMake Android is present \"${ANDROID}\".)
+env_log(CMake Apple is present \"${APPLE}\".)
+env_log(CMake Linux is present \"${LINUX}\".)
 
 
 if (WIN32)
@@ -473,21 +481,21 @@ function(env_target_include _name)
     env_prefix_with_project_name(${_name} _mod)
     env_log(Into \"${_name}\" including \"${ARGN}\".)
 
-    target_include_directories(${_mod} ${ARGN})
+    target_include_directories(${_mod} PRIVATE ${ARGN})
 endfunction()
 
 function(env_target_link _name)
     env_prefix_with_project_name(${_name} _mod)
     env_log(Linking \"${_name}\" with \"${ARGN}\".)
 
-    target_link_libraries(${_mod} ${ARGN})
+    target_link_libraries(${_mod} PRIVATE ${ARGN})
 endfunction()
 
 function(env_target_sources _name)
     env_prefix_with_project_name(${_name} _mod)
     env_log(Sourcing \"${_name}\" with \"${ARGN}\".)
 
-    target_sources(${_mod} ${ARGN})
+    target_sources(${_mod} PRIVATE ${ARGN})
 endfunction()
 
 
@@ -580,7 +588,7 @@ endfunction()
 
 
 set(__env_binary_root
-    "${CMAKE_SOURCE_DIR}/bin"
+    "${CMAKE_SOURCE_DIR}/.bin"
     CACHE STRING
     "Root of all binary target outputs."
     FORCE)
@@ -601,24 +609,21 @@ function(env_target_resolve_bin_out_dir _target _out)
         set(PARSED_SUB "${LOWER_PROJECT_NAME}")
     endif ()
 
-    string(JOIN / _dir
-           "${__env_binary_root}"
-           "${PARSED_SUB}"
-           "${__env_binary_prefix}_${_name}")
+    string(JOIN / _dir "${__env_binary_root}" "${PARSED_SUB}")
 
     set(${_out} ${_dir} PARENT_SCOPE)
 endfunction()
 
 function(env_target_resolve_bin_out_name _target _out)
     env_name_format(${_target} _name)
-    set(${_out} ${_name} PARENT_SCOPE)
+    set(${_out} "${__env_binary_prefix}_${_name}" PARENT_SCOPE)
 endfunction()
 
 function(env_target_set_bin_output _target)
     cmake_parse_arguments(PARSED "" "SUB" "" ${ARGN})
 
-    env_resolve_bin_out_dir(${_target} _dir SUB "${PARSED_SUB}")
-    env_resolve_bin_out_name(${_target} _name)
+    env_target_resolve_bin_out_dir(${_target} _dir SUB "${PARSED_SUB}")
+    env_target_resolve_bin_out_name(${_target} _name)
 
     env_log(Setting binary output directory on \"${_target}\"
             to \"${_dir}\"
@@ -657,6 +662,43 @@ function(env_target_set_bin_output _target)
 endfunction()
 
 
+function(env_target_get_location _target _out)
+    get_target_property(_type ${_target} TYPE)
+    if (_type STREQUAL MODULE_LIBRARY)
+        get_target_property(_dir ${_target} LIBRARY_OUTPUT_DIRECTORY)
+    elseif (_type STREQUAL SHARED_LIBRARY)
+        if (ENV_WIN)
+            get_target_property(_dir ${_target} ARCHIVE_OUTPUT_DIRECTORY)
+        else ()
+            get_target_property(_dir ${_target} LIBRARY_OUTPUT_DIRECTORY)
+        endif ()
+    elseif (_type STREQUAL STATIC_LIBRARY)
+        get_target_property(_dir ${_target} ARCHIVE_OUTPUT_DIRECTORY)
+    elseif (_type STREQUAL EXECUTABLE)
+        get_target_property(_dir ${_target} RUNTIME_OUTPUT_DIRECTORY)
+    endif ()
+
+    get_target_property(_name ${_target} OUTPUT_NAME)
+    get_target_property(_prefix ${_target} PREFIX)
+    get_target_property(_suffix ${_target} SUFFIX)
+
+    if (_prefix STREQUAL _prefix-NOTFOUND)
+        set(_prefix "")
+    endif ()
+    if (_suffix STREQUAL _suffix-NOTFOUND)
+        set(_suffix "")
+    endif ()
+
+    set(${_out} "${_dir}/${_prefix}${_name}${_suffix}" PARENT_SCOPE)
+endfunction()
+
+function(env_target_get_native_location _target _out)
+    env_target_get_location(${_target} _location)
+    file(TO_NATIVE_PATH "${_location}" _native)
+    set(${_out} "${_native}" PARENT_SCOPE)
+endfunction()
+
+
 # Flags -----------------------------------------------------------------------
 
 function(env_target_compile_with _name _visibility)
@@ -665,6 +707,8 @@ function(env_target_compile_with _name _visibility)
 
     target_compile_options(${_mod} ${ARGN})
 endfunction()
+
+# TODO: use cmake_parse_arguments
 
 include(CheckCXXCompilerFlag)
 function(env_target_safely_compile_with _name _visibility)
@@ -1081,6 +1125,22 @@ function(env_add_library _name)
     env_set_cpp17(${_mod})
 endfunction()
 
+function(env_add_suppressed _name)
+    env_use_lower_project_name()
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    env_log("Adding suppressed \"${_name}\".")
+
+    add_library(${_mod} ${ARGN})
+
+    env_target_conform(${_mod})
+    env_target_suppress(${_mod})
+    env_target_optimize(${_mod})
+
+    env_target_set_pie(${_mod})
+    env_set_cpp17(${_mod})
+endfunction()
+
+
 function(env_add_executable _name)
     env_use_lower_project_name()
     env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
@@ -1209,6 +1269,84 @@ function(env_add_export _name)
 
     env_add_interface(${_name} ${ARGN})
     env_add_alias(${_name})
+endfunction()
+
+
+# Custom targets --------------------------------------------------------------
+
+function(env_target_hook _dep)
+    cmake_parse_arguments(PARSED "" "" "INTO" ${ARGN})
+
+    foreach (_target IN LISTS PARSED_INTO)
+        if (NOT TARGET ${_target})
+            env_log(Adding custom \"${_target}\" and
+                    hooking \"${_dep}\" into it.)
+
+            add_custom_target(${_target})
+            add_dependencies(${_target} ${_dep})
+        else ()
+            get_target_property(_deps ${_target} MANUALLY_ADDED_DEPENDENCIES)
+
+            list(FIND _deps ${_dep} _index)
+            if (_index EQUAL -1)
+                env_log(Hooking \"${_dep}\" into \"${_target}\".)
+
+                add_dependencies(${_target} ${_dep})
+            endif ()
+        endif ()
+    endforeach ()
+endfunction()
+
+function(env_target_reduce _target)
+    cmake_parse_arguments(PARSED "" "INTO" "" ${ARGN})
+
+    if (NOT PARSED_INTO)
+        env_suffix(${_target} reduced PARSED_INTO)
+    endif ()
+
+    get_target_property(_deps ${_target} MANUALLY_ADDED_DEPENDENCIES)
+    if (NOT _deps STREQUAL _deps-NOTFOUND)
+        env_log(- Reducing \"${_target}\" into \"${PARSED_INTO}\". -)
+        env_add_app(${PARSED_INTO})
+        env_target_hook(${_target} INTO ${PARSED_INTO})
+
+        set(_commands "")
+        foreach (_dep IN LISTS _deps)
+            get_target_property(_type ${_dep} TYPE)
+            if (_type STREQUAL EXECUTABLE)
+                env_target_get_native_location(${_dep} _loc)
+                env_log(Adding call to \"${_loc}\" in \"${PARSED_INTO}\".)
+                set(_commands
+                    "
+    std::cout << \"--------------------------------------------\" << std::endl;
+    std::cout << R\"(Running executable at: \"${_loc}\")\" << std::endl;
+    std::cout << \"--------------------------------------------\" << std::endl;
+
+    std::system(R\"(\"${_loc}\")\");\
+
+${_commands}\
+")
+            endif ()
+        endforeach ()
+
+        set(_source
+            "\
+#include <cstdlib>
+#include <iostream>
+
+int main(int, char**)
+{${_commands}
+
+    return EXIT_SUCCESS;
+}
+")
+
+        set(_run_file "${PROJECT_BINARY_DIR}/.reduced/${PARSED_INTO}.cpp")
+        file(WRITE "${_run_file}" "${_source}")
+        env_target_sources(${PARSED_INTO} ${_run_file})
+
+        env_target_set_bin_output(${PARSED_INTO})
+    endif ()
 endfunction()
 
 
@@ -1465,12 +1603,8 @@ endfunction()
 
 # TODO: shared/static/shared linking definitions...
 
-# TODO: set bin as output directory
 
-# TODO: installation
-
-
-# Project initialization ------------------------------------------------------
+# Initialization --------------------------------------------------------------
 
 function(env_project_initialize)
     env_use_upper_project_name()
@@ -1550,69 +1684,95 @@ function(env_project_initialize)
 endfunction()
 
 
-# Project targets -------------------------------------------------------------
-
-# TODO: run multi-targets somehow
-# executable target that runs the dependencies somehow?
-
-
-function(env_hook _dependency)
-    cmake_parse_arguments(PARSED "" "" "INTO" ${ARGN})
-
-    foreach (_target IN LISTS PARSED_INTO)
-        if (NOT TARGET ${_target})
-            add_custom_target(${_target} DEPENDS ${_dependency})
-        else ()
-            get_target_property(
-                    _dependencies
-                    ${_target}
-                    MANUALLY_ADDED_DEPENDENCIES)
-
-            list(FIND _dependencies ${_dependency} _index)
-            if (_index EQUAL -1)
-                add_dependencies(${_target} ${_dependency})
-            endif ()
-        endif ()
-    endforeach ()
-endfunction()
-
+# Targets ---------------------------------------------------------------------
 
 function(env_project_objects)
     env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_OBJECTS AND ARGN)
+        env_log(-!- Adding objects for \"${PROJECT_NAME}\". -!-)
         env_add_objects(objects ${ARGN})
 
         env_use_lower_project_name()
         env_target_link(objects PRIVATE ${LOWER_PROJECT_NAME}::pch)
-        env_target_include(objects PRIVATE ${PROJECT_SOURCE_DIR}/include)
+        env_target_include(objects PUBLIC ${PROJECT_SOURCE_DIR}/include)
     endif ()
 endfunction()
 
 function(env_project_static)
     env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_STATIC AND ARGN)
+        env_log(-!- Adding static for \"${PROJECT_NAME}\". -!-)
         env_add_static(static ${ARGN})
 
         env_use_lower_project_name()
         env_target_link(static PRIVATE ${LOWER_PROJECT_NAME}::pch)
-        env_target_include(static PRIVATE ${PROJECT_SOURCE_DIR}/include)
+        env_target_include(static PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-        env_target_set_bin_output(${_target})
+        env_target_set_bin_output(${LOWER_PROJECT_NAME}_static)
     endif ()
 endfunction()
 
 function(env_project_shared)
     env_use_upper_project_name()
     if (${UPPER_PROJECT_NAME}_BUILD_SHARED AND ARGN)
+        env_log(-!- Adding shared for \"${PROJECT_NAME}\". -!-)
         env_add_shared(shared ${ARGN})
 
         env_use_lower_project_name()
         env_target_link(shared PRIVATE ${LOWER_PROJECT_NAME}::pch)
-        env_target_include(shared PRIVATE ${PROJECT_SOURCE_DIR}/include)
+        env_target_include(shared PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-        env_target_set_bin_output(${_target})
+        env_target_set_bin_output(${LOWER_PROJECT_NAME}_shared)
     endif ()
 endfunction()
+
+function(env_project_export)
+    if (ARGN)
+        env_log(-!- Adding export for \"${PROJECT_NAME}\". -!-)
+        env_add_export(export)
+
+        env_use_upper_project_name()
+        env_use_lower_project_name()
+        if (${UPPER_PROJECT_NAME}_BUILD_OBJECTS)
+            env_add_suppressed(suppressed OBJECT ${ARGN})
+            env_target_sources(
+                    export
+                    INTERFACE
+                    $<TARGET_OBJECTS:${LOWER_PROJECT_NAME}_suppressed>)
+
+        elseif (${UPPER_PROJECT_NAME}_BUILD_STATIC)
+            env_add_suppressed(suppressed STATIC ${ARGN})
+            env_target_link(
+                    export
+                    INTERFACE
+                    ${LOWER_PROJECT_NAME}_suppressed)
+
+        elseif (${UPPER_PROJECT_NAME}_BUILD_SHARED)
+            env_add_suppressed(suppressed SHARED ${ARGN})
+            env_target_link(
+                    export
+                    INTERFACE
+                    ${LOWER_PROJECT_NAME}_suppressed)
+
+        else ()
+            env_log(WARNING
+                    Failed to create an export target for \"${PROJECT_NAME}\".
+                    Please specify a flag to build either
+                    an objects or static or shared library
+                    that could be used to create an export target.)
+        endif ()
+
+        if (TARGET ${LOWER_PROJECT_NAME}_suppressed)
+            env_add_alias(suppressed)
+
+            env_target_link(suppressed PRIVATE ${LOWER_PROJECT_NAME}::pch)
+            env_target_include(suppressed PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+            env_target_set_bin_output(${LOWER_PROJECT_NAME}_suppressed)
+        endif ()
+    endif ()
+endfunction()
+
 
 function(env_project_apps)
     env_use_upper_project_name()
@@ -1674,8 +1834,6 @@ function(env_project_bindings)
              "${PROJECT_SOURCE_DIR}/bind/*/CMakeLists.txt"
              LIST_DIRECTORIES FALSE)
 
-        list(FILTER _bindings EXCLUDE REGEX [[.*utils/.*/CMakeLists\.txt]])
-
         foreach (_binding IN LISTS _bindings)
             env_subdirectory("${_binding}/..")
         endforeach ()
@@ -1709,7 +1867,7 @@ function(env_project_tests)
                     ${_target}
                     SUB "test/${LOWER_PROJECT_NAME}")
 
-            env_hook(${_target} INTO ${LOWER_PROJECT_NAME}_tests)
+            env_target_hook(${_target} INTO ${LOWER_PROJECT_NAME}_tests)
         endforeach ()
     endif ()
 endfunction()
@@ -1741,7 +1899,7 @@ function(env_project_benchmarks)
                     ${_target}
                     SUB "bench/${LOWER_PROJECT_NAME}")
 
-            env_hook(${_target} INTO ${LOWER_PROJECT_NAME}_benchmarks)
+            env_target_hook(${_target} INTO ${LOWER_PROJECT_NAME}_benchmarks)
         endforeach ()
     endif ()
 endfunction()
@@ -1802,10 +1960,11 @@ endfunction()
 
 
 function(env_project_targets)
+    env_use_lower_project_name()
     cmake_parse_arguments(
             PARSED
             ""
-            "SOURCES"
+            ""
             "DEPS;TEST_DEPS;BENCH_DEPS"
             ${ARGN})
 
@@ -1819,14 +1978,12 @@ function(env_project_targets)
          CONFIGURE_DEPENDS
          "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
-    if (PARSED_SOURCES)
-        set(${PARSED_SOURCES} "${_sources}" PARENT_SCOPE)
-    endif ()
-
 
     env_project_objects(${_sources})
     env_project_static(${_sources})
     env_project_shared(${_sources})
+    env_project_export(${_sources})
+
     env_project_apps(${_sources})
 
     env_project_binding_utilities()
@@ -1834,7 +1991,21 @@ function(env_project_targets)
 
 
     env_project_tests(${PARSED_TEST_DEPS})
+    if (TARGET ${LOWER_PROJECT_NAME}_tests)
+        env_target_reduce(
+                ${LOWER_PROJECT_NAME}_tests
+                INTO
+                ${LOWER_PROJECT_NAME}_run_tests)
+    endif ()
+
     env_project_benchmarks(${PARSED_BENCH_DEPS})
+    if (TARGET ${LOWER_PROJECT_NAME}_benchmarks)
+        env_target_reduce(
+                ${LOWER_PROJECT_NAME}_benchmarks
+                INTO
+                ${LOWER_PROJECT_NAME}_run_benchmarks)
+    endif ()
+
     env_project_ci()
 
     env_project_examples()
@@ -1843,3 +2014,8 @@ function(env_project_targets)
 
     env_project_extras()
 endfunction()
+
+
+# Installation ----------------------------------------------------------------
+
+# TODO

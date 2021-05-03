@@ -546,6 +546,7 @@ endif ()
 
 env_project_targets(
         DEPS
+        env::export
         env_node::headers
         env_node::os
         env_node::abstractions
@@ -554,13 +555,7 @@ env_project_targets(
         env::test
 
         BENCH_DEPS
-        env::bench
-
-        SOURCES
-        __env_node_sources)
-
-env_add_static(static_suppressed ${__env_node_sources})
-env_add_dep(node env_node_static_suppressed)
+        env::bench)
 
 
 # Add binding -----------------------------------------------------------------
@@ -569,7 +564,7 @@ function(env_node_add_bind _name)
     env_log(Adding NodeJS binding \"${_name}\".)
 
     env_add_module(${_name} ${ARGN})
-    env_target_link(${_name} PRIVATE env_node::node)
+    env_target_link(${_name} PRIVATE env_node::export)
 
     env_node_decorate_bind(${_name})
 endfunction()
