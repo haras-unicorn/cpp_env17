@@ -3,7 +3,7 @@
 ENV_MSVC_SUPPRESS_PUSH(6326);
 
 
-ENV_TEST(env, deps)
+ENV_TEST_CASE(env, deps)
 {
     constexpr auto constant_one = 1_c;
     EXPECT_EQ((_ + 1)(constant_one), 2);
@@ -42,7 +42,7 @@ struct vector_tag
 constexpr auto vector_accessors = ::boost::hana::accessors<vector_tag>();
 } // namespace test
 
-ENV_TEST(env, regular)
+ENV_TEST_CASE(env, regular)
 {
     using namespace ::test;
     using namespace ::env::meta;
@@ -63,7 +63,7 @@ ENV_TEST(env, regular)
 }
 
 
-ENV_TEST(env, meta)
+ENV_TEST_CASE(env, meta)
 {
     using namespace ::env::meta;
 
@@ -113,7 +113,7 @@ ENV_TEST(env, meta)
     // TODO: explore more
 }
 
-ENV_TEST(env, immutable)
+ENV_TEST_CASE(env, immutable)
 {
     using namespace ::env::immut;
 
@@ -134,7 +134,7 @@ ENV_TEST(env, immutable)
     EXPECT_EQ(f2, (alloc::flex_vector<int>{1, 2, 3, 4, 5, 6}));
 }
 
-ENV_TEST(env, alloc)
+ENV_TEST_CASE(env, alloc)
 {
     EXPECT_TRUE(mi_option_is_enabled(mi_option_reserve_huge_os_pages));
     EXPECT_TRUE(mi_option_is_enabled(mi_option_eager_commit));

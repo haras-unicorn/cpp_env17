@@ -11,4 +11,4 @@ void bench(benchmark::State& state)
     }
 }
 
-ENV_BENCH(bench)->Range(1, 10);
+ENV_BENCH_CASE(bench)->Range(1, 10);

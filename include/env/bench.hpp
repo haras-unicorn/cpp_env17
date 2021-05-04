@@ -11,7 +11,7 @@ using namespace env::syntax;
 #include <benchmark/benchmark.h>
 
 // ignore GoogleBenchmark static storage warning
-#define ENV_BENCH(_bench) BENCHMARK(_bench) // NOLINT(cert-err58-cpp)
+#define ENV_BENCH_CASE(_bench) BENCHMARK(_bench) // NOLINT(cert-err58-cpp)
 
 
 ENV_GNU_SUPPRESS_PUSH("-Wmisleading-indentation");
