@@ -101,6 +101,7 @@ _deps
 
 *.swp
 ~*.*
+*.*~
 
 # Cmake gitignore doesn't add this one
 
