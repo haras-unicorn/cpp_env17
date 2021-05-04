@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSharedSettings">
+    <configurations>
+      <configuration PROFILE_NAME="debug" CONFIG_NAME="Debug" GENERATION_OPTIONS="-G&quot;NMake Makefiles&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/debug.cmake&quot;" GENERATION_DIR=".builds/debug" ENABLED="true" />
+      <configuration PROFILE_NAME="release" CONFIG_NAME="Release" GENERATION_OPTIONS="-G&quot;NMake Makefiles&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/release.cmake&quot;" GENERATION_DIR=".builds/release" ENABLED="true" />
+      <configuration PROFILE_NAME="msvc" CONFIG_NAME="Release" TOOLCHAIN_NAME="msvc" GENERATION_OPTIONS="-G&quot;NMake Makefiles&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/msvc.cmake&quot;" GENERATION_DIR=".builds/msvc" ENABLED="true" />
+      <configuration PROFILE_NAME="clang-cl" CONFIG_NAME="Release" TOOLCHAIN_NAME="clang-cl" GENERATION_OPTIONS="-G&quot;NMake Makefiles&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/clang-cl.cmake&quot;" GENERATION_DIR=".builds/clang-cl" ENABLED="true" />
+      <configuration PROFILE_NAME="gnu" CONFIG_NAME="Release" TOOLCHAIN_NAME="gnu" GENERATION_OPTIONS="-G&quot;Ninja&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/gnu.cmake&quot;" GENERATION_DIR=".builds/gnu" ENABLED="true" />
+      <configuration PROFILE_NAME="clang" CONFIG_NAME="Release" TOOLCHAIN_NAME="clang" GENERATION_OPTIONS="-G&quot;Ninja&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/clang.cmake&quot;" GENERATION_DIR=".builds/clang" ENABLED="true" />
+    </configurations>
+  </component>
+</project>
