@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/cpp_env17.iml" filepath="$PROJECT_DIR$/.idea/cpp_env17.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/clion.iml" filepath="$PROJECT_DIR$/.idea/clion.iml" />
     </modules>
   </component>
 </project>
