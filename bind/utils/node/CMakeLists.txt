@@ -15,9 +15,7 @@ project(env_node
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(EnvFunc)
-include(EnvNodeUtils)
-
-env_project_initialize()
+include(EnvNodeBindFunc)
 
 
 # Options ---------------------------------------------------------------------
@@ -226,20 +224,20 @@ if (NOT ENV_NODE_CHECKSUMS_VERSION OR
         FORCE)
 
     env_null_set(ENV_NODE_REMOTE_CHECKSUMS_RPATH
-               "${ENV_NODE_CHECKSUMS_VERSION}/${ENV_NODE_REMOTE_CHECKSUMS_FILE}"
-               CACHE STRING
-               "\
+                 "${ENV_NODE_CHECKSUMS_VERSION}/${ENV_NODE_REMOTE_CHECKSUMS_FILE}"
+                 CACHE STRING
+                 "\
 Path to checksums of NodeJS headers' archive and library relative to \
 remote NodeJS root url."
-               FORCE)
+                 FORCE)
 
     env_null_set(ENV_NODE_CHECKSUMS_URL
-               "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_CHECKSUMS_RPATH}"
-               CACHE STRING
-               "\
+                 "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_CHECKSUMS_RPATH}"
+                 CACHE STRING
+                 "\
 Full Url to NodeJS checksums file. If specified the \
 ENV_NODE_REMOTE_CHECKSUMS_RPATH option is ignored."
-               FORCE)
+                 FORCE)
 
     env_log(NodeJS checksums url is
             \"${ENV_NODE_CHECKSUMS_URL}\".)
@@ -262,13 +260,13 @@ if (NOT ENV_NODE_CHECKSUMS_PATH)
             __env_node_checksums_path)
 
     env_null_set(ENV_NODE_CHECKSUMS_PATH
-               "${__env_node_checksums_path}"
-               CACHE STRING
-               "\
+                 "${__env_node_checksums_path}"
+                 CACHE STRING
+                 "\
 File to use for NodeJS headers' archive and library checksums. If set \
 ENV_NODE_REMOTE_CHECKSUMS_RPATH is ignored because there is no need \
 to download a checksums file."
-               FORCE)
+                 FORCE)
 
 else ()
     env_log(Cached NodeJS checksums path
@@ -320,28 +318,28 @@ if (NOT ENV_NODE_NAME OR
 
 
     env_null_set(ENV_NODE_HEADERS_ARCHIVE_CHECKSUM
-               "${__env_node_headers_archive_checksum}"
-               CACHE STRING
-               "\
+                 "${__env_node_headers_archive_checksum}"
+                 CACHE STRING
+                 "\
 Checksum to use for checking the download of \
 NodeJS headers' archive."
-               FORCE)
+                 FORCE)
 
     env_null_set(ENV_NODE_REMOTE_HEADERS_ARCHIVE_RPATH
-               "${__env_node_headers_archive_rpath}"
-               CACHE STRING
-               "\
+                 "${__env_node_headers_archive_rpath}"
+                 CACHE STRING
+                 "\
 Path to NodeJS headers' archive relative to \
 remote NodeJS root url."
-               FORCE)
+                 FORCE)
 
     env_null_set(ENV_NODE_HEADERS_ARCHIVE_URL
-               "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_HEADERS_ARCHIVE_RPATH}"
-               CACHE STRING
-               "\
+                 "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_HEADERS_ARCHIVE_RPATH}"
+                 CACHE STRING
+                 "\
 Full Url to NodeJS headers' archive. If specified the \
 ENV_NODE_REMOTE_HEADERS_ARCHIVE_RPATH option is ignored."
-               FORCE)
+                 FORCE)
 
 
 else ()
@@ -370,28 +368,28 @@ if (NOT ENV_NODE_WIN_LIB32_CHECKSUM OR
 
 
     env_null_set(ENV_NODE_WIN_LIB32_CHECKSUM
-               "${__env_node_win_lib32_checksum}"
-               CACHE STRING
-               "\
+                 "${__env_node_win_lib32_checksum}"
+                 CACHE STRING
+                 "\
 Checksum to use for checking the download of \
 NodeJS Windows 32 bit library."
-               FORCE)
+                 FORCE)
 
     env_null_set(ENV_NODE_REMOTE_WIN_LIB32_RPATH
-               "${ENV_NODE_TARGET_VERSION}/${__env_node_win_lib32_version_rpath}"
-               CACHE STRING
-               "\
+                 "${ENV_NODE_TARGET_VERSION}/${__env_node_win_lib32_version_rpath}"
+                 CACHE STRING
+                 "\
 Path to NodeJS Windows 32 bit library relative to \
 remote NodeJS root url."
-               FORCE)
+                 FORCE)
 
     env_null_set(ENV_NODE_WIN_LIB32_URL
-               "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_WIN_LIB32_RPATH}"
-               CACHE STRING
-               "\
+                 "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_WIN_LIB32_RPATH}"
+                 CACHE STRING
+                 "\
 Full Url to NodeJS Windows 32 bit library. If specified the \
 ENV_NODE_REMOTE_WIN_LIB32_RPATH option is ignored."
-               FORCE)
+                 FORCE)
 
 
 else ()
@@ -417,28 +415,28 @@ if (NOT ENV_NODE_WIN_LIB64_CHECKSUM OR
 
 
     env_null_set(ENV_NODE_WIN_LIB64_CHECKSUM
-               "${__env_node_win_lib64_checksum}"
-               CACHE STRING
-               "\
+                 "${__env_node_win_lib64_checksum}"
+                 CACHE STRING
+                 "\
 Checksum to use for checking the download of \
 NodeJS Windows 64 bit library."
-               FORCE)
+                 FORCE)
 
     env_null_set(ENV_NODE_REMOTE_WIN_LIB64_RPATH
-               "${ENV_NODE_TARGET_VERSION}/${__env_node_win_lib64_version_rpath}"
-               CACHE STRING
-               "\
+                 "${ENV_NODE_TARGET_VERSION}/${__env_node_win_lib64_version_rpath}"
+                 CACHE STRING
+                 "\
 Path to NodeJS Windows 64 bit library relative to \
 remote NodeJS root url."
-               FORCE)
+                 FORCE)
 
     env_null_set(ENV_NODE_WIN_LIB64_URL
-               "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_WIN_LIB64_RPATH}"
-               CACHE STRING
-               "\
+                 "${ENV_NODE_REMOTE_ROOT_URL}/${ENV_NODE_REMOTE_WIN_LIB64_RPATH}"
+                 CACHE STRING
+                 "\
 Full Url to NodeJS Windows 64 bit library. If specified the \
 ENV_NODE_REMOTE_WIN_LIB64_RPATH option is ignored."
-               FORCE)
+                 FORCE)
 
 
 else ()
@@ -536,6 +534,8 @@ if (NOT TARGET env_node::abstractions)
 
                   SCAFFOLD
                   INCLUDE_DIRS "/")
+
+        env_target_definitions(abstractions INTERFACE "NAPI_CPP_EXCEPTIONS")
     endif ()
 endif ()
 
@@ -543,6 +543,16 @@ endif ()
 # -----------------------------------------------------------------------------
 # Targets
 # -----------------------------------------------------------------------------
+
+set(ENV_NODE_BUILD_STATIC ON)
+
+if (ENV_BUILD_TESTS)
+    set(ENV_NODE_BUILD_TESTS ON)
+endif ()
+
+if (ENV_BUILD_BENCHMARKS)
+    set(ENV_NODE_BUILD_BENCHMARKS ON)
+endif ()
 
 env_project_targets(
         DEPS

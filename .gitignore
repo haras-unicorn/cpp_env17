@@ -88,6 +88,11 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+# Ninja
+
+.ninja_deps
+.ninja_log
+
 
 # My entries
 

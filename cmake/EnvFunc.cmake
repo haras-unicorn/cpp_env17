@@ -1104,7 +1104,7 @@ function(env_project_pch)
          CONFIGURE_DEPENDS
          "${PROJECT_SOURCE_DIR}/pch/src/*.cpp")
 
-    add_library(${_mod} STATIC ${_sources})
+    add_library(${_mod} STATIC EXCLUDE_FROM_ALL ${_sources})
     add_library(${LOWER_PROJECT_NAME}::pch ALIAS ${_mod})
 
     env_target_link(${_mod} PUBLIC ${ARGN})
@@ -1666,7 +1666,7 @@ endfunction()
 
 # Initialization --------------------------------------------------------------
 
-function(env_project_initialize)
+function(env_project_default_options)
     env_use_upper_project_name()
     env_log(---!!!--- Initializing project \"${PROJECT_NAME}\". ---!!!---)
 
@@ -1795,21 +1795,21 @@ function(env_project_export)
         env_use_upper_project_name()
         env_use_lower_project_name()
         if (${UPPER_PROJECT_NAME}_BUILD_OBJECTS)
-            env_add_suppressed(suppressed OBJECT ${ARGN})
+            env_add_suppressed(suppressed OBJECT EXCLUDE_FROM_ALL ${ARGN})
             env_target_sources(
                     export
                     INTERFACE
                     $<TARGET_OBJECTS:${LOWER_PROJECT_NAME}_suppressed>)
 
         elseif (${UPPER_PROJECT_NAME}_BUILD_STATIC)
-            env_add_suppressed(suppressed STATIC ${ARGN})
+            env_add_suppressed(suppressed STATIC EXCLUDE_FROM_ALL ${ARGN})
             env_target_link(
                     export
                     INTERFACE
                     ${LOWER_PROJECT_NAME}_suppressed)
 
         elseif (${UPPER_PROJECT_NAME}_BUILD_SHARED)
-            env_add_suppressed(suppressed SHARED ${ARGN})
+            env_add_suppressed(suppressed SHARED EXCLUDE_FROM_ALL ${ARGN})
             env_target_link(
                     export
                     INTERFACE

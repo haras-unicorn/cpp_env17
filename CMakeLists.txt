@@ -14,7 +14,7 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(EnvFunc)
 
-env_project_initialize()
+env_project_default_options()
 
 
 # Fetch -----------------------------------------------------------------------

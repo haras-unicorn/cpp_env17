@@ -8,6 +8,8 @@
       <configuration PROFILE_NAME="clang-cl" CONFIG_NAME="Release" TOOLCHAIN_NAME="clang-cl" GENERATION_OPTIONS="-G&quot;NMake Makefiles&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/clang-cl.cmake&quot;" GENERATION_DIR=".builds/clang-cl" ENABLED="true" />
       <configuration PROFILE_NAME="gnu" CONFIG_NAME="Release" TOOLCHAIN_NAME="gnu" GENERATION_OPTIONS="-G&quot;Ninja&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/gnu.cmake&quot;" GENERATION_DIR=".builds/gnu" ENABLED="true" />
       <configuration PROFILE_NAME="clang" CONFIG_NAME="Release" TOOLCHAIN_NAME="clang" GENERATION_OPTIONS="-G&quot;Ninja&quot; -C&quot;../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../cmake/toolchain/clang.cmake&quot;" GENERATION_DIR=".builds/clang" ENABLED="true" />
+      <configuration PROFILE_NAME="vs2019" GENERATION_OPTIONS="-G&quot;Visual Studio 16 2019&quot; -C&quot;../../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../../cmake/toolchain/vs2019.cmake&quot;" GENERATION_DIR=".builds/ide/vs2019" ENABLED="true" />
+      <configuration PROFILE_NAME="codeblocks" GENERATION_OPTIONS="-G&quot;CodeBlocks - Ninja&quot; -C&quot;../../../cmake/cache_init/all.cmake&quot; -DCMAKE_TOOLCHAIN_FILE=&quot;../../../cmake/toolchain/codeblocks.cmake&quot;" GENERATION_DIR=".builds/ide/codeblocks" ENABLED="true" />
     </configurations>
   </component>
 </project>
