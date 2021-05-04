@@ -2,17 +2,46 @@
 #define ENV_INCLUDED
 
 
-// TODO: pre-allocator
+// Visibility -----------------------------------------------------------------
 
+#if ENV_SHARED
+    #if ENV_EXPORT
+        #define ENV_VISIBLE HEDLEY_PUBLIC
+        #define ENV_HIDDEN  HEDLEY_PRIVATE
+    #elif ENV_IMPORT
+        #define ENV_VISIBLE HEDLEY_IMPORT
+        #define ENV_HIDDEN
+    #endif
+#else
+    #define ENV_VISIBLE
+    #define ENV_HIDDEN
+#endif
+
+
+/* ----------------------------------------------------------------------------
+ * Env
+ * ----------------------------------------------------------------------------
+ */
 
 namespace env
 {
+// Info -----------------------------------------------------------------------
+
+ENV_VISIBLE bool check() noexcept;
+
+
+// Allocators -----------------------------------------------------------------
+
+// TODO: pre-allocator
+
 namespace alloc
 {
+// custom allocator
+
 template<typename T>
 using allocator [[maybe_unused]] = mi_stl_allocator<T>;
 
-struct heap
+struct ENV_VISIBLE heap
 {
     template<typename... Tags>
     static void* allocate(std::size_t size, Tags...)
@@ -31,7 +60,75 @@ using memory_policy =
                 ::immer::heap_policy<heap>,
                 ::immer::default_refcount_policy,
                 ::immer::default_lock_policy>;
+
+
+// preallocated allocator
+
+template<typename T>
+struct ENV_VISIBLE pre_allocator
+{
+};
+
+struct ENV_VISIBLE pre_heap
+{
+};
+
+using pre_memory_policy =
+        ::immer::memory_policy<
+                ::immer::heap_policy<pre_heap>,
+                ::immer::default_refcount_policy,
+                ::immer::default_lock_policy>;
+
+
+// single threaded allocator
+
+template<typename T>
+struct ENV_VISIBLE threaded_allocator
+{
+};
+
+struct ENV_VISIBLE threaded_heap
+{
+};
+
+using threaded_memory_policy =
+        ::immer::memory_policy<
+                ::immer::heap_policy<threaded_heap>,
+                ::immer::default_refcount_policy,
+                ::immer::no_lock_policy>;
+
 } // namespace alloc
+
+
+// Initialization -------------------------------------------------------------
+
+namespace
+{
+ENV_HIDDEN ::std::once_flag initialize_flag{};
+ENV_HIDDEN ::std::once_flag finalize_flag{};
+
+ENV_HIDDEN struct scoped_initializer
+{
+    inline scoped_initializer()
+    {
+        ::std::call_once(
+                initialize_flag,
+                [] {
+                    mi_option_enable(mi_option_reserve_huge_os_pages);
+                    mi_option_enable(mi_option_eager_commit);
+                    mi_option_enable(mi_option_eager_region_commit);
+                });
+    }
+
+    inline ~scoped_initializer()
+    {
+        ::std::call_once(finalize_flag, [] {});
+    }
+} initializer{}; // NOLINT(cert-err58-cpp)
+} // namespace
+
+
+// Std containers -------------------------------------------------------------
 
 namespace std
 {
@@ -84,8 +181,8 @@ using unordered_map [[maybe_unused]] = unordered_map<T, THash, TEquals, TAlloc>;
 } // namespace alloc
 } // namespace std
 
-namespace meta = ::boost::hana;
-namespace json = ::nlohmann;
+
+// Immutable containers -------------------------------------------------------
 
 namespace immut
 {
@@ -132,10 +229,8 @@ using map [[maybe_unused]] = map<TKey, TValue, THash, TEquals, TMem, Bits>;
 } // namespace alloc
 } // namespace immut
 
-namespace trans
-{
-using namespace ::zug;
-}
+
+// Syntactic sugar ------------------------------------------------------------
 
 namespace literals
 {
@@ -159,32 +254,22 @@ using namespace placeholder;
 } // namespace syntax
 
 
-namespace
-{
-::std::once_flag initialize_flag{};
-::std::once_flag finalize_flag{};
+// Namespaces -----------------------------------------------------------------
 
-struct scoped_initializer
-{
-    inline scoped_initializer()
-    {
-        ::std::call_once(
-                initialize_flag,
-                [] {
-                    mi_option_enable(mi_option_reserve_huge_os_pages);
-                    mi_option_enable(mi_option_eager_commit);
-                    mi_option_enable(mi_option_eager_region_commit);
-                });
-    }
+namespace meta = ::boost::hana;
+namespace json = ::nlohmann;
 
-    inline ~scoped_initializer()
-    {
-        ::std::call_once(finalize_flag, [] {});
-    }
-} initializer{}; // NOLINT(cert-err58-cpp)
-} // namespace
+namespace trans
+{
+using namespace ::zug;
+}
 } // namespace env
 
+
+/* ----------------------------------------------------------------------------
+ * Extensions
+ * ----------------------------------------------------------------------------
+ */
 
 // hack for templates using accessors
 

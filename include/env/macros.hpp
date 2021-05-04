@@ -2,11 +2,6 @@
 #define ENV_MACROS_INCLUDED
 
 
-// Macro library --------------------------------------------------------------
-
-#include <hedley.h>
-
-
 // Basic macros ---------------------------------------------------------------
 
 #define ENV_EVAL(...) __VA_ARGS__
@@ -439,15 +434,6 @@ ENV_MESSAGE(Env OS - ENV_OS_NAME);
 ENV_MESSAGE(Env Standard - C++ ENV_CPP);
 
 ENV_CLANG_SUPPRESS_POP;
-
-
-// Visibility -----------------------------------------------------------------
-
-// TODO: static, shared, executable detection - in CMake?
-
-#define ENV_VISIBLE HEDLEY_PUBLIC
-#define ENV_HIDDEN  HEDLEY_PRIVATE
-#define ENV_IMPORT  HEDLEY_IMPORT
 
 
 #endif // ENV_MACROS_INCLUDED

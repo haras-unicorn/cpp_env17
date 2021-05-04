@@ -42,6 +42,11 @@
 #endif // compiler
 
 
+// macros
+
+#include <hedley.h>
+
+
 // std
 
 #include <utility>

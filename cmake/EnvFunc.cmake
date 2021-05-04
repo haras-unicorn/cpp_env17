@@ -209,6 +209,13 @@ endif ()
 env_log(-!- Running detection. -!-)
 
 
+# Generator -------------------------------------------------------------------
+
+env_log(- Detecting generator. -)
+env_log(CMake generator is \"${CMAKE_GENERATOR}\".)
+env_log(CMake generator toolset is \"${CMAKE_GENERATOR_TOOLSET}\".)
+
+
 # Compiler --------------------------------------------------------------------
 
 # TODO: Proper Intel compiler support
@@ -312,14 +319,14 @@ env_log(CMake big endian test resulted in \"${__env_is_big_endian}\".)
 env_log(CMake system processor is \"${CMAKE_SYSTEM_PROCESSOR}\".)
 
 
-if (${CMAKE_SIZEOF_VOID_P} STREQUAL 4)
+if (CMAKE_SIZEOF_VOID_P STREQUAL 4)
     env_log(Address size is 32 bit.)
     set(ENV_32BIT
         TRUE CACHE BOOL
         "Whether address size is 32 bit."
         FORCE)
 
-elseif (${CMAKE_SIZEOF_VOID_P} STREQUAL 8)
+elseif (CMAKE_SIZEOF_VOID_P STREQUAL 8)
     env_log(Address size is 64 bit.)
     set(ENV_64BIT
         TRUE CACHE BOOL
@@ -1209,6 +1216,121 @@ endfunction()
 
 # Compound targets ------------------------------------------------------------
 
+function(env_add_objects _name)
+    env_use_upper_project_name()
+    env_log(- Adding objects \"${_name}\". -)
+
+    env_add_library(${_name} OBJECT ${ARGN})
+
+    env_target_definitions(
+            ${_name}
+            PUBLIC
+            "${UPPER_PROJECT_NAME}_OBJECT=1")
+
+    env_add_alias(${_name})
+endfunction()
+
+function(env_add_static _name)
+    env_use_upper_project_name()
+    env_log(- Adding static \"${_name}\". -)
+
+    env_add_library(${_name} STATIC ${ARGN})
+
+    env_target_definitions(
+            ${_name}
+            PUBLIC
+            "${UPPER_PROJECT_NAME}_STATIC=1")
+
+    env_add_alias(${_name})
+endfunction()
+
+function(env_add_shared _name)
+    env_use_upper_project_name()
+    env_log(- Adding shared \"${_name}\". -)
+
+    env_add_library(${_name} SHARED ${ARGN})
+
+    env_set_visibility(${_name} HIDDEN)
+    env_target_definitions(
+            ${_name}
+            PUBLIC
+            "${UPPER_PROJECT_NAME}_SHARED=1"
+            PRIVATE
+            "${UPPER_PROJECT_NAME}_EXPORT=1"
+            INTERFACE
+            "${UPPER_PROJECT_NAME}_IMPORT=1")
+
+    env_add_alias(${_name})
+endfunction()
+
+
+function(env_add_module _name)
+    env_use_upper_project_name()
+    env_log(- Adding module \"${_name}\". -)
+
+    env_add_library(${_name} MODULE ${ARGN})
+
+    env_set_visibility(${_name} HIDDEN)
+    env_target_definitions(
+            ${_name}
+            PUBLIC
+            "${UPPER_PROJECT_NAME}_MODULE=1"
+            PRIVATE
+            "${UPPER_PROJECT_NAME}_EXPORT=1"
+            INTERFACE
+            "${UPPER_PROJECT_NAME}_IMPORT=1")
+
+    env_add_alias(${_name})
+endfunction()
+
+
+function(env_add_app _name)
+    env_use_upper_project_name()
+    env_log(" - Adding app \"${_name}\". - ")
+
+    env_add_executable(${_name} ${ARGN})
+
+    env_target_definitions(
+            ${_name}
+            PUBLIC
+            "${UPPER_PROJECT_NAME}_APP=1")
+endfunction()
+
+
+enable_testing()
+include(GoogleTest)
+
+function(env_add_test _name)
+    env_use_upper_project_name()
+    env_log(" - Adding test \"${_name}\". - ")
+
+    env_add_executable(${_name} ${ARGN})
+
+    env_target_definitions(
+            ${_name}
+            PUBLIC
+            "${UPPER_PROJECT_NAME}_TEST=1")
+
+    env_use_lower_project_name()
+    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
+    gtest_discover_tests(${_name})
+endfunction()
+
+function(env_add_bench _name)
+    if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
+        env_use_upper_project_name()
+        env_log(" - Adding bench \"${_name}\". - ")
+
+        env_add_executable(${_name} ${ARGN})
+
+        env_target_definitions(
+                ${_name}
+                PUBLIC
+                "${UPPER_PROJECT_NAME}_BENCH=1")
+    endif ()
+endfunction()
+
+
 function(env_add_dep _name)
     env_log(" - Adding dependency \"${_name}\". - ")
 
@@ -1225,67 +1347,6 @@ function(env_add_dep _name)
     env_add_import(${_name} ${ARGN})
     env_add_alias(${_name})
 endfunction()
-
-
-function(env_add_objects _name)
-    env_log(- Adding objects \"${_name}\". -)
-
-    env_add_library(${_name} OBJECT ${ARGN})
-    env_add_alias(${_name})
-endfunction()
-
-function(env_add_static _name)
-    env_log(- Adding static \"${_name}\". -)
-
-    env_add_library(${_name} STATIC ${ARGN})
-    env_add_alias(${_name})
-endfunction()
-
-function(env_add_shared _name)
-    env_log(- Adding shared \"${_name}\". -)
-
-    env_add_library(${_name} SHARED ${ARGN})
-    env_set_visibility(${_name} HIDDEN)
-    env_add_alias(${_name})
-endfunction()
-
-function(env_add_module _name)
-    env_log(- Adding module \"${_name}\". -)
-
-    env_add_library(${_name} MODULE ${ARGN})
-    env_set_visibility(${_name} HIDDEN)
-    env_add_alias(${_name})
-endfunction()
-
-
-function(env_add_app _name)
-    env_log(" - Adding app \"${_name}\". - ")
-
-    env_add_executable(${_name} ${ARGN})
-endfunction()
-
-
-enable_testing()
-include(GoogleTest)
-
-function(env_add_test _name)
-    env_log(" - Adding test \"${_name}\". - ")
-
-    env_add_executable(${_name} ${ARGN})
-
-    env_use_lower_project_name()
-    env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
-    gtest_discover_tests(${_name})
-endfunction()
-
-function(env_add_bench _name)
-    if (NOT CMAKE_BUILD_TYPE STREQUAL Debug)
-        env_log(" - Adding bench \"${_name}\". - ")
-
-        env_add_executable(${_name} ${ARGN})
-    endif ()
-endfunction()
-
 
 function(env_add_export _name)
     env_log(" - Adding export \"${_name}\". - ")
@@ -1648,11 +1709,11 @@ function(env_project_initialize)
 
     option(${UPPER_PROJECT_NAME}_BUILD_OBJECTS
            "Build ${PROJECT_NAME} objects."
-           OFF)
+           ON)
 
     option(${UPPER_PROJECT_NAME}_BUILD_STATIC
            "Build ${PROJECT_NAME} static."
-           ON)
+           OFF)
 
     option(${UPPER_PROJECT_NAME}_BUILD_SHARED
            "Build ${PROJECT_NAME} shared."
