@@ -18,27 +18,6 @@ set(ENV_FUNCTIONS_INCLUDED TRUE)
 # Utilities
 # -----------------------------------------------------------------------------
 
-# Eval ------------------------------------------------------------------------
-
-# TODO: use cmake_language with 3.18
-
-
-set(__env_eval_file
-    "${CMAKE_BINARY_DIR}/.eval.cmake"
-    CACHE STRING
-    "File used for evaluating CMake code with environment evaluation functions."
-    FORCE)
-
-function(env_eval _code)
-    file(WRITE "${__env_eval_file}" "${_code}")
-    include("${__env_eval_file}")
-endfunction()
-
-function(env_call _function)
-    env_eval("${_function}(${ARGN})")
-endfunction()
-
-
 # Names -----------------------------------------------------------------------
 
 function(env_prefix _name _prefix _out)
@@ -1684,9 +1663,6 @@ endfunction()
 # -----------------------------------------------------------------------------
 # Projects
 # -----------------------------------------------------------------------------
-
-# TODO (important): shared/static/shared linking definitions...
-
 
 # Initialization --------------------------------------------------------------
 
