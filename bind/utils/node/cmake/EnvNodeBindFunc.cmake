@@ -320,7 +320,7 @@ endfunction()
 # Bindings --------------------------------------------------------------------
 
 function(env_node_decorate_bind _name)
-    env_use_upper_project_mod()
+    env_use_upper_project_name()
     env_prefix_with_project_name(${_name} _mod)
     env_log(Decorating NodeJS binding \"${_name}\".)
 
@@ -331,9 +331,9 @@ function(env_node_decorate_bind _name)
                 Suggested alternative \"${_sym_check}\".)
     endif ()
 
+
     env_target_set(
             ${_mod}
-            PREFIX ""
             SUFFIX ".node"
             MACOSX_RPATH ON)
 
@@ -351,4 +351,7 @@ function(env_node_decorate_bind _name)
             "${_prefix}_NODE_BIND=1"
             "${UPPER_PROJECT_NAME}_NODE_BIND=1"
             "ENV_NODE_BIND=1")
+
+
+    env_target_set_bin_output(${_mod})
 endfunction()

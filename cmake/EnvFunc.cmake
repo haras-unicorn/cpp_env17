@@ -7,11 +7,10 @@ endif ()
 set(ENV_FUNCTIONS_INCLUDED TRUE)
 
 
-# TODO: fix diamond dependencies
+# TODO: fix diamond dependencies and versioning somehow
+# semver git tags?
 
 # TODO: use EXPORT_COMPILE_COMMAND in 3.20
-
-# TODO: versioning
 
 
 # -----------------------------------------------------------------------------
@@ -118,15 +117,6 @@ function(env_escape_backslash _string _out)
 endfunction()
 
 
-# Set -------------------------------------------------------------------------
-
-function(env_null_set _name)
-    if (NOT ${_name})
-        set(${_name} ${ARGN})
-    endif ()
-endfunction()
-
-
 # Logging ---------------------------------------------------------------------
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -181,6 +171,15 @@ else ()
 endif ()
 
 
+# Set -------------------------------------------------------------------------
+
+macro(env_null_set _name)
+    if (NOT ${_name} OR ${_name} STREQUAL ${_name}-NOTFOUND)
+        set(${_name} ${ARGN})
+    endif ()
+endmacro()
+
+
 # -----------------------------------------------------------------------------
 # Detection
 # -----------------------------------------------------------------------------
@@ -198,6 +197,8 @@ env_log(CMake generator toolset is \"${CMAKE_GENERATOR_TOOLSET}\".)
 # Compiler --------------------------------------------------------------------
 
 # TODO: Proper Intel compiler support
+
+# TODO: Add ARMCC, ARMClang and NVIDIA CUDA compiler support
 
 
 env_log(- Detecting compiler. -)
@@ -650,18 +651,54 @@ endfunction()
 
 function(env_target_get_location _target _out)
     get_target_property(_type ${_target} TYPE)
+
     if (_type STREQUAL MODULE_LIBRARY)
-        get_target_property(_dir ${_target} LIBRARY_OUTPUT_DIRECTORY)
+        get_target_property(
+                _config_dir ${_target}
+                LIBRARY_OUTPUT_DIRECTORY)
+        get_target_property(
+                _dir ${_target}
+                LIBRARY_OUTPUT_DIRECTORY_${CMAKE_BUILD_TYPE})
+        env_null_set(_dir "${_config_dir}")
+
     elseif (_type STREQUAL SHARED_LIBRARY)
         if (ENV_WIN)
-            get_target_property(_dir ${_target} ARCHIVE_OUTPUT_DIRECTORY)
+            get_target_property(
+                    _config_dir ${_target}
+                    ARCHIVE_OUTPUT_DIRECTORY)
+            get_target_property(
+                    _dir ${_target}
+                    ARCHIVE_OUTPUT_DIRECTORY_${CMAKE_BUILD_TYPE})
+            env_null_set(_dir "${_config_dir}")
+
         else ()
-            get_target_property(_dir ${_target} LIBRARY_OUTPUT_DIRECTORY)
+            get_target_property(
+                    _config_dir ${_target}
+                    LIBRARY_OUTPUT_DIRECTORY)
+            get_target_property(
+                    _dir ${_target}
+                    LIBRARY_OUTPUT_DIRECTORY_${CMAKE_BUILD_TYPE})
+            env_null_set(_dir "${_config_dir}")
+
         endif ()
     elseif (_type STREQUAL STATIC_LIBRARY)
-        get_target_property(_dir ${_target} ARCHIVE_OUTPUT_DIRECTORY)
+        get_target_property(
+                _config_dir ${_target}
+                ARCHIVE_OUTPUT_DIRECTORY)
+        get_target_property(
+                _dir ${_target}
+                ARCHIVE_OUTPUT_DIRECTORY_${CMAKE_BUILD_TYPE})
+        env_null_set(_dir "${_config_dir}")
+
     elseif (_type STREQUAL EXECUTABLE)
-        get_target_property(_dir ${_target} RUNTIME_OUTPUT_DIRECTORY)
+        get_target_property(
+                _config_dir ${_target}
+                RUNTIME_OUTPUT_DIRECTORY)
+        get_target_property(
+                _dir ${_target}
+                RUNTIME_OUTPUT_DIRECTORY_${CMAKE_BUILD_TYPE})
+        env_null_set(_dir "${_config_dir}")
+
     endif ()
 
     get_target_property(_name ${_target} OUTPUT_NAME)
@@ -754,7 +791,7 @@ function(env_target_features _name)
     target_compile_features(${_mod} ${ARGN})
 endfunction()
 
-if (ENV_CLANG_CL)
+if (ENV_CLANG_CL OR ENV_MSVC)
     function(env_target_conform _name)
         env_log(Setting standards conformance on \"${_name}\".)
 
@@ -768,8 +805,8 @@ if (ENV_CLANG_CL)
                 # MSVC and ClangCL are weird about auto
                 /Zc:auto)
 
-        # clang-cl doesn't enable exceptions by default unlike all other
-        # compilers
+        # clang-cl and sometimes MSVC don't enable exceptions by default
+        # unlike all other compilers
 
         get_target_property(_options ${_name} COMPILE_OPTIONS)
         if (_options STREQUAL _options-NOTFOUND)
@@ -782,20 +819,6 @@ if (ENV_CLANG_CL)
                 env_log(Exceptions already enabled on \"${_name}\".)
             endif ()
         endif ()
-    endfunction()
-elseif (ENV_MSVC)
-    function(env_target_conform _name)
-        env_log(Setting standards conformance on \"${_name}\".)
-
-        target_compile_options(
-                ${_name}
-                PRIVATE
-                # standards compliance
-                /permissive-
-                # otherwise we can't detect the C++ standard
-                /Zc:__cplusplus
-                # MSVC and ClangCL are weird about auto
-                /Zc:auto)
     endfunction()
 else ()
     function(env_target_conform _name)
@@ -1683,16 +1706,16 @@ function(env_project_default_options)
     endif ()
 
 
-    option(${UPPER_PROJECT_NAME}_BUILD_OBJECTS
-           "Build ${PROJECT_NAME} objects."
-           ON)
-
     option(${UPPER_PROJECT_NAME}_BUILD_STATIC
            "Build ${PROJECT_NAME} static."
-           OFF)
+           ON)
 
     option(${UPPER_PROJECT_NAME}_BUILD_SHARED
            "Build ${PROJECT_NAME} shared."
+           OFF)
+
+    option(${UPPER_PROJECT_NAME}_BUILD_OBJECTS
+           "Build ${PROJECT_NAME} objects."
            OFF)
 
 
@@ -1788,28 +1811,36 @@ function(env_project_shared)
 endfunction()
 
 function(env_project_export)
-    if (ARGN)
+    cmake_parse_arguments(PARSED "SHARE_PCH" "" "" ${ARGN})
+
+    if (PARSED_UNPARSED_ARGUMENTS)
         env_log(-!- Adding export for \"${PROJECT_NAME}\". -!-)
         env_add_export(export)
 
         env_use_upper_project_name()
         env_use_lower_project_name()
-        if (${UPPER_PROJECT_NAME}_BUILD_OBJECTS)
-            env_add_suppressed(suppressed OBJECT EXCLUDE_FROM_ALL ${ARGN})
-            env_target_sources(
-                    export
-                    INTERFACE
-                    $<TARGET_OBJECTS:${LOWER_PROJECT_NAME}_suppressed>)
-
-        elseif (${UPPER_PROJECT_NAME}_BUILD_STATIC)
-            env_add_suppressed(suppressed STATIC EXCLUDE_FROM_ALL ${ARGN})
+        if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
+            env_add_suppressed(
+                    suppressed STATIC EXCLUDE_FROM_ALL
+                    ${PARSED_UNPARSED_ARGUMENTS})
             env_target_link(
                     export
                     INTERFACE
                     ${LOWER_PROJECT_NAME}_suppressed)
 
+        elseif (${UPPER_PROJECT_NAME}_BUILD_OBJECTS)
+            env_add_suppressed(
+                    suppressed OBJECT EXCLUDE_FROM_ALL
+                    ${PARSED_UNPARSED_ARGUMENTS})
+            env_target_sources(
+                    export
+                    INTERFACE
+                    $<TARGET_OBJECTS:${LOWER_PROJECT_NAME}_suppressed>)
+
         elseif (${UPPER_PROJECT_NAME}_BUILD_SHARED)
-            env_add_suppressed(suppressed SHARED EXCLUDE_FROM_ALL ${ARGN})
+            env_add_suppressed(
+                    suppressed SHARED EXCLUDE_FROM_ALL
+                    ${PARSED_UNPARSED_ARGUMENTS})
             env_target_link(
                     export
                     INTERFACE
@@ -1826,7 +1857,12 @@ function(env_project_export)
         if (TARGET ${LOWER_PROJECT_NAME}_suppressed)
             env_add_alias(suppressed)
 
-            env_target_link(suppressed PRIVATE ${LOWER_PROJECT_NAME}::pch)
+            if (PARSED_SHARE_PCH)
+                env_target_link(suppressed PUBLIC ${LOWER_PROJECT_NAME}::pch)
+            else ()
+                env_target_link(suppressed PRIVATE ${LOWER_PROJECT_NAME}::pch)
+            endif ()
+
             env_target_include(suppressed PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
             env_target_set_bin_output(${LOWER_PROJECT_NAME}_suppressed)
@@ -2024,7 +2060,7 @@ function(env_project_targets)
     env_use_lower_project_name()
     cmake_parse_arguments(
             PARSED
-            ""
+            "SHARE_PCH"
             ""
             "DEPS;TEST_DEPS;BENCH_DEPS"
             ${ARGN})
@@ -2043,7 +2079,12 @@ function(env_project_targets)
     env_project_objects(${_sources})
     env_project_static(${_sources})
     env_project_shared(${_sources})
-    env_project_export(${_sources})
+
+    if (PARSED_SHARE_PCH)
+        env_project_export(${_sources} SHARE_PCH)
+    else ()
+        env_project_export(${_sources})
+    endif ()
 
     env_project_apps(${_sources})
 

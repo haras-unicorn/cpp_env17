@@ -555,6 +555,8 @@ if (ENV_BUILD_BENCHMARKS)
 endif ()
 
 env_project_targets(
+        SHARE_PCH
+
         DEPS
         env::export
         env_node::headers
@@ -567,14 +569,45 @@ env_project_targets(
         BENCH_DEPS
         env::bench)
 
+if (ENV_NODE_USE_NAN)
+    env_target_definitions(
+            pch
+            PUBLIC
+            "ENV_NODE_NAN=1"
+            "ENV_NODE_NAPI=0")
+else ()
+    env_target_definitions(
+            pch
+            PUBLIC
+            "ENV_NODE_NAN=0"
+            "ENV_NODE_NAPI=1")
+endif ()
+
 
 # Add binding -----------------------------------------------------------------
 
 function(env_node_add_bind _name)
+    cmake_parse_arguments(PARSED "" "OUTPUT" "SOURCES" ${ARGN})
     env_log(Adding NodeJS binding \"${_name}\".)
 
-    env_add_module(${_name} ${ARGN})
+    env_add_module(${_name} ${PARSED_SOURCES})
     env_target_link(${_name} PRIVATE env_node::export)
 
     env_node_decorate_bind(${_name})
+
+    if (PARSED_OUTPUT)
+        env_log(Adding NodeJS binding output target that copies the bindings
+                to \"${PARSED_OUTPUT}\".)
+
+        env_use_lower_project_name()
+        env_target_get_location(
+                ${LOWER_PROJECT_NAME}_${_name}
+                _loc)
+        add_custom_target(
+                ${LOWER_PROJECT_NAME}_${_name}_output
+                COMMAND "${CMAKE_COMMAND}" -E copy "${_loc}" "${PARSED_OUTPUT}")
+        add_dependencies(
+                ${LOWER_PROJECT_NAME}_${_name}_output
+                ${LOWER_PROJECT_NAME}_${_name})
+    endif ()
 endfunction()

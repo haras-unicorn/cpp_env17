@@ -125,6 +125,8 @@ env_add_dep(functional zug immer)
 # Targets ---------------------------------------------------------------------
 
 env_project_targets(
+        SHARE_PCH
+
         DEPS
         env::macros
         env::boost
