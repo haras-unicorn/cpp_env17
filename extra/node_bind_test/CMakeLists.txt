@@ -4,4 +4,4 @@ env_node_add_bind(
         SOURCES
         src.cpp
 
-        OUTPUT "${CMAKE_CURRENT_LIST_DIR}/js/node-bind-test/src/addon.node")
+        OUTPUT "${env_SOURCE_DIR}/.bin/node_bind_test_output/")

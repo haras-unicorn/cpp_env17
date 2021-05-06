@@ -2,8 +2,13 @@
 #define ENV_NODE_INCLUDED
 
 
+#include <env/env.hpp>
+
+
 #if ENV_NODE_NAPI // abstractions
 
+
+#elif ENV_NODE_NAN // abstractions
 
 
 #endif

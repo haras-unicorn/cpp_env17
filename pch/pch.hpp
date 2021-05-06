@@ -2,7 +2,7 @@
 #define ENV_PCH
 
 
-// push warning superssion
+// push warning suppression
 
 #if defined(__clang__) // clang
 

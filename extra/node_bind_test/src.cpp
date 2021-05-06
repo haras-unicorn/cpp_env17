@@ -1,5 +1,4 @@
 #include <env_node/env_node.hpp>
-#include <env/env.hpp>
 
 
 class addon : public Napi::Addon<addon>
@@ -16,7 +15,7 @@ public:
     }
 
 private:
-    Napi::Value test(const Napi::CallbackInfo& info)
+    Napi::Value test(const Napi::CallbackInfo& info) // NOLINT(readability-convert-member-functions-to-static)
     {
         if (::env::check())
         {
