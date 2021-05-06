@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.19...3.20)
 
 project(env
         DESCRIPTION "Environment for all of my C++ projects."
-        VERSION 1.0
+        VERSION 0.0.1
         LANGUAGES C CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
