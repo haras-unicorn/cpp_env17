@@ -2,6 +2,9 @@
 #define ENV_INCLUDED
 
 
+#include <env/pch.hpp>
+
+
 // Visibility -----------------------------------------------------------------
 
 #if ENV_SHARED || ENV_MODULE

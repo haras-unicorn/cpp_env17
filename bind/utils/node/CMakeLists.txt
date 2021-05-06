@@ -599,6 +599,10 @@ function(env_node_add_bind _name)
         env_log(Adding NodeJS binding output target that copies the bindings
                 to \"${PARSED_OUTPUT}\".)
 
+        if (PARSED_OUTPUT MATCHES [[/$]])
+            file(MAKE_DIRECTORY "${PARSED_OUTPUT}")
+        endif ()
+
         env_use_lower_project_name()
         env_target_get_location(
                 ${LOWER_PROJECT_NAME}_${_name}

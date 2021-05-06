@@ -1118,27 +1118,44 @@ endif ()
 # Atomic targets --------------------------------------------------------------
 
 function(env_project_pch)
-    env_use_lower_project_name()
-    env_prefix(pch ${LOWER_PROJECT_NAME} _mod)
-    env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
+    if (EXISTS "${PROJECT_SOURCE_DIR}/include/${LOWER_PROJECT_NAME}/pch.hpp")
+        env_use_lower_project_name()
+        env_prefix(pch ${LOWER_PROJECT_NAME} _mod)
+        env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
 
-    file(GLOB_RECURSE
-         _sources
-         CONFIGURE_DEPENDS
-         "${PROJECT_SOURCE_DIR}/pch/src/*.cpp")
+        file(GLOB_RECURSE
+             _sources
+             CONFIGURE_DEPENDS
+             "${PROJECT_SOURCE_DIR}/pch/*.cpp")
+        if (_sources)
+            add_library(${_mod} STATIC EXCLUDE_FROM_ALL ${_sources})
 
-    add_library(${_mod} STATIC EXCLUDE_FROM_ALL ${_sources})
-    add_library(${LOWER_PROJECT_NAME}::pch ALIAS ${_mod})
+            env_target_link(${_mod} PUBLIC ${ARGN})
+            env_target_include(${_mod} PUBLIC "${PROJECT_SOURCE_DIR}/include")
+            env_target_precompile(${_mod} PUBLIC <${LOWER_PROJECT_NAME}/pch.hpp>)
 
-    env_target_link(${_mod} PUBLIC ${ARGN})
-    env_target_precompile(${_mod} PUBLIC "${PROJECT_SOURCE_DIR}/pch/pch.hpp")
+            env_target_conform(${_mod})
+            env_target_suppress(${_mod})
+            env_target_optimize(${_mod})
 
-    env_target_conform(${_mod})
-    env_target_suppress(${_mod})
-    env_target_optimize(${_mod})
+            env_target_set_pie(${_mod})
+            env_set_cpp17(${_mod})
 
-    env_target_set_pie(${_mod})
-    env_set_cpp17(${_mod})
+        else ()
+            add_library(${_mod} INTERFACE EXCLUDE_FROM_ALL)
+
+            env_target_link(${_mod} INTERFACE ${ARGN})
+            env_target_include(${_mod} INTERFACE "${PROJECT_SOURCE_DIR}/include")
+            env_target_precompile(${_mod} INTERFACE <${LOWER_PROJECT_NAME}/pch.hpp>)
+
+        endif ()
+
+        add_library(${LOWER_PROJECT_NAME}::pch ALIAS ${_mod})
+
+    else ()
+
+        add_library(${_mod} INTERFACE EXCLUDE_FROM_ALL)
+    endif ()
 endfunction()
 
 
@@ -1475,7 +1492,7 @@ set(__env_scaffold_default_lib_glob
     "Default list of globbing patterns for scaffolded libraries.")
 
 set(__env_scaffold_default_pch_glob
-    "/pch/pch.hpp"
+    "/include/env/pch.hpp"
     CACHE STRING
     "Default location of precompiled header for scaffolded libraries.")
 
@@ -1811,9 +1828,9 @@ function(env_project_shared)
 endfunction()
 
 function(env_project_export)
-    cmake_parse_arguments(PARSED "SHARE_PCH" "" "" ${ARGN})
+    cmake_parse_arguments(PARSED "SHARE_PCH" "" "SOURCES" ${ARGN})
 
-    if (PARSED_UNPARSED_ARGUMENTS)
+    if (PARSED_SOURCES)
         env_log(-!- Adding export for \"${PROJECT_NAME}\". -!-)
         env_add_export(export)
 
@@ -1822,7 +1839,7 @@ function(env_project_export)
         if (${UPPER_PROJECT_NAME}_BUILD_STATIC)
             env_add_suppressed(
                     suppressed STATIC EXCLUDE_FROM_ALL
-                    ${PARSED_UNPARSED_ARGUMENTS})
+                    ${PARSED_SOURCES})
             env_target_link(
                     export
                     INTERFACE
@@ -1831,7 +1848,7 @@ function(env_project_export)
         elseif (${UPPER_PROJECT_NAME}_BUILD_OBJECTS)
             env_add_suppressed(
                     suppressed OBJECT EXCLUDE_FROM_ALL
-                    ${PARSED_UNPARSED_ARGUMENTS})
+                    ${PARSED_SOURCES})
             env_target_sources(
                     export
                     INTERFACE
@@ -1840,7 +1857,7 @@ function(env_project_export)
         elseif (${UPPER_PROJECT_NAME}_BUILD_SHARED)
             env_add_suppressed(
                     suppressed SHARED EXCLUDE_FROM_ALL
-                    ${PARSED_UNPARSED_ARGUMENTS})
+                    ${PARSED_SOURCES})
             env_target_link(
                     export
                     INTERFACE
@@ -2061,7 +2078,7 @@ function(env_project_targets)
     cmake_parse_arguments(
             PARSED
             "SHARE_PCH"
-            ""
+            "SOURCES"
             "DEPS;TEST_DEPS;BENCH_DEPS"
             ${ARGN})
 
@@ -2070,10 +2087,16 @@ function(env_project_targets)
 
     env_project_pch(${PARSED_DEPS})
 
+    # TODO: sources target
+
     file(GLOB_RECURSE
          _sources
          CONFIGURE_DEPENDS
          "${PROJECT_SOURCE_DIR}/src/*.cpp")
+
+    if (PARSED_SOURCES)
+        set(${PARSED_SOURCES} ${_sources})
+    endif ()
 
 
     env_project_objects(${_sources})
@@ -2081,9 +2104,9 @@ function(env_project_targets)
     env_project_shared(${_sources})
 
     if (PARSED_SHARE_PCH)
-        env_project_export(${_sources} SHARE_PCH)
+        env_project_export(SOURCES ${_sources} SHARE_PCH)
     else ()
-        env_project_export(${_sources})
+        env_project_export(SOURCES ${_sources})
     endif ()
 
     env_project_apps(${_sources})
