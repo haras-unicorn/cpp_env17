@@ -19,6 +19,17 @@ env_project_default_options()
 # Fetch -----------------------------------------------------------------------
 
 env_fetch(
+  macros
+  FROM
+  GIT_REPOSITORY
+  https://github.com/nemequ/hedley.git
+  GIT_TAG
+  v15
+  SCAFFOLD
+  INCLUDE_DIRS
+  "/")
+
+env_fetch(
   test
   FROM
   GIT_REPOSITORY

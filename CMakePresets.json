@@ -344,7 +344,7 @@
       "description": "Default production build for application users",
       "configurePreset": "env_prod",
       "jobs": 9,
-      "targets": ["env_main"]
+      "targets": ["env_app_main"]
     }
   ],
   "testPresets": [
