@@ -1,0 +1,114 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "hidden": true,
+      "name": "clang",
+      "displayName": "Clang Base",
+      "description": "Base preset using the Clang compiler",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_COMPILER": "clang",
+        "CMAKE_C_COMPILER": "clang++",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache"
+      }
+    },
+    {
+      "hidden": true,
+      "name": "gcc",
+      "displayName": "GCC Base",
+      "description": "Base preset using the GCC compiler",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_COMPILER": "gcc",
+        "CMAKE_C_COMPILER": "g++",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_C_COMPILER_LAUNCHER": "ccache"
+      }
+    },
+    {
+      "hidden": true,
+      "name": "msvc",
+      "displayName": "MSVC Base",
+      "description": "Base preset using the MSVC compiler",
+      "generator": "NMake Makefiles",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_COMPILER": "cl",
+        "CMAKE_C_COMPILER": "cl"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "hidden": true,
+      "name": "clang-cl",
+      "displayName": "ClangCL Base",
+      "description": "Base preset using the ClangCL compiler",
+      "generator": "NMake Makefiles",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_COMPILER": "clang-cl",
+        "CMAKE_C_COMPILER": "clang-cl"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "hidden": true,
+      "name": "debug",
+      "displayName": "Debug Base",
+      "description": "Base preset for the Debug build type",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "hidden": true,
+      "name": "release",
+      "displayName": "Release Base",
+      "description": "Base preset for the Release build type",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "dev",
+      "displayName": "Development",
+      "description": "Default development configuration",
+      "binaryDir": "${sourceDir}/.build/dev",
+      "inherits": ["clang", "debug"]
+    },
+    {
+      "name": "prod",
+      "displayName": "Production",
+      "description": "Default production configuration",
+      "binaryDir": "${sourceDir}/.build/prod",
+      "inherits": ["clang", "release"]
+    }
+  ],
+  "buildPresets": [
+    {
+      "hidden": true,
+      "name": "standalone",
+      "displayName": "Standalone Base",
+      "description": "Base preset for the standalone audio app build",
+      "targets": ["blooper::standalone"]
+    }
+  ],
+  "testPresets": []
+}
