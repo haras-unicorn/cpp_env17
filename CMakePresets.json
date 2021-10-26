@@ -8,35 +8,35 @@
   "configurePresets": [
     {
       "hidden": true,
-      "name": "clang",
+      "name": "env_clang",
       "displayName": "Clang Base",
       "description": "Base preset using the Clang compiler",
       "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "CMAKE_CXX_COMPILER": "clang",
-        "CMAKE_C_COMPILER": "clang++",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
         "CMAKE_C_COMPILER_LAUNCHER": "ccache"
       }
     },
     {
       "hidden": true,
-      "name": "gcc",
+      "name": "env_gcc",
       "displayName": "GCC Base",
       "description": "Base preset using the GCC compiler",
       "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "CMAKE_CXX_COMPILER": "gcc",
-        "CMAKE_C_COMPILER": "g++",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
         "CMAKE_C_COMPILER_LAUNCHER": "ccache"
       }
     },
     {
       "hidden": true,
-      "name": "msvc",
+      "name": "env_msvc",
       "displayName": "MSVC Base",
       "description": "Base preset using the MSVC compiler",
       "generator": "NMake Makefiles",
@@ -53,7 +53,7 @@
     },
     {
       "hidden": true,
-      "name": "clang-cl",
+      "name": "env_clang-cl",
       "displayName": "ClangCL Base",
       "description": "Base preset using the ClangCL compiler",
       "generator": "NMake Makefiles",
@@ -70,7 +70,7 @@
     },
     {
       "hidden": true,
-      "name": "debug",
+      "name": "env_debug",
       "displayName": "Debug Base",
       "description": "Base preset for the Debug build type",
       "cacheVariables": {
@@ -79,7 +79,7 @@
     },
     {
       "hidden": true,
-      "name": "release",
+      "name": "env_release",
       "displayName": "Release Base",
       "description": "Base preset for the Release build type",
       "cacheVariables": {
@@ -87,28 +87,309 @@
       }
     },
     {
-      "name": "dev",
-      "displayName": "Development",
-      "description": "Default development configuration",
-      "binaryDir": "${sourceDir}/.build/dev",
-      "inherits": ["clang", "debug"]
+      "hidden": true,
+      "name": "env_build_all",
+      "displayName": "Build All Base",
+      "description": "Base preset for building all CMake targets",
+      "cacheVariables": {
+        "ENV_COMPILER_MESSAGES": "ON",
+        "ENV_BUILD_STATIC": "ON",
+        "ENV_BUILD_SHARED": "ON",
+        "ENV_BUILD_OBJECTS": "ON",
+        "ENV_BUILD_APPS": "ON",
+        "ENV_BUILD_BIND_UTILS": "ON",
+        "ENV_BUILD_BINDS": "ON",
+        "ENV_BUILD_TESTS": "ON",
+        "ENV_BUILD_BENCHMARKS": "ON",
+        "ENV_BUILD_CI": "ON",
+        "ENV_BUILD_EXAMPLES": "ON",
+        "ENV_BUILD_DOCS": "ON",
+        "ENV_BUILD_EXTRAS": "ON"
+      }
     },
     {
-      "name": "prod",
+      "hidden": true,
+      "name": "env_build_export",
+      "displayName": "Build Export Base",
+      "description": "Base preset for building export CMake targets",
+      "cacheVariables": {
+        "ENV_COMPILER_MESSAGES": "OFF",
+        "ENV_BUILD_STATIC": "ON",
+        "ENV_BUILD_SHARED": "OFF",
+        "ENV_BUILD_OBJECTS": "OFF",
+        "ENV_BUILD_APPS": "OFF",
+        "ENV_BUILD_BIND_UTILS": "ON",
+        "ENV_BUILD_BINDS": "ON",
+        "ENV_BUILD_TESTS": "ON",
+        "ENV_BUILD_BENCHMARKS": "ON",
+        "ENV_BUILD_CI": "OFF",
+        "ENV_BUILD_EXAMPLES": "ON",
+        "ENV_BUILD_DOCS": "OFF",
+        "ENV_BUILD_EXTRAS": "OFF"
+      }
+    },
+    {
+      "hidden": true,
+      "name": "env_build_user",
+      "displayName": "Build User Base",
+      "description": "Base preset for building user CMake targets",
+      "cacheVariables": {
+        "ENV_COMPILER_MESSAGES": "OFF",
+        "ENV_BUILD_STATIC": "OFF",
+        "ENV_BUILD_SHARED": "OFF",
+        "ENV_BUILD_OBJECTS": "OFF",
+        "ENV_BUILD_APPS": "ON",
+        "ENV_BUILD_BIND_UTILS": "OFF",
+        "ENV_BUILD_BINDS": "OFF",
+        "ENV_BUILD_TESTS": "OFF",
+        "ENV_BUILD_BENCHMARKS": "OFF",
+        "ENV_BUILD_CI": "OFF",
+        "ENV_BUILD_EXAMPLES": "OFF",
+        "ENV_BUILD_DOCS": "OFF",
+        "ENV_BUILD_EXTRAS": "OFF"
+      }
+    },
+    {
+      "hidden": true,
+      "name": "env_warn_debug",
+      "displayName": "Debug warnings Base",
+      "description": "Base Preset for debugging configurations",
+      "errors": {
+        "dev": false,
+        "deprecated": false
+      },
+      "warnings": {
+        "dev": true,
+        "deprecated": true,
+        "uninitialized": false,
+        "unusedCli": true,
+        "systemVars": true
+      },
+      "debug": {
+        "output": true,
+        "find": true,
+        "tryCompile": true
+      }
+    },
+    {
+      "hidden": true,
+      "name": "env_warn_all",
+      "displayName": "All Warnings Base",
+      "description": "Base Preset for all warnings",
+      "errors": {
+        "dev": true,
+        "deprecated": true
+      },
+      "warnings": {
+        "dev": true,
+        "deprecated": true,
+        "uninitialized": false,
+        "unusedCli": true,
+        "systemVars": true
+      },
+      "debug": {
+        "output": false,
+        "find": false,
+        "tryCompile": false
+      }
+    },
+    {
+      "hidden": true,
+      "name": "env_warn_none",
+      "displayName": "No Warnings base",
+      "description": "Base Preset for no warnings",
+      "errors": {
+        "dev": false,
+        "deprecated": false
+      },
+      "warnings": {
+        "dev": false,
+        "deprecated": false,
+        "uninitialized": false,
+        "unusedCli": false,
+        "systemVars": false
+      },
+      "debug": {
+        "output": false,
+        "find": false,
+        "tryCompile": false
+      }
+    },
+    {
+      "name": "env_cmake_dev",
+      "displayName": "CMake Development",
+      "description": "Default CMake development configuration for CMake developers",
+      "binaryDir": "${sourceDir}/.build/env_cmake_dev",
+      "inherits": ["env_clang", "env_debug", "env_build_all", "env_warn_debug"]
+    },
+    {
+      "name": "env_dev",
+      "displayName": "Development",
+      "description": "Default development configuration for developers",
+      "binaryDir": "${sourceDir}/.build/env_dev",
+      "inherits": ["env_clang", "env_debug", "env_build_all", "env_warn_all"]
+    },
+    {
+      "name": "env_dev_release",
+      "displayName": "Development",
+      "description": "Default development configuration for developers",
+      "binaryDir": "${sourceDir}/.build/env_dev_release",
+      "inherits": ["env_clang", "env_release", "env_build_all", "env_warn_none"]
+    },
+    {
+      "name": "env_export",
+      "displayName": "Export",
+      "description": "Default export configuration for library users",
+      "binaryDir": "${sourceDir}/.build/env_export",
+      "inherits": [
+        "env_clang",
+        "env_release",
+        "env_build_export",
+        "env_warn_none"
+      ]
+    },
+    {
+      "name": "env_prod",
       "displayName": "Production",
-      "description": "Default production configuration",
-      "binaryDir": "${sourceDir}/.build/prod",
-      "inherits": ["clang", "release"]
+      "description": "Default production configuration for application users",
+      "binaryDir": "${sourceDir}/.build/env_prod",
+      "inherits": [
+        "env_clang",
+        "env_release",
+        "env_build_user",
+        "env_warn_none"
+      ]
     }
   ],
   "buildPresets": [
     {
-      "hidden": true,
-      "name": "standalone",
-      "displayName": "Standalone Base",
-      "description": "Base preset for the standalone audio app build",
-      "targets": ["blooper::standalone"]
+      "name": "env_bench",
+      "displayName": "Benchmarks",
+      "description": "Default build for benchmarks",
+      "configurePreset": "env_dev_release",
+      "jobs": 9,
+      "targets": ["env_benchmarks"]
+    },
+    {
+      "name": "env_tests",
+      "displayName": "Tests",
+      "description": "Default build for tests",
+      "configurePreset": "env_dev_release",
+      "jobs": 9,
+      "targets": ["env_tests"]
+    },
+    {
+      "name": "env_docs",
+      "displayName": "Docs",
+      "description": "Default build for docs",
+      "configurePreset": "env_dev_release",
+      "jobs": 9,
+      "targets": ["env_docs"]
+    },
+    {
+      "name": "env_ci",
+      "displayName": "CI",
+      "description": "Default build for CI",
+      "configurePreset": "env_dev_release",
+      "jobs": 9,
+      "targets": ["env_ci"]
+    },
+    {
+      "name": "env_dev",
+      "displayName": "Dev",
+      "description": "Default build for developers",
+      "inherits": ["env_tests", "env_bench", "env_docs", "env_ci"]
+    },
+    {
+      "name": "env_static",
+      "displayName": "Static",
+      "description": "Default export build for the static library users",
+      "configurePreset": "env_export",
+      "jobs": 9,
+      "targets": ["env_static"]
+    },
+    {
+      "name": "env_shared",
+      "displayName": "Shared",
+      "description": "Default export build for the shared library users",
+      "configurePreset": "env_export",
+      "jobs": 9,
+      "targets": ["env_shared"]
+    },
+    {
+      "name": "env_objects",
+      "displayName": "Objects",
+      "description": "Default export build for the object library users",
+      "configurePreset": "env_export",
+      "jobs": 9,
+      "targets": ["env_objects"]
+    },
+    {
+      "name": "env_lib",
+      "displayName": "Libraries",
+      "description": "Default export build for any library users",
+      "inherits": ["env_static", "env_shared", "env_objects"]
+    },
+    {
+      "name": "env_export",
+      "displayName": "Export",
+      "description": "Default export build for the library users",
+      "configurePreset": "env_export",
+      "jobs": 9,
+      "targets": ["env_export"]
+    },
+    {
+      "name": "env_app",
+      "displayName": "Application",
+      "description": "Default production build for application users",
+      "configurePreset": "env_prod",
+      "jobs": 9,
+      "targets": ["env_main"]
     }
   ],
-  "testPresets": []
+  "testPresets": [
+    {
+      "name": "env_debug_tests",
+      "displayName": "Tests",
+      "description": "Default test debugger",
+      "configurePreset": "env_dev",
+      "output": {
+        "shortProgress": true
+      },
+      "execution": {
+        "jobs": 9,
+        "interactiveDebugging": true
+      }
+    },
+    {
+      "name": "env_tests",
+      "displayName": "Tests",
+      "description": "Default test runner",
+      "configurePreset": "env_dev",
+      "output": {
+        "shortProgress": true
+      },
+      "execution": {
+        "jobs": 9,
+        "enableFailover": true,
+        "testLoad": 80,
+        "timeout": 60
+      }
+    },
+    {
+      "name": "env_tests_release",
+      "displayName": "Tests",
+      "description": "Default release test runner",
+      "configurePreset": "env_dev_release",
+      "output": {
+        "shortProgress": true
+      },
+      "execution": {
+        "jobs": 9,
+        "enableFailover": true,
+        "testLoad": 80,
+        "timeout": 60
+      }
+    }
+  ]
 }

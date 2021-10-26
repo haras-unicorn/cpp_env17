@@ -312,8 +312,20 @@ env_log(- Detecting hardware. -)
 
 env_log(CMake sizeof\(void*\) = ${CMAKE_SIZEOF_VOID_P}.)
 
-set(__env_cxx_byte_order "${CMAKE_CXX_BYTE_ORDER}" CACHE "CXX byte order." FORCE)
-set(__env_c_byte_order "${CMAKE_C_BYTE_ORDER}" CACHE "C byte order." FORCE)
+set(
+  __env_cxx_byte_order
+  "${CMAKE_CXX_BYTE_ORDER}"
+  CACHE STRING
+  "CXX byte order."
+  FORCE
+)
+set(
+  __env_c_byte_order
+  "${CMAKE_C_BYTE_ORDER}"
+  CACHE STRING
+  "C byte order."
+  FORCE
+)
 
 env_log(CMake CXX byte order is \"${__env_cxx_byte_order}\".)
 env_log(CMake C byte order is \"${__env_c_byte_order}\".)
@@ -348,8 +360,20 @@ set(ENV_32BIT FALSE CACHE BOOL "Whether architecture is 32 bit.")
 set(ENV_64BIT FALSE CACHE BOOL "Whether architecture is 64 bit.")
 
 
-set(ENV_CXX_BYTE_ORDER "${__env_cxx_byte_order}" CACHE "CXX byte order." FORCE)
-set(ENV_C_BYTE_ORDER "${__env_c_byte_order}" CACHE "C byte order." FORCE)
+set(
+  ENV_CXX_BYTE_ORDER
+  "${__env_cxx_byte_order}"
+  CACHE STRING
+  "CXX byte order."
+  FORCE
+)
+set(
+  ENV_C_BYTE_ORDER
+  "${__env_c_byte_order}"
+  CACHE STRING
+  "C byte order."
+  FORCE
+)
 
 if(__env_cxx_byte_order STREQUAL BIG_ENDIAN)
   env_log(CXX is big endian.)
@@ -394,7 +418,10 @@ set(ENV_C_BIG_ENDIAN FALSE CACHE BOOL "Whether architecture is big endian.")
 set(ENV_C_LITTLE_ENDIAN FALSE CACHE BOOL "Whether architecture is little endian.")
 
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64)
+if(
+  CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64 OR
+  CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64
+)
   env_log(Architecture is amd64.)
   set(
     ENV_AMD64
@@ -483,7 +510,7 @@ elseif(ANDROID)
 
   set(ENV_OS "android" CACHE STRING "OS name." FORCE)
 
-elseif(CMAKE_SYSTEM_NAME Darwin)
+elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
   env_log(OS is macOS.)
   set(
     ENV_MACOS
@@ -494,7 +521,7 @@ elseif(CMAKE_SYSTEM_NAME Darwin)
 
   set(ENV_OS "macos" CACHE STRING "OS name." FORCE)
 
-elseif(CMAKE_SYSTEM_NAME iOS)
+elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
   env_log(OS is iOS.)
   set(
     ENV_IOS
@@ -1587,6 +1614,23 @@ function(env_subdirectory)
   set(CMAKE_MESSAGE_INDENT ${_previous_log_indent})
 endfunction()
 
+function(env_list)
+  env_log(Adding subdirestories of lists: \"${ARGN}\".)
+
+  set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
+  set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
+
+  set(CMAKE_MESSAGE_LOG_LEVEL VERBOSE)
+  set(CMAKE_MESSAGE_INDENT "${_previous_log_indent}    ")
+  foreach(_list IN LISTS ARGN)
+    cmake_path(GET _list PARENT_PATH _sub_dir)
+    add_subdirectory(${_sub_dir})
+  endforeach()
+
+  set(CMAKE_MESSAGE_LOG_LEVEL ${_previous_log_level})
+  set(CMAKE_MESSAGE_INDENT ${_previous_log_indent})
+endfunction()
+
 
 # Scaffold --------------------------------------------------------------------
 
@@ -2114,8 +2158,8 @@ function(env_project_binding_utilities)
       LIST_DIRECTORIES FALSE
     )
 
-    foreach(_bind_util IN LISTS _bind_utils)
-      env_subdirectory("${_bind_util}/..")
+    foreach(_bind_util_list IN LISTS _bind_utils)
+      env_list(${_bind_util_list})
     endforeach()
   endif()
 endfunction()
@@ -2137,8 +2181,8 @@ function(env_project_bindings)
       LIST_DIRECTORIES FALSE
     )
 
-    foreach(_binding IN LISTS _bindings)
-      env_subdirectory("${_binding}/..")
+    foreach(_binding_list IN LISTS _bindings)
+      env_list(${_binding_list})
     endforeach()
   endif()
 endfunction()
@@ -2242,8 +2286,8 @@ function(env_project_examples)
 
     file(GLOB _examples "${PROJECT_SOURCE_DIR}/example/*/CMakeLists.txt")
 
-    foreach(_example IN LISTS _examples)
-      env_subdirectory("${_example}/..")
+    foreach(_example_list IN LISTS _examples)
+      env_list(${_example_list})
     endforeach()
   endif()
 endfunction()
@@ -2273,8 +2317,8 @@ function(env_project_extras)
 
     file(GLOB _extras "${PROJECT_SOURCE_DIR}/extra/*/CMakeLists.txt")
 
-    foreach(_extra IN LISTS _extras)
-      env_subdirectory("${_extra}/..")
+    foreach(_extra_list IN LISTS _extras)
+      env_list(${_extra_list})
     endforeach()
   endif()
 endfunction()

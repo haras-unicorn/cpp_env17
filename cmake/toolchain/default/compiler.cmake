@@ -1,7 +1,0 @@
-if (WIN32)
-    include("${CMAKE_CURRENT_LIST_DIR}/../compiler/clang-cl.cmake")
-elseif (UNIX AND NOT APPLE)
-    include("${CMAKE_CURRENT_LIST_DIR}/../compiler/clang.cmake")
-else ()
-    include("${CMAKE_CURRENT_LIST_DIR}/../compiler/gnu.cmake")
-endif ()

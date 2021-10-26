@@ -98,7 +98,7 @@ _deps
 
 # builds
 
-.builds/
+.build/
 .fetch/
 .bin/
 
