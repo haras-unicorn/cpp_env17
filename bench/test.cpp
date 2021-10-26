@@ -5,8 +5,7 @@ void bench(benchmark::State& state)
 {
     for ([[maybe_unused]] auto current : state)
     {
-        env::immut::vector<int> a{100};
-        env::trans::noop(a);
+        std::vector<int> a{100};
         benchmark::ClobberMemory();
     }
 }
