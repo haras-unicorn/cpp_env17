@@ -14,11 +14,7 @@ using namespace env::syntax;
 #define ENV_BENCH_CASE(_bench) BENCHMARK(_bench) // NOLINT(cert-err58-cpp)
 
 
-ENV_GNU_SUPPRESS_PUSH("-Wmisleading-indentation");
-
 BENCHMARK_MAIN();
-
-ENV_GNU_SUPPRESS_POP;
 
 
 #endif // ENV_BENCH_HPP

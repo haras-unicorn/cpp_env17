@@ -8,15 +8,8 @@
 using namespace env::syntax;
 
 
-ENV_MSVC_SUPPRESS_PUSH(6326); // constant comparison
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-
-ENV_MSVC_SUPPRESS_POP;
-
-// ignore GoogleTest unused static variable warning
-#define ENV_TEST_CASE(_suite, _test) TEST(_suite, _test) // NOLINT(cert-err58-cpp)
 
 
 int main(int argc, char** argv)

@@ -65,4 +65,11 @@ env_add_dep(bench benchmark)
 
 # Targets ---------------------------------------------------------------------
 
-env_project_targets(SHARE_PCH TEST_DEPS env::test BENCH_DEPS env::bench)
+env_project_targets(
+  SHARE_PCH
+  DEPS
+  env::macros
+  TEST_DEPS
+  env::test
+  BENCH_DEPS
+  env::bench)
