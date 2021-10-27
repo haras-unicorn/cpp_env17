@@ -2,6 +2,9 @@
 #define ENV_INCLUDED
 
 
+#include <env/pch.hpp>
+
+
 #if ENV_SHARED || ENV_MODULE
   #if ENV_EXPORT
     #define ENV_VISIBLE HEDLEY_PUBLIC
