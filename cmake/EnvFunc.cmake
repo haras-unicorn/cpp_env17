@@ -6,10 +6,6 @@ endif()
 
 set(ENV_FUNCTIONS_INCLUDED TRUE)
 
-# TODO: fix diamond dependencies and versioning somehow semver git tags?
-
-# TODO: use EXPORT_COMPILE_COMMAND in 3.20
-
 # -----------------------------------------------------------------------------
 # Utilities
 # -----------------------------------------------------------------------------
@@ -1169,45 +1165,6 @@ endif()
 
 # Atomic targets --------------------------------------------------------------
 
-function(env_project_pch)
-  if(EXISTS "${PROJECT_SOURCE_DIR}/include/${LOWER_PROJECT_NAME}/pch.hpp")
-    env_use_lower_project_name()
-    env_prefix(pch ${LOWER_PROJECT_NAME} _mod)
-    env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
-
-    file(GLOB_RECURSE _sources CONFIGURE_DEPENDS
-         "${PROJECT_SOURCE_DIR}/pch/*.cpp")
-    if(_sources)
-      add_library(${_mod} STATIC EXCLUDE_FROM_ALL ${_sources})
-
-      env_target_link(${_mod} PUBLIC ${ARGN})
-      env_target_include(${_mod} PUBLIC "${PROJECT_SOURCE_DIR}/include")
-      env_target_precompile(${_mod} PUBLIC <${LOWER_PROJECT_NAME}/pch.hpp>)
-
-      env_target_conform(${_mod})
-      env_target_suppress(${_mod})
-      env_target_optimize(${_mod})
-
-      env_target_set_pie(${_mod})
-      env_set_cpp17(${_mod})
-
-    else()
-      add_library(${_mod} INTERFACE EXCLUDE_FROM_ALL)
-
-      env_target_link(${_mod} INTERFACE ${ARGN})
-      env_target_include(${_mod} INTERFACE "${PROJECT_SOURCE_DIR}/include")
-      env_target_precompile(${_mod} INTERFACE <${LOWER_PROJECT_NAME}/pch.hpp>)
-
-    endif()
-
-    add_library(${LOWER_PROJECT_NAME}::pch ALIAS ${_mod})
-
-  else()
-
-    add_library(${_mod} INTERFACE EXCLUDE_FROM_ALL)
-  endif()
-endfunction()
-
 function(env_add_library _name)
   env_use_lower_project_name()
   env_prefix(${_name} ${LOWER_PROJECT_NAME} _mod)
@@ -1552,7 +1509,11 @@ function(env_scaffold _src_dir)
       separate_arguments(_option UNIX_COMMAND "${_option}")
       set(${_option} CACHE BOOL "" FORCE)
 
-      env_log(Setting \"${_name}\" option \"${_option}\".)
+      if(PARSED_NAME)
+        env_log(Setting \"${PARSED_NAME}\" option \"${_option}\".)
+      else()
+        env_log(Setting option \"${_option}\" for scaffold \"${_src_dir}\".)
+      endif()
     endforeach()
 
     if(PARSED_BINARY_DIR)
@@ -1804,6 +1765,57 @@ endfunction()
 
 # Targets ---------------------------------------------------------------------
 
+function(env_project_pch)
+  env_use_lower_project_name()
+
+  env_log(" - Adding precompiled headers of \"${PROJECT_NAME}\". - ")
+
+  env_prefix(pch ${LOWER_PROJECT_NAME} _mod)
+
+  if(EXISTS "${PROJECT_SOURCE_DIR}/pch")
+
+    file(GLOB_RECURSE _sources CONFIGURE_DEPENDS
+         "${PROJECT_SOURCE_DIR}/pch/*.cpp")
+
+    file(GLOB_RECURSE _headers CONFIGURE_DEPENDS
+         "${PROJECT_SOURCE_DIR}/pch/*.hpp")
+
+    if(_sources)
+
+      add_library(${_mod} STATIC EXCLUDE_FROM_ALL ${_sources})
+
+      env_target_link(${_mod} PUBLIC ${ARGN})
+      foreach(_header IN LISTS _headers)
+        env_target_precompile(${_mod} PUBLIC "\"${_header}\"")
+      endforeach()
+
+      env_target_conform(${_mod})
+      env_target_suppress(${_mod})
+      env_target_optimize(${_mod})
+
+      env_target_set_pie(${_mod})
+      env_set_cpp17(${_mod})
+
+    else()
+
+      add_library(${_mod} INTERFACE EXCLUDE_FROM_ALL)
+
+      env_target_link(${_mod} INTERFACE ${ARGN})
+      foreach(_header IN LISTS _headers)
+        env_target_precompile(${_mod} INTERFACE "\"${_header}\"")
+      endforeach()
+
+    endif()
+
+  else()
+
+    add_library(${_mod} INTERFACE EXCLUDE_FROM_ALL)
+
+  endif()
+
+  add_library(${LOWER_PROJECT_NAME}::pch ALIAS ${_mod})
+endfunction()
+
 function(env_project_objects)
   env_use_upper_project_name()
   if(${UPPER_PROJECT_NAME}_BUILD_OBJECTS AND ARGN)
@@ -1845,66 +1857,37 @@ function(env_project_shared)
 endfunction()
 
 function(env_project_export)
+  env_use_upper_project_name()
+  env_use_lower_project_name()
   cmake_parse_arguments(PARSED "SHARE_PCH" "" "SOURCES" ${ARGN})
 
+  env_log(-!- Adding export for \"${PROJECT_NAME}\". -!-)
+  env_add_export(export)
+
   if(PARSED_SOURCES)
-    env_log(-!- Adding export for \"${PROJECT_NAME}\". -!-)
-    env_add_export(export)
-
-    env_use_upper_project_name()
-    env_use_lower_project_name()
-    if(${UPPER_PROJECT_NAME}_BUILD_STATIC)
-      env_add_suppressed(suppressed STATIC EXCLUDE_FROM_ALL ${PARSED_SOURCES})
-      env_target_link(export INTERFACE ${LOWER_PROJECT_NAME}_suppressed)
-
-    elseif(${UPPER_PROJECT_NAME}_BUILD_OBJECTS)
+    if(${UPPER_PROJECT_NAME}_BUILD_OBJECTS
+       OR (NOT ${UPPER_PROJECT_NAME}_BUILD_STATIC
+           AND NOT ${UPPER_PROJECT_NAME}_BUILD_SHARED))
       env_add_suppressed(suppressed OBJECT EXCLUDE_FROM_ALL ${PARSED_SOURCES})
       env_target_sources(export INTERFACE
                          $<TARGET_OBJECTS:${LOWER_PROJECT_NAME}_suppressed>)
 
+      if(PARSED_SHARE_PCH)
+        env_target_link(export INTERFACE ${LOWER_PROJECT_NAME}::pch)
+      endif()
+
+      env_target_include(export INTERFACE ${PROJECT_SOURCE_DIR}/include)
+
+    elseif(${UPPER_PROJECT_NAME}_BUILD_STATIC)
+      env_add_suppressed(suppressed STATIC EXCLUDE_FROM_ALL ${PARSED_SOURCES})
+      env_target_link(export INTERFACE ${LOWER_PROJECT_NAME}_suppressed)
+
     elseif(${UPPER_PROJECT_NAME}_BUILD_SHARED)
       env_add_suppressed(suppressed SHARED EXCLUDE_FROM_ALL ${PARSED_SOURCES})
       env_target_link(export INTERFACE ${LOWER_PROJECT_NAME}_suppressed)
-
-    else()
-      env_log(
-        WARNING
-        Failed
-        to
-        create
-        an
-        export
-        target
-        for
-        \"${PROJECT_NAME}\".
-        Please
-        specify
-        a
-        flag
-        to
-        build
-        either
-        an
-        objects
-        or
-        static
-        or
-        shared
-        library
-        that
-        could
-        be
-        used
-        to
-        create
-        an
-        export
-        target.)
     endif()
 
     if(TARGET ${LOWER_PROJECT_NAME}_suppressed)
-      env_add_alias(suppressed)
-
       if(PARSED_SHARE_PCH)
         env_target_link(suppressed PUBLIC ${LOWER_PROJECT_NAME}::pch)
       else()
@@ -1915,24 +1898,26 @@ function(env_project_export)
 
       env_target_set_bin_output(${LOWER_PROJECT_NAME}_suppressed)
     endif()
+
+  else()
+    env_target_include(export INTERFACE ${PROJECT_SOURCE_DIR}/include)
+
   endif()
 endfunction()
 
 function(env_project_apps)
   env_use_upper_project_name()
+  env_use_lower_project_name()
+
   if(${UPPER_PROJECT_NAME}_BUILD_APPS AND EXISTS "${PROJECT_SOURCE_DIR}/app")
     env_log(-!- Adding apps for \"${PROJECT_NAME}\". -!-)
 
     file(GLOB_RECURSE _apps CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/app/*.cpp")
-
-    env_use_lower_project_name()
     foreach(_app IN LISTS _apps)
       env_target_name_for(${_app} _target)
 
-      env_add_app(${_target} ${_app} ${ARGN})
-
-      env_target_link(${_target} PRIVATE ${LOWER_PROJECT_NAME}::pch)
-      env_target_include(${_target} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+      env_add_app(${_target} ${_app})
+      env_target_link(${_target} PRIVATE ${LOWER_PROJECT_NAME}::export)
 
       env_target_set_bin_output(${_target} SUB "${LOWER_PROJECT_NAME}/apps")
     endforeach()
@@ -1941,6 +1926,7 @@ endfunction()
 
 function(env_project_binding_utilities)
   env_use_upper_project_name()
+
   if(${UPPER_PROJECT_NAME}_BUILD_BIND_UTILS
      AND EXISTS "${PROJECT_SOURCE_DIR}/bind/utils")
 
@@ -1965,7 +1951,9 @@ endfunction()
 
 function(env_project_bindings)
   env_use_upper_project_name()
-  if(${UPPER_PROJECT_NAME}_BUILD_BINDS AND EXISTS "${PROJECT_SOURCE_DIR}/bind")
+  if(${UPPER_PROJECT_NAME}_BUILD_BIND_UTILS
+     AND ${UPPER_PROJECT_NAME}_BUILD_BINDS
+     AND EXISTS "${PROJECT_SOURCE_DIR}/bind")
 
     env_log(-!- Adding bindings for \"${PROJECT_NAME}\". -!-)
 
@@ -1990,12 +1978,10 @@ function(env_project_tests)
     env_use_lower_project_name()
     foreach(_test IN LISTS _tests)
       env_target_name_for(${_test} _target)
+
       env_add_test(${_target} ${_test})
-
+      env_target_link(${_target} PRIVATE ${LOWER_PROJECT_NAME}::export)
       env_target_link(${_target} PRIVATE ${ARGN})
-
-      env_target_link(${_target} PRIVATE ${LOWER_PROJECT_NAME}::pch)
-      env_target_include(${_target} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
       env_target_set_bin_output(${_target} SUB "test/${LOWER_PROJECT_NAME}")
 
@@ -2018,12 +2004,10 @@ function(env_project_benchmarks)
     env_use_lower_project_name()
     foreach(_benchmark IN LISTS _benchmarks)
       env_target_name_for(${_benchmark} _target)
+
       env_add_bench(${_target} ${_benchmark})
-
+      env_target_link(${_target} PRIVATE ${LOWER_PROJECT_NAME}::export)
       env_target_link(${_target} PRIVATE ${ARGN})
-
-      env_target_link(${_target} PRIVATE ${LOWER_PROJECT_NAME}::pch)
-      env_target_include(${_target} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
       env_target_set_bin_output(${_target} SUB "bench/${LOWER_PROJECT_NAME}")
 
@@ -2104,20 +2088,23 @@ function(env_project_targets)
        "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
   if(PARSED_SOURCES)
-    set(${PARSED_SOURCES} ${_sources})
+    set(${PARSED_SOURCES}
+        ${_sources}
+        PARENT_SCOPE)
   endif()
+
+  env_log(Using sources: \"${_sources}\".)
 
   env_project_objects(${_sources})
   env_project_static(${_sources})
   env_project_shared(${_sources})
 
   if(PARSED_SHARE_PCH)
+    env_log(Sharing precompiled headers.)
     env_project_export(SOURCES ${_sources} SHARE_PCH)
   else()
     env_project_export(SOURCES ${_sources})
   endif()
-
-  env_project_apps(${_sources})
 
   env_project_binding_utilities()
   env_project_bindings()
@@ -2135,6 +2122,8 @@ function(env_project_targets)
   endif()
 
   env_project_ci()
+
+  env_project_apps()
 
   env_project_examples()
   env_project_docs()

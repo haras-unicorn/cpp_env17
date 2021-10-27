@@ -5,11 +5,11 @@
 #include <env/env.hpp>
 
 #if ENV_NODE_NAN // abstractions
-    #include <nan.h>
+  #include <nan.h>
 #elif ENV_NODE_NAPI // abstractions
-    #include <napi.h>
+  #include <napi.h>
 #else // abstractions
-    #error "No abstractions defined for Node bindings."
+  #error "No abstractions defined for Node bindings."
 #endif
 
 

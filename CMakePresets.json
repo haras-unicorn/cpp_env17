@@ -93,9 +93,9 @@
       "description": "Base preset for building all CMake targets",
       "cacheVariables": {
         "ENV_COMPILER_MESSAGES": "ON",
+        "ENV_BUILD_OBJECTS": "ON",
         "ENV_BUILD_STATIC": "ON",
         "ENV_BUILD_SHARED": "ON",
-        "ENV_BUILD_OBJECTS": "ON",
         "ENV_BUILD_APPS": "ON",
         "ENV_BUILD_BIND_UTILS": "ON",
         "ENV_BUILD_BINDS": "ON",
@@ -114,16 +114,16 @@
       "description": "Base preset for building export CMake targets",
       "cacheVariables": {
         "ENV_COMPILER_MESSAGES": "OFF",
+        "ENV_BUILD_OBJECTS": "ON",
         "ENV_BUILD_STATIC": "ON",
-        "ENV_BUILD_SHARED": "OFF",
-        "ENV_BUILD_OBJECTS": "OFF",
+        "ENV_BUILD_SHARED": "ON",
         "ENV_BUILD_APPS": "OFF",
         "ENV_BUILD_BIND_UTILS": "ON",
         "ENV_BUILD_BINDS": "ON",
-        "ENV_BUILD_TESTS": "ON",
-        "ENV_BUILD_BENCHMARKS": "ON",
+        "ENV_BUILD_TESTS": "OFF",
+        "ENV_BUILD_BENCHMARKS": "OFF",
         "ENV_BUILD_CI": "OFF",
-        "ENV_BUILD_EXAMPLES": "ON",
+        "ENV_BUILD_EXAMPLES": "OFF",
         "ENV_BUILD_DOCS": "OFF",
         "ENV_BUILD_EXTRAS": "OFF"
       }
@@ -135,9 +135,9 @@
       "description": "Base preset for building user CMake targets",
       "cacheVariables": {
         "ENV_COMPILER_MESSAGES": "OFF",
+        "ENV_BUILD_OBJECTS": "OFF",
         "ENV_BUILD_STATIC": "OFF",
         "ENV_BUILD_SHARED": "OFF",
-        "ENV_BUILD_OBJECTS": "OFF",
         "ENV_BUILD_APPS": "ON",
         "ENV_BUILD_BIND_UTILS": "OFF",
         "ENV_BUILD_BINDS": "OFF",
@@ -268,7 +268,7 @@
       "description": "Default build for benchmarks",
       "configurePreset": "env_dev_release",
       "jobs": 9,
-      "targets": ["env_benchmarks", "env_run_benchmarks"]
+      "targets": ["env_bench", "env_run_bench"]
     },
     {
       "name": "env_tests",
@@ -279,26 +279,17 @@
       "targets": ["env_tests", "env_run_tests"]
     },
     {
-      "name": "env_docs",
-      "displayName": "Docs",
-      "description": "Default build for docs",
-      "configurePreset": "env_dev",
-      "jobs": 9,
-      "targets": ["env_docs"]
-    },
-    {
-      "name": "env_ci",
-      "displayName": "CI",
-      "description": "Default build for CI",
-      "configurePreset": "env_dev",
-      "jobs": 9,
-      "targets": ["env_ci"]
-    },
-    {
       "name": "env_dev",
       "displayName": "Dev",
       "description": "Default build for developers",
-      "inherits": ["env_tests", "env_bench", "env_docs", "env_ci"]
+      "configurePreset": "env_dev_release",
+      "jobs": 9,
+      "targets": [
+        "env_tests",
+        "env_run_tests",
+        "env_benchmarks",
+        "env_run_benchmarks"
+      ]
     },
     {
       "name": "env_static",
@@ -317,26 +308,12 @@
       "targets": ["env_shared"]
     },
     {
-      "name": "env_objects",
-      "displayName": "Objects",
-      "description": "Default export build for the object library users",
-      "configurePreset": "env_export",
-      "jobs": 9,
-      "targets": ["env_objects"]
-    },
-    {
       "name": "env_lib",
       "displayName": "Libraries",
       "description": "Default export build for any library users",
-      "inherits": ["env_static", "env_shared", "env_objects"]
-    },
-    {
-      "name": "env_export",
-      "displayName": "Export",
-      "description": "Default export build for the library users",
       "configurePreset": "env_export",
       "jobs": 9,
-      "targets": ["env_export"]
+      "targets": ["env_static", "env_shared"]
     },
     {
       "name": "env_app",

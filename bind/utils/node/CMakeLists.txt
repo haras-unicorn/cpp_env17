@@ -575,6 +575,8 @@ endif()
 # Targets
 # -----------------------------------------------------------------------------
 
+# TODO: make these configurable
+
 set(ENV_NODE_BUILD_STATIC ON)
 
 if(ENV_BUILD_TESTS)
