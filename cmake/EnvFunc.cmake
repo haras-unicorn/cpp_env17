@@ -1758,7 +1758,7 @@ function(env_project_default_options)
   option(${UPPER_PROJECT_NAME}_BUILD_EXAMPLES "Build ${PROJECT_NAME} examples."
          OFF)
 
-  option(${UPPER_PROJECT_NAME}_BUILD_DOCS "Build ${PROJECT_NAME} docs." OFF)
+  option(${UPPER_PROJECT_NAME}_BUILD_DOC "Build ${PROJECT_NAME} doc." OFF)
 
   option(${UPPER_PROJECT_NAME}_BUILD_EXTRAS "Build ${PROJECT_NAME} extras." OFF)
 endfunction()
@@ -2042,14 +2042,58 @@ function(env_project_examples)
   endif()
 endfunction()
 
-# TODO: configure Doxygen
-function(env_project_docs)
-  env_use_upper_project_name()
-  if(${UPPER_PROJECT_NAME}_BUILD_DOCS
-     AND EXISTS "${PROJECT_SOURCE_DIR}/docs/CMakeLists.txt")
+find_package(Doxygen)
 
-    env_log(-!- Adding docs for \"${PROJECT_NAME}\". -!-)
-    env_subdirectory("${PROJECT_SOURCE_DIR}/docs")
+function(env_project_doc)
+  env_use_upper_project_name()
+  env_use_lower_project_name()
+
+  if(${UPPER_PROJECT_NAME}_BUILD_DOC)
+    env_log(-!- Adding doc for \"${PROJECT_NAME}\". -!-)
+
+    if(EXISTS "${PROJECT_SOURCE_DIR}/doc/CMakeLists.txt")
+      env_log(Adding doc via list.)
+      env_subdirectory("${PROJECT_SOURCE_DIR}/doc")
+
+    elseif(DOXYGEN_FOUND)
+      env_log(Adding doc via doxygen.)
+
+      file(GLOB_RECURSE _doc_sources "${PROJECT_SOURCE_DIR}/include/*.hpp")
+      set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc")
+      doxygen_add_docs(${LOWER_PROJECT_NAME}_doc ${_doc_sources} USE_STAMP_FILE
+                       COMMENT "Generate doc with doxygen.")
+      env_log(
+        Added
+        \"${LOWER_PROJECT_NAME}_doc\"
+        target
+        for
+        doxygen
+        generation
+        in
+        \"${PROJECT_SOURCE_DIR}/.doc\"
+        with
+        source
+        glob
+        \"${PROJECT_SOURCE_DIR}/include/*.hpp\".)
+
+    else()
+      env_log(
+        WARNING
+        Doc
+        build
+        flag
+        was
+        set
+        but
+        no
+        way
+        to
+        build
+        docs
+        is
+        provided.)
+
+    endif()
   endif()
 endfunction()
 
@@ -2126,7 +2170,7 @@ function(env_project_targets)
   env_project_apps()
 
   env_project_examples()
-  env_project_docs()
+  env_project_doc()
 
   env_project_extras()
 endfunction()

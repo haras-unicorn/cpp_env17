@@ -103,7 +103,7 @@
         "ENV_BUILD_BENCHMARKS": "ON",
         "ENV_BUILD_CI": "ON",
         "ENV_BUILD_EXAMPLES": "ON",
-        "ENV_BUILD_DOCS": "ON",
+        "ENV_BUILD_DOC": "ON",
         "ENV_BUILD_EXTRAS": "ON"
       }
     },
@@ -124,7 +124,7 @@
         "ENV_BUILD_BENCHMARKS": "OFF",
         "ENV_BUILD_CI": "OFF",
         "ENV_BUILD_EXAMPLES": "OFF",
-        "ENV_BUILD_DOCS": "OFF",
+        "ENV_BUILD_DOC": "OFF",
         "ENV_BUILD_EXTRAS": "OFF"
       }
     },
@@ -145,7 +145,7 @@
         "ENV_BUILD_BENCHMARKS": "OFF",
         "ENV_BUILD_CI": "OFF",
         "ENV_BUILD_EXAMPLES": "OFF",
-        "ENV_BUILD_DOCS": "OFF",
+        "ENV_BUILD_DOC": "OFF",
         "ENV_BUILD_EXTRAS": "OFF"
       }
     },
@@ -279,6 +279,14 @@
       "targets": ["env_tests", "env_run_tests"]
     },
     {
+      "name": "env_doc",
+      "displayName": "Doc",
+      "description": "Default build for doc",
+      "configurePreset": "env_dev",
+      "jobs": 9,
+      "targets": ["env_doc"]
+    },
+    {
       "name": "env_dev",
       "displayName": "Dev",
       "description": "Default build for developers",
@@ -288,7 +296,8 @@
         "env_tests",
         "env_run_tests",
         "env_benchmarks",
-        "env_run_benchmarks"
+        "env_run_benchmarks",
+        "env_doc"
       ]
     },
     {
