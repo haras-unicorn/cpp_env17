@@ -1,2 +1,2 @@
 CompileFlags:
-  CompilationDatabase: .build/env_dev/
+  CompilationDatabase: .build/env_dev_release/
