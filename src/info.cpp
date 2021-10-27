@@ -2,5 +2,5 @@
 
 ENV_VISIBLE bool ::env::check() noexcept
 {
-    return true;
+  return true;
 }

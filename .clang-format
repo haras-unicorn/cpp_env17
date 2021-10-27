@@ -46,22 +46,22 @@ BinPackArguments: true
 BinPackParameters: true
 
 BraceWrapping:
-IndentBraces: false
-AfterExternBlock: true
-AfterNamespace: true
-SplitEmptyNamespace: false
-AfterClass: true
-AfterStruct: true
-SplitEmptyRecord: false
-AfterEnum: true
-AfterUnion: true
-AfterFunction: true
-SplitEmptyFunction: false
-BeforeLambdaBody: false
-AfterControlStatement: MultiLine
-BeforeElse: true
-AfterCaseLabel: false
-BeforeCatch: true
+  IndentBraces: false
+  AfterExternBlock: true
+  AfterNamespace: true
+  SplitEmptyNamespace: false
+  AfterClass: true
+  AfterStruct: true
+  SplitEmptyRecord: false
+  AfterEnum: true
+  AfterUnion: true
+  AfterFunction: true
+  SplitEmptyFunction: false
+  BeforeLambdaBody: false
+  AfterControlStatement: MultiLine
+  BeforeElse: true
+  AfterCaseLabel: false
+  BeforeCatch: true
 
 ReflowComments: true
 

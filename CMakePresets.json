@@ -268,21 +268,21 @@
       "description": "Default build for benchmarks",
       "configurePreset": "env_dev_release",
       "jobs": 9,
-      "targets": ["env_benchmarks"]
+      "targets": ["env_benchmarks", "env_run_benchmarks"]
     },
     {
       "name": "env_tests",
       "displayName": "Tests",
       "description": "Default build for tests",
-      "configurePreset": "env_dev_release",
+      "configurePreset": "env_dev",
       "jobs": 9,
-      "targets": ["env_tests"]
+      "targets": ["env_tests", "env_run_tests"]
     },
     {
       "name": "env_docs",
       "displayName": "Docs",
       "description": "Default build for docs",
-      "configurePreset": "env_dev_release",
+      "configurePreset": "env_dev",
       "jobs": 9,
       "targets": ["env_docs"]
     },
@@ -290,7 +290,7 @@
       "name": "env_ci",
       "displayName": "CI",
       "description": "Default build for CI",
-      "configurePreset": "env_dev_release",
+      "configurePreset": "env_dev",
       "jobs": 9,
       "targets": ["env_ci"]
     },

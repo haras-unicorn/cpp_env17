@@ -2,20 +2,17 @@
 #define ENV_INCLUDED
 
 
-#include <env/pch.hpp>
-
-
 #if ENV_SHARED || ENV_MODULE
-    #if ENV_EXPORT
-        #define ENV_VISIBLE HEDLEY_PUBLIC
-        #define ENV_HIDDEN  HEDLEY_PRIVATE
-    #elif ENV_IMPORT
-        #define ENV_VISIBLE HEDLEY_IMPORT
-        #define ENV_HIDDEN
-    #endif
-#else
-    #define ENV_VISIBLE
+  #if ENV_EXPORT
+    #define ENV_VISIBLE HEDLEY_PUBLIC
+    #define ENV_HIDDEN  HEDLEY_PRIVATE
+  #elif ENV_IMPORT
+    #define ENV_VISIBLE HEDLEY_IMPORT
     #define ENV_HIDDEN
+  #endif
+#else
+  #define ENV_VISIBLE
+  #define ENV_HIDDEN
 #endif
 
 

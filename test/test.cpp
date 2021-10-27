@@ -1,8 +1,8 @@
 #include <env/test.hpp>
 #include <gtest/gtest.h>
 
-TEST(env, second)
+TEST(env, test)
 {
-    std::vector<int> ints{10};
-    EXPECT_EQ(ints.capacity(), 1);
+  ::std::vector<int> ints{10};
+  EXPECT_EQ(ints.capacity(), 1);
 }

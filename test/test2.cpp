@@ -1,6 +1,6 @@
 #include <env/test.hpp>
 
-TEST(env, second)
+TEST(env, test2)
 {
-    EXPECT_EQ(1, 1);
+  EXPECT_EQ(1, 1);
 }
