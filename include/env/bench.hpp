@@ -1,14 +1,14 @@
-#ifndef ENV_BENCH_HPP
-#define ENV_BENCH_HPP
+#if !defined(ENV_BENCH_HPP) && ENV_BENCH
+  #define ENV_BENCH_HPP
 
 
-#include <env/env.hpp>
-#include <env/macros.hpp>
+  #include <env/env.hpp>
+  #include <env/macros.hpp>
 
 using namespace env::syntax;
 
 
-#include <benchmark/benchmark.h>
+  #include <benchmark/benchmark.h>
 
 
 int main(int argc, char** argv)

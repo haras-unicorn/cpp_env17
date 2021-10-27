@@ -1,15 +1,15 @@
-#ifndef ENV_TEST_HPP
-#define ENV_TEST_HPP
+#if !defined(ENV_TEST_HPP) && ENV_TEST
+  #define ENV_TEST_HPP
 
 
-#include <env/env.hpp>
-#include <env/macros.hpp>
+  #include <env/env.hpp>
+  #include <env/macros.hpp>
 
 using namespace env::syntax;
 
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+  #include <gtest/gtest.h>
+  #include <gmock/gmock.h>
 
 
 int main(int argc, char** argv)
