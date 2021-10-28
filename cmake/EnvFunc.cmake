@@ -2059,7 +2059,7 @@ function(env_project_doc)
       env_log(Adding doc via doxygen.)
 
       file(GLOB_RECURSE _doc_sources "${PROJECT_SOURCE_DIR}/include/*.hpp")
-      set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc")
+      set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
       doxygen_add_docs(${LOWER_PROJECT_NAME}_doc ${_doc_sources} USE_STAMP_FILE
                        COMMENT "Generate doc with doxygen.")
       env_log(
