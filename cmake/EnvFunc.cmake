@@ -2042,7 +2042,9 @@ function(env_project_examples)
   endif()
 endfunction()
 
+# TODO: check for breathe
 find_package(Doxygen)
+find_package(Sphinx)
 
 function(env_project_doc)
   env_use_upper_project_name()
@@ -2055,26 +2057,84 @@ function(env_project_doc)
       env_log(Adding doc via list.)
       env_subdirectory("${PROJECT_SOURCE_DIR}/doc")
 
-    elseif(DOXYGEN_FOUND)
-      env_log(Adding doc via doxygen.)
+    elseif(
+      DOXYGEN_FOUND
+      AND SPHINX_FOUND
+      AND EXISTS "${PROJECT_SOURCE_DIR}/doc/conf.py"
+      AND EXISTS "${PROJECT_SOURCE_DIR}/doc/index.rst")
+      env_log(Adding doc via Doxygen and Sphinx.)
 
       file(GLOB_RECURSE _doc_sources "${PROJECT_SOURCE_DIR}/include/*.hpp")
       set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
-      doxygen_add_docs(${LOWER_PROJECT_NAME}_doc ${_doc_sources} USE_STAMP_FILE
-                       COMMENT "Generate doc with doxygen.")
+      set(DOXYGEN_GENERATE_XML "YES")
+      doxygen_add_docs(
+        ${LOWER_PROJECT_NAME}_doxygen ${_doc_sources} USE_STAMP_FILE
+        COMMENT "Generate Breathe sources for Sphinx with Doxygen.")
+
+      add_custom_command(
+        OUTPUT "${PROJECT_SOURCE_DIR}/.doc/sphinx/index.html"
+        COMMAND ${SPHINX_EXECUTABLE} "${PROJECT_SOURCE_DIR}/doc/"
+                "${PROJECT_SOURCE_DIR}/.doc/sphinx/"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/doc/"
+        DEPENDS ${LOWER_PROJECT_NAME}_doxygen
+                "${PROJECT_SOURCE_DIR}/doc/index.rst"
+        MAIN_DEPENDENCY "${PROJECT_SOURCE_DIR}/doc/conf.py"
+        COMMENT "Generate doc with Sphinx.")
+
+      add_custom_target(${LOWER_PROJECT_NAME}_sphinx
+                        DEPENDS "${PROJECT_SOURCE_DIR}/.doc/sphinx/index.html")
+
+      add_custom_command(
+        OUTPUT "${PROJECT_SOURCE_DIR}/.doc/build/index.html"
+        COMMAND
+          ${CMAKE_COMMAND} -E copy_directory
+          "${PROJECT_SOURCE_DIR}/.doc/sphinx/"
+          "${PROJECT_SOURCE_DIR}/.doc/build/"
+        MAIN_DEPENDENCY "${PROJECT_SOURCE_DIR}/.doc/sphinx/index.xml"
+        COMMENT "Copying Sphinx build into the doc build directory.")
+
+      add_custom_target(${LOWER_PROJECT_NAME}_doc
+                        DEPENDS "${PROJECT_SOURCE_DIR}/.doc/build/index.html")
+
       env_log(
         Added
         \"${LOWER_PROJECT_NAME}_doc\"
         target
         for
-        doxygen
+        doc
         generation
         in
-        \"${PROJECT_SOURCE_DIR}/.doc\"
-        with
-        source
-        glob
-        \"${PROJECT_SOURCE_DIR}/include/*.hpp\".)
+        \"${PROJECT_SOURCE_DIR}/.doc/build\".)
+
+    elseif(DOXYGEN_FOUND)
+      env_log(Adding doc via doxygen.)
+
+      file(GLOB_RECURSE _doc_sources "${PROJECT_SOURCE_DIR}/include/*.hpp")
+      set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
+      doxygen_add_docs(${LOWER_PROJECT_NAME}_doxygen ${_doc_sources}
+                       USE_STAMP_FILE COMMENT "Generate doc with doxygen.")
+
+      add_custom_command(
+        OUTPUT "${PROJECT_SOURCE_DIR}/.doc/build/index.html"
+        COMMAND
+          ${CMAKE_COMMAND} -E copy_directory
+          "${PROJECT_SOURCE_DIR}/.doc/doxygen/html/"
+          "${PROJECT_SOURCE_DIR}/.doc/build/"
+        DEPENDS ${LOWER_PROJECT_NAME}_doxygen
+        COMMENT "Copying Doxygen build into the doc build directory.")
+
+      add_custom_target(${LOWER_PROJECT_NAME}_doc
+                        DEPENDS "${PROJECT_SOURCE_DIR}/.doc/build/index.html")
+
+      env_log(
+        Added
+        \"${LOWER_PROJECT_NAME}_doc\"
+        target
+        for
+        doc
+        generation
+        in
+        \"${PROJECT_SOURCE_DIR}/.doc/build\".)
 
     else()
       env_log(

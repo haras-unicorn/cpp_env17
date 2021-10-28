@@ -10,6 +10,9 @@ Welcome to Env's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+.. autodoxygenindex::
+   :project: env
+
 
 
 Indices and tables
