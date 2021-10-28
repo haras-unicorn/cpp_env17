@@ -1713,8 +1713,9 @@ endfunction()
 
 # Initialization --------------------------------------------------------------
 
-function(env_project_default_options)
+function(env_project)
   env_use_upper_project_name()
+
   env_log(---!!!--- Initializing project \"${PROJECT_NAME}\". ---!!!---)
 
   if(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -2050,6 +2051,8 @@ function(env_project_doc)
   env_use_upper_project_name()
   env_use_lower_project_name()
 
+  cmake_parse_arguments(PARSED "" "AUTHOR;COPYRIGHT" "" ${ARGN})
+
   if(${UPPER_PROJECT_NAME}_BUILD_DOC)
     env_log(-!- Adding doc for \"${PROJECT_NAME}\". -!-)
 
@@ -2060,26 +2063,40 @@ function(env_project_doc)
     elseif(
       DOXYGEN_FOUND
       AND SPHINX_FOUND
-      AND EXISTS "${PROJECT_SOURCE_DIR}/doc/conf.py"
-      AND EXISTS "${PROJECT_SOURCE_DIR}/doc/index.rst")
+      AND EXISTS "${PROJECT_SOURCE_DIR}/doc/conf.py.in"
+      AND EXISTS "${PROJECT_SOURCE_DIR}/doc/index.rst.in")
       env_log(Adding doc via Doxygen and Sphinx.)
 
-      file(GLOB_RECURSE _doc_sources "${PROJECT_SOURCE_DIR}/include/*.hpp")
       set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
       set(DOXYGEN_GENERATE_XML "YES")
       doxygen_add_docs(
-        ${LOWER_PROJECT_NAME}_doxygen ${_doc_sources} USE_STAMP_FILE
-        COMMENT "Generate Breathe sources for Sphinx with Doxygen.")
+        ${LOWER_PROJECT_NAME}_doxygen "${PROJECT_SOURCE_DIR}/include/"
+        COMMENT "Generate Breathe xml sources for Sphinx with Doxygen.")
 
+      set(PROJECT_AUTHOR "${PARSED_AUTHOR}")
+      set(PROJECT_COPYRIGHT "${PARSED_COPYRIGHT}")
+      configure_file("${PROJECT_SOURCE_DIR}/doc/conf.py.in"
+                     "${PROJECT_SOURCE_DIR}/.doc/conf/conf.py" @ONLY)
+      configure_file("${PROJECT_SOURCE_DIR}/doc/index.rst.in"
+                     "${PROJECT_SOURCE_DIR}/.doc/conf/index.rst" @ONLY)
       add_custom_command(
         OUTPUT "${PROJECT_SOURCE_DIR}/.doc/sphinx/index.html"
-        COMMAND ${SPHINX_EXECUTABLE} "${PROJECT_SOURCE_DIR}/doc/"
-                "${PROJECT_SOURCE_DIR}/.doc/sphinx/"
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/doc/"
+        COMMAND
+          ${SPHINX_EXECUTABLE} "${PROJECT_SOURCE_DIR}/.doc/conf/"
+          "${PROJECT_SOURCE_DIR}/.doc/sphinx/" "-Dproject=${PROJECT_NAME}"
+          "-Dauthor=${PROJECT_AUTHOR}" "-Dcopyright=${PROJECT_COPYRIGHT}"
+          "-Drelease=${PROJECT_VERSION}" "-Dextensions=breathe"
+          "-Dbreathe_projects.${PROJECT_NAME}=${PROJECT_SOURCE_DIR}/.doc/doxygen/xml/"
+          "-Dbreathe_default_project=${PROJECT_NAME}"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
         DEPENDS ${LOWER_PROJECT_NAME}_doxygen
-                "${PROJECT_SOURCE_DIR}/doc/index.rst"
-        MAIN_DEPENDENCY "${PROJECT_SOURCE_DIR}/doc/conf.py"
-        COMMENT "Generate doc with Sphinx.")
+                "${PROJECT_SOURCE_DIR}/.doc/doxygen/xml/index.xml"
+                "${PROJECT_SOURCE_DIR}/.doc/conf/index.rst"
+                "${PROJECT_SOURCE_DIR}/.doc/conf/conf.py"
+        COMMENT "Generate doc with Sphinx."
+        VERBATIM)
+      unset(PROJECT_AUTHOR)
+      unset(PROJECT_COPYRIGHT)
 
       add_custom_target(${LOWER_PROJECT_NAME}_sphinx
                         DEPENDS "${PROJECT_SOURCE_DIR}/.doc/sphinx/index.html")
@@ -2090,8 +2107,9 @@ function(env_project_doc)
           ${CMAKE_COMMAND} -E copy_directory
           "${PROJECT_SOURCE_DIR}/.doc/sphinx/"
           "${PROJECT_SOURCE_DIR}/.doc/build/"
-        MAIN_DEPENDENCY "${PROJECT_SOURCE_DIR}/.doc/sphinx/index.xml"
-        COMMENT "Copying Sphinx build into the doc build directory.")
+        MAIN_DEPENDENCY "${PROJECT_SOURCE_DIR}/.doc/sphinx/index.html"
+        COMMENT "Copying Sphinx build into the doc build directory."
+        VERBATIM)
 
       add_custom_target(${LOWER_PROJECT_NAME}_doc
                         DEPENDS "${PROJECT_SOURCE_DIR}/.doc/build/index.html")
@@ -2109,10 +2127,10 @@ function(env_project_doc)
     elseif(DOXYGEN_FOUND)
       env_log(Adding doc via doxygen.)
 
-      file(GLOB_RECURSE _doc_sources "${PROJECT_SOURCE_DIR}/include/*.hpp")
       set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
-      doxygen_add_docs(${LOWER_PROJECT_NAME}_doxygen ${_doc_sources}
-                       USE_STAMP_FILE COMMENT "Generate doc with doxygen.")
+      doxygen_add_docs(
+        ${LOWER_PROJECT_NAME}_doxygen "${PROJECT_SOURCE_DIR}/include/"
+        COMMENT "Generate doc with doxygen.")
 
       add_custom_command(
         OUTPUT "${PROJECT_SOURCE_DIR}/.doc/build/index.html"
@@ -2121,7 +2139,8 @@ function(env_project_doc)
           "${PROJECT_SOURCE_DIR}/.doc/doxygen/html/"
           "${PROJECT_SOURCE_DIR}/.doc/build/"
         DEPENDS ${LOWER_PROJECT_NAME}_doxygen
-        COMMENT "Copying Doxygen build into the doc build directory.")
+        COMMENT "Copying Doxygen build into the doc build directory."
+        VERBATIM)
 
       add_custom_target(${LOWER_PROJECT_NAME}_doc
                         DEPENDS "${PROJECT_SOURCE_DIR}/.doc/build/index.html")
@@ -2174,7 +2193,7 @@ endfunction()
 
 function(env_project_targets)
   env_use_lower_project_name()
-  cmake_parse_arguments(PARSED "SHARE_PCH" "SOURCES"
+  cmake_parse_arguments(PARSED "SHARE_PCH" "SOURCES;DOC_AUTHOR;DOC_COPYRIGHT"
                         "DEPS;TEST_DEPS;BENCH_DEPS" ${ARGN})
 
   env_log(
@@ -2230,7 +2249,8 @@ function(env_project_targets)
   env_project_apps()
 
   env_project_examples()
-  env_project_doc()
+  env_project_doc(AUTHOR "${PARSED_DOC_AUTHOR}" COPYRIGHT
+                  "${PARSED_DOC_COPYRIGHT}")
 
   env_project_extras()
 endfunction()

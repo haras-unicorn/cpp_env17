@@ -8,13 +8,14 @@ project(
   env
   DESCRIPTION "Environment for all of my C++ projects."
   VERSION 0.2.0
+  HOMEPAGE_URL "https://github.com/Hrle97/cpp_env17"
   LANGUAGES C CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(EnvFunc)
 
-env_project_default_options()
+env_project(COPYRIGHT "2021, Hrle97" AUTHOR "Hrle97")
 
 # Fetch -----------------------------------------------------------------------
 
@@ -72,4 +73,8 @@ env_project_targets(
   TEST_DEPS
   env::test
   BENCH_DEPS
-  env::bench)
+  env::bench
+  DOC_AUTHOR
+  "Hrle97"
+  DOC_COPYRIGHT
+  "2021, Hrle97")

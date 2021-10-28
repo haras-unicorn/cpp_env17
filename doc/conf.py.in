@@ -1,0 +1,5 @@
+import os
+
+html_theme = "sphinx_rtd_theme"
+
+breathe_show_define_initializer = True

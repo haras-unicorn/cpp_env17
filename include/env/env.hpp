@@ -18,9 +18,14 @@
   #define ENV_HIDDEN
 #endif
 
-
+/** 
+ * @brief Main namespace with a bit of sugar.
+ */
 namespace env
 {
+/** 
+ * @brief Check whether env is linking properly.
+ */
 ENV_VISIBLE bool check() noexcept;
 
 
