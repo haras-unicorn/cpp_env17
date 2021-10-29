@@ -1,3 +1,23 @@
+# TODO: fix logging commands
+
+# TODO: env_add_detection
+
+# TODO: env_add_linting
+
+# TODO: more flexible folder structure
+
+# TODO: CMake documnetation
+
+# TODO: CMake tests
+
+# TODO: check CMake policies and backwards compatibility
+
+# TODO: Add Intel, IntelLLVM, ARMCC, ARMClang and NVIDIA CUDA compiler support
+
+# TODO: dependency resolution
+
+# TODO: stratify
+
 # Guard -----------------------------------------------------------------------
 
 if(ENV_FUNCTIONS_INCLUDED)
@@ -200,10 +220,6 @@ env_log(CMake generator toolset is \"${CMAKE_GENERATOR_TOOLSET}\".)
 
 # Compiler --------------------------------------------------------------------
 
-# TODO: Proper Intel compiler support
-
-# TODO: Add ARMCC, ARMClang and NVIDIA CUDA compiler support
-
 env_log(- Detecting compiler. -)
 
 env_log(CMake Compiler ID is \"${CMAKE_CXX_COMPILER_ID}\".)
@@ -254,28 +270,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
       "gnu"
       CACHE STRING "Compiler name." FORCE)
 
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL Intel)
-  env_log(Detected Intel compiler.)
-  set(ENV_INTEL
-      TRUE
-      CACHE BOOL "Whether Intel was detected or not." FORCE)
-
-  set(ENV_COMPILER
-      "intel"
-      CACHE STRING "Compiler name." FORCE)
-
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL IntelLLVM)
-  env_log(Detected Intel LLVM compiler.)
-  set(ENV_INTEL_LLVM
-      TRUE
-      CACHE BOOL "Whether Intel LLVM was detected or not." FORCE)
-
-  set(ENV_COMPILER
-      "intel_llvm"
-      CACHE STRING "Compiler name." FORCE)
-
 else()
-  env_log(FATAL_ERROR Unknown compiler.)
+  env_log(WARNING Unknown compiler.)
 
 endif()
 
@@ -291,12 +287,6 @@ set(ENV_GNU
 set(ENV_CLANG
     FALSE
     CACHE BOOL "Whether Clang was detected or not.")
-set(ENV_INTEL
-    FALSE
-    CACHE BOOL "Whether Intel was detected or not.")
-set(ENV_INTEL_LLVM
-    FALSE
-    CACHE BOOL "Whether Intel LLVM was detected or not.")
 
 # Hardware --------------------------------------------------------------------
 
@@ -1825,7 +1815,7 @@ function(env_project_objects)
 
     env_use_lower_project_name()
     env_target_link(objects PRIVATE ${LOWER_PROJECT_NAME}::pch)
-    env_target_include(objects PUBLIC ${PROJECT_SOURCE_DIR}/include)
+    env_target_include(objects PUBLIC "${PROJECT_SOURCE_DIR}/include")
   endif()
 endfunction()
 
@@ -1837,7 +1827,7 @@ function(env_project_static)
 
     env_use_lower_project_name()
     env_target_link(static PRIVATE ${LOWER_PROJECT_NAME}::pch)
-    env_target_include(static PUBLIC ${PROJECT_SOURCE_DIR}/include)
+    env_target_include(static PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
     env_target_set_bin_output(${LOWER_PROJECT_NAME}_static)
   endif()
@@ -1851,7 +1841,7 @@ function(env_project_shared)
 
     env_use_lower_project_name()
     env_target_link(shared PRIVATE ${LOWER_PROJECT_NAME}::pch)
-    env_target_include(shared PUBLIC ${PROJECT_SOURCE_DIR}/include)
+    env_target_include(shared PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
     env_target_set_bin_output(${LOWER_PROJECT_NAME}_shared)
   endif()
@@ -1877,7 +1867,7 @@ function(env_project_export)
         env_target_link(export INTERFACE ${LOWER_PROJECT_NAME}::pch)
       endif()
 
-      env_target_include(export INTERFACE ${PROJECT_SOURCE_DIR}/include)
+      env_target_include(export INTERFACE "${PROJECT_SOURCE_DIR}/include")
 
     elseif(${UPPER_PROJECT_NAME}_BUILD_STATIC)
       env_add_suppressed(suppressed STATIC EXCLUDE_FROM_ALL ${PARSED_SOURCES})
@@ -1895,13 +1885,13 @@ function(env_project_export)
         env_target_link(suppressed PRIVATE ${LOWER_PROJECT_NAME}::pch)
       endif()
 
-      env_target_include(suppressed PUBLIC ${PROJECT_SOURCE_DIR}/include)
+      env_target_include(suppressed PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
       env_target_set_bin_output(${LOWER_PROJECT_NAME}_suppressed)
     endif()
 
   else()
-    env_target_include(export INTERFACE ${PROJECT_SOURCE_DIR}/include)
+    env_target_include(export INTERFACE "${PROJECT_SOURCE_DIR}/include")
 
   endif()
 endfunction()
