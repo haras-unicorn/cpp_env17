@@ -1,8 +1,16 @@
-# TODO: fix logging commands
+# NOTE: these are neccessary:
 
 # TODO: env_add_detection
 
 # TODO: env_add_linting
+
+# TODO: env_cache_compilation
+
+# TODO: env_compile_in_parallel
+
+# TODO: env_sanitize (and valgrind?)
+
+# NOTE: these are neccessary in the long run:
 
 # TODO: more flexible folder structure
 
@@ -10,9 +18,17 @@
 
 # TODO: CMake tests
 
+# NOTE: these would be nice to have some day:
+
 # TODO: check CMake policies and backwards compatibility
 
+# TODO: Better generator detection/integration
+
 # TODO: Add Intel, IntelLLVM, ARMCC, ARMClang and NVIDIA CUDA compiler support
+
+# TODO: Add other architecture support?
+
+# TODO: Add other OS support?
 
 # TODO: dependency resolution
 
@@ -132,27 +148,6 @@ function(env_target_name_for _path _out)
       PARENT_SCOPE)
 endfunction()
 
-function(env_has_extension _path _out)
-  string(REGEX REPLACE "${__env_extension_regex}" "" _no_ex "${_path}")
-
-  if(_path STREQUAL ${_no_ex})
-    set(${_out}
-        FALSE
-        PARENT_SCOPE)
-  else()
-    set(${_out}
-        TRUE
-        PARENT_SCOPE)
-  endif()
-endfunction()
-
-function(env_escape_backslash _string _out)
-  string(REGEX REPLACE [[\\]] [[\\\\]] _res "${_string}")
-  set(${_out}
-      "${_res}"
-      PARENT_SCOPE)
-endfunction()
-
 # Logging ---------------------------------------------------------------------
 
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -176,10 +171,11 @@ ${env_verbose_message_levels}\
 
 if(ENV_LOG_VERBOSE)
   function(env_log _level)
-    list(FIND __env_message_levels ${_level} _index)
-
-    list(JOIN ARGN " " _message)
     env_use_lower_project_name()
+
+    list(FIND __env_message_levels "${_level}" _index)
+    list(JOIN ARGN " " _message)
+
     if(NOT _index EQUAL -1)
       message(${_level} "[env::${LOWER_PROJECT_NAME}]: ${_message}")
     else()
@@ -188,11 +184,12 @@ if(ENV_LOG_VERBOSE)
   endfunction()
 else()
   function(env_log _level)
-    list(FIND __env_verbose_message_levels ${_level} _index)
+    env_use_lower_project_name()
 
+    list(FIND __env_verbose_message_levels ${_level} _index)
     list(JOIN ARGN " " _message)
+
     if(NOT _index EQUAL -1)
-      env_use_lower_project_name()
       message(${_level} "[env::${LOWER_PROJECT_NAME}]: ${_message}")
     endif()
   endfunction()
@@ -210,26 +207,27 @@ endmacro()
 # Detection
 # -----------------------------------------------------------------------------
 
-env_log(-!- Running detection. -!-)
+env_log("-!- Running detection. -!-")
 
 # Generator -------------------------------------------------------------------
 
-env_log(- Detecting generator. -)
-env_log(CMake generator is \"${CMAKE_GENERATOR}\".)
-env_log(CMake generator toolset is \"${CMAKE_GENERATOR_TOOLSET}\".)
+env_log("- Detecting generator. -")
+env_log("CMake generator is \"${CMAKE_GENERATOR}\".")
+env_log("CMake generator toolset is \"${CMAKE_GENERATOR_TOOLSET}\".")
+env_log("CMake generator platform is \"${CMAKE_GENERATOR_PLATFORM}\".")
 
 # Compiler --------------------------------------------------------------------
 
-env_log(- Detecting compiler. -)
+env_log("- Detecting compiler. -")
 
-env_log(CMake Compiler ID is \"${CMAKE_CXX_COMPILER_ID}\".)
-env_log(CMake MSVC is present \"${MSVC}\".)
+env_log("CMake Compiler ID is \"${CMAKE_CXX_COMPILER_ID}\".")
+env_log("CMake MSVC is present \"${MSVC}\".")
 
 # "CMAKE_CXX_COMPILER_ID STREQUAL MSVC" doesn't always work for MSVC
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL Clang)
   if(MSVC)
-    env_log(Detected ClangCl compiler.)
+    env_log("Detected ClangCl compiler.")
     set(ENV_CLANG_CL
         TRUE
         CACHE BOOL "Whether CLANG_CL was detected or not." FORCE)
@@ -239,7 +237,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL Clang)
         CACHE STRING "Compiler name." FORCE)
 
   else()
-    env_log(Detected Clang compiler.)
+    env_log("Detected Clang compiler.")
     set(ENV_CLANG
         TRUE
         CACHE BOOL "Whether Clang was detected or not." FORCE)
@@ -251,7 +249,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL Clang)
 elseif()
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL MSVC OR MSVC)
-  env_log(Detected MSVC compiler.)
+  env_log("Detected MSVC compiler.")
   set(ENV_MSVC
       TRUE
       CACHE BOOL "Whether MSVC was detected or not." FORCE)
@@ -261,7 +259,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL MSVC OR MSVC)
       CACHE STRING "Compiler name." FORCE)
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-  env_log(Detected GNU compiler.)
+  env_log("Detected GNU compiler.")
   set(ENV_GNU
       TRUE
       CACHE BOOL "Whether GNU was detected or not." FORCE)
@@ -271,7 +269,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
       CACHE STRING "Compiler name." FORCE)
 
 else()
-  env_log(WARNING Unknown compiler.)
+  env_log(WARNING "Unknown compiler.")
 
 endif()
 
@@ -290,9 +288,9 @@ set(ENV_CLANG
 
 # Hardware --------------------------------------------------------------------
 
-env_log(- Detecting hardware. -)
+env_log("- Detecting hardware. -")
 
-env_log(CMake sizeof\(void*\) = ${CMAKE_SIZEOF_VOID_P}.)
+env_log("CMake sizeof\(void*\) = ${CMAKE_SIZEOF_VOID_P}.")
 
 set(__env_cxx_byte_order
     "${CMAKE_CXX_BYTE_ORDER}"
@@ -301,25 +299,25 @@ set(__env_c_byte_order
     "${CMAKE_C_BYTE_ORDER}"
     CACHE STRING "C byte order." FORCE)
 
-env_log(CMake CXX byte order is \"${__env_cxx_byte_order}\".)
-env_log(CMake C byte order is \"${__env_c_byte_order}\".)
+env_log("CMake CXX byte order is \"${__env_cxx_byte_order}\".")
+env_log("CMake C byte order is \"${__env_c_byte_order}\".")
 
-env_log(CMake system processor is \"${CMAKE_SYSTEM_PROCESSOR}\".)
+env_log("CMake system processor is \"${CMAKE_SYSTEM_PROCESSOR}\".")
 
 if(CMAKE_SIZEOF_VOID_P STREQUAL 4)
-  env_log(Address size is 32 bit.)
+  env_log("Address size is 32 bit.")
   set(ENV_32BIT
       TRUE
       CACHE BOOL "Whether address size is 32 bit." FORCE)
 
 elseif(CMAKE_SIZEOF_VOID_P STREQUAL 8)
-  env_log(Address size is 64 bit.)
+  env_log("Address size is 64 bit.")
   set(ENV_64BIT
       TRUE
       CACHE BOOL "Whether address size is 64 bit." FORCE)
 
 elseif()
-  env_log(FATAL_ERROR Unsupported address size.)
+  env_log(FATAL_ERROR "Unsupported address size.")
 
 endif()
 
@@ -338,12 +336,12 @@ set(ENV_C_BYTE_ORDER
     CACHE STRING "C byte order." FORCE)
 
 if(__env_cxx_byte_order STREQUAL BIG_ENDIAN)
-  env_log(CXX is big endian.)
+  env_log("CXX is big endian.")
   set(ENV_CXX_BIG_ENDIAN
       TRUE
       CACHE BOOL "Whether architecture is big endian." FORCE)
 else()
-  env_log(CXX is little endian.)
+  env_log("CXX is little endian.")
   set(ENV_CXX_LITTLE_ENDIAN
       TRUE
       CACHE BOOL "Whether architecture is little endian." FORCE)
@@ -357,12 +355,12 @@ set(ENV_CXX_LITTLE_ENDIAN
     CACHE BOOL "Whether architecture is little endian.")
 
 if(__env_c_byte_order STREQUAL BIG_ENDIAN)
-  env_log(C is big endian.)
+  env_log("C is big endian.")
   set(ENV_C_BIG_ENDIAN
       TRUE
       CACHE BOOL "Whether architecture is big endian." FORCE)
 else()
-  env_log(C is little endian.)
+  env_log("C is little endian.")
   set(ENV_C_LITTLE_ENDIAN
       TRUE
       CACHE BOOL "Whether architecture is little endian." FORCE)
@@ -377,7 +375,7 @@ set(ENV_C_LITTLE_ENDIAN
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL
                                             x86_64)
-  env_log(Architecture is amd64.)
+  env_log("Architecture is amd64.")
   set(ENV_AMD64
       TRUE
       CACHE BOOL "Whether the architecture is amd64." FORCE)
@@ -387,7 +385,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL
       CACHE STRING "Architecture name." FORCE)
 
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL x86)
-  env_log(Architecture is x86.)
+  env_log("Architecture is x86.")
   set(ENV_X86
       TRUE
       CACHE BOOL "Whether the architecture is x86." FORCE)
@@ -397,7 +395,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL x86)
       CACHE STRING "Architecture name." FORCE)
 
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL arm)
-  env_log(Architecture is arm.)
+  env_log("Architecture is arm.")
   set(ENV_ARM
       TRUE
       CACHE BOOL "Whether the processor is arm." FORCE)
@@ -407,7 +405,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL arm)
       CACHE STRING "Architecture name." FORCE)
 
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL arm64)
-  env_log(Architecture is arm64.)
+  env_log("Architecture is arm64.")
   set(ENV_ARM64
       TRUE
       CACHE BOOL "Whether the processor is arm64." FORCE)
@@ -417,7 +415,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL arm64)
       CACHE STRING "Architecture name." FORCE)
 
 else()
-  env_log(FATAL_ERROR Unsupported architecture.)
+  env_log(FATAL_ERROR "Unsupported architecture.")
 
 endif()
 
@@ -436,16 +434,16 @@ set(ENV_ARM64
 
 # OS --------------------------------------------------------------------------
 
-env_log(- Detecting OS. -)
+env_log("- Detecting OS. -")
 
-env_log(CMake system is \"${CMAKE_SYSTEM}\".)
-env_log(CMake Windows is present \"${WIN32}\".)
-env_log(CMake Android is present \"${ANDROID}\".)
-env_log(CMake Apple is present \"${APPLE}\".)
-env_log(CMake Linux is present \"${LINUX}\".)
+env_log("CMake system is \"${CMAKE_SYSTEM}\".")
+env_log("CMake Windows is present \"${WIN32}\".")
+env_log("CMake Android is present \"${ANDROID}\".")
+env_log("CMake Apple is present \"${APPLE}\".")
+env_log("CMake Linux is present \"${LINUX}\".")
 
 if(WIN32)
-  env_log(OS is Windows.)
+  env_log("OS is Windows.")
   set(ENV_WIN
       TRUE
       CACHE BOOL "Whether OS is Windows." FORCE)
@@ -455,7 +453,7 @@ if(WIN32)
       CACHE STRING "OS name." FORCE)
 
 elseif(ANDROID)
-  env_log(OS is Android.)
+  env_log("OS is Android.")
   set(ENV_ANDROID
       TRUE
       CACHE BOOL "Whether OS is Android." FORCE)
@@ -465,7 +463,7 @@ elseif(ANDROID)
       CACHE STRING "OS name." FORCE)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-  env_log(OS is macOS.)
+  env_log("OS is macOS.")
   set(ENV_MACOS
       TRUE
       CACHE BOOL "Whether OS is macOS." FORCE)
@@ -475,7 +473,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
       CACHE STRING "OS name." FORCE)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
-  env_log(OS is iOS.)
+  env_log("OS is iOS.")
   set(ENV_IOS
       TRUE
       CACHE BOOL "Whether OS is iOS." FORCE)
@@ -485,7 +483,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
       CACHE STRING "OS name." FORCE)
 
 elseif(UNIX AND NOT APPLE)
-  env_log(OS is Linux.)
+  env_log("OS is Linux.")
   set(ENV_LINUX
       TRUE
       CACHE BOOL "Whether OS is Linux." FORCE)
@@ -524,21 +522,21 @@ set(ENV_IOS
 
 function(env_target_include _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(Into \"${_name}\" including \"${ARGN}\".)
+  env_log("Into \"${_name}\" including \"${ARGN}\".")
 
   target_include_directories(${_mod} PRIVATE ${ARGN})
 endfunction()
 
 function(env_target_link _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(Linking \"${_name}\" with \"${ARGN}\".)
+  env_log("Linking \"${_name}\" with \"${ARGN}\".")
 
   target_link_libraries(${_mod} PRIVATE ${ARGN})
 endfunction()
 
 function(env_target_sources _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(Sourcing \"${_name}\" with \"${ARGN}\".)
+  env_log("Sourcing \"${_name}\" with \"${ARGN}\".")
 
   target_sources(${_mod} PRIVATE ${ARGN})
 endfunction()
@@ -547,7 +545,7 @@ endfunction()
 
 function(env_target_set _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(On \"${_name}\" setting \"${ARGN}\".)
+  env_log("On \"${_name}\" setting \"${ARGN}\".")
 
   set_target_properties(${_mod} PROPERTIES ${ARGN})
 endfunction()
@@ -560,13 +558,13 @@ set(ENV_IPO_SUPPORTED
     CACHE BOOL "Whether interprocedural optimization is supported." FORCE)
 
 if(ENV_IPO_SUPPORTED)
-  env_log(Interprocedural optimization is supported.)
+  env_log("Interprocedural optimization is supported.")
 
   function(env_target_set_ipo _name)
     env_target_set(${_name} INTERPROCEDURAL_OPTIMIZATION ON)
   endfunction()
 else()
-  env_log(Interprocedural optimization is not supported.)
+  env_log("Interprocedural optimization is not supported.")
 
   function(env_target_set_ipo _name)
 
@@ -581,13 +579,13 @@ set(ENV_PIE_SUPPORTED
     CACHE BOOL "Whether position independent code is supported." FORCE)
 
 if(ENV_PIE_SUPPORTED)
-  env_log(Position independent code is supported.)
+  env_log("Position independent code is supported.")
 
   function(env_target_set_pie _name)
     env_target_set(${_name} POSITION_INDEPENDENT_CODE ON)
   endfunction()
 else()
-  env_log(Position independent code is not supported.)
+  env_log("Position independent code is not supported.")
 
   function(env_target_set_pie _name)
 
@@ -598,12 +596,12 @@ function(env_set_visibility _name _type)
   env_prefix_with_project_name(${_name} _mod)
 
   if(_type STREQUAL DEFAULT)
-    env_log(Setting default visibility on \"${_name}\".)
+    env_log("Setting default visibility on \"${_name}\".")
     set_target_properties(${_mod} PROPERTIES CXX_VISIBILITY_PRESET default
                                              C_VISIBILITY_PRESET default)
 
   elseif(_type STREQUAL INLINES_HIDDEN)
-    env_log(Setting inlines hidden visibility on \"${_name}\".)
+    env_log("Setting inlines hidden visibility on \"${_name}\".")
     set_target_properties(
       ${_mod}
       PROPERTIES CXX_VISIBILITY_PRESET default
@@ -611,7 +609,7 @@ function(env_set_visibility _name _type)
                  VISIBILITY_INLINES_HIDDEN TRUE)
 
   elseif(_type STREQUAL HIDDEN)
-    env_log(Setting hidden visibility on \"${_name}\".)
+    env_log("Setting hidden visibility on \"${_name}\".")
     set_target_properties(
       ${_mod}
       PROPERTIES CXX_VISIBILITY_PRESET hidden
@@ -659,20 +657,8 @@ function(env_target_set_bin_output _target)
   env_target_resolve_bin_out_dir(${_target} _dir SUB "${PARSED_SUB}")
   env_target_resolve_bin_out_name(${_target} _name)
 
-  env_log(
-    Setting
-    binary
-    output
-    directory
-    on
-    \"${_target}\"
-    to
-    \"${_dir}\"
-    and
-    output
-    name
-    to
-    \"${_name}\".)
+  env_log("Setting binary output directory on \"${_target}\" to \"${_dir}\""
+          "and output name to \"${_name}\".")
 
   get_target_property(_type ${_target} TYPE)
   if(_type STREQUAL MODULE_LIBRARY)
@@ -766,7 +752,7 @@ endfunction()
 
 function(env_target_compile_with _name _visibility)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(On \"${_name}\" adding compile options \"${ARGN}\".)
+  env_log("On \"${_name}\" adding compile options \"${ARGN}\".")
 
   target_compile_options(${_mod} ${ARGN})
 endfunction()
@@ -776,28 +762,16 @@ function(env_target_safely_compile_with _name)
   cmake_parse_arguments(PARSED "" "" "PRIVATE;PUBLIC;INTERFACE" ${ARGN})
 
   env_prefix_with_project_name(${_name} _mod)
-  env_log(On \"${_name}\" adding compile options \"${ARGN}\".)
+  env_log("On \"${_name}\" adding compile options \"${ARGN}\".")
 
   foreach(_flag IN LISTS PARSED_PRIVATE)
     check_cxx_compiler_flag(${_flag} _supported)
     if(_supported)
       target_compile_options(${_mod} PRIVATE ${_flag})
     else()
-      env_log(
-        WARNING
-        On
-        \"${_name}\"
-        adding
-        compile
-        option
-        \"${_flag}\"
-        FAILED.
-        REASON:
-        Option
-        not
-        supported
-        by
-        compiler.)
+      env_log(WARNING
+              "On \"${_name}\" adding compile option \"${_flag}\" FAILED."
+              "REASON: Option not supported by compiler.")
     endif()
   endforeach()
 
@@ -806,21 +780,9 @@ function(env_target_safely_compile_with _name)
     if(_supported)
       target_compile_options(${_mod} PUBLIC ${_flag})
     else()
-      env_log(
-        WARNING
-        On
-        \"${_name}\"
-        adding
-        compile
-        option
-        \"${_flag}\"
-        FAILED.
-        REASON:
-        Option
-        not
-        supported
-        by
-        compiler.)
+      env_log(WARNING
+              "On \"${_name}\" adding compile option \"${_flag}\" FAILED."
+              "REASON: Option not supported by compiler.")
     endif()
   endforeach()
 
@@ -829,28 +791,16 @@ function(env_target_safely_compile_with _name)
     if(_supported)
       target_compile_options(${_mod} INTERFACE ${_flag})
     else()
-      env_log(
-        WARNING
-        On
-        \"${_name}\"
-        adding
-        compile
-        option
-        \"${_flag}\"
-        FAILED.
-        REASON:
-        Option
-        not
-        supported
-        by
-        compiler.)
+      env_log(WARNING
+              "On \"${_name}\" adding compile option \"${_flag}\" FAILED."
+              "REASON: Option not supported by compiler.")
     endif()
   endforeach()
 endfunction()
 
 function(env_target_link_with _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(On \"${_name}\" adding link options \"${ARGN}\".)
+  env_log("On \"${_name}\" adding link options \"${ARGN}\".")
 
   target_link_options(${_mod} ${ARGN})
 endfunction()
@@ -859,14 +809,14 @@ endfunction()
 
 function(env_target_features _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(Compiling \"${_name}\" with \"${ARGN}\".)
+  env_log("Compiling \"${_name}\" with \"${ARGN}\".")
 
   target_compile_features(${_mod} ${ARGN})
 endfunction()
 
 if(ENV_CLANG_CL OR ENV_MSVC)
   function(env_target_conform _name)
-    env_log(Setting standards conformance on \"${_name}\".)
+    env_log("Setting standards conformance on \"${_name}\".")
 
     target_compile_options(
       ${_name}
@@ -888,7 +838,7 @@ if(ENV_CLANG_CL OR ENV_MSVC)
       if(NOT _exceptions_enabled)
         target_compile_options(${_name} PRIVATE /EHsc)
       else()
-        env_log(Exceptions already enabled on \"${_name}\".)
+        env_log("Exceptions already enabled on \"${_name}\".")
       endif()
     endif()
   endfunction()
@@ -900,14 +850,7 @@ endif()
 
 function(env_set_cpp17 _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(
-    Setting
-    C++17
-    and
-    C11
-    standard
-    on
-    \"${_name}\".)
+  env_log("Setting C++17 and C11 standard on \"${_name}\".")
 
   target_compile_features(${_mod} PRIVATE cxx_std_17 c_std_11)
 
@@ -916,14 +859,14 @@ endfunction()
 
 function(env_target_definitions _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(Compiling \"${_name}\" with \"${ARGN}\".)
+  env_log("Compiling \"${_name}\" with \"${ARGN}\".")
 
   target_compile_definitions(${_mod} ${ARGN})
 endfunction()
 
 function(env_target_precompile _name)
   env_prefix_with_project_name(${_name} _mod)
-  env_log(Precompiling \"${_name}\" with \"${ARGN}\".)
+  env_log("Precompiling \"${_name}\" with \"${ARGN}\".")
 
   target_precompile_headers(${_mod} PRIVATE ${ARGN})
 endfunction()
@@ -936,12 +879,12 @@ endfunction()
 if(ENV_CLANG_CL)
   function(env_target_warn _name)
     env_prefix_with_project_name(${_name} _mod)
-    env_log(Adding warnings to \"${_name}\".)
+    env_log("Adding warnings to \"${_name}\".")
 
     target_compile_options(${_mod} PRIVATE /W4 /WX)
   endfunction()
   function(env_target_suppress _name)
-    env_log(Suppressing warnings on \"${_name}\".)
+    env_log("Suppressing warnings on \"${_name}\".")
 
     target_compile_options(${_name} PRIVATE /w)
   endfunction()
@@ -949,12 +892,12 @@ if(ENV_CLANG_CL)
 elseif(ENV_MSVC)
   function(env_target_warn _name)
     env_prefix_with_project_name(${_name} _mod)
-    env_log(Adding warnings to \"${_name}\".)
+    env_log("Adding warnings to \"${_name}\".")
 
     target_compile_options(${_mod} PRIVATE /W4 /WX /analyze)
   endfunction()
   function(env_target_suppress _name)
-    env_log(Suppressing warnings on \"${_name}\".)
+    env_log("Suppressing warnings on \"${_name}\".")
 
     target_compile_options(${_name} PRIVATE /w)
   endfunction()
@@ -971,7 +914,7 @@ elseif(ENV_GNU)
               -ftrack-macro-expansion=0)
   endfunction()
   function(env_target_suppress _name)
-    env_log(Suppressing warnings on \"${_name}\".)
+    env_log("Suppressing warnings on \"${_name}\".")
 
     target_compile_options(${_name} PRIVATE -w)
   endfunction()
@@ -979,12 +922,12 @@ elseif(ENV_GNU)
 elseif(ENV_CLANG)
   function(env_target_warn _name)
     env_prefix_with_project_name(${_name} _mod)
-    env_log(Adding warnings to \"${_name}\".)
+    env_log("Adding warnings to \"${_name}\".")
 
     target_compile_options(${_mod} PRIVATE -Wall -Wextra -Wpedantic -Werror)
   endfunction()
   function(env_target_suppress _name)
-    env_log(Suppressing warnings on \"${_name}\".)
+    env_log("Suppressing warnings on \"${_name}\".")
 
     target_compile_options(${_name} PRIVATE -w)
   endfunction()
@@ -1004,7 +947,7 @@ set(__env_warning_regex
     CACHE STRING "Regex that matches compiler warning options." FORCE)
 
 function(env_target_clear_warn _name)
-  env_log(Clearing warnings from \"${_name}\".)
+  env_log("Clearing warnings from \"${_name}\".")
 
   get_target_property(_options ${_name} COMPILE_OPTIONS)
   if(NOT _options STREQUAL _options-NOTFOUND)
@@ -1022,13 +965,11 @@ endfunction()
 
 # Optimization ----------------------------------------------------------------
 
-# TODO: sanitization and valgrind
-
 if(CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
   if(ENV_CLANG_CL)
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding optimizations to \"${_name}\".)
+      env_log("Adding optimizations to \"${_name}\".")
 
       target_compile_options(${_mod} PRIVATE /O2)
       env_target_set_ipo(${_name})
@@ -1036,7 +977,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
   elseif(ENV_MSVC)
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding optimizations to \"${_name}\".)
+      env_log("Adding optimizations to \"${_name}\".")
 
       target_compile_options(${_mod} PRIVATE /O2)
       env_target_set_ipo(${_mod})
@@ -1044,7 +985,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
   elseif(ENV_GNU)
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding optimizations to \"${_name}\".)
+      env_log("Adding optimizations to \"${_name}\".")
 
       target_compile_options(${_mod} PRIVATE -O3)
       env_target_set_ipo(${_mod})
@@ -1052,7 +993,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
   elseif(ENV_CLANG)
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding optimizations to \"${_name}\".)
+      env_log("Adding optimizations to \"${_name}\".")
 
       target_compile_options(${_mod} PRIVATE -O3)
       env_target_set_ipo(${_mod})
@@ -1060,7 +1001,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
   else()
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding optimizations to \"${_name}\".)
+      env_log("Adding optimizations to \"${_name}\".")
 
       env_target_set_ipo(${_mod})
     endfunction()
@@ -1069,7 +1010,7 @@ else()
   if(ENV_CLANG_CL)
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding sanitization to \"${_name}\".)
+      env_log("Adding sanitization to \"${_name}\".")
 
       target_compile_options(
         ${_mod} PRIVATE /Zi
@@ -1079,7 +1020,7 @@ else()
   elseif(ENV_MSVC)
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding sanitization to \"${_name}\".)
+      env_log("Adding sanitization to \"${_name}\".")
 
       target_compile_options(
         ${_mod} PRIVATE /Zi
@@ -1089,7 +1030,7 @@ else()
   elseif(ENV_GNU)
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding sanitization to \"${_name}\".)
+      env_log("Adding sanitization to \"${_name}\".")
 
       target_compile_options(
         ${_mod} PRIVATE -Og -ggdb
@@ -1099,7 +1040,7 @@ else()
   elseif(ENV_CLANG)
     function(env_target_optimize _name)
       env_prefix_with_project_name(${_name} _mod)
-      env_log(Adding sanitization to \"${_name}\".)
+      env_log("Adding sanitization to \"${_name}\".")
 
       target_compile_options(
         ${_mod} PRIVATE -glldb
@@ -1118,28 +1059,28 @@ endif()
 if(ENV_CLANG_CL)
   function(env_target_optimize_nonconforming _name)
     env_prefix_with_project_name(${_name} _mod)
-    env_log(Adding nonconforming optimizations to \"${_name}\".)
+    env_log("Adding nonconforming optimizations to \"${_name}\".")
 
     target_compile_options(${_mod} PRIVATE /GR-)
   endfunction()
 elseif(ENV_MSVC)
   function(env_target_optimize_nonconforming _name)
     env_prefix_with_project_name(${_name} _mod)
-    env_log(Adding nonconforming optimizations to \"${_name}\".)
+    env_log("Adding nonconforming optimizations to \"${_name}\".")
 
     target_compile_options(${_mod} PRIVATE /GR-)
   endfunction()
 elseif(ENV_GNU)
   function(env_target_optimize_nonconforming _name)
     env_prefix_with_project_name(${_name} _mod)
-    env_log(Adding nonconforming optimizations to \"${_name}\".)
+    env_log("Adding nonconforming optimizations to \"${_name}\".")
 
     target_compile_options(${_mod} PRIVATE -fno-rtti)
   endfunction()
 elseif(ENV_CLANG)
   function(env_target_optimize_nonconforming _name)
     env_prefix_with_project_name(${_name} _mod)
-    env_log(Adding nonconforming optimizations to \"${_name}\".)
+    env_log("Adding nonconforming optimizations to \"${_name}\".")
 
     target_compile_options(${_mod} PRIVATE -fno-rtti)
   endfunction()
@@ -1229,7 +1170,7 @@ endfunction()
 
 function(env_add_objects _name)
   env_use_upper_project_name()
-  env_log(- Adding objects \"${_name}\". -)
+  env_log("- Adding objects \"${_name}\". -")
 
   env_add_library(${_name} OBJECT ${ARGN})
 
@@ -1240,7 +1181,7 @@ endfunction()
 
 function(env_add_static _name)
   env_use_upper_project_name()
-  env_log(- Adding static \"${_name}\". -)
+  env_log("- Adding static \"${_name}\". -")
 
   env_add_library(${_name} STATIC ${ARGN})
 
@@ -1251,7 +1192,7 @@ endfunction()
 
 function(env_add_shared _name)
   env_use_upper_project_name()
-  env_log(- Adding shared \"${_name}\". -)
+  env_log("- Adding shared \"${_name}\". -")
 
   env_add_library(${_name} SHARED ${ARGN})
 
@@ -1270,7 +1211,7 @@ endfunction()
 
 function(env_add_module _name)
   env_use_upper_project_name()
-  env_log(- Adding module \"${_name}\". -)
+  env_log("- Adding module \"${_name}\". -")
 
   env_add_library(${_name} MODULE ${ARGN})
 
@@ -1354,15 +1295,7 @@ function(env_target_hook _dep)
 
   foreach(_target IN LISTS PARSED_INTO)
     if(NOT TARGET ${_target})
-      env_log(
-        Adding
-        custom
-        \"${_target}\"
-        and
-        hooking
-        \"${_dep}\"
-        into
-        it.)
+      env_log("Adding custom \"${_target}\" and hooking \"${_dep}\" into it.")
 
       add_custom_target(${_target})
       add_dependencies(${_target} ${_dep})
@@ -1371,7 +1304,7 @@ function(env_target_hook _dep)
 
       list(FIND _deps ${_dep} _index)
       if(_index EQUAL -1)
-        env_log(Hooking \"${_dep}\" into \"${_target}\".)
+        env_log("Hooking \"${_dep}\" into \"${_target}\".")
 
         add_dependencies(${_target} ${_dep})
       endif()
@@ -1388,7 +1321,7 @@ function(env_target_reduce _target)
 
   get_target_property(_deps ${_target} MANUALLY_ADDED_DEPENDENCIES)
   if(NOT _deps STREQUAL _deps-NOTFOUND)
-    env_log(- Reducing \"${_target}\" into \"${PARSED_INTO}\". -)
+    env_log("- Reducing \"${_target}\" into \"${PARSED_INTO}\". -")
     env_add_app(${PARSED_INTO})
     env_target_hook(${_target} INTO ${PARSED_INTO})
 
@@ -1397,7 +1330,7 @@ function(env_target_reduce _target)
       get_target_property(_type ${_dep} TYPE)
       if(_type STREQUAL EXECUTABLE)
         env_target_get_native_location(${_dep} _loc)
-        env_log(Adding call to \"${_loc}\" in \"${PARSED_INTO}\".)
+        env_log("Adding call to \"${_loc}\" in \"${PARSED_INTO}\".")
         set(_commands
             "
     std::cout << \"--------------------------------------------\" << std::endl;
@@ -1438,7 +1371,7 @@ endfunction()
 # Subdirectory ----------------------------------------------------------------
 
 function(env_subdirectory)
-  env_log(Adding subdirectories: \"${ARGN}\".)
+  env_log("Adding subdirectories: \"${ARGN}\".")
 
   set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
   set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
@@ -1452,7 +1385,7 @@ function(env_subdirectory)
 endfunction()
 
 function(env_list)
-  env_log(Adding subdirestories of lists: \"${ARGN}\".)
+  env_log("Adding subdirestories of lists: \"${ARGN}\".")
 
   set(_previous_log_level ${CMAKE_MESSAGE_LOG_LEVEL})
   set(_previous_log_indent ${CMAKE_MESSAGE_INDENT})
@@ -1492,7 +1425,7 @@ function(env_scaffold _src_dir)
     PARSED "" "NAME;BINARY_DIR"
     "OPTIONS;INCLUDE_DIRS;SRC_GLOB;LIB_GLOB;PCH_GLOB" ${ARGN})
 
-  env_log(Scaffolding \"${_src_dir}\".)
+  env_log("Scaffolding \"${_src_dir}\".")
 
   if(EXISTS "${_src_dir}/CMakeLists.txt")
     foreach(_option IN LISTS PARSED_OPTIONS)
@@ -1500,9 +1433,9 @@ function(env_scaffold _src_dir)
       set(${_option} CACHE BOOL "" FORCE)
 
       if(PARSED_NAME)
-        env_log(Setting \"${PARSED_NAME}\" option \"${_option}\".)
+        env_log("Setting \"${PARSED_NAME}\" option \"${_option}\".")
       else()
-        env_log(Setting option \"${_option}\" for scaffold \"${_src_dir}\".)
+        env_log("Setting option \"${_option}\" for scaffold \"${_src_dir}\".")
       endif()
     endforeach()
 
@@ -1514,22 +1447,9 @@ function(env_scaffold _src_dir)
 
   else()
     if(NOT PARSED_NAME)
-      env_log(
-        FATAL_ERROR
-        Please
-        provide
-        a
-        name
-        for
-        the
-        scaffolded
-        library
-        that
-        doesn't
-        have
-        a
-        CMakeLists.txt
-        file.)
+      env_log(FATAL_ERROR
+              "Please provide a name for the scaffolded library that"
+              "doesn't have a CMakeLists.txt file.")
     endif()
 
     set(_name ${PARSED_NAME})
@@ -1572,14 +1492,7 @@ function(env_scaffold _src_dir)
     endforeach()
 
     if(_sources)
-      env_log(
-        Adding
-        for
-        \"${_name}\"
-        a
-        static
-        library
-        \"${_prefixed}\".)
+      env_log("Adding for \"${_name}\" a static library \"${_prefixed}\".")
 
       add_library(${_prefixed} STATIC IMPORTED GLOBAL)
       env_target_include(${_prefixed} PUBLIC ${_include_dirs})
@@ -1593,14 +1506,7 @@ function(env_scaffold _src_dir)
       env_target_set_pie(${_prefixed})
 
     else()
-      env_log(
-        Adding
-        for
-        \"${_name}\"
-        an
-        interface
-        library
-        \"${_prefixed}\".)
+      env_log("Adding for \"${_name}\" an interface library \"${_prefixed}\".")
 
       add_library(${_prefixed} INTERFACE IMPORTED GLOBAL)
       env_target_link(${_prefixed} INTERFACE ${_libs})
@@ -1706,7 +1612,7 @@ endfunction()
 function(env_project)
   env_use_upper_project_name()
 
-  env_log(---!!!--- Initializing project \"${PROJECT_NAME}\". ---!!!---)
+  env_log("---!!!--- Initializing project \"${PROJECT_NAME}\". ---!!!---")
 
   if(CMAKE_BUILD_TYPE STREQUAL Debug)
     option(${UPPER_PROJECT_NAME}_COMPILER_MESSAGES
@@ -1810,7 +1716,7 @@ endfunction()
 function(env_project_objects)
   env_use_upper_project_name()
   if(${UPPER_PROJECT_NAME}_BUILD_OBJECTS AND ARGN)
-    env_log(-!- Adding objects for \"${PROJECT_NAME}\". -!-)
+    env_log("-!- Adding objects for \"${PROJECT_NAME}\". -!-")
     env_add_objects(objects ${ARGN})
 
     env_use_lower_project_name()
@@ -1822,7 +1728,7 @@ endfunction()
 function(env_project_static)
   env_use_upper_project_name()
   if(${UPPER_PROJECT_NAME}_BUILD_STATIC AND ARGN)
-    env_log(-!- Adding static for \"${PROJECT_NAME}\". -!-)
+    env_log("-!- Adding static for \"${PROJECT_NAME}\". -!-")
     env_add_static(static ${ARGN})
 
     env_use_lower_project_name()
@@ -1836,7 +1742,7 @@ endfunction()
 function(env_project_shared)
   env_use_upper_project_name()
   if(${UPPER_PROJECT_NAME}_BUILD_SHARED AND ARGN)
-    env_log(-!- Adding shared for \"${PROJECT_NAME}\". -!-)
+    env_log("-!- Adding shared for \"${PROJECT_NAME}\". -!-")
     env_add_shared(shared ${ARGN})
 
     env_use_lower_project_name()
@@ -1852,7 +1758,7 @@ function(env_project_export)
   env_use_lower_project_name()
   cmake_parse_arguments(PARSED "SHARE_PCH" "" "SOURCES" ${ARGN})
 
-  env_log(-!- Adding export for \"${PROJECT_NAME}\". -!-)
+  env_log("-!- Adding export for \"${PROJECT_NAME}\". -!-")
   env_add_export(export)
 
   if(PARSED_SOURCES)
@@ -1901,7 +1807,7 @@ function(env_project_apps)
   env_use_lower_project_name()
 
   if(${UPPER_PROJECT_NAME}_BUILD_APPS AND EXISTS "${PROJECT_SOURCE_DIR}/app")
-    env_log(-!- Adding apps for \"${PROJECT_NAME}\". -!-)
+    env_log("-!- Adding apps for \"${PROJECT_NAME}\". -!-")
 
     file(GLOB_RECURSE _apps CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/app/*.cpp")
     foreach(_app IN LISTS _apps)
@@ -1921,14 +1827,7 @@ function(env_project_binding_utilities)
   if(${UPPER_PROJECT_NAME}_BUILD_BIND_UTILS
      AND EXISTS "${PROJECT_SOURCE_DIR}/bind/utils")
 
-    env_log(
-      -!-
-      Adding
-      binding
-      utilities
-      for
-      \"${PROJECT_NAME}\".
-      -!-)
+    env_log("-!- Adding binding utilities for \"${PROJECT_NAME}\". -!-")
 
     file(GLOB _bind_utils CONFIGURE_DEPENDS
          "${PROJECT_SOURCE_DIR}/bind/utils/*/CMakeLists.txt"
@@ -1945,9 +1844,7 @@ function(env_project_bindings)
   if(${UPPER_PROJECT_NAME}_BUILD_BIND_UTILS
      AND ${UPPER_PROJECT_NAME}_BUILD_BINDS
      AND EXISTS "${PROJECT_SOURCE_DIR}/bind")
-
-    env_log(-!- Adding bindings for \"${PROJECT_NAME}\". -!-)
-
+    env_log("-!- Adding bindings for \"${PROJECT_NAME}\". -!-")
     file(GLOB _bindings CONFIGURE_DEPENDS
          "${PROJECT_SOURCE_DIR}/bind/*/CMakeLists.txt" LIST_DIRECTORIES FALSE)
 
@@ -1961,7 +1858,7 @@ function(env_project_tests)
   env_use_upper_project_name()
   if(${UPPER_PROJECT_NAME}_BUILD_TESTS AND EXISTS "${PROJECT_SOURCE_DIR}/test")
 
-    env_log(-!- Adding tests for \"${PROJECT_NAME}\". -!-)
+    env_log("-!- Adding tests for \"${PROJECT_NAME}\". -!-")
 
     file(GLOB_RECURSE _tests CONFIGURE_DEPENDS
          "${PROJECT_SOURCE_DIR}/test/*.cpp")
@@ -1987,7 +1884,7 @@ function(env_project_benchmarks)
      AND ${UPPER_PROJECT_NAME}_BUILD_BENCHMARKS
      AND EXISTS "${PROJECT_SOURCE_DIR}/bench")
 
-    env_log(-!- Adding benchmarks for \"${PROJECT_NAME}\". -!-)
+    env_log("-!- Adding benchmarks for \"${PROJECT_NAME}\". -!-")
 
     file(GLOB_RECURSE _benchmarks CONFIGURE_DEPENDS
          "${PROJECT_SOURCE_DIR}/bench/*.cpp")
@@ -2013,7 +1910,7 @@ function(env_project_ci)
   if(${UPPER_PROJECT_NAME}_BUILD_CI
      AND EXISTS "${PROJECT_SOURCE_DIR}/ci/CMakeLists.txt")
 
-    env_log(-!- Adding CI for ${PROJECT_NAME}. -!-)
+    env_log("-!- Adding CI for ${PROJECT_NAME}. -!-")
     env_subdirectory("${PROJECT_SOURCE_DIR}/ci")
   endif()
 endfunction()
@@ -2023,7 +1920,7 @@ function(env_project_examples)
   if(${UPPER_PROJECT_NAME}_BUILD_EXAMPLES AND EXISTS
                                               "${PROJECT_SOURCE_DIR}/example")
 
-    env_log(-!- Adding examples for ${PROJECT_NAME}. -!-)
+    env_log("-!- Adding examples for ${PROJECT_NAME}. -!-")
 
     file(GLOB _examples "${PROJECT_SOURCE_DIR}/example/*/CMakeLists.txt")
 
@@ -2044,10 +1941,10 @@ function(env_project_doc)
   cmake_parse_arguments(PARSED "" "AUTHOR;COPYRIGHT" "" ${ARGN})
 
   if(${UPPER_PROJECT_NAME}_BUILD_DOC)
-    env_log(-!- Adding doc for \"${PROJECT_NAME}\". -!-)
+    env_log("-!- Adding doc for \"${PROJECT_NAME}\". -!-")
 
     if(EXISTS "${PROJECT_SOURCE_DIR}/doc/CMakeLists.txt")
-      env_log(Adding doc via list.)
+      env_log("Adding doc via list.")
       env_subdirectory("${PROJECT_SOURCE_DIR}/doc")
 
     elseif(
@@ -2055,7 +1952,7 @@ function(env_project_doc)
       AND SPHINX_FOUND
       AND EXISTS "${PROJECT_SOURCE_DIR}/doc/conf.py.in"
       AND EXISTS "${PROJECT_SOURCE_DIR}/doc/index.rst.in")
-      env_log(Adding doc via Doxygen and Sphinx.)
+      env_log("Adding doc via Doxygen and Sphinx.")
 
       set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
       set(DOXYGEN_GENERATE_XML "YES")
@@ -2105,18 +2002,11 @@ function(env_project_doc)
       add_custom_target(${LOWER_PROJECT_NAME}_doc
                         DEPENDS "${PROJECT_SOURCE_DIR}/.doc/build/index.html")
 
-      env_log(
-        Added
-        \"${LOWER_PROJECT_NAME}_doc\"
-        target
-        for
-        doc
-        generation
-        in
-        \"${PROJECT_SOURCE_DIR}/.doc/build\".)
+      env_log("Added \"${LOWER_PROJECT_NAME}_doc\" target for"
+              "doc generation in \"${PROJECT_SOURCE_DIR}/.doc/build\".")
 
     elseif(DOXYGEN_FOUND)
-      env_log(Adding doc via doxygen.)
+      env_log("Adding doc via doxygen.")
 
       set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
       set(DOXYGEN_GENERATE_HTML "YES")
@@ -2137,32 +2027,12 @@ function(env_project_doc)
       add_custom_target(${LOWER_PROJECT_NAME}_doc
                         DEPENDS "${PROJECT_SOURCE_DIR}/.doc/build/index.html")
 
-      env_log(
-        Added
-        \"${LOWER_PROJECT_NAME}_doc\"
-        target
-        for
-        doc
-        generation
-        in
-        \"${PROJECT_SOURCE_DIR}/.doc/build\".)
+      env_log("Added \"${LOWER_PROJECT_NAME}_doc\" target"
+              "for doc generation in \"${PROJECT_SOURCE_DIR}/.doc/build\".")
 
     else()
-      env_log(
-        WARNING
-        Doc
-        build
-        flag
-        was
-        set
-        but
-        no
-        way
-        to
-        build
-        docs
-        is
-        provided.)
+      env_log(WARNING
+              "Doc build flag was set but no way to build docs is provided.")
 
     endif()
   endif()
@@ -2173,7 +2043,7 @@ function(env_project_extras)
   if(${UPPER_PROJECT_NAME}_BUILD_EXTRAS AND EXISTS
                                             "${PROJECT_SOURCE_DIR}/extra")
 
-    env_log(-!- Adding extras for ${PROJECT_NAME}. -!-)
+    env_log("-!- Adding extras for ${PROJECT_NAME}. -!-")
 
     file(GLOB _extras "${PROJECT_SOURCE_DIR}/extra/*/CMakeLists.txt")
 
@@ -2188,14 +2058,7 @@ function(env_project_targets)
   cmake_parse_arguments(PARSED "SHARE_PCH" "SOURCES;DOC_AUTHOR;DOC_COPYRIGHT"
                         "DEPS;TEST_DEPS;BENCH_DEPS" ${ARGN})
 
-  env_log(
-    ---!!!---
-    Adding
-    project
-    targets
-    for
-    \"${PROJECT_NAME}\".
-    ---!!!---)
+  env_log("---!!!--- Adding project targets for \"${PROJECT_NAME}\". ---!!!---")
 
   env_project_pch(${PARSED_DEPS})
 
@@ -2208,14 +2071,14 @@ function(env_project_targets)
         PARENT_SCOPE)
   endif()
 
-  env_log(Using sources: \"${_sources}\".)
+  env_log("Using sources: \"${_sources}\".")
 
   env_project_objects(${_sources})
   env_project_static(${_sources})
   env_project_shared(${_sources})
 
   if(PARSED_SHARE_PCH)
-    env_log(Sharing precompiled headers.)
+    env_log("Sharing precompiled headers.")
     env_project_export(SOURCES ${_sources} SHARE_PCH)
   else()
     env_project_export(SOURCES ${_sources})
