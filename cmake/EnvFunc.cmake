@@ -2059,6 +2059,7 @@ function(env_project_doc)
 
       set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
       set(DOXYGEN_GENERATE_XML "YES")
+      set(DOXYGEN_GENERATE_HTML "YES")
       doxygen_add_docs(
         ${LOWER_PROJECT_NAME}_doxygen "${PROJECT_SOURCE_DIR}/include/"
         COMMENT "Generate Breathe xml sources for Sphinx with Doxygen.")
@@ -2118,6 +2119,7 @@ function(env_project_doc)
       env_log(Adding doc via doxygen.)
 
       set(DOXYGEN_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/.doc/doxygen/")
+      set(DOXYGEN_GENERATE_HTML "YES")
       doxygen_add_docs(
         ${LOWER_PROJECT_NAME}_doxygen "${PROJECT_SOURCE_DIR}/include/"
         COMMENT "Generate doc with doxygen.")

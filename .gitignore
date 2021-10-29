@@ -275,3 +275,9 @@ CmakeUserPresets.json
 
 *.swp
 *.*~
+
+
+# Other
+
+# FUSE
+.fuse*
