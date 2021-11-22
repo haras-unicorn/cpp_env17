@@ -518,6 +518,12 @@ set(ENV_IOS
 # Target configuration
 # -----------------------------------------------------------------------------
 
+# Detection -------------------------------------------------------------------
+
+function(env_add_detection _name)
+
+endfunction()
+
 # Sources ---------------------------------------------------------------------
 
 function(env_target_include _name)
